@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Country {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  flag      String?
+  code      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  states    State[]
+}
+
+model State {
+  id        String @id @default(uuid())
+  name      String
+  countryId String
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  active    Boolean @default(true)
+  districts District[]
+
+  @@unique([name, countryId])
+}
+
+model District {
+  id        String @id @default(uuid())
+  name      String
+  stateId   String
+
+  state State @relation(fields: [stateId], references: [id], onDelete: Cascade)
+
+  active Boolean @default(true)
+
+  destinations   Destination[]
+  mustVisitSpots MustVisitSpot[]
+  upcomingEvents UpcomingEvent[]
+
+  @@unique([name, stateId])
+}
+
+model Destination {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  districtId  String
+
+  district District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  description String?
+  category    String
+  rating      Float @default(4.0)
+
+  coverImage  String?
+  images      String[]
+
+  avgCost     String?
+  bestSeason  String?
+
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  activities     Activity[]
+  foodOptions    FoodOption[]
+  accommodation  Accommodation[]
+  travelOptions  TravelOption[]
+}
+
+model Activity {
+  id            String @id @default(uuid())
+  destinationId String
+
+  destination Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  name        String
+  icon        String?
+  description String?
+
+  duration    String?
+  price       Int
+  priceLabel  String?
+
+  difficulty  String?
+  imageUrl    String?
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model FoodOption {
+  id            String @id @default(uuid())
+  destinationId String
+
+  destination Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  name      String
+  icon      String?
+
+  mealType  String
+  price     Int
+  priceLabel String?
+
+  description String?
+
+  dietaryTags String[]
+
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model Accommodation {
+  id             String @id @default(uuid())
+  destinationId  String
+
+  destination Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  tier String
+
+  hotelNameInternal String?
+
+  vibeDescription String
+
+  stars Int
+  pricePerNight Int
+
+  includes String[]
+
+  imageUrl String?
+
+  isActive Boolean @default(true)
+}
+
+model TravelOption {
+  id            String @id @default(uuid())
+  destinationId String
+
+  destination Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  mode String
+  icon String?
+
+  description String?
+
+  estimatedCost String?
+  durationMins Int?
+}
+
+model MustVisitSpot {
+  id         String @id @default(uuid())
+  districtId String
+
+  district District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  icon        String?
+
+  isLocked Boolean @default(true)
+}
+
+model UpcomingEvent {
+  id         String @id @default(uuid())
+  districtId String
+
+  district District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  startDate DateTime
+  endDate   DateTime
+
+  bannerImage String?
+
+  location String?
+
+  isFeatured Boolean @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model Package {
+  id        String @id @default(uuid())
+
+  name      String
+  daysCount Int
+
+  totalPrice Int
+
+  highlights String[]
+
+  tag String?
+
+  coverImage String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model ItineraryRequest {
+  id          String @id @default(uuid())
+
+  userName  String
+  userEmail String
+
+  destination String
+  travelDates String
+
+  budget String
+  travelers Int
+
+  activities String[]
+
+  status String @default("new")
+
+  agentNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
