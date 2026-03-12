@@ -1,23 +1,90 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    Plus,
-    Edit2,
-    Trash2,
-    ChevronRight,
-    Globe,
-    Map,
-    MapPin,
-    Palmtree,
-    Search,
-    AlertTriangle
+    Plus, Edit2, Trash2, ChevronRight,
+    Globe, Map, MapPin, Palmtree, Search, X,
+    Image as ImageIcon
 } from 'lucide-react';
 import { useTreeStore } from '../../store/adminStore';
 import apiClient from '../../services/apiClient';
 
-const TreeNode = ({ node, depth, type, onSelect }) => {
+// --- Generic CRUD Modal ---
+const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
+    const isEdit = !!node?.id;
+    const [name, setName] = useState(node?.name || '');
+    const [saving, setSaving] = useState(false);
+
+    const getTitle = () => {
+        if (isEdit) return `Edit ${parentType}`;
+        const childMap = { root: 'Country', country: 'State', state: 'District', district: 'Destination' };
+        return `Add ${childMap[parentType] || 'Node'}`;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!name.trim()) { alert('Name is required.'); return; }
+        setSaving(true);
+        try {
+            if (isEdit) {
+                const typePathMap = {
+                    country: `/countries/${node.id}`,
+                    state: `/states/${node.id}`,
+                    district: `/districts/${node.id}`,
+                    destination: `/destinations/${node.id}`
+                };
+                await apiClient.patch(typePathMap[parentType], { name });
+            } else {
+                const createPathMap = {
+                    root: `/countries`,
+                    country: `/countries/${parentId}/states`,
+                    state: `/states/${parentId}/districts`,
+                    district: `/districts/${parentId}/destinations`,
+                };
+                await apiClient.post(createPathMap[parentType], { name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-') });
+            }
+            onSaved();
+            onClose();
+        } catch (err) {
+            alert(`Error: ${err.response?.data?.error || err.message}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 z-10">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-xl font-bold text-ink">{getTitle()}</h2>
+                        <p className="text-xs text-ink/40 font-bold uppercase tracking-widest">Location Hierarchy</p>
+                    </div>
+                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all"><X size={18} /></button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Name *</label>
+                        <input autoFocus value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Enter name..." />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
+                        <button type="submit" disabled={saving} className="flex-[2] btn-primary py-3 disabled:opacity-70">
+                            {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Add'}
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
+        </div>
+    );
+};
+
+// --- Tree Node ---
+const TreeNode = ({ node, depth, type, onSelect, onRefresh }) => {
     const { expandedIds, toggleExpand, selectedNode, setSelectedNode } = useTreeStore();
     const [isHovering, setIsHovering] = useState(false);
+    const [modal, setModal] = useState(null); // {mode:'add'|'edit', parentType, parentId, node?}
     const isExpanded = expandedIds.has(node.id);
     const isSelected = selectedNode?.id === node.id;
 
@@ -31,18 +98,26 @@ const TreeNode = ({ node, depth, type, onSelect }) => {
         }
     };
 
-    const getBorderColor = () => {
-        switch (type) {
-            case 'country': return 'border-red';
-            case 'state': return 'border-forest';
-            case 'district': return 'border-gold';
-            case 'destination': return 'border-ocean';
-            default: return 'border-ink/10';
-        }
-    };
-
+    const childType = { country: 'state', state: 'district', district: 'destination' }[type];
     const children = node.states || node.districts || node.destinations || [];
     const hasChildren = children.length > 0;
+
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        if (!window.confirm(`Delete "${node.name}"? This cannot be undone.`)) return;
+        try {
+            const pathMap = {
+                country: `/countries/${node.id}`,
+                state: `/states/${node.id}`,
+                district: `/districts/${node.id}`,
+                destination: `/destinations/${node.id}`
+            };
+            await apiClient.delete(pathMap[type]);
+            onRefresh();
+        } catch (err) {
+            alert(`Error: ${err.response?.data?.error || err.message}`);
+        }
+    };
 
     return (
         <div className="select-none">
@@ -51,51 +126,42 @@ const TreeNode = ({ node, depth, type, onSelect }) => {
                 onHoverEnd={() => setIsHovering(false)}
                 onClick={() => {
                     if (hasChildren) toggleExpand(node.id);
+                    setSelectedNode({ ...node, type });
                     onSelect(node, type);
                 }}
-                className={`
-          flex items-center gap-3 py-2 px-3 rounded-lg cursor-pointer transition-all relative group
-          ${isSelected ? 'bg-ink/5' : 'hover:bg-ink/5'}
-        `}
+                className={`flex items-center gap-3 py-2 px-3 rounded-lg cursor-pointer transition-all relative group ${isSelected ? 'bg-ink/5' : 'hover:bg-ink/5'}`}
                 style={{ marginLeft: `${depth * 20}px` }}
             >
-                <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 border-l-2 ${getBorderColor()} rounded-full opacity-0 group-hover:opacity-100 transition-opacity`} />
-
                 {hasChildren ? (
-                    <motion.div
-                        animate={{ rotate: isExpanded ? 90 : 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-ink/30"
-                    >
+                    <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }} className="text-ink/30">
                         <ChevronRight size={16} />
                     </motion.div>
-                ) : (
-                    <div className="w-4" />
-                )}
+                ) : <div className="w-4" />}
 
                 <div className="shrink-0">{getIcon()}</div>
-
-                <span className={`text-sm font-medium ${isSelected ? 'text-ink font-bold' : 'text-ink/70'}`}>
-                    {node.name}
-                </span>
+                <span className={`text-sm font-medium flex-1 truncate ${isSelected ? 'text-ink font-bold' : 'text-ink/70'}`}>{node.name}</span>
 
                 <AnimatePresence>
                     {isHovering && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            className="flex items-center gap-1 ml-auto"
-                            onClick={(e) => e.stopPropagation()}
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="flex items-center gap-0.5 ml-auto shrink-0" onClick={e => e.stopPropagation()}
                         >
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-red transition-all">
-                                <Plus size={14} />
+                            {childType && (
+                                <button onClick={e => { e.stopPropagation(); setModal({ mode: 'add', parentType: type, parentId: node.id }); }}
+                                    title={`Add ${childType}`}
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-forest transition-all">
+                                    <Plus size={13} />
+                                </button>
+                            )}
+                            <button onClick={e => { e.stopPropagation(); setModal({ mode: 'edit', parentType: type, node }); }}
+                                title="Edit"
+                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-ink transition-all">
+                                <Edit2 size={13} />
                             </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-ink transition-all">
-                                <Edit2 size={14} />
-                            </button>
-                            <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-red transition-all">
-                                <Trash2 size={14} />
+                            <button onClick={handleDelete}
+                                title="Delete"
+                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-ink/10 text-ink/40 hover:text-red transition-all">
+                                <Trash2 size={13} />
                             </button>
                         </motion.div>
                     )}
@@ -104,50 +170,60 @@ const TreeNode = ({ node, depth, type, onSelect }) => {
 
             <AnimatePresence>
                 {isExpanded && hasChildren && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                    >
-                        {children.map((child) => (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                        {children.map(child => (
                             <TreeNode
-                                key={child.id}
-                                node={child}
-                                depth={depth + 1}
-                                type={type === 'country' ? 'state' : type === 'state' ? 'district' : 'destination'}
+                                key={child.id} node={child} depth={depth + 1}
+                                type={childType}
                                 onSelect={onSelect}
+                                onRefresh={onRefresh}
                             />
                         ))}
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {modal && (
+                    <NodeForm
+                        node={modal.mode === 'edit' ? modal.node : null}
+                        parentType={modal.mode === 'edit' ? modal.parentType : modal.parentType}
+                        parentId={modal.parentId}
+                        onClose={() => setModal(null)}
+                        onSaved={onRefresh}
+                    />
                 )}
             </AnimatePresence>
         </div>
     );
 };
 
+// --- Main Manager ---
 const LocationTreeManager = () => {
     const { tree, setTree, selectedNode, setSelectedNode } = useTreeStore();
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [addCountryModal, setAddCountryModal] = useState(false);
 
-    useEffect(() => {
-        const fetchTree = async () => {
-            try {
-                const response = await apiClient.get('/tree');
-                setTree(response.data);
-            } catch (error) {
-                console.error('Failed to fetch tree:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchTree();
-    }, [setTree]);
-
-    const handleSelect = (node, type) => {
-        setSelectedNode({ ...node, type });
+    const fetchTree = async () => {
+        setLoading(true);
+        try {
+            const response = await apiClient.get('/tree');
+            setTree(response.data);
+        } catch (error) {
+            console.error('Failed to fetch tree:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(() => { fetchTree(); }, []);
+
+    const handleSelect = (node, type) => setSelectedNode({ ...node, type });
+
+    const filteredTree = search.trim()
+        ? tree.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+        : tree;
 
     return (
         <div className="h-[calc(100vh-160px)] flex gap-8">
@@ -157,7 +233,11 @@ const LocationTreeManager = () => {
                         <h1 className="text-4xl font-display font-bold text-ink">Hierarchy</h1>
                         <p className="text-xs text-ink/40 uppercase tracking-widest font-bold">Structure Manager</p>
                     </div>
-                    <button className="w-10 h-10 bg-red text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-red/20">
+                    <button
+                        onClick={() => setAddCountryModal(true)}
+                        className="w-10 h-10 bg-red text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-red/20"
+                        title="Add Country"
+                    >
                         <Plus size={20} />
                     </button>
                 </div>
@@ -165,10 +245,8 @@ const LocationTreeManager = () => {
                 <div className="relative group">
                     <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/30 group-focus-within:text-red transition-colors" />
                     <input
-                        type="text"
-                        placeholder="Search hierarchy..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        type="text" placeholder="Search hierarchy..."
+                        value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full pl-12 pr-4 py-3 bg-white border border-ink/5 rounded-2xl outline-none focus:ring-4 focus:ring-red/5 transition-all shadow-sm"
                     />
                 </div>
@@ -176,14 +254,22 @@ const LocationTreeManager = () => {
                 <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
                     {loading ? (
                         <div className="flex flex-col gap-2">
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className="h-10 bg-white/50 rounded-lg animate-pulse" />
-                            ))}
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-10 bg-white/50 rounded-lg animate-pulse" />)}
+                        </div>
+                    ) : filteredTree.length === 0 ? (
+                        <div className="py-16 text-center text-ink/30">
+                            <Globe size={40} className="mx-auto mb-3 opacity-20" />
+                            <p className="font-bold text-sm">No countries yet</p>
+                            <p className="text-xs mt-1">Click + to add your first country.</p>
                         </div>
                     ) : (
                         <div className="space-y-1">
-                            {tree.map(country => (
-                                <TreeNode key={country.id} node={country} depth={0} type="country" onSelect={handleSelect} />
+                            {filteredTree.map(country => (
+                                <TreeNode
+                                    key={country.id} node={country} depth={0} type="country"
+                                    onSelect={handleSelect}
+                                    onRefresh={fetchTree}
+                                />
                             ))}
                         </div>
                     )}
@@ -202,70 +288,67 @@ const LocationTreeManager = () => {
                         >
                             <div className="p-8 border-b border-ink/5">
                                 <div className="flex items-center gap-4 mb-4">
-                                    <div className="px-3 py-1 bg-ink/5 rounded text-[10px] font-bold uppercase tracking-widest text-ink/60">
-                                        {selectedNode.type}
-                                    </div>
+                                    <div className="px-3 py-1 bg-ink/5 rounded text-[10px] font-bold uppercase tracking-widest text-ink/60">{selectedNode.type}</div>
                                     <div className="ml-auto flex gap-2">
-                                        <button className="btn-primary flex items-center gap-2 text-sm px-4">
+                                        <button
+                                            onClick={() => setAddCountryModal(true)}
+                                            className="btn-primary flex items-center gap-2 text-sm px-4"
+                                        >
                                             <Edit2 size={14} /> Edit {selectedNode.type}
-                                        </button>
-                                        <button className="px-4 py-2 border border-red/20 text-red rounded-full font-bold text-sm hover:bg-red/5 transition-colors">
-                                            <Plus size={14} />
                                         </button>
                                     </div>
                                 </div>
                                 <h2 className="text-5xl font-display font-bold text-ink mb-2">{selectedNode.name}</h2>
                                 <div className="flex items-center gap-4 text-ink/40 text-sm font-medium">
-                                    <span className="flex items-center gap-1.5"><Clock size={14} /> Created 2 days ago</span>
-                                    <span>•</span>
-                                    <span>ID: {selectedNode.id.substring(0, 8)}...</span>
+                                    <span>ID: {selectedNode.id?.substring(0, 12)}...</span>
                                 </div>
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                                 {selectedNode.type === 'destination' ? (
-                                    <div className="space-y-8">
-                                        <div className="grid grid-cols-3 gap-6">
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-3 gap-4">
                                             <div className="p-4 bg-ink/5 rounded-2xl">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-1">Category</p>
                                                 <p className="font-bold text-lg">{selectedNode.category || 'N/A'}</p>
                                             </div>
                                             <div className="p-4 bg-ink/5 rounded-2xl">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-1">Rating</p>
-                                                <p className="font-bold text-lg">⭐ {selectedNode.rating || 4.5}</p>
+                                                <p className="font-bold text-lg">⭐ {selectedNode.rating || '—'}</p>
                                             </div>
                                             <div className="p-4 bg-ink/5 rounded-2xl">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-1">Status</p>
-                                                <p className="font-bold text-lg text-forest">● Active</p>
+                                                <p className={`font-bold text-lg ${selectedNode.active !== false ? 'text-forest' : 'text-red'}`}>
+                                                    ● {selectedNode.active !== false ? 'Active' : 'Draft'}
+                                                </p>
                                             </div>
                                         </div>
-
-                                        <div className="flex gap-1 border-b border-ink/5">
-                                            {['Overview', 'Activities', 'Food', 'Accommodation', 'Travel'].map(tab => (
-                                                <button key={tab} className="px-6 py-3 text-sm font-bold text-ink/40 hover:text-red transition-colors border-b-2 border-transparent hover:border-red">
-                                                    {tab}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        <div className="aspect-video bg-ink/5 rounded-3xl flex items-center justify-center border-2 border-dashed border-ink/10 relative group cursor-pointer hover:border-red/20 transition-all">
+                                        {selectedNode.description && (
+                                            <div className="p-5 bg-ink/5 rounded-2xl">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-2">Description</p>
+                                                <p className="text-sm font-medium text-ink/70 leading-relaxed">{selectedNode.description}</p>
+                                            </div>
+                                        )}
+                                        <div className="aspect-video bg-ink/5 rounded-3xl flex items-center justify-center border-2 border-dashed border-ink/10">
                                             {selectedNode.coverImage ? (
                                                 <img src={selectedNode.coverImage} className="w-full h-full object-cover rounded-3xl" alt="" />
                                             ) : (
                                                 <div className="text-center">
-                                                    <ImageIcon className="mx-auto mb-2 text-ink/20" size={48} />
-                                                    <p className="text-sm font-bold text-ink/30">Click to upload cover image</p>
+                                                    <ImageIcon className="mx-auto mb-2 text-ink/20" size={40} />
+                                                    <p className="text-sm font-bold text-ink/20">No cover image</p>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-center max-w-sm mx-auto">
+                                    <div className="flex flex-col items-center justify-center h-full text-center max-w-xs mx-auto">
                                         <div className="w-20 h-20 bg-ink/5 rounded-full flex items-center justify-center mb-6">
                                             <MapPin size={40} className="text-ink/20" />
                                         </div>
-                                        <h3 className="text-xl font-bold mb-2">Select a Destination</h3>
-                                        <p className="text-sm text-ink/40 font-medium">To manage activities, food options, and accommodation, please select a specific destination from the hierarchy.</p>
+                                        <h3 className="text-xl font-bold mb-2">{selectedNode.name}</h3>
+                                        <p className="text-sm text-ink/40 font-medium">
+                                            Hover over any node in the tree and click + to add children, ✏️ to edit, or 🗑️ to delete.
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -276,11 +359,23 @@ const LocationTreeManager = () => {
                                 <Map size={48} />
                             </div>
                             <h2 className="text-3xl font-display font-bold mb-2">No Node Selected</h2>
-                            <p className="max-w-xs font-medium text-ink/40">Select a country, state, or district to begin managing its structure and content.</p>
+                            <p className="max-w-xs font-medium text-ink/40">Select a node from the tree, or click + to add a country.</p>
                         </div>
                     )}
                 </AnimatePresence>
             </div>
+
+            <AnimatePresence>
+                {addCountryModal && (
+                    <NodeForm
+                        node={null}
+                        parentType="root"
+                        parentId={null}
+                        onClose={() => setAddCountryModal(false)}
+                        onSaved={fetchTree}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

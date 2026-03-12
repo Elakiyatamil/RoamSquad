@@ -40,6 +40,24 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
+// Dashboard Stats (Admin only)
+const { verifyJWT, isAdmin } = require('./middleware/auth');
+app.get('/api/stats', verifyJWT, isAdmin, async (req, res) => {
+    try {
+        const prisma = require('./utils/prisma');
+        const [countries, destinations, activities, pendingRequests, confirmedRequests] = await Promise.all([
+            prisma.country.count(),
+            prisma.destination.count(),
+            prisma.activity.count(),
+            prisma.itineraryRequest.count({ where: { status: 'New Inquiry' } }),
+            prisma.itineraryRequest.count({ where: { status: 'Journey Confirmed' } }),
+        ]);
+        res.json({ countries, destinations, activities, pendingRequests, confirmedRequests });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('SERVER_ERROR:', err);

@@ -1,19 +1,112 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Hotel,
-    Star,
-    IndianRupee,
-    Plus,
-    EyeOff,
-    ChevronDown
+    Hotel, Star, IndianRupee, Plus, EyeOff, ChevronDown, X, Trash2, Edit2
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
-const AccommodationCard = ({ type, data, onEdit }) => {
+const TIERS = ['Budget', 'Mid-Range', 'Luxury'];
+
+// --- Accommodation Form Modal ---
+const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
+    const queryClient = useQueryClient();
+    const [form, setForm] = useState(accommodation || {
+        tier: 'Budget',
+        stars: 3,
+        pricePerNight: '',
+        vibeDescription: '',
+        internalHotelName: '',
+        includes: '',
+        isActive: true,
+    });
+
+    const mutation = useMutation({
+        mutationFn: async (data) => {
+            if (accommodation?.id) return await apiClient.patch(`/accommodation/${accommodation.id}`, data);
+            return await apiClient.post(`/destinations/${destinationId}/accommodation`, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['accommodation', destinationId]);
+            onClose();
+        },
+        onError: (err) => alert(`Error: ${err.response?.data?.error || err.message}`)
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!form.pricePerNight) { alert('Price per night is required.'); return; }
+        const includesArray = form.includes
+            ? (typeof form.includes === 'string' ? form.includes.split(',').map(s => s.trim()).filter(Boolean) : form.includes)
+            : [];
+        mutation.mutate({
+            ...form,
+            stars: parseInt(form.stars) || 3,
+            pricePerNight: parseFloat(form.pricePerNight) || 0,
+            includes: includesArray
+        });
+    };
+
+    const includesStr = Array.isArray(form.includes) ? form.includes.join(', ') : form.includes;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-ink">{accommodation ? 'Edit' : 'Configure'} Stay Tier</h2>
+                        <p className="text-xs text-ink/40 font-bold uppercase tracking-widest">Accommodation Details</p>
+                    </div>
+                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all"><X size={18} /></button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Tier *</label>
+                            <select value={form.tier} onChange={e => setForm({ ...form, tier: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" disabled={!!accommodation}>
+                                {TIERS.map(t => <option key={t}>{t}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stars</label>
+                            <select value={form.stars} onChange={e => setForm({ ...form, stars: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium">
+                                {[1, 2, 3, 4, 5].map(s => <option key={s} value={s}>{s} Stars</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price per Night (₹) *</label>
+                        <input type="number" value={form.pricePerNight} onChange={e => setForm({ ...form, pricePerNight: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="3500" />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Vibe Description</label>
+                        <textarea rows={2} value={form.vibeDescription} onChange={e => setForm({ ...form, vibeDescription: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="Cozy eco-friendly stays surrounded by nature..." />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Includes (comma-separated)</label>
+                        <input value={includesStr} onChange={e => setForm({ ...form, includes: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="WiFi, Breakfast, Parking" />
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Internal Hotel Name (Private)</label>
+                        <input value={form.internalHotelName} onChange={e => setForm({ ...form, internalHotelName: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
+                        <button type="submit" disabled={mutation.isPending} className="flex-[2] btn-primary py-3 disabled:opacity-70">
+                            {mutation.isPending ? 'Saving...' : accommodation ? 'Save Changes' : 'Configure Tier'}
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
+        </div>
+    );
+};
+
+// --- Accommodation Card ---
+const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
     const getIconColor = () => {
-        switch (type.toLowerCase()) {
+        switch (tier.toLowerCase()) {
             case 'luxury': return 'text-gold';
             case 'mid-range': return 'text-ocean';
             default: return 'text-forest';
@@ -21,109 +114,145 @@ const AccommodationCard = ({ type, data, onEdit }) => {
     };
 
     return (
-        <motion.div
-            whileHover={{ y: -4 }}
-            className="card p-8 group relative overflow-hidden"
-        >
-            <div className={`absolute top-0 right-0 w-32 h-32 ${getIconColor()} opacity-[0.03] -mr-8 -mt-8`}>
-                <Hotel size={128} />
-            </div>
+        <motion.div whileHover={{ y: -4 }} className="card p-8 group relative overflow-hidden">
+            <div className={`absolute top-0 right-0 w-32 h-32 ${getIconColor()} opacity-[0.03] -mr-8 -mt-8`}><Hotel size={128} /></div>
 
             <div className="flex justify-between items-start mb-6">
-                <div className={`px-4 py-1.5 rounded-lg bg-ink/5 text-[10px] font-bold uppercase tracking-widest text-ink/60 border border-ink/5`}>
-                    {type}
-                </div>
-                <div className="flex text-gold">
-                    {[...Array(data?.stars || 3)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                <div className="px-4 py-1.5 rounded-lg bg-ink/5 text-[10px] font-bold uppercase tracking-widest text-ink/60 border border-ink/5">{tier}</div>
+                <div className="flex items-center gap-2">
+                    <div className="flex text-gold">
+                        {[...Array(record?.stars || 3)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                    </div>
+                    {record && (
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => onEdit(record)} className="text-ink/30 hover:text-ink p-1"><Edit2 size={14} /></button>
+                            <button onClick={() => onDelete(record.id)} className="text-ink/30 hover:text-red p-1"><Trash2 size={14} /></button>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <h3 className="text-3xl font-display font-bold text-ink mb-4">{data?.price ? `₹${data.price}` : 'Not Configured'}</h3>
+            <h3 className="text-3xl font-display font-bold text-ink mb-4">
+                {record?.pricePerNight ? `₹${record.pricePerNight}` : 'Not Configured'}
+            </h3>
             <p className="text-sm text-ink/60 font-medium mb-6 line-clamp-3">
-                {data?.description || 'No description provided for this tier.'}
+                {record?.vibeDescription || 'No description provided for this tier.'}
             </p>
 
             <div className="space-y-4 mb-8">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Includes</p>
                 <div className="flex flex-wrap gap-2">
-                    {(data?.includes || ['WiFi', 'Breakfast', 'Parking']).map((item, i) => (
-                        <span key={i} className="px-3 py-1 bg-ink/5 rounded-full text-[10px] font-bold text-ink/60">{item}</span>
-                    ))}
+                    {(record?.includes || []).length > 0
+                        ? record.includes.map((item, i) => (
+                            <span key={i} className="px-3 py-1 bg-ink/5 rounded-full text-[10px] font-bold text-ink/60">{item}</span>
+                        ))
+                        : <span className="text-[10px] text-ink/20 font-bold italic">None configured</span>
+                    }
                 </div>
             </div>
 
             <div className="pt-6 border-t border-ink/5">
-                <div className="flex items-center gap-2 text-red/40 mb-4">
-                    <EyeOff size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Private: {data?.internalHotelName || 'Not Set'}</span>
-                </div>
-                <button onClick={onEdit} className="w-full py-3 bg-ink/5 hover:bg-ink/10 rounded-xl font-bold text-sm transition-all">Configure Tier</button>
+                {record && (
+                    <div className="flex items-center gap-2 text-red/40 mb-4">
+                        <EyeOff size={14} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Private: {record.internalHotelName || 'Not Set'}</span>
+                    </div>
+                )}
+                <button onClick={() => onEdit(record || { tier })} className="w-full py-3 bg-ink/5 hover:bg-ink/10 rounded-xl font-bold text-sm transition-all">
+                    {record ? 'Edit Tier' : 'Configure Tier'}
+                </button>
             </div>
         </motion.div>
     );
 };
 
+// --- Main Manager ---
 const AccommodationManager = () => {
     const queryClient = useQueryClient();
     const [selectedDestId, setSelectedDestId] = useState('');
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
 
-    const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery({
+    const { data: destinations = [] } = useQuery({
         queryKey: ['destinations', 'all'],
         queryFn: async () => {
-            const response = await apiClient.get('/destinations?limit=100');
-            const dests = response.data.data;
-            if (dests.length > 0 && !selectedDestId) {
-                setSelectedDestId(dests[0].id);
-            }
+            const res = await apiClient.get('/destinations?limit=100');
+            const dests = res.data.data || [];
+            if (dests.length > 0 && !selectedDestId) setSelectedDestId(dests[0].id);
             return dests;
         }
     });
 
-    const { data: accommodations = {}, isLoading: isLoadingAcc } = useQuery({
+    const { data: accommodations = [], isLoading } = useQuery({
         queryKey: ['accommodation', selectedDestId],
         queryFn: async () => {
-            const response = await apiClient.get(`/destinations/${selectedDestId}/accommodation`);
-            return response.data;
+            const res = await apiClient.get(`/destinations/${selectedDestId}/accommodation`);
+            return res.data; // Array of accommodation records
         },
         enabled: !!selectedDestId
     });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id) => await apiClient.delete(`/accommodation/${id}`),
+        onSuccess: () => queryClient.invalidateQueries(['accommodation', selectedDestId])
+    });
+
+    const handleDelete = (id) => { if (window.confirm('Delete this accommodation tier?')) deleteMutation.mutate(id); };
+    const openEdit = (record) => { setEditingRecord(record); setIsFormOpen(true); };
+
+    // Map tiers to records
+    const tierMap = {};
+    accommodations.forEach(a => { tierMap[a.tier] = a; });
 
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-5xl font-display font-bold text-ink mb-2">Stays & Tiers</h1>
+                    <h1 className="text-5xl font-display font-bold text-ink mb-2">Stays &amp; Tiers</h1>
                     <p className="text-ink/60 font-medium">Manage accommodation packages for each destination.</p>
                 </div>
             </div>
 
-            <div className="flex gap-4 items-center">
-                <div className="relative group min-w-[300px]">
-                    <label className="absolute -top-2 left-4 px-1 bg-cream text-[10px] font-bold uppercase tracking-widest text-ink/40 z-10">Select Destination</label>
-                    <select
-                        value={selectedDestId}
-                        onChange={(e) => setSelectedDestId(e.target.value)}
-                        className="w-full pl-4 pr-10 py-3 bg-white border border-ink/5 rounded-2xl outline-none focus:ring-4 focus:ring-red/5 appearance-none font-bold text-ink shadow-sm"
-                    >
-                        {destinations.map(d => (
-                            <option key={d.id} value={d.id}>{d.name}</option>
-                        ))}
-                    </select>
-                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/30 pointer-events-none" />
-                </div>
+            <div className="relative group min-w-[300px] max-w-sm">
+                <label className="absolute -top-2 left-4 px-1 bg-cream text-[10px] font-bold uppercase tracking-widest text-ink/40 z-10">Select Destination</label>
+                <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} className="w-full pl-4 pr-10 py-3 bg-white border border-ink/5 rounded-2xl outline-none focus:ring-4 focus:ring-red/5 appearance-none font-bold text-ink shadow-sm">
+                    {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/30 pointer-events-none" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {isLoadingAcc ? (
-                    [1, 2, 3].map(i => <div key={i} className="card h-96 animate-pulse" />)
-                ) : (
-                    <>
-                        <AccommodationCard type="Budget" data={accommodations.budget} />
-                        <AccommodationCard type="Mid-Range" data={accommodations.midRange} />
-                        <AccommodationCard type="Luxury" data={accommodations.luxury} />
-                    </>
+            {!selectedDestId ? (
+                <div className="py-24 text-center text-ink/30">
+                    <p className="font-bold text-lg">No destinations yet</p>
+                    <p className="text-sm mt-1">Create a destination first to configure accommodation.</p>
+                </div>
+            ) : isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[1, 2, 3].map(i => <div key={i} className="card h-96 animate-pulse" />)}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {TIERS.map(tier => (
+                        <AccommodationCard
+                            key={tier}
+                            tier={tier}
+                            record={tierMap[tier] || null}
+                            onEdit={openEdit}
+                            onDelete={handleDelete}
+                        />
+                    ))}
+                </div>
+            )}
+
+            <AnimatePresence>
+                {isFormOpen && (
+                    <AccommodationForm
+                        accommodation={editingRecord?.id ? editingRecord : null}
+                        destinationId={selectedDestId}
+                        onClose={() => { setIsFormOpen(false); setEditingRecord(null); }}
+                    />
                 )}
-            </div>
+            </AnimatePresence>
         </div>
     );
 };
