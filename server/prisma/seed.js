@@ -1,12 +1,14 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+require('dotenv').config();
+const prisma = require('../utils/prisma');
+const bcrypt = require('bcrypt');
 
 async function main() {
-    // Clear existing data
+    console.log('1. Clearing database...');
+    // Clear in order (children first)
     await prisma.itineraryRequest.deleteMany();
-    await prisma.seasonalOffer.deleteMany();
-    await prisma.specialPackage.deleteMany();
+    await prisma.package.deleteMany();
     await prisma.mustVisitSpot.deleteMany();
+    await prisma.upcomingEvent.deleteMany();
     await prisma.travelOption.deleteMany();
     await prisma.accommodation.deleteMany();
     await prisma.foodOption.deleteMany();
@@ -15,97 +17,204 @@ async function main() {
     await prisma.district.deleteMany();
     await prisma.state.deleteMany();
     await prisma.country.deleteMany();
+    await prisma.user.deleteMany();
 
-    // 1. Create Country
+    console.log('2. Creating country...');
     const india = await prisma.country.create({
         data: { name: 'India' }
     });
 
-    // 2. Create States
-    const kerala = await prisma.state.create({
-        data: { name: 'Kerala', countryId: india.id }
-    });
+    console.log('3. Creating states...');
+    const states = await Promise.all([
+        prisma.state.create({ data: { name: 'Kerala', countryId: india.id } }),
+        prisma.state.create({ data: { name: 'Karnataka', countryId: india.id } })
+    ]);
+    const [kerala, karnataka] = states;
 
-    const karnataka = await prisma.state.create({
-        data: { name: 'Karnataka', countryId: india.id }
-    });
+    console.log('4. Creating districts...');
+    const klDistrictNames = ['Idukki', 'Wayanad', 'Kozhikode', 'Kasaragod', 'Ernakulam', 'Thrissur', 'Palakkad'];
+    const kaDistrictNames = ['Mysuru', 'Kodagu', 'Uttara Kannada', 'Dharwad', 'Shimoga', 'Udupi'];
 
-    // 3. Create Districts for Kerala
-    const idukki = await prisma.district.create({
-        data: { name: 'Idukki', stateId: kerala.id }
-    });
+    const districtsMap = {};
 
-    const pathanamthitta = await prisma.district.create({
-        data: { name: 'Pathanamthitta', stateId: kerala.id }
-    });
+    const [klDistricts, kaDistricts] = await Promise.all([
+        Promise.all(klDistrictNames.map(name => prisma.district.create({ data: { name, stateId: kerala.id } }))),
+        Promise.all(kaDistrictNames.map(name => prisma.district.create({ data: { name, stateId: karnataka.id } })))
+    ]);
 
-    // 4. Create Destination: Munnar (Idukki, Kerala)
+    klDistricts.forEach(d => districtsMap[d.name] = d);
+    kaDistricts.forEach(d => districtsMap[d.name] = d);
+
+    console.log('5. Creating destinations...');
     const munnar = await prisma.destination.create({
         data: {
             name: 'Munnar',
-            districtId: idukki.id,
-            activities: {
-                create: [
-                    { name: 'Tea Plantation Walk', price: 450, duration: '2 Hours', difficulty: 'Easy' },
-                    { name: 'Anamudi Peak Trek', price: 1200, duration: '6 Hours', difficulty: 'Hard' }
-                ]
-            },
-            foodOptions: {
-                create: [
-                    { mealType: 'breakfast', name: 'Appam & Stew', price: 150, dietaryTags: ['Vegetarian'] },
-                    { mealType: 'lunch', name: 'Kerala Sadhya', price: 350, dietaryTags: ['Vegetarian', 'Traditional'] }
-                ]
-            },
-            accommodations: {
-                create: [
-                    { tier: 'luxury', vibeDescription: 'Misty peak views with private plunge pool', pricePerNight: 12000 },
-                    { tier: 'mid_range', vibeDescription: 'Cozy cottage amidst tea gardens', pricePerNight: 4500 }
-                ]
-            }
+            slug: 'munnar',
+            category: 'inside_india',
+            rating: 4.8,
+            districtId: districtsMap['Idukki'].id,
+            description: 'The tea capital of Kerala.'
         }
     });
 
-    // 5. Create Destination: Gavi (Pathanamthitta, Kerala)
-    const gavi = await prisma.destination.create({
+    const coorg = await prisma.destination.create({
         data: {
-            name: 'Gavi',
-            districtId: pathanamthitta.id,
-            activities: {
-                create: [
-                    { name: 'Jungle Safari', price: 1500, duration: '4 Hours', difficulty: 'Medium' }
-                ]
-            }
+            name: 'Coorg',
+            slug: 'coorg',
+            category: 'inside_india',
+            rating: 4.7,
+            districtId: districtsMap['Kodagu'].id,
+            description: 'The Scotland of India.'
         }
     });
 
-    // 6. Create District for Karnataka
-    const kodagu = await prisma.district.create({
-        data: { name: 'Kodagu (Coorg)', stateId: karnataka.id }
-    });
-
-    // 7. Create Destination: Madikeri (Kodagu, Karnataka)
-    const madikeri = await prisma.destination.create({
+    const gokarna = await prisma.destination.create({
         data: {
-            name: 'Madikeri',
-            districtId: kodagu.id,
-            activities: {
-                create: [
-                    { name: 'Coffee Plantation Tour', price: 500, duration: '3 Hours', difficulty: 'Easy' }
-                ]
-            }
+            name: 'Gokarna',
+            slug: 'gokarna',
+            category: 'inside_india',
+            rating: 4.5,
+            districtId: districtsMap['Uttara Kannada'].id,
+            description: 'Temple town with pristine beaches.'
         }
     });
 
-    // 8. Create some Itinerary Requests
-    await prisma.itineraryRequest.createMany({
+    const mysorePalace = await prisma.destination.create({
+        data: {
+            name: 'Mysore Palace',
+            slug: 'mysore-palace',
+            category: 'inside_india',
+            rating: 4.9,
+            districtId: districtsMap['Mysuru'].id,
+            description: 'Historical royal residence.'
+        }
+    });
+
+    console.log('6. Creating activities...');
+    const activities = [
+        { destinationId: munnar.id, name: 'Tea Garden Trek', icon: '🍵', price: 600, duration: '3h', difficulty: 'Easy' },
+        { destinationId: munnar.id, name: 'Eravikulam Safari', icon: '🦌', price: 1200, duration: '4h', difficulty: 'Moderate' },
+        { destinationId: coorg.id, name: 'Coffee Plantation Tour', icon: '☕', price: 500, duration: '2h', difficulty: 'Easy' },
+        { destinationId: gokarna.id, name: 'Beach Trek', icon: '🏖️', price: 800, duration: '3h', difficulty: 'Moderate' }
+    ];
+    for (const act of activities) {
+        await prisma.activity.create({ data: act });
+    }
+
+    console.log('7. Creating food options...');
+    const foodItems = [
+        { destinationId: munnar.id, mealType: 'breakfast', name: 'Appam & Egg Roast', icon: '🍳', price: 120, dietaryTags: ['non_veg'] },
+        { destinationId: munnar.id, mealType: 'lunch', name: 'Banana Leaf Meal', icon: '🍱', price: 250, dietaryTags: ['veg'] },
+        { destinationId: coorg.id, mealType: 'dinner', name: 'Pandi Curry', icon: '🥘', price: 400, dietaryTags: ['non_veg'] },
+        { destinationId: gokarna.id, mealType: 'breakfast', name: 'Tatty Idli', icon: '⚪', price: 80, dietaryTags: ['veg'] }
+    ];
+    for (const item of foodItems) {
+        await prisma.foodOption.create({ data: item });
+    }
+
+    console.log('8. Creating accommodation...');
+    const rooms = [
+        { destinationId: munnar.id, tier: 'luxury', hotelNameInternal: 'Blanket Hotel', vibeDescription: 'Foggy tea garden views', stars: 5, pricePerNight: 12000, includes: ['High Tea', 'Infinity Pool'] },
+        { destinationId: coorg.id, tier: 'mid_range', hotelNameInternal: 'Coorg Cliffs', vibeDescription: 'Mist-covered valleys', stars: 4, pricePerNight: 8000, includes: ['Estate Walk'] }
+    ];
+    for (const room of rooms) {
+        await prisma.accommodation.create({ data: room });
+    }
+
+    console.log('9. Creating travel options...');
+    await prisma.travelOption.create({
+        data: {
+            destinationId: munnar.id,
+            mode: 'private_car',
+            icon: '🚘',
+            description: 'Direct pickup from Kochi',
+            estimatedCost: '₹4,500',
+            durationMins: 240
+        }
+    });
+
+    console.log('10. Creating must visit spots...');
+    await prisma.mustVisitSpot.createMany({
         data: [
-            { userName: 'Arjun Mehta', userEmail: 'arjun@example.com', destination: 'Munnar', status: 'PENDING' },
-            { userName: 'Sarah Khan', userEmail: 'sarah@example.com', destination: 'Munnar', status: 'PENDING' },
-            { userName: 'Rohan Sharma', userEmail: 'rohan@example.com', destination: 'Gavi', status: 'REVIEWING' }
+            { name: 'Kolukkumalai Peak', districtId: districtsMap['Idukki'].id },
+            { name: 'Meesapulimala', districtId: districtsMap['Idukki'].id },
+            { name: 'Edakkal Caves', districtId: districtsMap['Wayanad'].id },
+            { name: 'Kappad Beach', districtId: districtsMap['Kozhikode'].id },
+            { name: 'Abbey Falls', districtId: districtsMap['Kodagu'].id },
+            { name: 'Chamundi Hills', districtId: districtsMap['Mysuru'].id }
         ]
     });
 
-    console.log('Database seeded successfully!');
+    console.log('11. Creating upcoming events...');
+    await prisma.upcomingEvent.createMany({
+        data: [
+            {
+                name: 'Munnar Tea Festival',
+                description: 'Annual tea culture festival',
+                startDate: new Date('2026-02-10'),
+                endDate: new Date('2026-02-12'),
+                districtId: districtsMap['Idukki'].id
+            },
+            {
+                name: 'Kodagu Coffee Harvest',
+                description: 'Celebrating the season of coffee',
+                startDate: new Date('2026-03-20'),
+                endDate: new Date('2026-03-25'),
+                districtId: districtsMap['Kodagu'].id
+            },
+            {
+                name: 'Thrissur Pooram',
+                description: 'Festival of elephants and umbrellas',
+                startDate: new Date('2026-04-15'),
+                endDate: new Date('2026-04-16'),
+                districtId: districtsMap['Thrissur'].id
+            },
+            {
+                name: 'Kochi Biennale',
+                description: 'International contemporary art exhibition',
+                startDate: new Date('2026-12-12'),
+                endDate: new Date('2027-04-10'),
+                districtId: districtsMap['Ernakulam'].id
+            }
+        ]
+    });
+
+    console.log('12. Creating packages...');
+    await prisma.package.create({
+        data: {
+            name: 'Grand South India Tour',
+            daysCount: 10,
+            totalPrice: 45000,
+            highlights: ['Luxury Stays', 'Private SUV', 'Beach Dinner'],
+            coverImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1000'
+        }
+    });
+
+    console.log('13. Creating itinerary requests...');
+    await prisma.itineraryRequest.create({
+        data: {
+            userName: 'John Doe',
+            userEmail: 'john@example.com',
+            destination: 'Kerala & Karnataka',
+            travelDates: 'Dec 2024',
+            budget: '₹80,000',
+            travelers: 2,
+            status: 'new'
+        }
+    });
+
+    console.log('14. Creating admin user...');
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    await prisma.user.create({
+        data: {
+            email: 'admin@roamsquad.com',
+            name: 'Roam Squad Admin',
+            password: hashedPassword,
+            role: 'ADMIN'
+        }
+    });
+
+    console.log('Database seeded successfully.');
 }
 
 main()
