@@ -7,25 +7,16 @@ export default {
     theme: {
         extend: {
             colors: {
-                red: {
-                    DEFAULT: '#C8391A',
-                },
-                gold: {
-                    DEFAULT: '#C4973A',
-                },
-                ink: {
-                    DEFAULT: '#1C1410',
-                },
-                cream: {
-                    DEFAULT: '#FAF6EF',
-                },
-                forest: {
-                    DEFAULT: '#2A4A38',
-                },
+                red: "#C8391A",
+                gold: "#C4973A",
+                ink: "#1C1410",
+                cream: "#FAF6EF",
+                forest: "#2A4A38",
+                ocean: "#2E6F95",
             },
             fontFamily: {
-                display: ['"Cormorant Garamond"', 'serif'],
-                sans: ['"DM Sans"', 'sans-serif'],
+                display: ["Cormorant Garamond", "serif"],
+                sans: ["DM Sans", "sans-serif"],
             },
         },
     },

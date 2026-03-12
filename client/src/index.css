@@ -10,35 +10,54 @@
   --color-ink: #1C1410;
   --color-cream: #FAF6EF;
   --color-forest: #2A4A38;
+  --color-ocean: #2E6F95;
 }
 
-body {
-  @apply bg-cream text-ink font-sans;
-  cursor: none;
+@layer base {
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  @apply font-display;
+@layer components {
+  .btn-primary {
+    @apply bg-red text-white px-6 py-2 rounded-full font-bold hover:bg-red/90 transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-ink/10 rounded-full;
+  }
 }
 
-/* Custom Cursor Styles */
-.custom-cursor-dot {
-  width: 10px;
-  height: 10px;
-  background-color: var(--color-red);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
+/* Animations Helper */
+.slide-up {
+  @apply opacity-0 translate-y-6;
+  animation: slideUp 0.35s ease-out forwards;
 }
 
-.custom-cursor-ring {
-  width: 32px;
-  height: 32px;
-  border: 2px solid var(--color-red);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9998;
-  transition: transform 0.08s linear;
+@keyframes slideUp {
+  to {
+    @apply opacity-100 translate-y-0;
+  }
 }
