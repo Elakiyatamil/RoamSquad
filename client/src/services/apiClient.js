@@ -8,9 +8,17 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    try {
+        const authDataStr = localStorage.getItem('roamsquad-auth');
+        if (authDataStr) {
+            const authData = JSON.parse(authDataStr);
+            const token = authData?.state?.token;
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to parse auth token', e);
     }
     return config;
 });
