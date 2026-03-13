@@ -12,6 +12,7 @@ const requestRoutes = require('./routes/requests');
 const uploadRoutes = require('./routes/upload');
 const authRoutes = require('./routes/auth');
 const experienceController = require('./controllers/experienceController');
+const { getAuditLogs } = require('./controllers/auditController');
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +35,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
+app.get('/api/audit-logs', verifyJWT, isAdmin, getAuditLogs);
 
 // Basic Health Check
 app.get('/health', (req, res) => {

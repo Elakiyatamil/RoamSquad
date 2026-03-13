@@ -13,6 +13,7 @@ import AccommodationManager from './pages/admin/AccommodationManager';
 import PackagesManager from './pages/admin/PackagesManager';
 import RequestManager from './pages/admin/RequestManager';
 import LoginPage from './pages/auth/LoginPage';
+import ActivityLog from './pages/admin/ActivityLog';
 
 // Initialize React Query client
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ function App() {
             <Route path="accommodation" element={<AccommodationManager />} />
             <Route path="packages" element={<PackagesManager />} />
             <Route path="requests" element={<RequestManager />} />
+            <Route path="activity-log" element={<ActivityLog />} />
           </Route>
 
           {/* Fallback routes */}

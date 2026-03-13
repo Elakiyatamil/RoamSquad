@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { logAction } = require('../utils/auditLog');
 
 // Activities
 const getActivities = async (req, res) => {
@@ -18,6 +19,7 @@ const createActivity = async (req, res) => {
         const activity = await prisma.activity.create({
             data: { ...req.body, destinationId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'Activity', activity.id, activity.name);
         res.json(activity);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -38,7 +40,9 @@ const updateActivity = async (req, res) => {
 
 const deleteActivity = async (req, res) => {
     try {
+        const activity = await prisma.activity.findUnique({ where: { id: req.params.id } });
         await prisma.activity.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'Activity', req.params.id, activity?.name);
         res.json({ message: 'Activity deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -146,6 +150,7 @@ const createAccommodation = async (req, res) => {
         const acc = await prisma.accommodation.create({
             data: { ...req.body, destinationId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'Accommodation', acc.id, `${acc.tier} tier`);
         res.json(acc);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -166,7 +171,9 @@ const updateAccommodation = async (req, res) => {
 
 const deleteAccommodation = async (req, res) => {
     try {
+        const acc = await prisma.accommodation.findUnique({ where: { id: req.params.id } });
         await prisma.accommodation.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'Accommodation', req.params.id, acc?.tier);
         res.json({ message: 'Accommodation deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

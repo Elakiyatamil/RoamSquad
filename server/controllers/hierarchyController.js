@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { logAction } = require('../utils/auditLog');
 
 const getTree = async (req, res) => {
     try {
@@ -37,6 +38,7 @@ const createCountry = async (req, res) => {
         const country = await prisma.country.create({ 
             data: { name, active, flag, code } 
         });
+        await logAction(req.user, 'CREATE', 'Country', country.id, country.name);
         res.json(country);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -49,6 +51,7 @@ const updateCountry = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'Country', country.id, country.name);
         res.json(country);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -57,7 +60,9 @@ const updateCountry = async (req, res) => {
 
 const deleteCountry = async (req, res) => {
     try {
+        const country = await prisma.country.findUnique({ where: { id: req.params.id } });
         await prisma.country.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'Country', req.params.id, country?.name);
         res.json({ message: 'Country deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

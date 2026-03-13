@@ -173,4 +173,18 @@ model User {
   name      String?
   role      String   @default("USER")
   createdAt DateTime @default(now())
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  userName   String
+  action     String   // CREATE, UPDATE, DELETE
+  entity     String   // Destination, Activity, etc.
+  entityId   String?
+  entityName String?
+  details    String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

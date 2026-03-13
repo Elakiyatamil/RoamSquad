@@ -12,12 +12,16 @@ import {
     Image as ImageIcon,
     ChevronLeft,
     ChevronRight,
-    LayoutDashboard
+    LayoutDashboard,
+    ShieldCheck
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import useAuthStore from '../store/authStore';
 
 const Sidebar = () => {
     const { isOpen, toggle } = useSidebarStore();
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
 
     const menuItems = [
         { title: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -28,6 +32,7 @@ const Sidebar = () => {
         { title: 'Accommodation', icon: Hotel, path: '/admin/accommodation' },
         { title: 'Packages', icon: Package, path: '/admin/packages' },
         { title: 'Requests', icon: ClipboardList, path: '/admin/requests' },
+        { title: 'Activity Log', icon: ShieldCheck, path: '/admin/activity-log' },
     ];
 
     return (
