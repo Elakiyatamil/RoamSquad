@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Hotel, Star, IndianRupee, Plus, EyeOff, ChevronDown, X, Trash2, Edit2
+    Hotel, Star, IndianRupee, Plus, EyeOff, ChevronDown, X, Trash2, Edit2, Upload
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
@@ -18,6 +18,7 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
         vibeDescription: '',
         hotelNameInternal: '',
         includes: '',
+        imageUrl: '',
         isActive: true,
     });
 
@@ -90,6 +91,47 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Internal Hotel Name (Private)</label>
                         <input value={form.hotelNameInternal} onChange={e => setForm({ ...form, hotelNameInternal: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Property Image</label>
+                        {form.imageUrl ? (
+                            <div className="relative group rounded-2xl overflow-hidden aspect-video">
+                                <img src={form.imageUrl} alt="property" className="w-full h-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, imageUrl: '' })}
+                                    className="absolute top-2 right-2 w-8 h-8 bg-ink/70 hover:bg-red rounded-xl flex items-center justify-center text-white transition-colors"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={async (e) => {
+                                        const file = e.target.files[0];
+                                        if (!file) return;
+                                        const uploadData = new FormData();
+                                        uploadData.append('image', file);
+                                        try {
+                                            const res = await apiClient.post('/upload/single', uploadData, {
+                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                            });
+                                            setForm(prev => ({ ...prev, imageUrl: res.data.url }));
+                                        } catch (err) {
+                                            alert('Failed to upload image.');
+                                        }
+                                    }}
+                                />
+                                <div className="w-full py-8 border-2 border-dashed border-ink/10 rounded-2xl flex flex-col items-center gap-2 justify-center text-ink/40 hover:text-red hover:border-red/30 transition-colors cursor-pointer">
+                                    <Upload size={24} />
+                                    <span className="text-xs font-bold">Click to upload image</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
