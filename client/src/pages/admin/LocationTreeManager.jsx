@@ -41,7 +41,11 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
                     state: `/states/${parentId}/districts`,
                     district: `/districts/${parentId}/destinations`,
                 };
-                await apiClient.post(createPathMap[parentType], { name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-') });
+                const payload = { name };
+                if (parentType === 'district') {
+                    payload.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                }
+                await apiClient.post(createPathMap[parentType], payload);
             }
             onSaved();
             onClose();
@@ -259,8 +263,8 @@ const LocationTreeManager = () => {
                     ) : filteredTree.length === 0 ? (
                         <div className="py-16 text-center text-ink/30">
                             <Globe size={40} className="mx-auto mb-3 opacity-20" />
-                            <p className="font-bold text-sm">No countries yet</p>
-                            <p className="text-xs mt-1">Click + to add your first country.</p>
+                            <p className="font-bold text-sm">Start by adding your first country.</p>
+                            <p className="text-xs mt-1">Click the + button above to begin building the hierarchy.</p>
                         </div>
                     ) : (
                         <div className="space-y-1">

@@ -33,7 +33,10 @@ const getCountries = async (req, res) => {
 
 const createCountry = async (req, res) => {
     try {
-        const country = await prisma.country.create({ data: req.body });
+        const { name, active, flag, code } = req.body;
+        const country = await prisma.country.create({ 
+            data: { name, active, flag, code } 
+        });
         res.json(country);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -75,8 +78,9 @@ const getStates = async (req, res) => {
 
 const createState = async (req, res) => {
     try {
+        const { name, active } = req.body;
         const state = await prisma.state.create({
-            data: { ...req.body, countryId: req.params.id }
+            data: { name, active, countryId: req.params.id }
         });
         res.json(state);
     } catch (error) {
@@ -119,8 +123,9 @@ const getDistricts = async (req, res) => {
 
 const createDistrict = async (req, res) => {
     try {
+        const { name, active } = req.body;
         const district = await prisma.district.create({
-            data: { ...req.body, stateId: req.params.id }
+            data: { name, active, stateId: req.params.id }
         });
         res.json(district);
     } catch (error) {
@@ -163,10 +168,10 @@ const getDestinationsByDistrict = async (req, res) => {
 
 const createDestination = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, category, rating, active, coverImage, description } = req.body;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const destination = await prisma.destination.create({
-            data: { ...req.body, slug, districtId: req.params.id }
+            data: { name, category, rating, active, coverImage, description, slug, districtId: req.params.id }
         });
         res.json(destination);
     } catch (error) {
