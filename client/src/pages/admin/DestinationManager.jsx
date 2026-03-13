@@ -89,17 +89,27 @@ const DestinationForm = ({ destination, onClose }) => {
             alert('Please select a District first.');
             return;
         }
-        if (!formData.name) {
-            alert('Destination Name is required.');
+        if (!formData.name || !formData.category || !formData.rating) {
+            alert('Name, Category, and Rating are required.');
+            return;
+        }
+        if (!formData.description) {
+            alert('Description is required.');
+            return;
+        }
+        if (!formData.images || formData.images.length === 0) {
+            alert('At least one image is required.');
             return;
         }
 
         // Generate a slug if missing
         const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const coverImage = formData.coverImage || formData.images[0];
 
         saveMutation.mutate({
             ...formData,
             slug: slugToSave,
+            coverImage,
             rating: parseFloat(formData.rating) || 0
         });
     };
@@ -241,22 +251,75 @@ const DestinationForm = ({ destination, onClose }) => {
 
                 {activeTab === 'Images' && (
                     <div className="space-y-6">
-                        <div className="w-full aspect-video border-2 border-dashed border-ink/10 rounded-3xl flex flex-col items-center justify-center group hover:border-red/20 cursor-pointer transition-all">
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            id="destination-images"
+                            className="hidden"
+                            onChange={async (e) => {
+                                const files = Array.from(e.target.files);
+                                if (!files.length) return;
+                                
+                                const uploadData = new FormData();
+                                files.forEach(file => uploadData.append('images', file));
+                                
+                                try {
+                                    const res = await apiClient.post('/upload/multiple', uploadData, {
+                                        headers: { 'Content-Type': 'multipart/form-data' }
+                                    });
+                                    setFormData(prev => ({ 
+                                        ...prev, 
+                                        images: [...(prev.images || []), ...res.data.urls] 
+                                    }));
+                                } catch (err) {
+                                    alert('Failed to upload images.');
+                                }
+                            }}
+                        />
+                        <label 
+                            htmlFor="destination-images"
+                            className="w-full aspect-video border-2 border-dashed border-ink/10 rounded-3xl flex flex-col items-center justify-center group hover:border-red/20 cursor-pointer transition-all"
+                        >
                             <div className="w-16 h-16 bg-red/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <Upload size={32} className="text-red" />
                             </div>
                             <p className="font-bold text-ink mb-1">Upload Images</p>
-                            <p className="text-xs text-ink/40 font-medium text-center px-8">Drag & drop or click to upload. Max 5MB per image. (WEBP, PNG, JPG)</p>
-                        </div>
+                            <p className="text-xs text-ink/40 font-medium text-center px-8">Click to upload. Max 5MB per image. (WEBP, PNG, JPG)</p>
+                        </label>
 
                         <div className="grid grid-cols-2 gap-4">
-                            {formData.images.map((img, i) => (
+                            {(formData.images || []).map((img, i) => (
                                 <div key={i} className="aspect-square bg-ink/5 rounded-2xl relative group overflow-hidden">
                                     <img src={img} className="w-full h-full object-cover" alt="" />
                                     <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                        <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"><Trash2 size={16} /></button>
-                                        <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"><Star size={16} /></button>
+                                        <button 
+                                            onClick={() => {
+                                                const newImages = [...formData.images];
+                                                newImages.splice(i, 1);
+                                                setFormData({ ...formData, images: newImages });
+                                            }}
+                                            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                // Make this image the cover (first in array)
+                                                const newImages = [...formData.images];
+                                                const selected = newImages.splice(i, 1)[0];
+                                                newImages.unshift(selected);
+                                                setFormData({ ...formData, images: newImages, coverImage: selected });
+                                            }}
+                                            className={`p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors ${i === 0 || formData.coverImage === img ? 'text-yellow-400' : 'text-white'}`}
+                                            title="Set as Cover Image"
+                                        >
+                                            <Star size={16} />
+                                        </button>
                                     </div>
+                                    {(i === 0 || formData.coverImage === img) && (
+                                        <div className="absolute top-2 left-2 bg-yellow-400 text-ink text-[10px] font-bold px-2 py-1 rounded">COVER</div>
+                                    )}
                                 </div>
                             ))}
                         </div>
