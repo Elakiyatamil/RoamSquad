@@ -369,8 +369,15 @@ const DestinationManager = () => {
                                 ))
                             ) : destinations.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-12 text-center text-ink/40 font-medium">
-                                        No destinations found.
+                                    <td colSpan="7" className="px-6 py-24 text-center">
+                                        <div className="flex flex-col items-center justify-center max-w-xs mx-auto">
+                                            <div className="w-16 h-16 bg-ink/5 rounded-full flex items-center justify-center mb-4">
+                                                <MapPin size={24} className="text-ink/20" />
+                                            </div>
+                                            <p className="font-bold text-ink mb-1">Start by adding your first destination.</p>
+                                            <p className="text-xs text-ink/40 font-medium">Capture the essence of a new location to build your travel ecosystem.</p>
+                                            <button onClick={() => { setEditingDestination(null); setIsFormOpen(true); }} className="mt-6 text-xs font-bold uppercase tracking-widest text-red hover:underline">Add Destination Now</button>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (

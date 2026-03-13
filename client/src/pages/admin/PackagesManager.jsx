@@ -11,10 +11,8 @@ const PackageForm = ({ pkg, onClose }) => {
     const queryClient = useQueryClient();
     const [form, setForm] = useState(pkg || {
         name: '',
-        description: '',
-        days: '',
-        nights: '',
-        price: '',
+        daysCount: '',
+        totalPrice: '',
         highlights: '',
         isActive: true,
     });
@@ -40,9 +38,8 @@ const PackageForm = ({ pkg, onClose }) => {
             : [];
         mutation.mutate({
             ...form,
-            days: parseInt(form.days) || 0,
-            nights: parseInt(form.nights) || 0,
-            price: parseFloat(form.price) || 0,
+            daysCount: parseInt(form.daysCount) || 0,
+            totalPrice: parseFloat(form.totalPrice) || 0,
             highlights: highlightsArray,
         });
     };
@@ -65,23 +62,15 @@ const PackageForm = ({ pkg, onClose }) => {
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Package Name *</label>
                         <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="e.g. Kerala Backwaters Escape" />
                     </div>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Days</label>
-                            <input type="number" value={form.days} onChange={e => setForm({ ...form, days: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="7" />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Nights</label>
-                            <input type="number" value={form.nights} onChange={e => setForm({ ...form, nights: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="6" />
+                            <input type="number" value={form.daysCount} onChange={e => setForm({ ...form, daysCount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="7" />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹) *</label>
-                            <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="24999" />
+                            <input type="number" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="24999" />
                         </div>
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
-                        <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="What makes this package special..." />
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Highlights (comma-separated)</label>
@@ -109,13 +98,13 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
         className="card group cursor-pointer"
     >
         <div className="aspect-[16/10] bg-ink/5 relative overflow-hidden">
-            {item.image ? (
-                <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+            {item.coverImage ? (
+                <img src={item.coverImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
             ) : (
                 <div className="w-full h-full flex items-center justify-center text-ink/10"><Package size={48} /></div>
             )}
             <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-[10px] font-bold uppercase tracking-widest text-red">
-                {item.days} Days
+                {item.daysCount} Days
             </div>
         </div>
         <div className="p-6">
@@ -129,15 +118,14 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
             <div className="flex items-center gap-4 mb-4">
                 <div className="flex items-center gap-1.5 text-forest font-bold">
                     <IndianRupee size={14} />
-                    <span>{item.price?.toLocaleString()}</span>
+                    <span>{item.totalPrice?.toLocaleString()}</span>
                 </div>
                 <div className="w-1 h-1 bg-ink/10 rounded-full" />
                 <div className="flex items-center gap-1.5 text-ink/40 font-bold text-xs uppercase tracking-widest">
                     <Calendar size={14} />
-                    <span>{item.nights || item.days - 1}N / {item.days}D</span>
+                    <span>{item.daysCount} Days</span>
                 </div>
             </div>
-            <p className="text-sm text-ink/60 mb-6 line-clamp-2">{item.description}</p>
             {item.highlights?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-4">
                     {item.highlights.slice(0, 3).map((h, i) => (

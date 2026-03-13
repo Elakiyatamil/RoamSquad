@@ -16,7 +16,7 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
         stars: 3,
         pricePerNight: '',
         vibeDescription: '',
-        internalHotelName: '',
+        hotelNameInternal: '',
         includes: '',
         isActive: true,
     });
@@ -89,7 +89,7 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Internal Hotel Name (Private)</label>
-                        <input value={form.internalHotelName} onChange={e => setForm({ ...form, internalHotelName: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
+                        <input value={form.hotelNameInternal} onChange={e => setForm({ ...form, hotelNameInternal: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
@@ -155,7 +155,7 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
                 {record && (
                     <div className="flex items-center gap-2 text-red/40 mb-4">
                         <EyeOff size={14} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Private: {record.internalHotelName || 'Not Set'}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Private: {record.hotelNameInternal || 'Not Set'}</span>
                     </div>
                 )}
                 <button onClick={() => onEdit(record || { tier })} className="w-full py-3 bg-ink/5 hover:bg-ink/10 rounded-xl font-bold text-sm transition-all">

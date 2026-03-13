@@ -174,7 +174,9 @@ const ActivitiesManager = () => {
         queryFn: async () => {
             const res = await apiClient.get('/destinations?limit=100');
             const dests = res.data.data || [];
-            if (dests.length > 0 && !selectedDestId) setSelectedDestId(dests[0].id);
+            if (dests.length > 0 && !selectedDestId) {
+                setSelectedDestId(dests[0].id);
+            }
             return dests;
         }
     });
