@@ -89,13 +89,13 @@ const Sidebar = () => {
 
             <div className="p-4 border-t border-white/5">
                 <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5">
-                    <div className="w-8 h-8 rounded-full bg-forest flex items-center justify-center text-xs font-bold shrink-0">
-                        AD
+                    <div className="w-8 h-8 rounded-full bg-red flex items-center justify-center text-xs font-bold shrink-0">
+                        {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'A'}
                     </div>
                     {isOpen && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="overflow-hidden">
-                            <p className="text-sm font-bold truncate">Admin User</p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-tighter">Roam Squad Team</p>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="overflow-hidden flex-1">
+                            <p className="text-sm font-bold truncate">{user?.name || 'Admin'}</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-tighter truncate">{user?.email}</p>
                         </motion.div>
                     )}
                 </div>
