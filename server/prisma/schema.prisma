@@ -70,8 +70,7 @@ model Activity {
   duration      String?
   price         Int
   priceLabel    String?
-  difficulty    String?
-  imageUrl      String?
+  images        String[]
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
