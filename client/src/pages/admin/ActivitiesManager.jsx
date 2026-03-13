@@ -22,8 +22,8 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
         icon: '🏕️',
         duration: '',
         price: '',
-        difficulty: 'Easy',
         description: '',
+        images: []
     });
 
     const mutation = useMutation({
@@ -79,13 +79,59 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
                             <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="500" />
                         </div>
                     </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Difficulty</label>
-                        <select value={form.difficulty} onChange={e => setForm({ ...form, difficulty: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium">
-                            <option>Easy</option>
-                            <option>Moderate</option>
-                            <option>Hard</option>
-                        </select>
+                    <div className="space-y-4 pt-2">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Images (Max 4)</label>
+                        <div className="flex gap-2 items-center">
+                            {form.images.map((img, i) => (
+                                <div key={i} className="w-16 h-16 rounded-xl bg-ink/5 relative group overflow-hidden shrink-0">
+                                    <img src={img} alt="" className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newImages = [...form.images];
+                                            newImages.splice(i, 1);
+                                            setForm({ ...form, images: newImages });
+                                        }}
+                                        className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                            
+                            {form.images.length < 4 && (
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        onChange={async (e) => {
+                                            const files = Array.from(e.target.files).slice(0, 4 - form.images.length);
+                                            if (!files.length) return;
+                                            
+                                            const uploadData = new FormData();
+                                            files.forEach(file => uploadData.append('images', file));
+                                            
+                                            try {
+                                                const res = await apiClient.post('/upload/multiple', uploadData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                });
+                                                setForm(prev => ({ 
+                                                    ...prev, 
+                                                    images: [...prev.images, ...res.data.urls] 
+                                                }));
+                                            } catch (err) {
+                                                alert('Failed to upload images.');
+                                            }
+                                        }}
+                                    />
+                                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-ink/10 flex items-center justify-center text-ink/40 hover:text-red hover:border-red/30 transition-colors">
+                                        <Plus size={20} />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
@@ -105,55 +151,46 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
 
 // --- Activity Card ---
 const ActivityCard = ({ activity, index, onEdit, onDelete }) => {
-    const getDifficultyColor = (d) => {
-        switch (d?.toLowerCase()) {
-            case 'easy': return 'bg-forest';
-            case 'moderate': return 'bg-gold';
-            case 'hard': return 'bg-red';
-            default: return 'bg-ink/10';
-        }
-    };
-
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05 }}
             whileHover={{ y: -4 }}
-            className="card group cursor-pointer"
+            className="card group cursor-pointer overflow-hidden flex flex-col"
         >
-            <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-ink/5 rounded-2xl flex items-center justify-center text-2xl">
+            <div className="h-40 bg-ink/5 relative overflow-hidden">
+                {activity.images && activity.images.length > 0 ? (
+                    <img src={activity.images[0]} alt={activity.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl">
                         {activity.icon || '🏕️'}
                     </div>
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => onEdit(activity)} className="text-ink/40 hover:text-ink transition-colors p-1"><Edit2 size={16} /></button>
-                        <button onClick={() => onDelete(activity.id)} className="text-ink/40 hover:text-red transition-colors p-1"><Trash2 size={16} /></button>
-                    </div>
+                )}
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => onEdit(activity)} className="w-8 h-8 bg-white/90 backdrop-blur-sm shadow-xl rounded-xl flex items-center justify-center text-ink/60 hover:text-ink hover:bg-white transition-all"><Edit2 size={16} /></button>
+                    <button onClick={() => onDelete(activity.id)} className="w-8 h-8 bg-white/90 backdrop-blur-sm shadow-xl rounded-xl flex items-center justify-center text-ink/60 hover:text-red hover:bg-white transition-all"><Trash2 size={16} /></button>
                 </div>
-                <h3 className="text-xl font-bold mb-1">{activity.name}</h3>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center gap-2 text-ink/60 text-sm font-medium">
-                        <Clock size={14} className="text-ocean" />
+            </div>
+            
+            <div className="p-6 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-xl font-bold truncate pr-4">{activity.name}</h3>
+                    {activity.images && activity.images.length > 0 && <span className="text-2xl">{activity.icon || '🏕️'}</span>}
+                </div>
+                
+                <p className="text-xs text-ink/60 font-medium line-clamp-2 mb-4 flex-1">
+                    {activity.description || 'No description provided.'}
+                </p>
+
+                <div className="flex items-center justify-between border-t border-ink/5 pt-4 mt-auto">
+                    <div className="flex items-center gap-2 text-ink/60 text-sm font-bold">
+                        <Clock size={16} className="text-ocean" />
                         {activity.duration || '—'}
                     </div>
-                    <div className="flex items-center gap-2 text-ink/60 text-sm font-medium">
-                        <IndianRupee size={14} className="text-forest" />
-                        {activity.price || '—'}
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-ink/40">
-                        <span>Difficulty: {activity.difficulty || 'Easy'}</span>
-                        <Zap size={10} />
-                    </div>
-                    <div className="h-1.5 w-full bg-ink/5 rounded-full overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: activity.difficulty === 'Hard' ? '100%' : activity.difficulty === 'Moderate' ? '60%' : '30%' }}
-                            className={`h-full ${getDifficultyColor(activity.difficulty)}`}
-                        />
+                    <div className="flex items-center gap-1.5 text-font-bold text-ink bg-forest/10 px-3 py-1.5 rounded-lg">
+                        <IndianRupee size={16} className="text-forest" />
+                        <span className="font-bold">{activity.price || '—'}</span>
                     </div>
                 </div>
             </div>
