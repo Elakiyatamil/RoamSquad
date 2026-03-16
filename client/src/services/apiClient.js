@@ -27,8 +27,8 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Handle logout or refresh token
-            localStorage.removeItem('token');
+            localStorage.removeItem('roamsquad-auth');
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }

@@ -10,11 +10,14 @@ const login = async (req, res) => {
             where: { email }
         });
 
+        console.log(`Login attempt for: ${email}`);
         if (!user) {
+            console.log('User not found');
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log(`Password match: ${isMatch}`);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }

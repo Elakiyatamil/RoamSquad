@@ -12,6 +12,7 @@ const requestRoutes = require('./routes/requests');
 const uploadRoutes = require('./routes/upload');
 const authRoutes = require('./routes/auth');
 const experienceController = require('./controllers/experienceController');
+const { verifyJWT, isAdmin } = require('./middleware/auth');
 const { getAuditLogs } = require('./controllers/auditController');
 
 const app = express();
@@ -23,7 +24,9 @@ initSockets(server);
 app.use(cors());
 app.use(express.json());
 
-// Public Endpoints
+// Auth & Public Routes
+app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.get('/public/destinations/:id/accommodation', experienceController.getAccommodationPublic);
 
 // Admin Routes (JWT & Admin checks are inside the route files)
@@ -33,8 +36,6 @@ app.use('/api', districtFeatureRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/auth', authRoutes);
 app.get('/api/audit-logs', verifyJWT, isAdmin, getAuditLogs);
 
 // Basic Health Check
@@ -43,7 +44,6 @@ app.get('/health', (req, res) => {
 });
 
 // Dashboard Stats (Admin only)
-const { verifyJWT, isAdmin } = require('./middleware/auth');
 app.get('/api/stats', verifyJWT, isAdmin, async (req, res) => {
     try {
         const prisma = require('./utils/prisma');
