@@ -44,7 +44,12 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Activity name is required.'); return; }
         if (!destinationId) { alert('Please select a destination first.'); return; }
-        mutation.mutate({ ...form, price: parseFloat(form.price) || 0 });
+        
+        // Image requirement removed. Activity can be saved with empty images array.
+        mutation.mutate({ 
+            ...form, 
+            price: parseFloat(form.price) || 0 
+        });
     };
 
     return (
@@ -79,8 +84,9 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
                             <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="500" />
                         </div>
                     </div>
+                    {/* Images are now optional */}
                     <div className="space-y-4 pt-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Images (Max 4)</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Images (Optional)</label>
                         <div className="flex gap-2 items-center">
                             {form.images.map((img, i) => (
                                 <div key={i} className="w-16 h-16 rounded-xl bg-ink/5 relative group overflow-hidden shrink-0">

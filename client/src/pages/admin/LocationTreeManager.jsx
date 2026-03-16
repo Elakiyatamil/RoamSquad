@@ -11,6 +11,7 @@ import apiClient from '../../services/apiClient';
 
 // --- Generic CRUD Modal ---
 const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
+    const queryClient = useQueryClient();
     const isEdit = !!node?.id;
     const [name, setName] = useState(node?.name || '');
     const [saving, setSaving] = useState(false);
@@ -47,6 +48,9 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
                 }
                 await apiClient.post(createPathMap[parentType], payload);
             }
+            queryClient.invalidateQueries(['countries']);
+            queryClient.invalidateQueries(['states']);
+            queryClient.invalidateQueries(['districts']);
             onSaved();
             onClose();
         } catch (err) {

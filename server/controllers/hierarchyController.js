@@ -200,6 +200,13 @@ const getFlatDestinations = async (req, res) => {
                 where,
                 skip,
                 take,
+                include: {
+                    district: {
+                        include: {
+                            state: true
+                        }
+                    }
+                },
                 orderBy: { createdAt: 'desc' }
             }),
             prisma.destination.count({ where })
@@ -227,7 +234,16 @@ const getFullDestination = async (req, res) => {
                 activities: { orderBy: { sortOrder: 'asc' } },
                 foodOptions: { orderBy: { sortOrder: 'asc' } },
                 accommodation: true,
-                travelOptions: true
+                travelOptions: true,
+                district: {
+                    include: {
+                        state: {
+                            include: {
+                                country: true
+                            }
+                        }
+                    }
+                }
             }
         });
         if (!destination) {

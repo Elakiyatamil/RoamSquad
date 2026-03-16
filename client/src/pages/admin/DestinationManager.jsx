@@ -18,6 +18,30 @@ import {
     Image as ImageIcon
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
+import { Clock, IndianRupee, Zap } from 'lucide-react';
+
+const ActivityRow = ({ activity, onEdit, onDelete }) => (
+    <div className="flex items-center gap-4 p-4 bg-ink/5 rounded-2xl group">
+        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl shrink-0">
+            {activity.icon || '🏕️'}
+        </div>
+        <div className="flex-1 min-w-0">
+            <h4 className="font-bold text-ink truncate">{activity.name}</h4>
+            <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-ink/40 mt-1">
+                <span className="flex items-center gap-1"><Clock size={12} /> {activity.duration || '—'}</span>
+                <span className="flex items-center gap-1"><IndianRupee size={12} /> {activity.price || '0'}</span>
+            </div>
+        </div>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={() => onEdit(activity)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-ink/40 hover:text-ink transition-all">
+                <Edit2 size={14} />
+            </button>
+            <button onClick={() => onDelete(activity.id)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-ink/40 hover:text-red transition-all">
+                <Trash2 size={14} />
+            </button>
+        </div>
+    </div>
+);
 
 const DestinationForm = ({ destination, onClose }) => {
     const queryClient = useQueryClient();
@@ -39,6 +63,10 @@ const DestinationForm = ({ destination, onClose }) => {
         images: []
     });
 
+    const [isActivityFormOpen, setIsActivityFormOpen] = useState(false);
+    const [editingActivity, setEditingActivity] = useState(null);
+    const [activityForm, setActivityForm] = useState({ name: '', duration: '', description: '', price: 0, icon: '🏕️', images: [] });
+
     // Fetch Hierarchy Data
     const { data: countries = [] } = useQuery({
         queryKey: ['countries'],
@@ -48,22 +76,60 @@ const DestinationForm = ({ destination, onClose }) => {
         }
     });
 
-    const { data: states = [] } = useQuery({
+    const { data: states = [], isLoading: isStatesLoading, error: statesError } = useQuery({
         queryKey: ['states', selectedCountry],
         queryFn: async () => {
+            console.log('Fetching states for country:', selectedCountry);
             const res = await apiClient.get(`/countries/${selectedCountry}/states`);
+            console.log('Fetched states:', res.data);
             return res.data;
         },
         enabled: !!selectedCountry
     });
 
-    const { data: districts = [] } = useQuery({
+    const { data: districts = [], isLoading: isDistrictsLoading, error: districtsError } = useQuery({
         queryKey: ['districts', selectedState],
         queryFn: async () => {
+            console.log('Fetching districts for state:', selectedState);
             const res = await apiClient.get(`/states/${selectedState}/districts`);
+            console.log('Fetched districts:', res.data);
             return res.data;
         },
         enabled: !!selectedState
+    });
+
+    useEffect(() => {
+        if (statesError) console.error('Error fetching states:', statesError);
+        if (districtsError) console.error('Error fetching districts:', districtsError);
+    }, [statesError, districtsError]);
+
+    const { data: activities = [], refetch: refetchActivities } = useQuery({
+        queryKey: ['activities', destination?.id],
+        queryFn: async () => {
+            const res = await apiClient.get(`/destinations/${destination.id}/activities`);
+            return res.data;
+        },
+        enabled: !!destination?.id
+    });
+
+    const activityMutation = useMutation({
+        mutationFn: async (data) => {
+            if (editingActivity?.id) {
+                return await apiClient.patch(`/activities/${editingActivity.id}`, data);
+            }
+            return await apiClient.post(`/destinations/${destination.id}/activities`, data);
+        },
+        onSuccess: () => {
+            refetchActivities();
+            setIsActivityFormOpen(false);
+            setEditingActivity(null);
+            setActivityForm({ name: '', duration: '', description: '', price: 0, icon: '🏕️', images: [] });
+        }
+    });
+
+    const deleteActivityMutation = useMutation({
+        mutationFn: async (id) => await apiClient.delete(`/activities/${id}`),
+        onSuccess: () => refetchActivities()
     });
 
     // Mutations
@@ -97,14 +163,18 @@ const DestinationForm = ({ destination, onClose }) => {
             alert('Description is required.');
             return;
         }
+        // Image requirement temporarily disabled as per user request
+        /*
         if (!formData.images || formData.images.length === 0) {
             alert('At least one image is required.');
             return;
         }
+        */
 
-        // Generate a slug if missing
-        const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const coverImage = formData.coverImage || formData.images[0];
+        // Image requirement temporarily disabled as per user request
+        const coverImage = (formData.images && formData.images.length > 0) 
+            ? (formData.coverImage || formData.images[0]) 
+            : null;
 
         saveMutation.mutate({
             ...formData,
@@ -210,26 +280,30 @@ const DestinationForm = ({ destination, onClose }) => {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">State</label>
+                                    <label className="text-xs font-bold text-ink/60">
+                                        State {isStatesLoading && '(Loading...)'} {statesError && '(Error!)'}
+                                    </label>
                                     <select
                                         value={selectedState}
                                         onChange={(e) => { setSelectedState(e.target.value); setSelectedDistrict(''); }}
-                                        disabled={!selectedCountry}
+                                        disabled={!selectedCountry || isStatesLoading}
                                         className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
                                     >
-                                        <option value="">Select State</option>
+                                        <option value="">{isStatesLoading ? 'Loading states...' : 'Select State'}</option>
                                         {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">District *</label>
+                                    <label className="text-xs font-bold text-ink/60">
+                                        District * {isDistrictsLoading && '(Loading...)'} {districtsError && '(Error!)'}
+                                    </label>
                                     <select
                                         value={selectedDistrict}
                                         onChange={(e) => setSelectedDistrict(e.target.value)}
-                                        disabled={!selectedState}
+                                        disabled={!selectedState || isDistrictsLoading}
                                         className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
                                     >
-                                        <option value="">Select District</option>
+                                        <option value="">{isDistrictsLoading ? 'Loading districts...' : 'Select District'}</option>
                                         {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                                     </select>
                                 </div>
@@ -246,6 +320,151 @@ const DestinationForm = ({ destination, onClose }) => {
                                 className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none focus:ring-4 focus:ring-red/5 outline-none font-medium resize-none"
                             />
                         </div>
+                    </div>
+                )}
+
+                {activeTab === 'Experiences' && (
+                    <div className="space-y-6">
+                        {!destination ? (
+                            <div className="py-12 text-center bg-ink/5 rounded-3xl">
+                                <Zap size={32} className="mx-auto mb-4 text-ink/20" />
+                                <p className="font-bold text-ink">Save the destination first</p>
+                                <p className="text-xs text-ink/40 mt-1">Activities can be managed after the destination is created.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h3 className="font-bold text-ink">Destination Activities</h3>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Manage Experiences</p>
+                                    </div>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingActivity(null);
+                                            setActivityForm({ name: '', duration: '', description: '', price: 0, icon: '🏕️', images: [] });
+                                            setIsActivityFormOpen(true);
+                                        }}
+                                        className="w-10 h-10 bg-red text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                    >
+                                        <Plus size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {activities.length === 0 ? (
+                                        <div className="py-12 text-center border-2 border-dashed border-ink/10 rounded-3xl">
+                                            <p className="text-sm font-medium text-ink/40">No activities added yet.</p>
+                                        </div>
+                                    ) : (
+                                        activities.map(act => (
+                                            <ActivityRow 
+                                                key={act.id} 
+                                                activity={act} 
+                                                onEdit={(a) => {
+                                                    setEditingActivity(a);
+                                                    setActivityForm({ ...a });
+                                                    setIsActivityFormOpen(true);
+                                                }}
+                                                onDelete={(id) => {
+                                                    if (window.confirm('Delete this activity?')) deleteActivityMutation.mutate(id);
+                                                }}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+
+                                <AnimatePresence>
+                                    {isActivityFormOpen && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            className="p-6 bg-cream border border-ink/5 rounded-3xl space-y-4 shadow-xl"
+                                        >
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h4 className="font-bold text-ink">{editingActivity ? 'Edit' : 'Add'} Activity</h4>
+                                                <button type="button" onClick={() => setIsActivityFormOpen(false)}><X size={16} /></button>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-4 gap-3">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Icon</label>
+                                                    <input 
+                                                        value={activityForm.icon} 
+                                                        onChange={e => setActivityForm({...activityForm, icon: e.target.value})}
+                                                        className="w-full px-3 py-3 bg-white rounded-xl border-none outline-none text-center"
+                                                    />
+                                                </div>
+                                                <div className="col-span-3 space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Name</label>
+                                                    <input 
+                                                        value={activityForm.name}
+                                                        onChange={e => setActivityForm({...activityForm, name: e.target.value})}
+                                                        className="w-full px-4 py-3 bg-white rounded-xl border-none outline-none font-medium"
+                                                        placeholder="e.g. Guided Walk"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration</label>
+                                                    <input 
+                                                        value={activityForm.duration}
+                                                        onChange={e => setActivityForm({...activityForm, duration: e.target.value})}
+                                                        className="w-full px-4 py-3 bg-white rounded-xl border-none outline-none font-medium"
+                                                        placeholder="e.g. 2 Hours"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (Approx)</label>
+                                                    <input 
+                                                        type="number"
+                                                        value={activityForm.price}
+                                                        onChange={e => setActivityForm({...activityForm, price: e.target.value})}
+                                                        className="w-full px-4 py-3 bg-white rounded-xl border-none outline-none font-medium"
+                                                        placeholder="500"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
+                                                <textarea 
+                                                    rows={2}
+                                                    value={activityForm.description}
+                                                    onChange={e => setActivityForm({...activityForm, description: e.target.value})}
+                                                    className="w-full px-4 py-3 bg-white rounded-xl border-none outline-none font-medium resize-none shadow-sm"
+                                                    placeholder="Short tagline or description..."
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-2 pt-2">
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setIsActivityFormOpen(false)}
+                                                    className="flex-1 py-3 bg-white border border-ink/5 rounded-xl font-bold text-xs"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (!activityForm.name) return alert('Name is required');
+                                                        activityMutation.mutate({ ...activityForm, price: parseFloat(activityForm.price) || 0 });
+                                                    }}
+                                                    disabled={activityMutation.isPending}
+                                                    className="flex-[2] btn-primary py-3 text-xs"
+                                                >
+                                                    {activityMutation.isPending ? 'Saving...' : 'Save Activity'}
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </>
+                        )}
                     </div>
                 )}
 
