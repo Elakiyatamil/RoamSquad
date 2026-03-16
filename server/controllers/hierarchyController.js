@@ -173,10 +173,19 @@ const getDestinationsByDistrict = async (req, res) => {
 
 const createDestination = async (req, res) => {
     try {
-        const { name, category, rating, active, coverImage, description } = req.body;
+        const { name, category = 'Other', rating = 0, active = false, coverImage = null, description = '' } = req.body;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const destination = await prisma.destination.create({
-            data: { name, category, rating, active, coverImage, description, slug, districtId: req.params.id }
+            data: { 
+                name, 
+                category, 
+                rating: parseFloat(rating) || 0, 
+                active: active === true, 
+                coverImage, 
+                description, 
+                slug, 
+                districtId: req.params.id 
+            }
         });
         res.json(destination);
     } catch (error) {

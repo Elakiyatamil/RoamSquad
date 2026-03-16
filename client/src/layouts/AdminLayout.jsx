@@ -4,17 +4,54 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuthStore from '../store/authStore';
+import apiClient from '../services/apiClient';
+import { getSocket, disconnectSocket } from '../services/socketService';
 
 const AdminLayout = () => {
-    const { isAuthenticated } = useAuthStore();
+    const { isAuthenticated, hydrated, token, login, logout } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Verify session on load
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/login', { replace: true });
+        const verifySession = async () => {
+            if (hydrated && token) {
+                try {
+                    const response = await apiClient.get('/auth/me');
+                    // Refresh user data but keep token
+                    login(response.data, token);
+                } catch (err) {
+                    console.error('Session verification failed:', err);
+                    logout();
+                    navigate('/login', { replace: true });
+                }
+            } else if (hydrated && !isAuthenticated) {
+                navigate('/login', { replace: true });
+            }
+        };
+
+        verifySession();
+    }, [hydrated, token, isAuthenticated, login, logout, navigate]);
+
+    // Global Socket Init
+    useEffect(() => {
+        if (isAuthenticated && token) {
+            getSocket(token);
+            return () => disconnectSocket();
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, token]);
+
+    if (!hydrated) {
+        return (
+            <div className="h-screen w-screen flex items-center justify-center bg-cream">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-8 h-8 border-4 border-red border-t-transparent rounded-full"
+                />
+            </div>
+        );
+    }
 
     if (!isAuthenticated) return null;
 

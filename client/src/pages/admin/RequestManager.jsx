@@ -6,7 +6,8 @@ import {
     CheckCircle2, Clock, AlertCircle, XCircle, Hash, ChevronDown, X, Trash2
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
-import { io } from 'socket.io-client';
+import { getSocket } from '../../services/socketService';
+import useAuthStore from '../../store/authStore';
 
 const STATUS_OPTIONS = ['New Inquiry', 'Needs Clarification', 'In Conversation', 'Journey Confirmed', 'Not Feasible'];
 
@@ -165,16 +166,27 @@ const RequestManager = () => {
         }
     });
 
+    const { isAuthenticated, token } = useAuthStore();
+
     useEffect(() => {
-        const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
-        socket.on('request:updated', (updated) => {
-            queryClient.setQueryData(['requests'], (old) => {
-                if (!old) return old;
-                return old.map(r => r.id === updated.id ? updated : r);
-            });
-        });
-        return () => socket.disconnect();
-    }, [queryClient]);
+        if (!isAuthenticated || !token) return;
+
+        const socket = getSocket(token);
+
+        if (socket) {
+            const handleUpdate = (updated) => {
+                queryClient.setQueryData(['requests'], (old) => {
+                    if (!old) return old;
+                    return old.map(r => r.id === updated.id ? updated : r);
+                });
+            };
+
+            socket.on('request:updated', handleUpdate);
+            return () => {
+                socket.off('request:updated', handleUpdate);
+            };
+        }
+    }, [queryClient, isAuthenticated, token]);
 
     const filtered = requests.filter(r =>
         r.userName?.toLowerCase().includes(search.toLowerCase()) ||

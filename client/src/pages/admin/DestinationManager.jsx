@@ -15,10 +15,19 @@ import {
     MapPin,
     X,
     Upload,
-    Image as ImageIcon
+    Image as ImageIcon,
+    UtensilsCrossed,
+    Hotel,
+    Zap,
+    Globe,
+    Calendar,
+    DollarSign,
+    Clock,
+    Check,
+    IndianRupee
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
-import { Clock, IndianRupee, Zap } from 'lucide-react';
+import SearchableSelect from '../../components/ui/SearchableSelect';
 
 const ActivityRow = ({ activity, onEdit, onDelete }) => (
     <div className="flex items-center gap-4 p-4 bg-ink/5 rounded-2xl group">
@@ -51,6 +60,7 @@ const DestinationForm = ({ destination, onClose }) => {
     const [selectedCountry, setSelectedCountry] = useState(destination?.district?.state?.countryId || '');
     const [selectedState, setSelectedState] = useState(destination?.district?.stateId || '');
     const [selectedDistrict, setSelectedDistrict] = useState(destination?.districtId || '');
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState(destination || {
         name: '',
@@ -66,6 +76,18 @@ const DestinationForm = ({ destination, onClose }) => {
     const [isActivityFormOpen, setIsActivityFormOpen] = useState(false);
     const [editingActivity, setEditingActivity] = useState(null);
     const [activityForm, setActivityForm] = useState({ name: '', duration: '', description: '', price: 0, icon: '🏕️', images: [] });
+
+    const [isFoodFormOpen, setIsFoodFormOpen] = useState(false);
+    const [editingFood, setEditingFood] = useState(null);
+    const [foodForm, setFoodForm] = useState({ name: '', emoji: '🍲', mealType: 'BREAKFAST', price: 0, dietaryTag: 'Veg', description: '' });
+
+    const [isAccommodationFormOpen, setIsAccommodationFormOpen] = useState(false);
+    const [editingAccommodation, setEditingAccommodation] = useState(null);
+    const [accommodationForm, setAccommodationForm] = useState({ tier: 'Budget', stars: 3, pricePerNight: 0, vibeDescription: '', includes: '', imageUrl: '' });
+
+    const [isTravelFormOpen, setIsTravelFormOpen] = useState(false);
+    const [editingTravel, setEditingTravel] = useState(null);
+    const [travelForm, setTravelForm] = useState({ mode: '', icon: '🚗', description: '', estimatedCost: '', durationMins: 30 });
 
     // Fetch Hierarchy Data
     const { data: countries = [] } = useQuery({
@@ -112,6 +134,33 @@ const DestinationForm = ({ destination, onClose }) => {
         enabled: !!destination?.id
     });
 
+    const { data: foodOptions = [], refetch: refetchFood } = useQuery({
+        queryKey: ['food', destination?.id],
+        queryFn: async () => {
+            const res = await apiClient.get(`/destinations/${destination.id}/food`);
+            return res.data;
+        },
+        enabled: !!destination?.id
+    });
+
+    const { data: accommodations = [], refetch: refetchAccommodation } = useQuery({
+        queryKey: ['accommodation', destination?.id],
+        queryFn: async () => {
+            const res = await apiClient.get(`/destinations/${destination.id}/accommodation`);
+            return res.data;
+        },
+        enabled: !!destination?.id
+    });
+
+    const { data: travelOptions = [], refetch: refetchTravel } = useQuery({
+        queryKey: ['travel-options', destination?.id],
+        queryFn: async () => {
+            const res = await apiClient.get(`/destinations/${destination.id}/travel-options`);
+            return res.data;
+        },
+        enabled: !!destination?.id
+    });
+
     const activityMutation = useMutation({
         mutationFn: async (data) => {
             if (editingActivity?.id) {
@@ -150,19 +199,87 @@ const DestinationForm = ({ destination, onClose }) => {
         }
     });
 
+    // --- Travel Options Mutations ---
+    const travelMutation = useMutation({
+        mutationFn: async (data) => {
+            if (editingTravel?.id) return await apiClient.patch(`/travel-options/${editingTravel.id}`, data);
+            return await apiClient.post(`/destinations/${destination.id}/travel-options`, data);
+        },
+        onSuccess: () => {
+            refetchTravel();
+            setIsTravelFormOpen(false);
+            setEditingTravel(null);
+        }
+    });
+
+    const deleteTravelMutation = useMutation({
+        mutationFn: async (id) => await apiClient.delete(`/travel-options/${id}`),
+        onSuccess: () => refetchTravel()
+    });
+
+    // --- Food Options Mutations ---
+    const foodMutation = useMutation({
+        mutationFn: async (data) => {
+            if (editingFood?.id) return await apiClient.patch(`/food/${editingFood.id}`, data);
+            return await apiClient.post(`/destinations/${destination.id}/food`, data);
+        },
+        onSuccess: () => {
+            refetchFood();
+            setIsFoodFormOpen(false);
+            setEditingFood(null);
+        }
+    });
+
+    const deleteFoodMutation = useMutation({
+        mutationFn: async (id) => await apiClient.delete(`/food/${id}`),
+        onSuccess: () => {
+            refetchFood();
+            setErrors({});
+        }
+    });
+
+    const categories = [
+        { value: 'Nature', name: 'Nature' },
+        { value: 'Heritage', name: 'Heritage' },
+        { value: 'Adventure', name: 'Adventure' },
+        { value: 'Relaxation', name: 'Relaxation' },
+        { value: 'City', name: 'City' },
+        { value: 'Beach', name: 'Beach' },
+        { value: 'Mountains', name: 'Mountains' }
+    ];
+
+    // --- Accommodation Mutations ---
+    const accommodationMutation = useMutation({
+        mutationFn: async (data) => {
+            if (editingAccommodation?.id) return await apiClient.patch(`/accommodation/${editingAccommodation.id}`, data);
+            return await apiClient.post(`/destinations/${destination.id}/accommodation`, data);
+        },
+        onSuccess: () => {
+            refetchAccommodation();
+            setIsAccommodationFormOpen(false);
+            setEditingAccommodation(null);
+        }
+    });
+
+    const deleteAccommodationMutation = useMutation({
+        mutationFn: async (id) => await apiClient.delete(`/accommodation/${id}`),
+        onSuccess: () => refetchAccommodation()
+    });
+
     const handleSave = () => {
-        if (!selectedDistrict && !destination?.id) {
-            alert('Please select a District first.');
+        const newErrors = {};
+        if (!selectedDistrict && !destination?.id) newErrors.district = 'Required';
+        if (!formData.name) newErrors.name = 'Required';
+        if (!formData.category) newErrors.category = 'Required';
+        if (!formData.description) newErrors.description = 'Required';
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setActiveTab('Basic Info');
             return;
         }
-        if (!formData.name || !formData.category || !formData.rating) {
-            alert('Name, Category, and Rating are required.');
-            return;
-        }
-        if (!formData.description) {
-            alert('Description is required.');
-            return;
-        }
+
+        setErrors({});
         // Image requirement temporarily disabled as per user request
         /*
         if (!formData.images || formData.images.length === 0) {
@@ -171,7 +288,7 @@ const DestinationForm = ({ destination, onClose }) => {
         }
         */
 
-        // Image requirement temporarily disabled as per user request
+        const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const coverImage = (formData.images && formData.images.length > 0) 
             ? (formData.coverImage || formData.images[0]) 
             : null;
@@ -184,7 +301,7 @@ const DestinationForm = ({ destination, onClose }) => {
         });
     };
 
-    const tabs = ['Basic Info', 'Travel Details', 'Experiences', 'Accommodation', 'Images'];
+    const tabs = ['Basic Info', 'Travel Details', 'Experiences', 'Food', 'Accommodation', 'Images'];
 
     return (
         <motion.div
@@ -234,22 +351,13 @@ const DestinationForm = ({ destination, onClose }) => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Category</label>
-                                <select
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium"
-                                >
-                                    <option value="Nature">Nature</option>
-                                    <option value="Heritage">Heritage</option>
-                                    <option value="Adventure">Adventure</option>
-                                    <option value="Relaxation">Relaxation</option>
-                                    <option value="City">City</option>
-                                    <option value="Beach">Beach</option>
-                                    <option value="Mountains">Mountains</option>
-                                </select>
-                            </div>
+                            <SearchableSelect
+                                label="Category"
+                                options={categories}
+                                value={formData.category}
+                                onChange={(val) => setFormData({ ...formData, category: val })}
+                                error={errors.category}
+                            />
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Rating (0-5)</label>
                                 <input
@@ -264,51 +372,36 @@ const DestinationForm = ({ destination, onClose }) => {
                             </div>
                         </div>
 
-                        {!destination && (
-                            <div className="space-y-4 pt-4 border-t border-ink/5">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Location Hierarchy</p>
+                        <div className="space-y-4 pt-4 border-t border-ink/5">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Location Hierarchy</p>
 
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">Country</label>
-                                    <select
-                                        value={selectedCountry}
-                                        onChange={(e) => { setSelectedCountry(e.target.value); setSelectedState(''); setSelectedDistrict(''); }}
-                                        className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium"
-                                    >
-                                        <option value="">Select Country</option>
-                                        {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">
-                                        State {isStatesLoading && '(Loading...)'} {statesError && '(Error!)'}
-                                    </label>
-                                    <select
-                                        value={selectedState}
-                                        onChange={(e) => { setSelectedState(e.target.value); setSelectedDistrict(''); }}
-                                        disabled={!selectedCountry || isStatesLoading}
-                                        className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
-                                    >
-                                        <option value="">{isStatesLoading ? 'Loading states...' : 'Select State'}</option>
-                                        {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">
-                                        District * {isDistrictsLoading && '(Loading...)'} {districtsError && '(Error!)'}
-                                    </label>
-                                    <select
-                                        value={selectedDistrict}
-                                        onChange={(e) => setSelectedDistrict(e.target.value)}
-                                        disabled={!selectedState || isDistrictsLoading}
-                                        className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
-                                    >
-                                        <option value="">{isDistrictsLoading ? 'Loading districts...' : 'Select District'}</option>
-                                        {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        )}
+                            <SearchableSelect
+                                label="Country"
+                                options={countries}
+                                value={selectedCountry}
+                                onChange={(val) => { setSelectedCountry(val); setSelectedState(''); setSelectedDistrict(''); }}
+                                placeholder="Select Country"
+                            />
+                            <SearchableSelect
+                                label={`State ${isStatesLoading ? '(Loading...)' : ''}`}
+                                options={states}
+                                value={selectedState}
+                                onChange={(val) => { setSelectedState(val); setSelectedDistrict(''); }}
+                                placeholder="Select State"
+                                disabled={!selectedCountry}
+                                loading={isStatesLoading}
+                            />
+                            <SearchableSelect
+                                label={`District * ${isDistrictsLoading ? '(Loading...)' : ''}`}
+                                options={districts}
+                                value={selectedDistrict}
+                                onChange={(val) => setSelectedDistrict(val)}
+                                placeholder="Select District"
+                                disabled={!selectedState}
+                                loading={isDistrictsLoading}
+                                error={errors.district}
+                            />
+                        </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
@@ -317,8 +410,88 @@ const DestinationForm = ({ destination, onClose }) => {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Describe the beauty and attractions..."
-                                className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none focus:ring-4 focus:ring-red/5 outline-none font-medium resize-none"
+                                className={`w-full px-4 py-3 bg-ink/5 rounded-xl border-2 focus:ring-4 focus:ring-red/5 outline-none font-medium resize-none transition-all ${errors.description ? 'border-red/50 bg-red/5' : 'border-transparent'}`}
                             />
+                            {errors.description && <p className="text-[10px] text-red font-bold uppercase tracking-wider">{errors.description}</p>}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Travel Details' && (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Average Cost (Per Person)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40 font-bold">₹</span>
+                                    <input
+                                        type="number"
+                                        value={formData.avgCost || ''}
+                                        onChange={(e) => setFormData({ ...formData, avgCost: e.target.value })}
+                                        placeholder="5000"
+                                        className="w-full pl-8 pr-4 py-3 bg-ink/5 rounded-xl border-none font-medium"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Best Season to Visit</label>
+                                <input
+                                    type="text"
+                                    value={formData.bestSeason || ''}
+                                    onChange={(e) => setFormData({ ...formData, bestSeason: e.target.value })}
+                                    placeholder="Oct to Mar"
+                                    className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {!destination ? (
+                                <div className="py-12 text-center bg-ink/5 rounded-3xl">
+                                    <Clock size={32} className="mx-auto mb-4 text-ink/20" />
+                                    <p className="font-bold text-ink">Save the destination first</p>
+                                    <p className="text-xs text-ink/40 mt-1">Travel options can be managed after the destination is created.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex justify-between items-center">
+                                        <h4 className="font-bold">Travel Options</h4>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => {
+                                                setEditingTravel(null);
+                                                setTravelForm({ mode: '', icon: '🚗', description: '', estimatedCost: '', durationMins: 30 });
+                                                setIsTravelFormOpen(true);
+                                            }}
+                                            className="btn-secondary text-xs py-2 px-4"
+                                        >
+                                            <Plus size={14} className="inline mr-1" /> Add Option
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {travelOptions.length === 0 ? (
+                                            <p className="text-sm text-ink/30 italic py-4 text-center border-2 border-dashed border-ink/5 rounded-2xl">No travel options configured.</p>
+                                        ) : (
+                                            travelOptions.map(opt => (
+                                                <div key={opt.id} className="p-4 bg-ink/5 rounded-2xl flex items-center justify-between group">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="text-2xl">{opt.icon || '🚗'}</div>
+                                                        <div>
+                                                            <h5 className="font-bold text-sm">{opt.mode}</h5>
+                                                            <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">{opt.estimatedCost} • {opt.durationMins} mins</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button type="button" onClick={() => { setEditingTravel(opt); setTravelForm(opt); setIsTravelFormOpen(true); }} className="p-2 hover:bg-ink/10 rounded-lg text-ink/40"><Edit2 size={14} /></button>
+                                                        <button type="button" onClick={() => { if(confirm('Delete?')) deleteTravelMutation.mutate(opt.id); }} className="p-2 hover:bg-red/10 rounded-lg text-red/40"><Trash2 size={14} /></button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -452,7 +625,10 @@ const DestinationForm = ({ destination, onClose }) => {
                                                     type="button"
                                                     onClick={() => {
                                                         if (!activityForm.name) return alert('Name is required');
-                                                        activityMutation.mutate({ ...activityForm, price: parseFloat(activityForm.price) || 0 });
+                                                        activityMutation.mutate({ 
+                                                            ...activityForm, 
+                                                            price: parseInt(activityForm.price) || 0 
+                                                        });
                                                     }}
                                                     disabled={activityMutation.isPending}
                                                     className="flex-[2] btn-primary py-3 text-xs"
@@ -464,6 +640,103 @@ const DestinationForm = ({ destination, onClose }) => {
                                     )}
                                 </AnimatePresence>
                             </>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'Food' && (
+                    <div className="space-y-6">
+                        {!destination ? (
+                            <div className="py-12 text-center bg-ink/5 rounded-3xl">
+                                <UtensilsCrossed size={32} className="mx-auto mb-4 text-ink/20" />
+                                <p className="font-bold text-ink">Save the destination first</p>
+                                <p className="text-xs text-ink/40 mt-1">Food options can be managed after the destination is created.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-bold text-ink">Food Palette</h3>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => { setEditingFood(null); setFoodForm({ name: '', emoji: '🍲', mealType: 'BREAKFAST', price: 0, dietaryTag: 'Veg', description: '' }); setIsFoodFormOpen(true); }}
+                                        className="btn-primary text-xs py-2"
+                                    >
+                                        <Plus size={14} className="inline mr-1" /> Add Food
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {foodOptions.length === 0 ? (
+                                        <div className="p-12 text-center border-2 border-dashed border-ink/10 rounded-3xl text-ink/20">
+                                            <UtensilsCrossed size={32} className="mx-auto mb-2 opacity-20" />
+                                            <p className="text-sm font-bold">No food options added.</p>
+                                        </div>
+                                    ) : (
+                                        foodOptions.map(food => (
+                                            <div key={food.id} className="p-4 bg-white border border-ink/5 rounded-2xl flex items-center gap-4 group hover:border-red/20 transition-all">
+                                                <div className="text-2xl w-12 h-12 bg-ink/5 rounded-xl flex items-center justify-center">{food.emoji}</div>
+                                                <div className="flex-1">
+                                                    <h5 className="font-bold text-sm">{food.name}</h5>
+                                                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">{food.mealType} • ₹{food.price} • {food.dietaryTag}</p>
+                                                </div>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button type="button" onClick={() => { setEditingFood(food); setFoodForm(food); setIsFoodFormOpen(true); }} className="p-2 hover:bg-ink/5 rounded-lg text-ink/30"><Edit2 size={14} /></button>
+                                                    <button type="button" onClick={() => { if(confirm('Delete?')) deleteFoodMutation.mutate(food.id); }} className="p-2 hover:bg-red/5 rounded-lg text-red/40"><Trash2 size={14} /></button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'Accommodation' && (
+                    <div className="space-y-6">
+                        {!destination ? (
+                            <div className="py-12 text-center bg-ink/5 rounded-3xl">
+                                <Hotel size={32} className="mx-auto mb-4 text-ink/20" />
+                                <p className="font-bold text-ink">Save the destination first</p>
+                                <p className="text-xs text-ink/40 mt-1">Accommodation can be managed after the destination is created.</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-5">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-bold text-ink">Stay Tiers</h3>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => { setEditingAccommodation(null); setAccommodationForm({ tier: 'Budget', stars: 3, pricePerNight: 0, vibeDescription: '', includes: '' }); setIsAccommodationFormOpen(true); }}
+                                        className="btn-primary text-xs py-2"
+                                    >
+                                        <Plus size={14} className="inline mr-1" /> Add Tier
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {accommodations.length === 0 ? (
+                                        <div className="col-span-2 p-12 text-center border-2 border-dashed border-ink/10 rounded-3xl text-ink/20">
+                                            <Hotel size={32} className="mx-auto mb-2 opacity-20" />
+                                            <p className="text-sm font-bold">No stay tiers configured.</p>
+                                        </div>
+                                    ) : (
+                                        accommodations.map(acc => (
+                                            <div key={acc.id} className="p-5 bg-white border border-ink/5 rounded-2xl group hover:border-red/20 transition-all flex flex-col gap-3">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="px-3 py-1 bg-ink/5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-ink/60">{acc.tier}</div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button type="button" onClick={() => { setEditingAccommodation(acc); setAccommodationForm({ ...acc, includes: Array.isArray(acc.includes) ? acc.includes.join(', ') : acc.includes }); setIsAccommodationFormOpen(true); }} className="p-2 hover:bg-ink/5 rounded-lg text-ink/30"><Edit2 size={14} /></button>
+                                                        <button type="button" onClick={() => { if(confirm('Delete?')) deleteAccommodationMutation.mutate(acc.id); }} className="p-2 hover:bg-red/5 rounded-lg text-red/40"><Trash2 size={14} /></button>
+                                                    </div>
+                                                </div>
+                                                <h4 className="font-bold text-lg">₹{acc.pricePerNight} <span className="text-xs font-medium text-ink/40">/ night</span></h4>
+                                                <div className="flex text-gold">
+                                                    {[...Array(acc.stars)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
+                                                </div>
+                                                <p className="text-xs text-ink/60 line-clamp-2">{acc.vibeDescription}</p>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
                         )}
                     </div>
                 )}
@@ -552,9 +825,181 @@ const DestinationForm = ({ destination, onClose }) => {
                     {saveMutation.isPending ? 'Saving...' : 'Save Destination'}
                 </button>
             </div>
-        </motion.div>
-    );
-};
+                {/* Accommodation Form Modal */}
+                <AnimatePresence>
+                    {isAccommodationFormOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAccommodationFormOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10 max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-xl font-bold mb-6">{editingAccommodation ? 'Edit' : 'Add'} Stay Tier</h3>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <SearchableSelect
+                                            label="Tier"
+                                            options={[
+                                                { value: 'Standard', name: 'Standard' },
+                                                { value: 'Premium', name: 'Premium' },
+                                                { value: 'Luxury', name: 'Luxury' },
+                                                { value: 'Budget', name: 'Budget' },
+                                                { value: 'Mid-range', name: 'Mid-range' }
+                                            ]}
+                                            value={accommodationForm.tier}
+                                            onChange={(val) => setAccommodationForm({ ...accommodationForm, tier: val })}
+                                        />
+                                        <SearchableSelect
+                                            label="Stars"
+                                            options={[1,2,3,4,5].map(s => ({ value: s, name: `${s} Stars` }))}
+                                            value={accommodationForm.stars}
+                                            onChange={(val) => setAccommodationForm({ ...accommodationForm, stars: val })}
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price Per Night (₹)</label>
+                                        <input type="number" value={accommodationForm.pricePerNight} onChange={e => setAccommodationForm({...accommodationForm, pricePerNight: parseInt(e.target.value)})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Vibe Description</label>
+                                        <textarea rows={2} value={accommodationForm.vibeDescription} onChange={e => setAccommodationForm({...accommodationForm, vibeDescription: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium resize-none" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Includes (comma separated)</label>
+                                        <input value={accommodationForm.includes} onChange={e => setAccommodationForm({...accommodationForm, includes: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" placeholder="WiFi, Breakfast, etc." />
+                                    </div>
+                                    <div className="flex gap-3 pt-4">
+                                        <button type="button" onClick={() => setIsAccommodationFormOpen(false)} className="flex-1 py-3 bg-ink/5 rounded-xl font-bold">Cancel</button>
+                                        <button type="button" onClick={() => {
+                                            const includesArray = typeof accommodationForm.includes === 'string' 
+                                                ? accommodationForm.includes.split(',').map(s => s.trim()).filter(Boolean) 
+                                                : accommodationForm.includes;
+                                            
+                                            accommodationMutation.mutate({ 
+                                                ...accommodationForm, 
+                                                includes: includesArray,
+                                                stars: parseInt(accommodationForm.stars) || 3,
+                                                pricePerNight: parseInt(accommodationForm.pricePerNight) || 0
+                                            });
+                                        }} className="flex-2 btn-primary py-3">Save Tier</button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Food Form Modal */}
+                <AnimatePresence>
+                    {isFoodFormOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsFoodFormOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10">
+                                <h3 className="text-xl font-bold mb-6">{editingFood ? 'Edit' : 'Add'} Food Option</h3>
+                                <div className="space-y-4">
+                                    <div className="flex gap-4">
+                                        <div className="w-20 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Emoji</label>
+                                            <input value={foodForm.emoji} onChange={e => setFoodForm({...foodForm, emoji: e.target.value})} className="w-full px-3 py-3 bg-ink/5 rounded-xl border-none text-center text-xl" />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Dish Name</label>
+                                            <input value={foodForm.name} onChange={e => setFoodForm({...foodForm, name: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <SearchableSelect
+                                            label="Meal Type"
+                                            options={[
+                                                { value: 'BREAKFAST', name: 'Breakfast' },
+                                                { value: 'LUNCH', name: 'Lunch' },
+                                                { value: 'DINNER', name: 'Dinner' },
+                                                { value: 'SNACK', name: 'Snack/Drinks' }
+                                            ]}
+                                            value={foodForm.mealType}
+                                            onChange={(val) => setFoodForm({ ...foodForm, mealType: val })}
+                                        />
+                                        <SearchableSelect
+                                            label="Dietary"
+                                            options={[
+                                                { value: 'Veg', name: 'Veg' },
+                                                { value: 'Non-Veg', name: 'Non-Veg' },
+                                                { value: 'Vegan', name: 'Vegan' },
+                                                { value: 'Egg', name: 'Contains Egg' }
+                                            ]}
+                                            value={foodForm.dietaryTag}
+                                            onChange={(val) => setFoodForm({ ...foodForm, dietaryTag: val })}
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹)</label>
+                                        <input type="number" value={foodForm.price} onChange={e => setFoodForm({...foodForm, price: parseInt(e.target.value)})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" />
+                                    </div>
+                                    <div className="flex gap-3 pt-4">
+                                        <button type="button" onClick={() => setIsFoodFormOpen(false)} className="flex-1 py-3 bg-ink/5 rounded-xl font-bold">Cancel</button>
+                                        <button type="button" onClick={() => {
+                                            if (!foodForm.name) return alert('Dish name is required');
+                                            
+                                            // Transform fields to match Prisma schema
+                                            const payload = {
+                                                name: foodForm.name,
+                                                icon: foodForm.emoji || '🍲',
+                                                mealType: foodForm.mealType,
+                                                price: parseInt(foodForm.price) || 0,
+                                                dietaryTags: foodForm.dietaryTag ? [foodForm.dietaryTag] : [],
+                                                description: foodForm.description || ''
+                                            };
+                                            
+                                            foodMutation.mutate(payload);
+                                        }} className="flex-2 btn-primary py-3">Save Food</button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Travel Form Modal */}
+                <AnimatePresence>
+                    {isTravelFormOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsTravelFormOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10">
+                                <h3 className="text-xl font-bold mb-6">{editingTravel ? 'Edit' : 'Add'} Travel Option</h3>
+                                <div className="space-y-4">
+                                    <div className="flex gap-4">
+                                        <div className="w-20 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Icon</label>
+                                            <input value={travelForm.icon} onChange={e => setTravelForm({...travelForm, icon: e.target.value})} className="w-full px-3 py-3 bg-ink/5 rounded-xl border-none text-center text-xl" />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Mode Of Transport</label>
+                                            <input value={travelForm.mode} onChange={e => setTravelForm({...travelForm, mode: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" placeholder="e.g. Luxury Cab" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Est. Cost</label>
+                                            <input value={travelForm.estimatedCost} onChange={e => setTravelForm({...travelForm, estimatedCost: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" placeholder="₹2000 - ₹3000" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration (Mins)</label>
+                                            <input type="number" value={travelForm.durationMins} onChange={e => setTravelForm({...travelForm, durationMins: parseInt(e.target.value)})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
+                                        <textarea rows={2} value={travelForm.description} onChange={e => setTravelForm({...travelForm, description: e.target.value})} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none font-medium resize-none" />
+                                    </div>
+                                    <div className="flex gap-3 pt-4">
+                                        <button type="button" onClick={() => setIsTravelFormOpen(false)} className="flex-1 py-3 bg-ink/5 rounded-xl font-bold">Cancel</button>
+                                        <button type="button" onClick={() => travelMutation.mutate(travelForm)} className="flex-2 btn-primary py-3">Save Option</button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        );
+    };
 
 const DestinationManager = () => {
     const queryClient = useQueryClient();

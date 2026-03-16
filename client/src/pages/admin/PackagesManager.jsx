@@ -14,6 +14,8 @@ const PackageForm = ({ pkg, onClose }) => {
         daysCount: '',
         totalPrice: '',
         highlights: '',
+        tag: 'Bestseller',
+        coverImage: '',
         isActive: true,
     });
 
@@ -33,9 +35,12 @@ const PackageForm = ({ pkg, onClose }) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Package name is required.'); return; }
         if (!form.totalPrice) { alert('Price is required.'); return; }
-        const highlightsArray = form.highlights
-            ? (typeof form.highlights === 'string' ? form.highlights.split(',').map(s => s.trim()).filter(Boolean) : form.highlights)
-            : [];
+        if (!form.daysCount) { alert('Duration is required.'); return; }
+        
+        const highlightsArray = typeof form.highlights === 'string' 
+            ? form.highlights.split(',').map(s => s.trim()).filter(Boolean) 
+            : (Array.isArray(form.highlights) ? form.highlights : []);
+
         mutation.mutate({
             ...form,
             daysCount: parseInt(form.daysCount) || 0,
@@ -49,7 +54,7 @@ const PackageForm = ({ pkg, onClose }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10 max-h-[90vh] overflow-y-auto">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h2 className="text-2xl font-bold text-ink">{pkg ? 'Edit' : 'New'} Package</h2>
@@ -60,26 +65,55 @@ const PackageForm = ({ pkg, onClose }) => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Package Name *</label>
-                        <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="e.g. Kerala Backwaters Escape" />
+                        <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="e.g. Kerala Backwaters Escape" required />
                     </div>
+                    
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Days</label>
-                            <input type="number" value={form.daysCount} onChange={e => setForm({ ...form, daysCount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="7" />
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Days *</label>
+                            <input type="number" value={form.daysCount} onChange={e => setForm({ ...form, daysCount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="7" required />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹) *</label>
-                            <input type="number" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="24999" />
+                            <input type="number" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="24999" required />
                         </div>
                     </div>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Package Tag</label>
+                        <select 
+                            value={form.tag || 'Bestseller'} 
+                            onChange={e => setForm({ ...form, tag: e.target.value })}
+                            className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all appearance-none"
+                        >
+                            <option value="Bestseller">Bestseller</option>
+                            <option value="Luxury">Luxury</option>
+                            <option value="Adventure">Adventure</option>
+                            <option value="Family">Family</option>
+                            <option value="Honeymoon">Honeymoon</option>
+                            <option value="Budget">Budget</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Cover Image URL</label>
+                        <input value={form.coverImage} onChange={e => setForm({ ...form, coverImage: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="https://images.unsplash.com/..." />
+                    </div>
+
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Highlights (comma-separated)</label>
-                        <input value={highlightsStr} onChange={e => setForm({ ...form, highlights: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Houseboat Stay, Kathakali Show, Spice Plantation" />
+                        <textarea 
+                            value={highlightsStr} 
+                            onChange={e => setForm({ ...form, highlights: e.target.value })} 
+                            className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium min-h-[80px] focus:ring-2 focus:ring-red/20 transition-all" 
+                            placeholder="Houseboat Stay, Kathakali Show, Spice Plantation" 
+                        />
                     </div>
-                    <div className="flex gap-3 pt-2">
+
+                    <div className="flex gap-3 pt-4">
                         <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
-                        <button type="submit" disabled={mutation.isPending} className="flex-[2] btn-primary py-3 disabled:opacity-70">
-                            {mutation.isPending ? 'Saving...' : pkg ? 'Save Changes' : 'Create Package'}
+                        <button type="submit" disabled={mutation.isPending} className="flex-[2] btn-primary py-3 disabled:opacity-70 flex items-center justify-center gap-2">
+                            {mutation.isPending ? 'Saving...' : (pkg ? 'Save Changes' : 'Create Package')}
                         </button>
                     </div>
                 </form>
@@ -103,16 +137,22 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
             ) : (
                 <div className="w-full h-full flex items-center justify-center text-ink/10"><Package size={48} /></div>
             )}
-            <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-[10px] font-bold uppercase tracking-widest text-red">
+            <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1.5 shadow-sm">
+                <Calendar size={10} />
                 {item.daysCount} Days
             </div>
+            {item.tag && (
+                <div className="absolute top-4 right-4 px-3 py-1 bg-ink text-white rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                    {item.tag}
+                </div>
+            )}
         </div>
         <div className="p-6">
             <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold truncate pr-4">{item.name}</h3>
+                <h3 className="text-xl font-bold truncate pr-4 text-ink">{item.name}</h3>
                 <div className="flex gap-2 shrink-0">
-                    <button onClick={() => onEdit(item)} className="text-ink/20 hover:text-ink transition-colors"><Edit2 size={16} /></button>
-                    <button onClick={() => onDelete(item.id)} className="text-ink/20 hover:text-red transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(item); }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-ink/5 text-ink/20 hover:text-ink transition-all"><Edit2 size={16} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red/5 text-ink/20 hover:text-red transition-all"><Trash2 size={16} /></button>
                 </div>
             </div>
             <div className="flex items-center gap-4 mb-4">
@@ -120,20 +160,20 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
                     <IndianRupee size={14} />
                     <span>{item.totalPrice?.toLocaleString()}</span>
                 </div>
-                <div className="w-1 h-1 bg-ink/10 rounded-full" />
-                <div className="flex items-center gap-1.5 text-ink/40 font-bold text-xs uppercase tracking-widest">
-                    <Calendar size={14} />
-                    <span>{item.daysCount} Days</span>
-                </div>
+                <div className="w-1.5 h-1.5 bg-ink/10 rounded-full" />
+                <p className="text-ink/40 font-bold text-[10px] uppercase tracking-widest">Starting Price</p>
             </div>
             {item.highlights?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-1.5 mb-6">
                     {item.highlights.slice(0, 3).map((h, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-ink/5 rounded text-[10px] font-bold text-ink/50">{h}</span>
+                        <span key={i} className="px-2 py-1 bg-ink/5 rounded-lg text-[10px] font-bold text-ink/50 border border-ink/5">{h}</span>
                     ))}
+                    {item.highlights.length > 3 && (
+                        <span className="px-2 py-1 bg-ink/5 rounded-lg text-[10px] font-bold text-ink/30">+{item.highlights.length - 3} more</span>
+                    )}
                 </div>
             )}
-            <button onClick={() => onEdit(item)} className="w-full py-3 bg-red/5 hover:bg-red text-red hover:text-white rounded-xl font-bold text-sm transition-all">Edit Package</button>
+            <button onClick={() => onEdit(item)} className="w-full py-4 bg-ink/5 hover:bg-red text-ink hover:text-white rounded-2xl font-bold text-sm transition-all duration-300 transform active:scale-[0.98]">Manage Itinerary</button>
         </div>
     </motion.div>
 );

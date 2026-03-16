@@ -212,6 +212,7 @@ const LocationTreeManager = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [addCountryModal, setAddCountryModal] = useState(false);
+    const [globalModal, setGlobalModal] = useState(null); // Add this
 
     const fetchTree = async () => {
         setLoading(true);
@@ -299,16 +300,33 @@ const LocationTreeManager = () => {
                                     <div className="px-3 py-1 bg-ink/5 rounded text-[10px] font-bold uppercase tracking-widest text-ink/60">{selectedNode.type}</div>
                                     <div className="ml-auto flex gap-2">
                                         <button
-                                            onClick={() => setAddCountryModal(true)}
+                                            onClick={() => setGlobalModal({ mode: 'edit', parentType: selectedNode.type, node: selectedNode })}
                                             className="btn-primary flex items-center gap-2 text-sm px-4"
                                         >
                                             <Edit2 size={14} /> Edit {selectedNode.type}
                                         </button>
                                     </div>
                                 </div>
-                                <h2 className="text-5xl font-display font-bold text-ink mb-2">{selectedNode.name}</h2>
-                                <div className="flex items-center gap-4 text-ink/40 text-sm font-medium">
-                                    <span>ID: {selectedNode.id?.substring(0, 12)}...</span>
+                                <div className="flex items-end justify-between">
+                                    <div>
+                                        <h2 className="text-5xl font-display font-bold text-ink mb-2">{selectedNode.name}</h2>
+                                        <div className="flex items-center gap-4 text-ink/40 text-sm font-medium">
+                                            <span>ID: {selectedNode.id?.substring(0, 12)}...</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {selectedNode.type !== 'destination' && (
+                                        <button
+                                            onClick={() => setGlobalModal({ mode: 'add', parentType: selectedNode.type, parentId: selectedNode.id })}
+                                            className="flex items-center gap-2 px-6 py-3 bg-forest text-white rounded-2xl font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-forest/20"
+                                        >
+                                            <Plus size={18} /> Add {
+                                                selectedNode.type === 'country' ? 'State' : 
+                                                selectedNode.type === 'state' ? 'District' : 
+                                                'Destination'
+                                            }
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -349,14 +367,46 @@ const LocationTreeManager = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-center max-w-xs mx-auto">
-                                        <div className="w-20 h-20 bg-ink/5 rounded-full flex items-center justify-center mb-6">
-                                            <MapPin size={40} className="text-ink/20" />
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h3 className="font-bold text-ink">Manage Content</h3>
+                                            <div className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Children Of {selectedNode.name}</div>
                                         </div>
-                                        <h3 className="text-xl font-bold mb-2">{selectedNode.name}</h3>
-                                        <p className="text-sm text-ink/40 font-medium">
-                                            Hover over any node in the tree and click + to add children, ✏️ to edit, or 🗑️ to delete.
-                                        </p>
+                                        
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {(selectedNode.states || selectedNode.districts || selectedNode.destinations || []).length === 0 ? (
+                                                <div className="py-12 text-center border-2 border-dashed border-ink/10 rounded-3xl">
+                                                    <p className="text-sm font-medium text-ink/20">No items found.</p>
+                                                </div>
+                                            ) : (
+                                                (selectedNode.states || selectedNode.districts || selectedNode.destinations || []).map(child => (
+                                                    <div 
+                                                        key={child.id}
+                                                        onClick={() => setSelectedNode({ ...child, type: selectedNode.type === 'country' ? 'state' : selectedNode.type === 'state' ? 'district' : 'destination' })}
+                                                        className="p-4 bg-ink/5 rounded-2xl flex items-center justify-between group hover:bg-ink/10 cursor-pointer transition-all"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                                                                {selectedNode.type === 'country' ? <Map size={14} className="text-forest" /> : 
+                                                                 selectedNode.type === 'state' ? <MapPin size={14} className="text-gold" /> : 
+                                                                 <Palmtree size={14} className="text-ocean" />}
+                                                            </div>
+                                                            <span className="font-bold text-ink text-sm">{child.name}</span>
+                                                        </div>
+                                                        <ChevronRight size={16} className="text-ink/20 group-hover:text-ink/60 transition-all group-hover:translate-x-1" />
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+
+                                        <div className="pt-6 border-t border-ink/5 mt-auto">
+                                            <div className="p-6 bg-ink/5 rounded-3xl text-center">
+                                                <p className="text-xs font-bold text-ink/40 uppercase tracking-widest mb-4">Discovery Tip</p>
+                                                <p className="text-sm text-ink/60 font-medium leading-relaxed px-4">
+                                                    You can also manage these nodes directly from the tree by hovering over them to reveal quick actions (Add, Edit, Delete).
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -374,12 +424,12 @@ const LocationTreeManager = () => {
             </div>
 
             <AnimatePresence>
-                {addCountryModal && (
+                {(addCountryModal || globalModal) && (
                     <NodeForm
-                        node={null}
-                        parentType="root"
-                        parentId={null}
-                        onClose={() => setAddCountryModal(false)}
+                        node={(globalModal?.mode === 'edit') ? globalModal.node : null}
+                        parentType={globalModal ? globalModal.parentType : 'root'}
+                        parentId={globalModal ? globalModal.parentId : null}
+                        onClose={() => { setAddCountryModal(false); setGlobalModal(null); }}
                         onSaved={fetchTree}
                     />
                 )}
