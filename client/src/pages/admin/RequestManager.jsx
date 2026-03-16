@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, MessageSquare, Calendar, User, MoreVertical,
-    CheckCircle2, Clock, AlertCircle, XCircle, Hash, ChevronDown, X
+    CheckCircle2, Clock, AlertCircle, XCircle, Hash, ChevronDown, X, Trash2
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 import { io } from 'socket.io-client';
@@ -41,7 +41,23 @@ const RequestDetail = ({ request, onClose }) => {
                         <h2 className="text-2xl font-bold text-ink">{request.userName}</h2>
                         <p className="text-sm text-ink/40 font-medium">{request.userEmail}</p>
                     </div>
-                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all mt-1"><X size={18} /></button>
+                    <div className="flex gap-2 mt-1">
+                        <button 
+                            onClick={() => {
+                                if (window.confirm('Delete this inquiry permanently?')) {
+                                    apiClient.delete(`/requests/${request.id}`).then(() => {
+                                        queryClient.invalidateQueries(['requests']);
+                                        onClose();
+                                    });
+                                }
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/20 hover:text-red transition-all"
+                            title="Delete Request"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all"><X size={18} /></button>
+                    </div>
                 </div>
 
                 <div className="space-y-4 mb-6">

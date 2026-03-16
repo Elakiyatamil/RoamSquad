@@ -1,10 +1,23 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { motion, AnimatePresence } from 'framer-motion';
+import useAuthStore from '../store/authStore';
 
 const AdminLayout = () => {
+    const { isAuthenticated } = useAuthStore();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/login', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
+
+    if (!isAuthenticated) return null;
+
     return (
         <div className="flex h-screen overflow-hidden bg-cream font-sans">
             <Sidebar />

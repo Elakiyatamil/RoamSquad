@@ -32,7 +32,7 @@ const PackageForm = ({ pkg, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Package name is required.'); return; }
-        if (!form.price) { alert('Price is required.'); return; }
+        if (!form.totalPrice) { alert('Price is required.'); return; }
         const highlightsArray = form.highlights
             ? (typeof form.highlights === 'string' ? form.highlights.split(',').map(s => s.trim()).filter(Boolean) : form.highlights)
             : [];
