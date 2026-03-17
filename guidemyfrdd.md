@@ -36,15 +36,33 @@ The `server` also contains `controllers` for business logic, `routes` for API en
 
 ## 4. Current Implemented Features
 
-**Admin features**: Admins can view inquiries, manage destinations, and track system changes via an Activity Log.
+**Admin features**:
+- **Dashboard Overview**: Key metrics and quick links to various management sections.
+- **Inquiry Manager**: View all submitted user trip inquiries, including budget, destination, and itinerary snapshots.
+- **Destination Management**: Create, edit, and categorize travel locations under specific states and districts.
+- **Activity Log**: Real-time tracking of admin actions (Create, Update, Delete) across the platform.
 
-**Client features**: Users can browse curated destinations and use a multi-step Planner to build a custom itinerary.
+**Client features**:
+- **Discovery Mode**: A sleek interface for browsing curated destinations, highlights, and cost estimates.
+- **Interactive Trip Planner**: A multi-step form where users can select their trip dates, traveler count, and budget.
+- **Custom Itinerary Building**: Select curated activities, accommodations, and food options for a personalized experience.
+- **User Authentication**: Secure login and registration tailored for travelers to save their data.
 
-**Server features**: The API handles user authentication, serves curated destination data, and securely saves inquiries to the database.
+**Server features**:
+- **RESTful API endpoints**: Robust routing to serve public destination data and protected user data.
+- **JWT Authentication**: Middleware ensuring secure access to specific routes based on user roles (Admin vs User).
+- **Relational Data Mapping**: Complex nested Prisma queries to fetch destinations alongside their activities, states, and districts.
+- **Schema Validation**: Enforcement of business logic before database insertion (e.g., date checks, data formatting).
 
-**Inquiry flow**: Travelers select activities, choose accommodations, validate their timeline, and submit the compiled data to the server.
+**Inquiry flow**:
+- **Selection**: Travelers pick their desired travel dates, activities, and hotel preferences.
+- **Validation**: The system cross-checks rules like the "25-day minimum notice" and "Same-state activity grouping".
+- **Confirmation**: A complete summary is presented to the user, blocking submission unless the user authenticates.
+- **Submission**: A full JSON snapshot of the planned trip is saved securely to the database.
 
-**My Journeys flow**: Authenticated users can view a list of their previously submitted trip inquiries and click into them to see the detailed itinerary snapshot.
+**My Journeys flow**:
+- **History View**: Logged-in users have a personalized page listing all their previously submitted trip requests.
+- **Detailed Snapshot**: Clicking a specific journey opens a full breakdown of their chosen itinerary and budget.
 
 ## 5. How to Run Project (Windows)
 
