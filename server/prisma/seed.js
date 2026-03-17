@@ -115,7 +115,7 @@ async function main() {
     console.log('8. Creating accommodation...');
     const rooms = [
         { destinationId: munnar.id, tier: 'luxury', hotelNameInternal: 'Blanket Hotel', vibeDescription: 'Foggy tea garden views', stars: 5, pricePerNight: 12000, includes: ['High Tea', 'Infinity Pool'] },
-        { destinationId: coorg.id, tier: 'mid_range', hotelNameInternal: 'Coorg Cliffs', vibeDescription: 'Mist-covered valleys', stars: 4, pricePerNight: 8000, includes: ['Estate Walk'] }
+        { destinationId: coorg.id, tier: 'comfort', hotelNameInternal: 'Coorg Cliffs', vibeDescription: 'Mist-covered valleys', stars: 4, pricePerNight: 8000, includes: ['Estate Walk'] }
     ];
     for (const room of rooms) {
         await prisma.accommodation.create({ data: room });

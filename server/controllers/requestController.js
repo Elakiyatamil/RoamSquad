@@ -29,13 +29,39 @@ const updateRequest = async (req, res) => {
     }
 };
 
+const createRequest = async (req, res) => {
+    try {
+        const request = await prisma.itineraryRequest.create({
+            data: {
+                ...req.body,
+                status: 'New Inquiry'
+            }
+        });
+
+        // Emit socket update to admins
+        const io = getIO();
+        io.emit('request:created', request);
+
+        res.json(request);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const deleteRequest = async (req, res) => {
     try {
-        await prisma.itineraryRequest.delete({ where: { id: req.params.id } });
+        await prisma.itineraryRequest.delete({
+            where: { id: req.params.id }
+        });
+
+        // Emit socket update
+        const io = getIO();
+        io.emit('request:deleted', { id: req.params.id });
+
         res.json({ message: 'Request deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-module.exports = { getRequests, updateRequest, deleteRequest };
+module.exports = { getRequests, updateRequest, deleteRequest, createRequest };

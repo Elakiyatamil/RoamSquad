@@ -25,7 +25,7 @@ const uploadSingle = async (req, res) => {
         }
 
         const stream = cloudinary.uploader.upload_stream(
-            { folder: 'roam_reverie' },
+            { folder: 'roam_squad' },
             (error, result) => {
                 if (error) return res.status(500).json({ error: error.message });
                 res.json({ url: result.secure_url, publicId: result.public_id });
@@ -53,7 +53,7 @@ const uploadMultiple = async (req, res) => {
         const uploadPromises = req.files.map(file => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
-                    { folder: 'roam_reverie' },
+                    { folder: 'roam_squad' },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve({ url: result.secure_url, publicId: result.public_id });

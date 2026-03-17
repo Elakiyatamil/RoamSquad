@@ -153,17 +153,50 @@ model Package {
 }
 
 model ItineraryRequest {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
+  userId      String?   // Optional for registered users
   userName    String
   userEmail   String
+  userPhone   String?
   destination String
   travelDates String
   budget      String
   travelers   Int
+  travelType  String?   // Couple, Family, Solo, etc.
+  vibe        String?   // Relaxation, Nature, etc.
   activities  String[]
-  status      String   @default("new")
-  agentNotes  String?
-  createdAt   DateTime @default(now())
+  timeline    Json?
+  status        String    @default("new")
+  agentNotes    String?
+  quoteAmount   Float?
+  quoteDetails  String?
+  createdAt     DateTime  @default(now())
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model TripPlan {
+  id              String   @id @default(uuid())
+  userId          String?
+  days            Int
+  travellers      Int
+  vibe            String?
+  activities      Json?
+  timeline        Json?
+  estimatedBudget Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WishlistItem {
+  id            String   @id @default(uuid())
+  userId        String
+  entityType    String   // Destination, Activity
+  entityId      String
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId])
 }
 
 model User {
@@ -174,6 +207,9 @@ model User {
   role      String   @default("USER")
   createdAt DateTime @default(now())
   auditLogs AuditLog[]
+  requests  ItineraryRequest[]
+  tripPlans TripPlan[]
+  wishlist  WishlistItem[]
 }
 
 model AuditLog {
