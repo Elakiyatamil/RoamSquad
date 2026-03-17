@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const publicRoutes = require('./routes/public');
 const userTripRoutes = require('./routes/userTrips');
 const wishlistRoutes = require('./routes/wishlist');
+const inquiryRoutes = require('./routes/inquiry');
 const experienceController = require('./controllers/experienceController');
 const { verifyJWT, isAdmin } = require('./middleware/auth');
 const { getAuditLogs } = require('./controllers/auditController');
@@ -30,12 +31,33 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// #region agent log
+// Debug-only endpoint for this session (no secrets).
+app.post('/__debug-log', (req, res) => {
+    try {
+        const fs = require('fs');
+        const payload = {
+            sessionId: 'b1a21f',
+            runId: 'pre-fix',
+            hypothesisId: req.body?.hypothesisId || 'H-ui',
+            location: req.body?.location || 'server/index.js:/__debug-log',
+            message: req.body?.message || 'debug event',
+            data: req.body?.data || null,
+            timestamp: Date.now(),
+        };
+        fs.appendFileSync('c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log', `${JSON.stringify(payload)}\n`, 'utf8');
+    } catch (_) { }
+    res.json({ ok: true });
+});
+// #endregion agent log
+
 // Auth & Public Routes
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/user', userTripRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/inquiry', inquiryRoutes);
 app.get('/public/destinations/:id/accommodation', experienceController.getAccommodationPublic);
 
 // Admin Routes (JWT & Admin checks are inside the route files)

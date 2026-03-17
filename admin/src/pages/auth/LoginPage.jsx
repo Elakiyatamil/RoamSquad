@@ -15,7 +15,9 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login, isAuthenticated, hydrated } = useAuthStore();
+    const login = useAuthStore((s) => s.login);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+    const hydrated = useAuthStore((s) => s.hydrated);
 
     // Auto-redirect if already logged in
     useEffect(() => {

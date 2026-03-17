@@ -10,25 +10,18 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
     try {
-<<<<<<<< HEAD:admin/src/services/apiClient.js
-        const directToken = localStorage.getItem('token');
+        // Prefer Zustand token; fallback to persisted storage
+        const { token } = useAuthStore.getState();
+        const directToken = token || localStorage.getItem('token');
         if (directToken) {
             config.headers.Authorization = `Bearer ${directToken}`;
         } else {
             const authDataStr = localStorage.getItem('roamsquad-auth');
             if (authDataStr) {
                 const authData = JSON.parse(authDataStr);
-                const token = authData?.state?.token;
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
-                }
+                const storedToken = authData?.state?.token;
+                if (storedToken) config.headers.Authorization = `Bearer ${storedToken}`;
             }
-========
-        // Use Zustand store's state directly instead of manual localStorage parsing
-        const { token } = useAuthStore.getState();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
->>>>>>>> origin/main:client/src/services/apiClient.js
         }
     } catch (e) {
         console.error('📡 API Auth Interceptor Error:', e);

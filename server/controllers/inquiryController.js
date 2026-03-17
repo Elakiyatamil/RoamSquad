@@ -1,0 +1,121 @@
+const prisma = require('../utils/prisma');
+
+const ensureInquiryModel = (res) => {
+  if (!prisma?.inquiry) {
+    res.status(500).json({
+      error:
+        'Prisma client is missing the Inquiry model. Run: npx prisma generate && npx prisma migrate dev, then restart the server.',
+    });
+    return false;
+  }
+  return true;
+};
+
+exports.createInquiry = async (req, res) => {
+  try {
+    if (!ensureInquiryModel(res)) return;
+    const {
+      userId,
+      name,
+      email,
+      phone,
+      state,
+      district,
+      itinerary,
+      itinerarySnapshot,
+      hotel,
+      hotelSnapshot,
+      food,
+      foodSnapshot,
+      days,
+      people,
+      totalBudget,
+      startDate,
+      tripDate,
+    } = req.body;
+
+    const effectiveUserId = req.user?.id || userId || null;
+    const effectiveItinerarySnapshot = itinerarySnapshot ?? itinerary ?? null;
+    const effectiveHotelSnapshot = hotelSnapshot ?? (hotel ? { name: hotel } : null);
+    const effectiveFoodSnapshot = foodSnapshot ?? (food ? { name: food } : null);
+
+    if (!name || !email || !phone) {
+      return res.status(400).json({ error: 'name, email, phone are required' });
+    }
+    if (!effectiveItinerarySnapshot) {
+      return res.status(400).json({ error: 'itinerary is required' });
+    }
+    if (!tripDate && !startDate) {
+      return res.status(400).json({ error: 'tripDate is required' });
+    }
+
+    const inquiry = await prisma.inquiry.create({
+      data: {
+        userId: effectiveUserId,
+        name,
+        email,
+        phone,
+        state: state ?? null,
+        district: district ?? null,
+        itinerary: itinerary ?? null,
+        hotel: hotel ?? null,
+        food: food ?? null,
+        itinerarySnapshot: effectiveItinerarySnapshot,
+        hotelSnapshot: effectiveHotelSnapshot,
+        foodSnapshot: effectiveFoodSnapshot,
+        days: typeof days === 'number' ? days : (days ? Number(days) : null),
+        people: typeof people === 'number' ? people : (people ? Number(people) : null),
+        totalBudget: typeof totalBudget === 'number' ? totalBudget : (totalBudget ? Number(totalBudget) : null),
+        startDate: startDate ? new Date(startDate) : null,
+        tripDate: (tripDate || startDate) ? new Date(tripDate || startDate) : null,
+      },
+    });
+
+    res.json(inquiry);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getMyInquiries = async (req, res) => {
+  try {
+    if (!ensureInquiryModel(res)) return;
+    if (!req.user?.id) return res.sendStatus(401);
+    const inquiries = await prisma.inquiry.findMany({
+      where: { userId: req.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(inquiries);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getInquiries = async (req, res) => {
+  try {
+    if (!ensureInquiryModel(res)) return;
+    const inquiries = await prisma.inquiry.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(inquiries);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getInquiryById = async (req, res) => {
+  try {
+    if (!ensureInquiryModel(res)) return;
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: 'Invalid id' });
+    const inquiry = await prisma.inquiry.findUnique({ where: { id } });
+    if (!inquiry) return res.status(404).json({ error: 'Not found' });
+    const isOwner = req.user?.id && inquiry.userId && req.user.id === inquiry.userId;
+    const isAdminUser = req.user?.role === 'ADMIN';
+    if (!isOwner && !isAdminUser) return res.sendStatus(403);
+    res.json(inquiry);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

@@ -13,7 +13,8 @@ import {
     ChevronLeft,
     ChevronRight,
     LayoutDashboard,
-    ShieldCheck
+    ShieldCheck,
+    Inbox
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
@@ -32,6 +33,7 @@ const Sidebar = () => {
         { title: 'Accommodation', icon: Hotel, path: '/admin/accommodation' },
         { title: 'Packages', icon: Package, path: '/admin/packages' },
         { title: 'Requests', icon: ClipboardList, path: '/admin/requests' },
+        { title: 'Inquiries', icon: Inbox, path: '/admin/inquiries' },
         { title: 'Activity Log', icon: ShieldCheck, path: '/admin/activity-log' },
     ];
 

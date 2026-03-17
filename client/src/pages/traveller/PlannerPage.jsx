@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus } from 'lucide-react';
+import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus, TreePalm } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
@@ -14,6 +14,7 @@ const PlannerPage = () => {
     const [inquiryStatus, setInquiryStatus] = useState(null);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
+    const [errorMessage, setErrorMessage] = useState('');
     const [config, setConfig] = useState({
         days: 3,
         travellers: 2,
@@ -22,15 +23,34 @@ const PlannerPage = () => {
         experienceType: 'Mid-range',
         userName: '',
         userEmail: '',
-        userPhone: ''
+        userPhone: '',
+        startDate: '',
+        hotel: '',
+        food: ''
     });
 
     const [selectedActivities, setSelectedActivities] = useState([]);
+    const [pendingSubmit, setPendingSubmit] = useState(false);
 
     const { data: destinations } = useQuery({
         queryKey: ['public-destinations'],
         queryFn: async () => {
             const res = await axios.get(`${API_BASE}/destinations`);
+            // #region agent log
+            fetch('http://localhost:5000/__debug-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    hypothesisId: 'H8',
+                    location: 'client/src/pages/traveller/PlannerPage.jsx:destinationsQuery',
+                    message: 'planner received public destinations',
+                    data: {
+                        count: Array.isArray(res.data) ? res.data.length : null,
+                        sampleActivitiesCount: Array.isArray(res.data) && res.data[0]?.activities ? res.data[0].activities.length : null
+                    }
+                })
+            }).catch(() => { });
+            // #endregion agent log
             return res.data;
         }
     });
@@ -57,31 +77,113 @@ const PlannerPage = () => {
                 alert(`You can only add up to ${config.days * 2} activities for a ${config.days}-day trip to keep it logical.`);
                 return;
             }
-            setSelectedActivities([...selectedActivities, { ...activity, planId: id, destinationName: destination.name, destinationId: destination.id }]);
+            setSelectedActivities([
+                ...selectedActivities,
+                {
+                    ...activity,
+                    planId: id,
+                    destinationName: destination.name,
+                    destinationId: destination.id,
+                    stateId: destination.stateId,
+                    stateName: destination.stateName,
+                    districtId: destination.districtId,
+                    districtName: destination.districtName,
+                }
+            ]);
         }
     };
 
-    const submitInquiry = async (e) => {
-        e.preventDefault();
+    const validateBeforeConfirm = () => {
+        // RULE 7: Required fields
+        if (!config.userName?.trim() || !config.userEmail?.trim() || !config.userPhone?.trim()) {
+            return 'Please fill name, email and phone';
+        }
+        if (!config.startDate) return 'Please select a start date';
+        if (!config.hotel?.trim()) return 'Please enter/select a hotel';
+        if (!selectedActivities.length) return 'Please select at least 1 place';
+
+        // RULE 8: startDate valid + RULE 3 (25-day rule): trip must be >= today + 25 days
+        const start = new Date(`${config.startDate}T00:00:00`);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (Number.isNaN(start.getTime())) return 'Start date is invalid';
+        const minDate = new Date(today);
+        minDate.setDate(minDate.getDate() + 25);
+        if (start < minDate) return 'Trip must be at least 25 days from today';
+
+        // RULE 1: All places same state
+        const stateIds = new Set(selectedActivities.map(a => a.stateId).filter(Boolean));
+        if (stateIds.size > 1) return 'All selected places must be from same state';
+
+        // RULE 2 + RULE 9: Max 2 places per day, no empty day
+        for (const day of timeline) {
+            if (!day.activities?.length) return 'Each day must have at least 1 place.';
+            if (day.activities.length > 2) return 'Maximum 2 places allowed per day';
+        }
+
+        // RULE 3: days match plan
+        const itineraryDays = timeline.length;
+        if (Number(config.days) !== itineraryDays) return 'Days do not match plan';
+
+        return null;
+    };
+
+    const doSubmitInquiry = async () => {
         setIsSubmitting(true);
+        setErrorMessage('');
+        const validationError = validateBeforeConfirm();
+        if (validationError) {
+            setIsSubmitting(false);
+            setErrorMessage(validationError);
+            return;
+        }
+        // RULE 7 (SRS): login only at inquiry confirm
+        if (!isAuthenticated) {
+            setPendingSubmit(true);
+            setShowAuthModal(true);
+            setIsSubmitting(false);
+            return;
+        }
         try {
+            const first = selectedActivities[0];
+            const state = first?.stateName || null;
+            const district = first?.districtName || null;
             const payload = {
                 userId: user?.id,
-                userName: user?.name || config.userName,
-                userEmail: user?.email || config.userEmail,
-                userPhone: config.userPhone,
-                destination: [...new Set(selectedActivities.map(a => a.destinationName))].join(', '),
-                travelDates: `Planned for ${config.days} days`,
-                budget: `₹${totalBudget.toLocaleString()}`,
-                travelers: config.travellers,
-                travelType: config.travelType,
-                vibe: config.vibe,
-                activities: selectedActivities.map(a => `${a.destinationName}: ${a.name}`),
-                timeline: timeline // Full generated timeline
+                name: user?.name || config.userName,
+                email: user?.email || config.userEmail,
+                phone: config.userPhone,
+                state,
+                district,
+                itinerary: {
+                    days: config.days,
+                    people: config.travellers,
+                    travelType: config.travelType,
+                    vibe: config.vibe,
+                    places: selectedActivities,
+                    timeline
+                },
+                itinerarySnapshot: {
+                    days: config.days,
+                    people: config.travellers,
+                    travelType: config.travelType,
+                    vibe: config.vibe,
+                    places: selectedActivities,
+                    timeline
+                },
+                hotelSnapshot: { name: config.hotel, districtId: first?.districtId, districtName: first?.districtName },
+                foodSnapshot: config.food ? { name: config.food } : null,
+                totalBudget,
+                tripDate: config.startDate,
+                startDate: config.startDate,
+                days: Number(config.days),
+                people: Number(config.travellers)
             };
             
-            const authHeader = isAuthenticated ? { Authorization: `Bearer ${useAuthStore.getState().token}` } : {};
-            await axios.post('http://localhost:5000/api/requests', payload, { headers: authHeader });
+            const token = useAuthStore.getState().token;
+            await axios.post('http://localhost:5000/api/inquiry', payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             
             // Save to local storage for guest session reference
             const savedInquiries = JSON.parse(localStorage.getItem('submitted_inquiries') || '[]');
@@ -97,9 +199,23 @@ const PlannerPage = () => {
         } catch (error) {
             console.error(error);
             setInquiryStatus('error');
+            
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                useAuthStore.getState().logout();
+                setErrorMessage('Session expired. Please log in again.');
+                setShowAuthModal(true);
+            } else {
+                setErrorMessage(error.response?.data?.error || error.response?.data?.message || 'Failed to submit inquiry');
+            }
         } finally {
             setIsSubmitting(false);
+            setPendingSubmit(false);
         }
+    };
+
+    const submitInquiry = async (e) => {
+        e.preventDefault();
+        await doSubmitInquiry();
     };
 
     const totalBudget = selectedActivities.reduce((sum, act) => sum + act.price, 0);
@@ -448,6 +564,11 @@ const PlannerPage = () => {
                                     <div className="p-12">
                                         <h2 className="text-3xl font-display font-bold text-forest mb-6">Final Details</h2>
                                         <form onSubmit={submitInquiry} className="space-y-6">
+                                            {errorMessage && (
+                                                <div className="p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold">
+                                                    {errorMessage}
+                                                </div>
+                                            )}
                                             <div>
                                                 <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Your Name</label>
                                                 <input 
@@ -478,6 +599,37 @@ const PlannerPage = () => {
                                                     onChange={e => setConfig({...config, userPhone: e.target.value})}
                                                 />
                                             </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Start Date</label>
+                                                <input
+                                                    required
+                                                    type="date"
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.startDate}
+                                                    onChange={e => setConfig({ ...config, startDate: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Hotel (Required)</label>
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    placeholder="Example: Mid-range tier / Hotel name"
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.hotel}
+                                                    onChange={e => setConfig({ ...config, hotel: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Food (Optional)</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Example: Vegetarian / Local cuisine preference"
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.food}
+                                                    onChange={e => setConfig({ ...config, food: e.target.value })}
+                                                />
+                                            </div>
 
                                             <div className="pt-6 border-t border-forest/5">
                                                 <div className="flex justify-between items-end mb-8">
@@ -504,7 +656,14 @@ const PlannerPage = () => {
                 <AuthModal 
                     isOpen={showAuthModal} 
                     onClose={() => setShowAuthModal(false)}
-                    onSuccess={() => nextStep()}
+                    onSuccess={async () => {
+                        setShowAuthModal(false);
+                        if (pendingSubmit) {
+                            await doSubmitInquiry();
+                        } else {
+                            nextStep();
+                        }
+                    }}
                 />
             </div>
         </div>

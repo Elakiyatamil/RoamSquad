@@ -92,10 +92,10 @@ async function main() {
 
     console.log('6. Creating activities...');
     const activities = [
-        { destinationId: munnar.id, name: 'Tea Garden Trek', icon: '🍵', price: 600, duration: '3h' },
-        { destinationId: munnar.id, name: 'Eravikulam Safari', icon: '🦌', price: 1200, duration: '4h' },
-        { destinationId: coorg.id, name: 'Coffee Plantation Tour', icon: '☕', price: 500, duration: '2h' },
-        { destinationId: gokarna.id, name: 'Beach Trek', icon: '🏖️', price: 800, duration: '3h' }
+        { destinationId: munnar.id, name: 'Tea Garden Trek', icon: '🍵', price: 600, duration: '3h', images: [] },
+        { destinationId: munnar.id, name: 'Eravikulam Safari', icon: '🦌', price: 1200, duration: '4h', images: [] },
+        { destinationId: coorg.id, name: 'Coffee Plantation Tour', icon: '☕', price: 500, duration: '2h', images: [] },
+        { destinationId: gokarna.id, name: 'Beach Trek', icon: '🏖️', price: 800, duration: '3h', images: [] }
     ];
     for (const act of activities) {
         await prisma.activity.create({ data: act });

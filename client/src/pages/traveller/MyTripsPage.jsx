@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plane, Calendar, MapPin, ChevronRight, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useAuthStore from '../../store/authStore';
+import axios from 'axios';
 
 const MyTripsPage = () => {
     const [trips, setTrips] = useState([]);
+    const navigate = useNavigate();
+    const token = useAuthStore((s) => s.token);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
     useEffect(() => {
-        // For now, we'll check if there were any submitted inquiries saved locally
-        const saved = localStorage.getItem('submitted_inquiries');
-        if (saved) setTrips(JSON.parse(saved));
-    }, []);
+        const load = async () => {
+            if (isAuthenticated && token) {
+                try {
+                    const res = await axios.get('http://localhost:5000/api/inquiry/my', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setTrips(res.data || []);
+                    return;
+                } catch {
+                    // fall back to local below
+                }
+            }
+            const saved = localStorage.getItem('submitted_inquiries');
+            if (saved) setTrips(JSON.parse(saved));
+        };
+        load();
+    }, [isAuthenticated, token]);
 
     return (
         <div className="container mx-auto px-6 py-20 min-h-[70vh]">
@@ -37,11 +55,14 @@ const MyTripsPage = () => {
                 <div className="space-y-6">
                     {trips.map((trip, idx) => (
                         <motion.div
-                            key={idx}
+                            key={trip.id ?? idx}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="bg-white p-8 rounded-[2.5rem] border border-forest/5 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-8"
+                            onClick={() => {
+                                if (trip?.id != null) navigate(`/journey/${trip.id}`);
+                            }}
+                            className="bg-white p-8 rounded-[2.5rem] border border-forest/5 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer"
                         >
                             <div className="flex items-start gap-6">
                                 <div className="w-16 h-16 bg-forest/5 rounded-2xl flex items-center justify-center text-forest/30">
@@ -50,17 +71,17 @@ const MyTripsPage = () => {
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="px-2 py-0.5 bg-gold/20 text-gold text-[10px] font-bold rounded uppercase tracking-widest">Inquiry Sent</span>
-                                        <span className="text-forest/30 text-xs">{new Date(trip.date).toLocaleDateString()}</span>
+                                        <span className="text-forest/30 text-xs">{new Date(trip.createdAt || trip.date).toLocaleDateString()}</span>
                                     </div>
-                                    <h3 className="text-2xl font-bold text-forest">{trip.destination}</h3>
-                                    <p className="text-forest/50 text-sm">{trip.travelers} Pax • {trip.vibe} Vibe</p>
+                                    <h3 className="text-2xl font-bold text-forest">{trip.state ? `${trip.state}${trip.district ? ` · ${trip.district}` : ''}` : (trip.destination || 'Trip')}</h3>
+                                    <p className="text-forest/50 text-sm">{(trip.people ?? trip.travelers ?? trip.itinerarySnapshot?.people ?? trip.itinerary?.people) || 0} Pax • {(trip.itinerarySnapshot?.vibe ?? trip.vibe) || 'Custom'} Vibe</p>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-4">
                                 <div className="text-right hidden md:block">
                                     <p className="text-[10px] font-bold text-forest/30 uppercase tracking-widest">Estimated Budget</p>
-                                    <p className="text-xl font-display font-bold text-forest">{trip.budget}</p>
+                                    <p className="text-xl font-display font-bold text-forest">₹{Number(trip.totalBudget || 0).toLocaleString()}</p>
                                 </div>
                                 <button className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest hover:text-cream transition-all">
                                     <ChevronRight size={24} />

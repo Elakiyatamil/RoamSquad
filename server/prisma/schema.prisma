@@ -71,8 +71,7 @@ model Activity {
   duration      String?
   price         Int
   priceLabel    String?
-  difficulty    String?
-  imageUrl      String?
+  images        String[]
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
@@ -226,4 +225,27 @@ model AuditLog {
   details     String?
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Inquiry {
+  id          Int      @id @default(autoincrement())
+  userId      String?
+  name        String
+  email       String
+  phone       String
+  state       String?
+  district    String?
+  itinerary   Json?
+  hotel       String?
+  food        String?
+  itinerarySnapshot Json?
+  hotelSnapshot     Json?
+  foodSnapshot      Json?
+  days        Int?
+  people      Int?
+  totalBudget Int?
+  startDate   DateTime?
+  tripDate    DateTime?
+  status      String   @default("INQUIRY SENT")
+  createdAt   DateTime @default(now())
 }

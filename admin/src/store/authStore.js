@@ -7,7 +7,8 @@ const useAuthStore = create(
             user: null,
             token: null,
             isAuthenticated: false,
-            hydrated: false,
+            // Keep UI responsive even if persist hydration is slow/empty
+            hydrated: true,
             setHydrated: (val) => set({ hydrated: val }),
             login: (user, token) => set({ user, token, isAuthenticated: true }),
             logout: () => set({ user: null, token: null, isAuthenticated: false }),
@@ -19,9 +20,6 @@ const useAuthStore = create(
                 token: state.token,
                 isAuthenticated: state.isAuthenticated,
             }),
-            onRehydrateStorage: () => (state) => {
-                if (state) state.setHydrated(true);
-            },
         }
     )
 );

@@ -1,17 +1,6 @@
--- CreateTable
-CREATE TABLE "AuditLog" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "userName" TEXT,
-    "action" TEXT NOT NULL,
-    "entity" TEXT NOT NULL,
-    "entityId" TEXT,
-    "entityName" TEXT,
-    "details" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
-);
-
--- AddForeignKey
-ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- NOTE:
+-- This migration originally created the "AuditLog" table, but that table was already created
+-- in an earlier migration (20260316153140_refactor_trip_plan). Keeping a duplicate CREATE TABLE
+-- causes prisma migrate dev (shadow database) to fail with "relation AuditLog already exists".
+--
+-- This migration is intentionally a no-op.

@@ -10,6 +10,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { login } = useAuthStore();
+    const endpoint = isLogin ? '/auth/login' : '/auth/register';
 
     const handleSubmit = async (e) => {
         e.preventDefault();

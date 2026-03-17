@@ -1,0 +1,26 @@
+[
+  {
+    "id": "59ad6ad9-dd61-4f0c-b609-9f58b7b49f04",
+    "name": "Idukki",
+    "stateId": "1c7b078d-8a5c-4d79-b24f-30e7635f294d",
+    "active": true
+  },
+  {
+    "id": "d24972e2-9590-438f-b0e6-21c552c28ce5",
+    "name": "Pathanamthitta",
+    "stateId": "1c7b078d-8a5c-4d79-b24f-30e7635f294d",
+    "active": true
+  },
+  {
+    "id": "8ef5c161-6cee-4308-8065-06b1e2c8fd59",
+    "name": "Kodagu (Coorg)",
+    "stateId": "8842e65a-0604-423e-b4bc-c928684f73ef",
+    "active": true
+  },
+  {
+    "id": "4e650e0d-a48e-407d-a8f5-a439c77a09a4",
+    "name": "toto",
+    "stateId": "10ea8ed9-1733-429e-9582-98ddda4a70ad",
+    "active": true
+  }
+]

@@ -1,0 +1,119 @@
+import React from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import useAuthStore from '../store/authStore'
+
+export default function JourneyDetails() {
+  const { id } = useParams()
+  const token = useAuthStore((s) => s.token)
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['inquiry', id],
+    queryFn: async () => {
+      const res = await axios.get(`http://localhost:5000/api/inquiry/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return res.data
+    },
+    enabled: Boolean(id && token),
+  })
+
+  if (!token) {
+    return (
+      <div className="container mx-auto px-6 py-16">
+        <div className="bg-white rounded-[2rem] p-10 border border-forest/5 shadow-sm">
+          <h1 className="text-3xl font-display font-bold text-forest mb-2">Trip Summary</h1>
+          <p className="text-forest/50 mb-6">Please log in to view your journey details.</p>
+          <Link to="/planner" className="inline-flex px-6 py-3 bg-forest text-cream rounded-full font-bold">
+            Back to Planner
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading) return <div className="container mx-auto px-6 py-16 text-forest/60 font-bold">Loading…</div>
+  if (error) return <div className="container mx-auto px-6 py-16 text-red font-bold">Failed to load.</div>
+
+  const inquiry = data
+  const itinerary = inquiry?.itinerarySnapshot || inquiry?.itinerary || {}
+  const timeline = itinerary?.timeline || []
+
+  return (
+    <div className="container mx-auto px-6 py-16">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <header className="flex items-end justify-between gap-6">
+          <div>
+            <h1 className="text-5xl font-display font-bold text-forest mb-2">Trip Summary</h1>
+            <p className="text-forest/50 font-bold text-sm uppercase tracking-widest">INQUIRY SENT</p>
+          </div>
+          <Link to="/my-trips" className="px-6 py-3 bg-forest/5 text-forest rounded-full font-bold">
+            Back
+          </Link>
+        </header>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Name</p>
+            <p className="font-bold text-forest">{inquiry.name}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Trip date</p>
+            <p className="font-bold text-forest">{new Date(inquiry.tripDate || inquiry.startDate).toLocaleDateString()}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">State</p>
+            <p className="font-bold text-forest">{inquiry.state || '-'}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">District</p>
+            <p className="font-bold text-forest">{inquiry.district || '-'}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Days</p>
+            <p className="font-bold text-forest">{inquiry.days ?? itinerary.days ?? '-'}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">People</p>
+            <p className="font-bold text-forest">{inquiry.people ?? itinerary.people ?? '-'}</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[2.5rem] p-8 border border-forest/5 shadow-sm">
+          <h2 className="text-2xl font-display font-bold text-forest mb-6">Itinerary</h2>
+          <div className="space-y-6">
+            {timeline.map((day) => (
+              <div key={day.day} className="border-l-2 border-gold/40 pl-5">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-2">Day {day.day}</p>
+                <ul className="space-y-1">
+                  {(day.activities || []).map((act) => (
+                    <li key={act.planId || `${act.destinationName}:${act.name}`} className="font-bold text-forest/80">
+                      {act.destinationName}: {act.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl p-6 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Accommodation</p>
+            <p className="font-bold text-forest">{inquiry.hotelSnapshot?.name || inquiry.hotel || '-'}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-forest/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Food</p>
+            <p className="font-bold text-forest">{inquiry.foodSnapshot?.name || inquiry.food || '-'}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-forest/5 sm:col-span-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Budget</p>
+            <p className="text-3xl font-display font-bold text-forest">₹{Number(inquiry.totalBudget || 0).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
