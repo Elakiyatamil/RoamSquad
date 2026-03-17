@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
     Globe,
     MapPin,
-    Palmtree,
+    TreePalm,
     ClipboardCheck,
     Clock,
 } from 'lucide-react';
@@ -211,7 +211,7 @@ const DashboardOverview = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <StatCard label="Total Countries" value={stats.countries ?? 0} icon={Globe} color="bg-red" index={0} />
                 <StatCard label="Destinations" value={stats.destinations ?? 0} icon={MapPin} color="bg-forest" index={1} />
-                <StatCard label="Experiences" value={stats.activities ?? 0} icon={Palmtree} color="bg-gold" index={2} />
+                <StatCard label="Experiences" value={stats.activities ?? 0} icon={TreePalm} color="bg-gold" index={2} />
                 <StatCard label="Pending" value={stats.pendingRequests ?? 0} icon={Clock} color="bg-ocean" index={3} />
                 <StatCard label="Confirmed" value={stats.confirmedRequests ?? 0} icon={ClipboardCheck} color="bg-red" index={4} />
             </div>

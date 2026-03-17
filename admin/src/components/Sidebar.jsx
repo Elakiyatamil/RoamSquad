@@ -122,7 +122,7 @@ const Sidebar = () => {
                     <div className="w-8 h-8 rounded-full bg-forest flex items-center justify-center text-white text-xs font-bold">AS</div>
                     <div className="flex-1 overflow-hidden">
                         <p className="text-sm font-bold text-ink truncate">Admin Squad</p>
-                        <p className="text-[10px] text-ink/40 truncate">admin@roamreverie.com</p>
+                        <p className="text-[10px] text-ink/40 truncate">admin@roamsquad.com</p>
                     </div>
                     <LogOut size={16} className="text-ink/40" />
                 </div>

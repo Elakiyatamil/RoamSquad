@@ -4,7 +4,7 @@ import { useSidebarStore } from '../store/adminStore';
 import {
     BarChart3,
     Map,
-    Palmtree,
+    TreePalm,
     Utensils,
     Hotel,
     Package,
@@ -26,7 +26,7 @@ const Sidebar = () => {
     const menuItems = [
         { title: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
         { title: 'Tree Manager', icon: Map, path: '/admin/tree' },
-        { title: 'Destinations', icon: Palmtree, path: '/admin/destinations' },
+        { title: 'Destinations', icon: TreePalm, path: '/admin/destinations' },
         { title: 'Activities', icon: BarChart3, path: '/admin/activities' },
         { title: 'Food Options', icon: Utensils, path: '/admin/food' },
         { title: 'Accommodation', icon: Hotel, path: '/admin/accommodation' },

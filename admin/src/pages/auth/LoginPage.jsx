@@ -15,12 +15,12 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login, isAuthenticated } = useAuthStore();
+    const { login, isAuthenticated, hydrated } = useAuthStore();
 
     // Auto-redirect if already logged in
     useEffect(() => {
-        if (isAuthenticated) navigate('/admin', { replace: true });
-    }, [isAuthenticated, navigate]);
+        if (hydrated && isAuthenticated) navigate('/admin', { replace: true });
+    }, [isAuthenticated, hydrated, navigate]);
 
     // Pre-fill if Remember Me was set
     useEffect(() => {

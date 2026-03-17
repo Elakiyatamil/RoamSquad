@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, MessageSquare, Calendar, User, MoreVertical,
-    CheckCircle2, Clock, AlertCircle, XCircle, Hash, ChevronDown, X
+    CheckCircle2, Clock, AlertCircle, XCircle, Hash, ChevronDown, X, Trash2
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
-import { io } from 'socket.io-client';
+import { getSocket } from '../../services/socketService';
+import useAuthStore from '../../store/authStore';
 
 const STATUS_OPTIONS = ['New Inquiry', 'Needs Clarification', 'In Conversation', 'Journey Confirmed', 'Not Feasible'];
 
@@ -22,15 +23,29 @@ const statusColors = {
 const RequestDetail = ({ request, onClose }) => {
     const queryClient = useQueryClient();
     const [status, setStatus] = useState(request.status);
+    const [agentNotes, setAgentNotes] = useState(request.agentNotes || '');
+    const [quoteAmount, setQuoteAmount] = useState(request.quoteAmount || '');
+    const [quoteDetails, setQuoteDetails] = useState(request.quoteDetails || '');
 
     const updateMutation = useMutation({
-        mutationFn: async (newStatus) => await apiClient.patch(`/requests/${request.id}`, { status: newStatus }),
-        onSuccess: (_, newStatus) => {
-            setStatus(newStatus);
+        mutationFn: async (data) => await apiClient.patch(`/requests/${request.id}`, data),
+        onSuccess: (res) => {
+            const updated = res.data;
+            setStatus(updated.status);
             queryClient.invalidateQueries(['requests']);
+            alert('Updated successfully');
         },
         onError: (err) => alert(`Error: ${err.response?.data?.error || err.message}`)
     });
+
+    const handleSave = () => {
+        updateMutation.mutate({
+            status,
+            agentNotes,
+            quoteAmount: parseFloat(quoteAmount) || null,
+            quoteDetails
+        });
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
@@ -41,20 +56,72 @@ const RequestDetail = ({ request, onClose }) => {
                         <h2 className="text-2xl font-bold text-ink">{request.userName}</h2>
                         <p className="text-sm text-ink/40 font-medium">{request.userEmail}</p>
                     </div>
-                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all mt-1"><X size={18} /></button>
+                    <div className="flex gap-2 mt-1">
+                        <button 
+                            onClick={() => {
+                                if (window.confirm('Delete this inquiry permanently?')) {
+                                    apiClient.delete(`/requests/${request.id}`).then(() => {
+                                        queryClient.invalidateQueries(['requests']);
+                                        onClose();
+                                    });
+                                }
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/20 hover:text-red transition-all"
+                            title="Delete Request"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                        <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all"><X size={18} /></button>
+                    </div>
                 </div>
 
                 <div className="space-y-4 mb-6">
                     <div className="grid grid-cols-2 gap-3">
                         <div className="p-4 bg-ink/5 rounded-xl">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-1">Duration</p>
-                            <p className="font-bold text-ink">{request.duration} Days</p>
+                            <p className="font-bold text-ink">{request.travelDates || request.duration + ' Days'}</p>
                         </div>
                         <div className="p-4 bg-ink/5 rounded-xl">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-1">Travelers</p>
-                            <p className="font-bold text-ink">{request.travelers} PAX</p>
+                            <p className="font-bold text-ink">{request.travelers} PAX {request.travelType && `(${request.travelType})`}</p>
                         </div>
                     </div>
+                    {request.vibe && (
+                        <div className="p-4 bg-gold/5 rounded-xl border border-gold/10">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-2">The Vibe</p>
+                            <p className="text-sm text-ink/70 font-medium leading-relaxed italic">"{request.vibe}"</p>
+                        </div>
+                    )}
+                    {request.activities && request.activities.length > 0 && (
+                        <div className="p-4 bg-forest/5 rounded-xl border border-forest/10">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-forest mb-2">Handcrafted Itinerary</p>
+                            <div className="space-y-4">
+                                {request.timeline ? (
+                                    request.timeline.map((day, idx) => (
+                                        <div key={idx} className="border-l-2 border-gold/30 pl-4 py-1">
+                                            <p className="text-[10px] font-bold text-gold uppercase tracking-tighter mb-1">Day {day.day}</p>
+                                            <div className="space-y-1">
+                                                {day.activities.map((act, i) => (
+                                                    <p key={i} className="text-xs font-bold text-ink/70 leading-tight">
+                                                        {act.destinationName}: {act.name}
+                                                    </p>
+                                                ))}
+                                                {day.travelNote && <p className="text-[9px] text-ink/40 italic">{day.travelNote}</p>}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="flex flex-wrap gap-2">
+                                        {request.activities.map((act, i) => (
+                                            <span key={i} className="px-2 py-1 bg-white rounded-lg text-[10px] font-bold text-forest border border-forest/5 shadow-sm">
+                                                {act}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     {request.extraRequirements && (
                         <div className="p-4 bg-ink/5 rounded-xl">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-2">Requirements</p>
@@ -67,26 +134,65 @@ const RequestDetail = ({ request, onClose }) => {
                     </div>
                 </div>
 
-                <div className="space-y-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Update Status</p>
-                    <div className="grid grid-cols-1 gap-2">
+                <div className="space-y-3 mb-8">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Status</p>
+                    <div className="flex flex-wrap gap-2">
                         {STATUS_OPTIONS.map(s => (
                             <button
                                 key={s}
-                                onClick={() => updateMutation.mutate(s)}
-                                disabled={updateMutation.isPending}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all text-left ${status === s
-                                        ? 'bg-ink text-white shadow-lg'
+                                onClick={() => setStatus(s)}
+                                className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${status === s
+                                        ? 'bg-ink text-white shadow-md'
                                         : 'bg-ink/5 text-ink/60 hover:bg-ink/10'
                                     }`}
                             >
-                                <div className={`w-2 h-2 rounded-full ${statusColors[s]}`} />
                                 {s}
-                                {status === s && <span className="ml-auto text-[10px] uppercase tracking-widest opacity-60">Current</span>}
                             </button>
                         ))}
                     </div>
                 </div>
+
+                <div className="space-y-4 mb-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Admin Response</p>
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="block text-[9px] font-bold text-ink/30 mb-1 uppercase tracking-wider">Quote Amount (₹)</label>
+                            <input 
+                                type="number"
+                                className="w-full p-4 bg-ink/5 rounded-xl outline-none focus:ring-2 ring-ink/10 font-bold"
+                                value={quoteAmount}
+                                onChange={e => setQuoteAmount(e.target.value)}
+                                placeholder="Total Package Cost"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[9px] font-bold text-ink/30 mb-1 uppercase tracking-wider">Quote Details</label>
+                            <textarea 
+                                className="w-full p-4 bg-ink/5 rounded-xl outline-none focus:ring-2 ring-ink/10 text-sm font-medium min-h-[80px]"
+                                value={quoteDetails}
+                                onChange={e => setQuoteDetails(e.target.value)}
+                                placeholder="What's included in this quote?"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[9px] font-bold text-ink/30 mb-1 uppercase tracking-wider">Internal Agent Notes</label>
+                            <textarea 
+                                className="w-full p-4 bg-ink/5 rounded-xl outline-none focus:ring-2 ring-ink/10 text-sm font-medium min-h-[60px]"
+                                value={agentNotes}
+                                onChange={e => setAgentNotes(e.target.value)}
+                                placeholder="Private notes for team..."
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <button 
+                    onClick={handleSave}
+                    disabled={updateMutation.isPending}
+                    className="w-full py-5 bg-forest text-cream rounded-2xl font-bold shadow-xl shadow-forest/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                >
+                    {updateMutation.isPending ? 'Saving...' : 'Save & Update Response'}
+                </button>
             </motion.div>
         </div>
     );
@@ -149,16 +255,27 @@ const RequestManager = () => {
         }
     });
 
+    const { isAuthenticated, token } = useAuthStore();
+
     useEffect(() => {
-        const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
-        socket.on('request:updated', (updated) => {
-            queryClient.setQueryData(['requests'], (old) => {
-                if (!old) return old;
-                return old.map(r => r.id === updated.id ? updated : r);
-            });
-        });
-        return () => socket.disconnect();
-    }, [queryClient]);
+        if (!isAuthenticated || !token) return;
+
+        const socket = getSocket(token);
+
+        if (socket) {
+            const handleUpdate = (updated) => {
+                queryClient.setQueryData(['requests'], (old) => {
+                    if (!old) return old;
+                    return old.map(r => r.id === updated.id ? updated : r);
+                });
+            };
+
+            socket.on('request:updated', handleUpdate);
+            return () => {
+                socket.off('request:updated', handleUpdate);
+            };
+        }
+    }, [queryClient, isAuthenticated, token]);
 
     const filtered = requests.filter(r =>
         r.userName?.toLowerCase().includes(search.toLowerCase()) ||

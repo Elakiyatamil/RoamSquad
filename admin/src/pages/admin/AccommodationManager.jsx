@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
-const TIERS = ['Budget', 'Mid-Range', 'Luxury'];
+const TIERS = ['Budget', 'Comfort', 'Luxury'];
 
 // --- Accommodation Form Modal ---
 const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
@@ -150,7 +150,7 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
     const getIconColor = () => {
         switch (tier.toLowerCase()) {
             case 'luxury': return 'text-gold';
-            case 'mid-range': return 'text-ocean';
+            case 'comfort': return 'text-ocean';
             default: return 'text-forest';
         }
     };

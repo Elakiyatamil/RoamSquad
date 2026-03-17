@@ -11,9 +11,24 @@ const init = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
+        const token = socket.handshake.auth?.token;
+        
+        if (!token) {
+            console.log(`📡 Socket connection rejected [ID: ${socket.id}] [Reason: No Token]`);
+            return socket.disconnect();
+        }
+
+        const jwt = require('jsonwebtoken');
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                console.log(`📡 Socket connection rejected [ID: ${socket.id}] [Reason: Invalid Token]`);
+                return socket.disconnect();
+            }
+            console.log(`📡 Socket connected [ID: ${socket.id}] [User: ${decoded.id}]`);
+        });
+        
+        socket.on('disconnect', (reason) => {
+            console.log(`📡 Socket disconnected [ID: ${socket.id}] [Reason: ${reason}]`);
         });
     });
 
