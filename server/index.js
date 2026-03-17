@@ -11,6 +11,9 @@ const packageRoutes = require('./routes/packages');
 const requestRoutes = require('./routes/requests');
 const uploadRoutes = require('./routes/upload');
 const authRoutes = require('./routes/auth');
+const publicRoutes = require('./routes/public');
+const userTripRoutes = require('./routes/userTrips');
+const wishlistRoutes = require('./routes/wishlist');
 const experienceController = require('./controllers/experienceController');
 const { verifyJWT, isAdmin } = require('./middleware/auth');
 const { getAuditLogs } = require('./controllers/auditController');
@@ -21,12 +24,18 @@ const server = http.createServer(app);
 // Initialize Sockets
 initSockets(server);
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    credentials: true,
+}));
 app.use(express.json());
 
 // Auth & Public Routes
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/user', userTripRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 app.get('/public/destinations/:id/accommodation', experienceController.getAccommodationPublic);
 
 // Admin Routes (JWT & Admin checks are inside the route files)

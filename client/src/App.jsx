@@ -1,19 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
 
-import AdminLayout from './layouts/AdminLayout';
-import DashboardOverview from './pages/admin/DashboardOverview';
-import LocationTreeManager from './pages/admin/LocationTreeManager';
-import DestinationManager from './pages/admin/DestinationManager';
-import ActivitiesManager from './pages/admin/ActivitiesManager';
-import FoodOptionsManager from './pages/admin/FoodOptionsManager';
-import AccommodationManager from './pages/admin/AccommodationManager';
-import PackagesManager from './pages/admin/PackagesManager';
-import RequestManager from './pages/admin/RequestManager';
-import LoginPage from './pages/auth/LoginPage';
-import ActivityLog from './pages/admin/ActivityLog';
+// Traveller Pages
+import TravellerLayout from './layouts/TravellerLayout';
+import DiscoveryPage from './pages/traveller/DiscoveryPage';
+import PlannerPage from './pages/traveller/PlannerPage';
+import DestinationDetailsPage from './pages/traveller/DestinationDetailsPage';
+import WishlistPage from './pages/traveller/WishlistPage';
+import MyTripsPage from './pages/traveller/MyTripsPage';
+import LoginPage from './pages/auth/LoginPage'; // Might still need login for traveller profile
 
 // Initialize React Query client
 const queryClient = new QueryClient();
@@ -25,21 +21,17 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<DashboardOverview />} />
-            <Route path="tree" element={<LocationTreeManager />} />
-            <Route path="destinations" element={<DestinationManager />} />
-            <Route path="activities" element={<ActivitiesManager />} />
-            <Route path="food" element={<FoodOptionsManager />} />
-            <Route path="accommodation" element={<AccommodationManager />} />
-            <Route path="packages" element={<PackagesManager />} />
-            <Route path="requests" element={<RequestManager />} />
-            <Route path="activity-log" element={<ActivityLog />} />
+          {/* Traveller Routes */}
+          <Route path="/" element={<TravellerLayout />}>
+            <Route index element={<DiscoveryPage />} />
+            <Route path="planner" element={<PlannerPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
+            <Route path="my-trips" element={<MyTripsPage />} />
+            <Route path="destinations/:slug" element={<DestinationDetailsPage />} />
           </Route>
 
           {/* Fallback routes */}
-          <Route path="/" element={<Navigate to="/admin" replace />} />
-          <Route path="*" element={<Navigate to="/admin" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </QueryClientProvider>
