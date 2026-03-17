@@ -1,18 +1,107 @@
 import React, { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend
-} from 'recharts';
 import {
     Globe,
     MapPin,
     Palmtree,
     ClipboardCheck,
-    TrendingUp,
     Clock,
 } from 'lucide-react';
+
+// Native SVG Area Chart — no recharts needed
+const NativeAreaChart = ({ data }) => {
+    const width = 500;
+    const height = 280;
+    const padL = 40, padR = 20, padT = 20, padB = 40;
+    const W = width - padL - padR;
+    const H = height - padT - padB;
+
+    const allVals = data.flatMap(d => [d.bookings, d.confirmed]);
+    const maxVal = Math.max(...allVals, 1);
+
+    const toX = i => padL + (i / (data.length - 1)) * W;
+    const toY = v => padT + H - (v / maxVal) * H;
+
+    const makePath = key =>
+        data.map((d, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(d[key])}`).join(' ');
+    const makeArea = key => {
+        const last = data.length - 1;
+        return `${makePath(key)} L${toX(last)},${padT + H} L${toX(0)},${padT + H} Z`;
+    };
+
+    return (
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+            <defs>
+                <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#C8391A" stopOpacity="0.15" />
+                    <stop offset="95%" stopColor="#C8391A" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="gForest" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2A4A38" stopOpacity="0.15" />
+                    <stop offset="95%" stopColor="#2A4A38" stopOpacity="0" />
+                </linearGradient>
+            </defs>
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map(t => (
+                <line key={t} x1={padL} x2={padL + W} y1={padT + H * t} y2={padT + H * t}
+                    stroke="#1C1410" strokeOpacity="0.06" strokeDasharray="4 4" />
+            ))}
+            {/* Areas */}
+            <path d={makeArea('bookings')} fill="url(#gRed)" />
+            <path d={makeArea('confirmed')} fill="url(#gForest)" />
+            {/* Lines */}
+            <path d={makePath('bookings')} fill="none" stroke="#C8391A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={makePath('confirmed')} fill="none" stroke="#2A4A38" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            {/* X labels */}
+            {data.map((d, i) => (
+                <text key={i} x={toX(i)} y={height - 8} textAnchor="middle"
+                    fontSize="11" fill="#1C141066">{d.name}</text>
+            ))}
+            {/* Legend */}
+            <circle cx={padL + 8} cy={height - 22} r="4" fill="#C8391A" />
+            <text x={padL + 16} y={height - 18} fontSize="10" fill="#1C141080">Total Requests</text>
+            <circle cx={padL + 110} cy={height - 22} r="4" fill="#2A4A38" />
+            <text x={padL + 118} y={height - 18} fontSize="10" fill="#1C141080">Confirmed</text>
+        </svg>
+    );
+};
+
+// Native SVG Pie/Donut Chart — no recharts needed
+const NativePieChart = ({ data, colors }) => {
+    const cx = 100, cy = 90, ro = 65, ri = 40;
+    let total = data.reduce((s, d) => s + d.value, 0);
+    if (total === 0) return null;
+    let angle = -Math.PI / 2;
+    const slices = data.map((d, i) => {
+        const sweep = (d.value / total) * 2 * Math.PI;
+        const x1 = cx + ro * Math.cos(angle), y1 = cy + ro * Math.sin(angle);
+        const x2 = cx + ri * Math.cos(angle), y2 = cy + ri * Math.sin(angle);
+        angle += sweep;
+        const x3 = cx + ro * Math.cos(angle), y3 = cy + ro * Math.sin(angle);
+        const x4 = cx + ri * Math.cos(angle), y4 = cy + ri * Math.sin(angle);
+        const lg = sweep > Math.PI ? 1 : 0;
+        return { path: `M${x1},${y1} A${ro},${ro} 0 ${lg},1 ${x3},${y3} L${x4},${y4} A${ri},${ri} 0 ${lg},0 ${x2},${y2} Z`, color: colors[i % colors.length], label: d.name };
+    });
+    return (
+        <svg viewBox="0 0 200 180" className="w-full h-full">
+            {slices.map((s, i) => <path key={i} d={s.path} fill={s.color} opacity="0.9" />)}
+            <text x={cx} y={cy + 5} textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1C1410">{total}</text>
+            <text x={cx} y={cy + 18} textAnchor="middle" fontSize="9" fill="#1C141060">total</text>
+            {slices.map((s, i) => (
+                <g key={i} transform={`translate(4, ${145 + Math.floor(i / 2) * 16})`}>
+                    {i % 2 === 0 ? null : null}
+                </g>
+            ))}
+            {data.map((d, i) => (
+                <g key={i}>
+                    <rect x={4 + (i % 2) * 96} y={140 + Math.floor(i / 2) * 16} width="8" height="8" rx="2" fill={colors[i % colors.length]} />
+                    <text x={16 + (i % 2) * 96} y={148 + Math.floor(i / 2) * 16} fontSize="9" fill="#1C141080">{d.name} ({d.value})</text>
+                </g>
+            ))}
+        </svg>
+    );
+};
 import apiClient from '../../services/apiClient';
 import { useNavigate } from 'react-router-dom';
 
@@ -136,26 +225,7 @@ const DashboardOverview = () => {
                         </div>
                     </div>
                     <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={areaData}>
-                                <defs>
-                                    <linearGradient id="colorRed" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#C8391A" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#C8391A" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorForest" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2A4A38" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#2A4A38" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1C141010" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#1C141040', fontSize: 12 }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#1C141040', fontSize: 12 }} dx={-10} />
-                                <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                                <Area type="monotone" dataKey="bookings" name="Total Requests" stroke="#C8391A" strokeWidth={3} fillOpacity={1} fill="url(#colorRed)" />
-                                <Area type="monotone" dataKey="confirmed" name="Confirmed" stroke="#2A4A38" strokeWidth={3} fillOpacity={1} fill="url(#colorForest)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                        <NativeAreaChart data={areaData} />
                     </div>
                 </div>
 
@@ -165,18 +235,8 @@ const DashboardOverview = () => {
                         <p className="text-xs text-ink/40 font-bold uppercase tracking-widest">By category</p>
                     </div>
                     {pieData.length > 0 ? (
-                        <div className="h-[200px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={8} dataKey="value">
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '20px' }} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <div className="h-[220px] w-full">
+                            <NativePieChart data={pieData} colors={COLORS} />
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-center py-8">

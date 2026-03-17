@@ -28,6 +28,25 @@ const login = async (req, res) => {
             { expiresIn: '1d' }
         );
 
+        // #region agent log
+        try {
+            const fs = require('fs');
+            fs.appendFileSync(
+                'c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log',
+                `${JSON.stringify({
+                    sessionId: 'b1a21f',
+                    runId: 'pre-fix',
+                    hypothesisId: 'H6',
+                    location: 'server/controllers/authController.js:login',
+                    message: 'login issued token',
+                    data: { userIdType: typeof user.id, userRole: user.role, hasJWTSecret: Boolean(process.env.JWT_SECRET) },
+                    timestamp: Date.now(),
+                })}\n`,
+                'utf8'
+            );
+        } catch (_) {}
+        // #endregion agent log
+
         res.json({
             token,
             user: {

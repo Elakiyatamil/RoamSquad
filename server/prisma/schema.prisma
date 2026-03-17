@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Country {
@@ -70,7 +71,8 @@ model Activity {
   duration      String?
   price         Int
   priceLabel    String?
-  images        String[]
+  difficulty    String?
+  imageUrl      String?
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
@@ -166,6 +168,7 @@ model ItineraryRequest {
   createdAt   DateTime @default(now())
 }
 
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -173,18 +176,18 @@ model User {
   name      String?
   role      String   @default("USER")
   createdAt DateTime @default(now())
-  auditLogs AuditLog[]
+  logs      AuditLog[]
 }
 
 model AuditLog {
-  id         String   @id @default(uuid())
-  userId     String
-  userName   String
-  action     String   // CREATE, UPDATE, DELETE
-  entity     String   // Destination, Activity, etc.
-  entityId   String?
-  entityName String?
-  details    String?
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid())
+  userId      String
+  userName    String?
+  action      String   // CREATE, UPDATE, DELETE
+  entity      String   // Country, State, District, Destination, etc.
+  entityId    String?
+  entityName  String?
+  details     String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

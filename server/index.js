@@ -38,7 +38,11 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/upload', uploadRoutes);
 app.get('/api/audit-logs', verifyJWT, isAdmin, getAuditLogs);
 
-// Basic Health Check
+// Basic Health Check & Root
+app.get('/', (req, res) => {
+    res.json({ message: 'Roam Squad API is running smoothly.', version: '1.0.0' });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });

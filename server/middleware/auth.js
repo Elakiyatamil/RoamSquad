@@ -11,7 +11,9 @@ const verifyJWT = (req, res, next) => {
         token,
         process.env.JWT_SECRET,
         async (err, decoded) => {
-            if (err) return res.sendStatus(403); // invalid token
+            if (err) {
+                return res.sendStatus(403); // invalid token
+            }
 
             try {
                 const user = await prisma.user.findUnique({

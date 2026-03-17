@@ -97,14 +97,9 @@ const DestinationForm = ({ destination, onClose }) => {
             alert('Description is required.');
             return;
         }
-        if (!formData.images || formData.images.length === 0) {
-            alert('At least one image is required.');
-            return;
-        }
-
         // Generate a slug if missing
         const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const coverImage = formData.coverImage || formData.images[0];
+        const coverImage = formData.coverImage || (formData.images && formData.images.length > 0 ? formData.images[0] : null);
 
         saveMutation.mutate({
             ...formData,

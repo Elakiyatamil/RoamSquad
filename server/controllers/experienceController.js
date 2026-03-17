@@ -32,6 +32,7 @@ const updateActivity = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'Activity', activity.id, activity.name);
         res.json(activity);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -86,6 +87,7 @@ const createFoodOption = async (req, res) => {
         const food = await prisma.foodOption.create({
             data: { ...req.body, destinationId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'FoodOption', food.id, food.name);
         res.json(food);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -98,6 +100,7 @@ const updateFoodOption = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'FoodOption', food.id, food.name);
         res.json(food);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -106,7 +109,9 @@ const updateFoodOption = async (req, res) => {
 
 const deleteFoodOption = async (req, res) => {
     try {
+        const food = await prisma.foodOption.findUnique({ where: { id: req.params.id } });
         await prisma.foodOption.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'FoodOption', req.params.id, food?.name);
         res.json({ message: 'Food option deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -163,6 +168,7 @@ const updateAccommodation = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'Accommodation', acc.id, `${acc.tier} tier`);
         res.json(acc);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -197,6 +203,7 @@ const createTravelOption = async (req, res) => {
         const option = await prisma.travelOption.create({
             data: { ...req.body, destinationId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'TravelOption', option.id, option.mode);
         res.json(option);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -209,6 +216,7 @@ const updateTravelOption = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'TravelOption', option.id, option.mode);
         res.json(option);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -217,7 +225,9 @@ const updateTravelOption = async (req, res) => {
 
 const deleteTravelOption = async (req, res) => {
     try {
+        const option = await prisma.travelOption.findUnique({ where: { id: req.params.id } });
         await prisma.travelOption.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'TravelOption', req.params.id, option?.mode);
         res.json({ message: 'Travel option deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

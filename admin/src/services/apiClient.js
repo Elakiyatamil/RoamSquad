@@ -9,12 +9,17 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
     try {
-        const authDataStr = localStorage.getItem('roamsquad-auth');
-        if (authDataStr) {
-            const authData = JSON.parse(authDataStr);
-            const token = authData?.state?.token;
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
+        const directToken = localStorage.getItem('token');
+        if (directToken) {
+            config.headers.Authorization = `Bearer ${directToken}`;
+        } else {
+            const authDataStr = localStorage.getItem('roamsquad-auth');
+            if (authDataStr) {
+                const authData = JSON.parse(authDataStr);
+                const token = authData?.state?.token;
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
             }
         }
     } catch (e) {

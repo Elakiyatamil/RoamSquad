@@ -17,7 +17,7 @@ import apiClient from '../../services/apiClient';
 // --- Activity Form Modal ---
 const ActivityForm = ({ activity, destinationId, onClose }) => {
     const queryClient = useQueryClient();
-    const [form, setForm] = useState(activity || {
+    const [form, setForm] = useState(activity ? { ...activity, images: activity.imageUrl ? [activity.imageUrl] : [] } : {
         name: '',
         icon: '🏕️',
         duration: '',
@@ -44,7 +44,11 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Activity name is required.'); return; }
         if (!destinationId) { alert('Please select a destination first.'); return; }
-        mutation.mutate({ ...form, price: parseFloat(form.price) || 0 });
+        
+        const { images, ...payload } = form;
+        payload.imageUrl = images && images.length > 0 ? images[0] : null;
+
+        mutation.mutate({ ...payload, price: parseFloat(form.price) || 0 });
     };
 
     return (
@@ -160,8 +164,8 @@ const ActivityCard = ({ activity, index, onEdit, onDelete }) => {
             className="card group cursor-pointer overflow-hidden flex flex-col"
         >
             <div className="h-40 bg-ink/5 relative overflow-hidden">
-                {activity.images && activity.images.length > 0 ? (
-                    <img src={activity.images[0]} alt={activity.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {activity.imageUrl ? (
+                    <img src={activity.imageUrl} alt={activity.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-4xl">
                         {activity.icon || '🏕️'}
@@ -176,7 +180,7 @@ const ActivityCard = ({ activity, index, onEdit, onDelete }) => {
             <div className="p-6 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold truncate pr-4">{activity.name}</h3>
-                    {activity.images && activity.images.length > 0 && <span className="text-2xl">{activity.icon || '🏕️'}</span>}
+                    {activity.imageUrl && <span className="text-2xl">{activity.icon || '🏕️'}</span>}
                 </div>
                 
                 <p className="text-xs text-ink/60 font-medium line-clamp-2 mb-4 flex-1">

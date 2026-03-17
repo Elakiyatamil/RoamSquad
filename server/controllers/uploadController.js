@@ -18,7 +18,7 @@ const upload = multer({
 
 const uploadSingle = async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        if (!req.file) return res.json({ url: null, publicId: null });
 
         if (!process.env.CLOUDINARY_API_KEY) {
             return res.json({ url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg', publicId: 'sample' });
@@ -40,7 +40,7 @@ const uploadSingle = async (req, res) => {
 
 const uploadMultiple = async (req, res) => {
     try {
-        if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files uploaded' });
+        if (!req.files || req.files.length === 0) return res.json({ urls: [], data: [] });
 
         if (!process.env.CLOUDINARY_API_KEY) {
             const urls = req.files.map((_, i) => `https://res.cloudinary.com/demo/image/upload/sample${i}.jpg`);

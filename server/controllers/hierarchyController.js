@@ -87,6 +87,7 @@ const createState = async (req, res) => {
         const state = await prisma.state.create({
             data: { name, active, countryId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'State', state.id, state.name);
         res.json(state);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -99,6 +100,7 @@ const updateState = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'State', state.id, state.name);
         res.json(state);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -107,7 +109,9 @@ const updateState = async (req, res) => {
 
 const deleteState = async (req, res) => {
     try {
+        const state = await prisma.state.findUnique({ where: { id: req.params.id } });
         await prisma.state.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'State', req.params.id, state?.name);
         res.json({ message: 'State deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -132,6 +136,7 @@ const createDistrict = async (req, res) => {
         const district = await prisma.district.create({
             data: { name, active, stateId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'District', district.id, district.name);
         res.json(district);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -144,6 +149,7 @@ const updateDistrict = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'District', district.id, district.name);
         res.json(district);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -152,7 +158,9 @@ const updateDistrict = async (req, res) => {
 
 const deleteDistrict = async (req, res) => {
     try {
+        const district = await prisma.district.findUnique({ where: { id: req.params.id } });
         await prisma.district.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'District', req.params.id, district?.name);
         res.json({ message: 'District deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -178,6 +186,7 @@ const createDestination = async (req, res) => {
         const destination = await prisma.destination.create({
             data: { name, category, rating, active, coverImage, description, slug, districtId: req.params.id }
         });
+        await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
         res.json(destination);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -245,6 +254,7 @@ const updateDestination = async (req, res) => {
             where: { id: req.params.id },
             data: req.body
         });
+        await logAction(req.user, 'UPDATE', 'Destination', destination.id, destination.name);
         res.json(destination);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -253,7 +263,9 @@ const updateDestination = async (req, res) => {
 
 const deleteDestination = async (req, res) => {
     try {
+        const destination = await prisma.destination.findUnique({ where: { id: req.params.id } });
         await prisma.destination.delete({ where: { id: req.params.id } });
+        await logAction(req.user, 'DELETE', 'Destination', req.params.id, destination?.name);
         res.json({ message: 'Destination deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
