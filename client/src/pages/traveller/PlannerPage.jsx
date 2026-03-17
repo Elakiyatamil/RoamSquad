@@ -1,0 +1,514 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import useAuthStore from '../../store/authStore';
+import AuthModal from '../../components/auth/AuthModal';
+
+const API_BASE = 'http://localhost:5000/api/public';
+
+const PlannerPage = () => {
+    const [step, setStep] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [inquiryStatus, setInquiryStatus] = useState(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const { isAuthenticated, user } = useAuthStore();
+    const [config, setConfig] = useState({
+        days: 3,
+        travellers: 2,
+        travelType: 'Couple',
+        vibe: 'Nature',
+        experienceType: 'Mid-range',
+        userName: '',
+        userEmail: '',
+        userPhone: ''
+    });
+
+    const [selectedActivities, setSelectedActivities] = useState([]);
+
+    const { data: destinations } = useQuery({
+        queryKey: ['public-destinations'],
+        queryFn: async () => {
+            const res = await axios.get(`${API_BASE}/destinations`);
+            return res.data;
+        }
+    });
+
+    const travelTypes = ['Solo', 'Couple', 'Family', 'Friends', 'Squad', 'Girls Trip'];
+    const vibes = [
+        { name: 'Luxury', icon: Sparkles, desc: 'Premium stays & private transfers' },
+        { name: 'Comfort', icon: Coffee, desc: 'Boutique hotels & comfort' },
+        { name: 'Budget', icon: Zap, desc: 'Quality stays on a budget' },
+        { name: 'Adventure', icon: MapPin, desc: 'Thrilling activities & offbeat trails' },
+        { name: 'Nature', icon: TreePalm, desc: 'Scenic landscapes & tranquility' },
+        { name: 'Relaxation', icon: Coffee, desc: 'Slow travel & wellness' }
+    ];
+
+    const nextStep = () => setStep(s => s + 1);
+    const prevStep = () => setStep(s => s - 1);
+
+    const toggleActivity = (activity, destination) => {
+        const id = `${destination.id}-${activity.id}`;
+        if (selectedActivities.find(a => a.planId === id)) {
+            setSelectedActivities(selectedActivities.filter(a => a.planId !== id));
+        } else {
+            if (selectedActivities.length >= config.days * 2) {
+                alert(`You can only add up to ${config.days * 2} activities for a ${config.days}-day trip to keep it logical.`);
+                return;
+            }
+            setSelectedActivities([...selectedActivities, { ...activity, planId: id, destinationName: destination.name, destinationId: destination.id }]);
+        }
+    };
+
+    const submitInquiry = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                userId: user?.id,
+                userName: user?.name || config.userName,
+                userEmail: user?.email || config.userEmail,
+                userPhone: config.userPhone,
+                destination: [...new Set(selectedActivities.map(a => a.destinationName))].join(', '),
+                travelDates: `Planned for ${config.days} days`,
+                budget: `₹${totalBudget.toLocaleString()}`,
+                travelers: config.travellers,
+                travelType: config.travelType,
+                vibe: config.vibe,
+                activities: selectedActivities.map(a => `${a.destinationName}: ${a.name}`),
+                timeline: timeline // Full generated timeline
+            };
+            
+            const authHeader = isAuthenticated ? { Authorization: `Bearer ${useAuthStore.getState().token}` } : {};
+            await axios.post('http://localhost:5000/api/requests', payload, { headers: authHeader });
+            
+            // Save to local storage for guest session reference
+            const savedInquiries = JSON.parse(localStorage.getItem('submitted_inquiries') || '[]');
+            savedInquiries.unshift({
+                ...payload,
+                date: new Date().toISOString(),
+                id: Date.now()
+            });
+            localStorage.setItem('submitted_inquiries', JSON.stringify(savedInquiries));
+
+            setInquiryStatus('success');
+            setStep(4);
+        } catch (error) {
+            console.error(error);
+            setInquiryStatus('error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const totalBudget = selectedActivities.reduce((sum, act) => sum + act.price, 0);
+    const totalActivityTime = selectedActivities.reduce((sum, act) => {
+        const mins = parseInt(act.duration) || 120; // Default 2h if not parsed
+        return sum + mins;
+    }, 0);
+
+    // Group activities into days with logical distribution
+    const generateTimeline = () => {
+        const timeline = [];
+        const activitiesPerDay = 2; // Strict curated limit
+        
+        for (let i = 1; i <= config.days; i++) {
+            const dayActs = selectedActivities.slice((i - 1) * activitiesPerDay, i * activitiesPerDay);
+            const destinationsInDay = [...new Set(dayActs.map(a => a.destinationName))];
+            
+            timeline.push({
+                day: i,
+                activities: dayActs,
+                travelNote: destinationsInDay.length > 1 ? `Transfer between ${destinationsInDay.join(' & ')}` : null,
+                isOverloaded: dayActs.length > activitiesPerDay
+            });
+        }
+        return timeline;
+    };
+
+    const timeline = generateTimeline();
+    const isOverScheduled = selectedActivities.length > config.days * 2;
+
+    return (
+        <div className="container mx-auto px-6 py-12 min-h-[80vh]">
+            <div className="max-w-6xl mx-auto">
+                {/* Progress Bar */}
+                <div className="flex items-center justify-between mb-16 relative">
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-forest/10 -z-10" />
+                    {[1, 2, 3].map(i => (
+                        <div 
+                            key={i}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+                                step >= i ? 'bg-forest text-cream scale-110' : 'bg-white text-forest/30'
+                            }`}
+                        >
+                            {i}
+                        </div>
+                    ))}
+                </div>
+
+                <AnimatePresence mode="wait">
+                    {step === 1 && (
+                        <motion.div
+                            key="step1"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5"
+                        >
+                            <h2 className="text-4xl font-display font-bold text-forest mb-2">The Basics</h2>
+                            <p className="text-forest/50 mb-10 text-lg">Tell us a bit about your upcoming adventure.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <div className="space-y-6">
+                                    <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">How many days?</label>
+                                    <div className="flex items-center gap-6">
+                                        <Calendar className="text-gold" size={32} />
+                                        <input 
+                                            type="number" 
+                                            value={config.days}
+                                            onChange={(e) => setConfig({...config, days: parseInt(e.target.value)})}
+                                            className="text-5xl font-display font-bold bg-transparent border-b-2 border-forest/10 focus:border-gold outline-none w-32"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">Who is travelling?</label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {travelTypes.map(t => (
+                                            <button
+                                                key={t}
+                                                onClick={() => setConfig({...config, travelType: t})}
+                                                className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${
+                                                    config.travelType === t ? 'bg-forest text-cream' : 'bg-forest/5 text-forest/60 hover:bg-forest/10'
+                                                }`}
+                                            >
+                                                {t}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-16 flex justify-end">
+                                <button 
+                                    onClick={nextStep}
+                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
+                                >
+                                    Continue <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {step === 2 && (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5"
+                        >
+                            <h2 className="text-4xl font-display font-bold text-forest mb-2">Customise Your Vibe</h2>
+                            <p className="text-forest/50 mb-10 text-lg">Choose the style that matches your mood.</p>
+
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+                                {vibes.map(v => (
+                                    <button
+                                        key={v.name}
+                                        onClick={() => setConfig({...config, vibe: v.name})}
+                                        className={`p-6 rounded-[2rem] border-2 text-left transition-all ${
+                                            config.vibe === v.name 
+                                            ? 'border-gold bg-gold/5 ring-4 ring-gold/10' 
+                                            : 'border-forest/5 hover:border-forest/20'
+                                        }`}
+                                    >
+                                        <v.icon size={24} className="text-gold mb-4" />
+                                        <h3 className="text-lg font-bold text-forest mb-1">{v.name}</h3>
+                                        <p className="text-forest/40 text-[10px] leading-tight uppercase tracking-widest">{v.desc}</p>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="space-y-6">
+                                <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">Share your idea of the perfect vibe</label>
+                                <textarea 
+                                    placeholder="Ex: Relaxation, hidden waterfalls, local street food trails..."
+                                    className="w-full p-6 bg-forest/5 rounded-2xl border-2 border-transparent focus:border-gold outline-none text-lg min-h-[120px]"
+                                    value={config.vibe}
+                                    onChange={(e) => setConfig({...config, vibe: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="mt-16 flex justify-between">
+                                <button onClick={prevStep} className="px-10 py-4 text-forest font-bold">Back</button>
+                                <button 
+                                    onClick={nextStep}
+                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
+                                >
+                                    Build Itinerary <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {step === 3 && (
+                        <div key="step3" className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                            {/* Discovery Panel */}
+                            <div className="lg:col-span-2 space-y-12">
+                                <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
+                                
+                                <div className="space-y-16">
+                                    {destinations?.length === 0 ? (
+                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
+                                            <Sparkles size={48} className="mx-auto text-forest/20 mb-4" />
+                                            <p className="text-xl font-bold text-forest/40">No curated experiences available yet.</p>
+                                        </div>
+                                    ) : (
+                                        destinations?.map(dest => (
+                                            <div key={dest.id} className="space-y-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h3 className="text-2xl font-display font-bold text-forest">{dest.name}</h3>
+                                                        <div className="flex items-center gap-2 text-forest/40 text-xs">
+                                                            <MapPin size={12} /> {dest.location || 'Location'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    {dest.activities?.map(act => (
+                                                        <button
+                                                            key={act.id}
+                                                            onClick={() => toggleActivity(act, dest)}
+                                                            className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
+                                                                selectedActivities.find(a => a.planId === `${dest.id}-${act.id}`)
+                                                                ? 'bg-forest text-cream shadow-xl shadow-forest/20'
+                                                                : 'bg-white border-2 border-forest/5 hover:border-forest/20'
+                                                            }`}
+                                                        >
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+                                                                    {act.icon || '📍'}
+                                                                </div>
+                                                                <div>
+                                                                    <h4 className="font-bold leading-tight text-forest">{act.name}</h4>
+                                                                    <span className="text-xs text-forest/60">₹{act.price || 0} • {act.duration || 'N/A'}</span>
+                                                                </div>
+                                                            </div>
+                                                            {selectedActivities.find(a => a.planId === `${dest.id}-${act.id}`) 
+                                                                ? <Trash2 size={16} className="text-cream" /> 
+                                                                : <Plus size={16} className="text-gold" />
+                                                            }
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Trip Plan Summary (Fixed Sidebar-like) */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-forest text-cream rounded-[2.5rem] p-10 shadow-2xl sticky top-28">
+                                    <h3 className="text-3xl font-display font-bold mb-8">Trip Plan</h3>
+                                    
+                                    <div className="space-y-6 mb-12 min-h-[200px]">
+                                        {selectedActivities.length === 0 ? (
+                                            <p className="text-cream/30 italic">No experiences added yet...</p>
+                                        ) : (
+                                            selectedActivities.map(act => (
+                                                <div key={act.planId} className="flex items-center justify-between group">
+                                                    <div>
+                                                        <p className="font-bold text-sm leading-tight">{act.name}</p>
+                                                        <p className="text-[10px] text-cream/40 uppercase tracking-widest">{act.destinationName}</p>
+                                                    </div>
+                                                    <p className="font-bold text-gold">₹{act.price}</p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+
+                                    <div className="pt-8 border-t border-cream/10 space-y-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-cream/40">Duration</span>
+                                            <span className="font-bold">{config.days} Days</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-cream/40">Travellers</span>
+                                            <span className="font-bold">{config.travellers} {config.travelType}</span>
+                                        </div>
+                                        <div className="flex justify-between items-end pt-4">
+                                            <span className="text-cream/40 text-sm">Est. Budget</span>
+                                            <div className="text-right">
+                                                <p className="text-3xl font-display font-bold text-gold">₹{totalBudget.toLocaleString()}</p>
+                                                <p className="text-[10px] text-cream/40">Excluding Stays & Flights</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button 
+                                        disabled={selectedActivities.length === 0}
+                                        onClick={() => {
+                                            if (isOverScheduled) {
+                                                alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
+                                                return;
+                                            }
+                                            if (isAuthenticated) {
+                                                nextStep();
+                                            } else {
+                                                setShowAuthModal(true);
+                                            }
+                                        }}
+                                        className="w-full mt-10 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
+                                    >
+                                        Review Inquiry
+                                    </button>
+                                    
+                                    {isOverScheduled && (
+                                        <p className="mt-4 text-center text-xs text-red font-bold animate-pulse">
+                                            ⚠️ Warning: Activities exceed trip duration!
+                                        </p>
+                                    )}
+
+                                    <div className="mt-8 space-y-2">
+                                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-cream/40 px-2">
+                                            <span>Est. Activity Time</span>
+                                            <span>{Math.round(totalActivityTime / 60)}h Total</span>
+                                        </div>
+                                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                            <motion.div 
+                                                className={`h-full ${isOverScheduled ? 'bg-red' : 'bg-gold'}`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${Math.min(100, (selectedActivities.length / (config.days * 2)) * 100)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 4 && inquiryStatus === 'success' ? (
+                        <motion.div
+                            key="success"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="text-center py-20 bg-white rounded-[3rem] shadow-xl"
+                        >
+                            <div className="w-24 h-24 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-8 text-gold">
+                                <Sparkles size={48} />
+                            </div>
+                            <h2 className="text-4xl font-display font-bold text-forest mb-4">Inquiry Received!</h2>
+                            <p className="text-forest/50 text-xl max-w-lg mx-auto mb-10">
+                                Our Roam Squad experts are already reviewing your handcrafted {config.days}-day journey. 
+                                We'll get back to you within 24 hours.
+                            </p>
+                            <button 
+                                onClick={() => window.location.href = '/'}
+                                className="px-10 py-4 bg-forest text-cream rounded-full font-bold"
+                            >
+                                Back to Discovery
+                            </button>
+                        </motion.div>
+                    ) : step === 4 && (
+                        <motion.div
+                            key="step4"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="max-w-4xl mx-auto"
+                        >
+                            <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl shadow-forest/10">
+                                <div className="grid grid-cols-1 md:grid-cols-2">
+                                    <div className="p-12 bg-forest text-cream">
+                                        <h2 className="text-3xl font-display font-bold mb-8">Itinerary Timeline</h2>
+                                        <div className="space-y-8">
+                                            {timeline.map((day) => (
+                                                <div key={day.day} className="relative pl-8 border-l-2 border-gold/30 last:border-0 pb-4">
+                                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gold shadow-lg ring-4 ring-forest" />
+                                                    <h4 className="font-bold text-gold uppercase tracking-widest text-xs mb-4">Day {day.day}</h4>
+                                                    <div className="space-y-4">
+                                                        {day.activities.length > 0 ? day.activities.map(act => (
+                                                            <div key={act.planId} className="flex flex-col">
+                                                                <span className="font-bold">{act.name}</span>
+                                                                <span className="text-xs text-cream/40 uppercase tracking-widest">{act.destinationName}</span>
+                                                            </div>
+                                                        )) : (
+                                                            <span className="text-cream/20 italic text-sm">Transfer & Exploration</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="p-12">
+                                        <h2 className="text-3xl font-display font-bold text-forest mb-6">Final Details</h2>
+                                        <form onSubmit={submitInquiry} className="space-y-6">
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Your Name</label>
+                                                <input 
+                                                    required
+                                                    type="text" 
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.userName}
+                                                    onChange={e => setConfig({...config, userName: e.target.value})}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Email Address</label>
+                                                <input 
+                                                    required
+                                                    type="email" 
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.userEmail}
+                                                    onChange={e => setConfig({...config, userEmail: e.target.value})}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Phone Number</label>
+                                                <input 
+                                                    required
+                                                    type="tel" 
+                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                                    value={config.userPhone}
+                                                    onChange={e => setConfig({...config, userPhone: e.target.value})}
+                                                />
+                                            </div>
+
+                                            <div className="pt-6 border-t border-forest/5">
+                                                <div className="flex justify-between items-end mb-8">
+                                                    <span className="text-forest/40 text-sm italic">Est. Total Budget</span>
+                                                    <span className="text-4xl font-display font-bold text-forest">₹{totalBudget.toLocaleString()}</span>
+                                                </div>
+                                                <button 
+                                                    type="submit"
+                                                    disabled={isSubmitting}
+                                                    className="w-full py-5 bg-forest text-cream rounded-full font-bold hover:scale-102 transition-transform shadow-xl shadow-forest/20 disabled:opacity-50"
+                                                >
+                                                    {isSubmitting ? 'Sending...' : 'Confirm Inquiry'}
+                                                </button>
+                                                <button type="button" onClick={prevStep} className="w-full py-4 text-forest/40 text-sm font-bold">Edit Plan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AuthModal 
+                    isOpen={showAuthModal} 
+                    onClose={() => setShowAuthModal(false)}
+                    onSuccess={() => nextStep()}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default PlannerPage;
