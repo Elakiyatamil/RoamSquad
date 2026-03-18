@@ -128,23 +128,23 @@ const StatCard = ({ label, value, icon: Icon, color, index }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -4 }}
-            className="bg-white p-6 rounded-2xl border border-ink/5 shadow-sm relative overflow-hidden group"
+            whileHover={{ y: -6, shadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
+            className="bg-white p-7 rounded-[2rem] border border-ink/5 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
         >
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-xl ${color} bg-opacity-10`}>
-                    <Icon size={24} className={color.replace('bg-', 'text-')} />
+            <div className="flex justify-between items-start mb-6">
+                <div className={`p-4 rounded-2xl ${color} bg-opacity-10 transition-colors duration-300 group-hover:bg-opacity-20`}>
+                    <Icon size={26} className={color.replace('bg-', 'text-')} />
                 </div>
             </div>
 
-            <h3 className="text-ink/40 text-xs font-bold uppercase tracking-widest mb-1">{label}</h3>
+            <h3 className="text-ink/50 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">{label}</h3>
             <div className="flex items-baseline gap-2">
-                <span className="text-[38px] font-display font-bold text-ink leading-none">
+                <span className="text-4xl font-display font-bold text-ink leading-tight">
                     {displayValue}
                 </span>
             </div>
 
-            <div className={`absolute bottom-0 left-0 h-[3px] w-full ${color} transition-all duration-300 group-hover:h-full group-hover:opacity-[0.02]`} />
+            <div className={`absolute bottom-0 left-0 h-1 w-full ${color} opacity-20 transition-all duration-500 group-hover:h-full group-hover:opacity-[0.03]`} />
         </motion.div>
     );
 };
@@ -254,9 +254,12 @@ const DashboardOverview = () => {
                             <NativePieChart data={pieData} colors={COLORS} />
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center text-center py-8">
-                            <p className="text-ink/20 font-bold">No requests yet</p>
-                            <p className="text-xs text-ink/30 mt-1">Data will appear as requests come in</p>
+                        <div className="flex flex-col items-center justify-center text-center py-10">
+                            <div className="w-16 h-16 bg-ink/5 rounded-full flex items-center justify-center mb-4">
+                                <ClipboardCheck size={24} className="text-ink/20" />
+                            </div>
+                            <p className="text-ink/40 font-bold text-sm">No activity yet</p>
+                            <p className="text-[10px] text-ink/30 mt-1 uppercase tracking-widest">Inquiries will appear here</p>
                         </div>
                     )}
                 </div>
@@ -265,9 +268,20 @@ const DashboardOverview = () => {
             <div className="card p-8">
                 <h2 className="text-2xl font-bold mb-6">Recent Inquiries</h2>
                 {recentRequests.length === 0 ? (
-                    <div className="py-12 text-center text-ink/30">
-                        <p className="font-bold">No requests yet</p>
-                        <p className="text-sm mt-1">Inquiries from travelers will appear here.</p>
+                    <div className="py-20 flex flex-col items-center justify-center text-center bg-ink/[0.02] rounded-2xl border border-dashed border-ink/10">
+                        <div className="w-16 h-16 bg-white shadow-sm rounded-2xl flex items-center justify-center mb-4">
+                            <Inbox size={32} className="text-ink/20" />
+                        </div>
+                        <h3 className="text-xl font-bold text-ink/60">No inquiries yet</h3>
+                        <p className="text-sm text-ink/40 max-w-xs mt-2">
+                            Start by creating destinations or wait for travelers to reach out.
+                        </p>
+                        <button 
+                            onClick={() => navigate('/admin/destinations')}
+                            className="mt-6 px-6 py-2 bg-red text-white rounded-xl font-bold text-sm hover:bg-red/90 transition-colors"
+                        >
+                            Create Destinations
+                        </button>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -279,14 +293,19 @@ const DashboardOverview = () => {
                                 transition={{ delay: i * 0.06 }}
                                 className="flex items-center gap-4 p-4 rounded-xl hover:bg-ink/5 transition-all cursor-pointer"
                             >
-                                <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${statusColors[req.status] || 'bg-ink/20'}`} />
+                                <div className={`w-3 h-3 rounded-full shrink-0 ${statusColors[req.status] || 'bg-ink/20'} ring-4 ring-white shadow-sm`} />
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-ink truncate">{req.userName}</p>
-                                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">{req.userEmail}</p>
+                                    <p className="font-bold text-ink truncate text-sm">{req.userName}</p>
+                                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-[0.15em] mt-0.5">{req.userEmail}</p>
                                 </div>
-                                <div className="flex items-center gap-3 text-ink/40 text-xs font-bold uppercase tracking-widest">
-                                    <span>{req.duration} Days</span>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] ${statusColors[req.status]?.replace('bg-', 'bg-') || ''} bg-opacity-10 text-ink/60`}>{req.status}</span>
+                                <div className="flex items-center gap-6">
+                                    <div className="text-right">
+                                        <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest mb-0.5">{req.duration} Days</p>
+                                        <p className="text-[10px] text-ink/20 font-medium">Trip Duration</p>
+                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColors[req.status]?.replace('bg-', 'bg-') || ''} bg-opacity-10 text-ink/70 border border-current border-opacity-10`}>
+                                        {req.status}
+                                    </span>
                                 </div>
                             </motion.div>
                         ))}

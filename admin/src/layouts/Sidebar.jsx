@@ -57,26 +57,33 @@ const Sidebar = () => {
                 )}
             </div>
 
-            <nav className="flex-1 px-3 py-4 space-y-1">
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
                 {menuItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
                         end={item.path === '/admin'}
                         className={({ isActive }) => `
-              flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-              ${isActive ? 'bg-red text-white' : 'hover:bg-white/5 text-white/60 hover:text-white'}
+              flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative
+              ${isActive 
+                ? 'bg-red text-white shadow-lg shadow-red/20 ring-1 ring-white/10' 
+                : 'hover:bg-white/5 text-white/50 hover:text-white'}
             `}
                     >
-                        <item.icon size={20} className="shrink-0" />
+                        <item.icon size={20} className={`shrink-0 transition-transform duration-300 group-hover:scale-110 ${isOpen ? '' : 'mx-auto'}`} />
                         {isOpen && (
                             <motion.span
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="font-medium"
+                                className="font-semibold text-sm tracking-wide"
                             >
                                 {item.title}
                             </motion.span>
+                        )}
+                        {!isOpen && (
+                            <div className="absolute left-full ml-2 px-2 py-1 bg-ink border border-white/10 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap uppercase tracking-widest">
+                                {item.title}
+                            </div>
                         )}
                     </NavLink>
                 ))}

@@ -8,26 +8,35 @@
   --color-ink: #1C1410;
   --color-cream: #FAF6EF;
   --color-forest: #2A4A38;
+  --color-ocean: #2E6F95;
 
   --font-display: "Cormorant Garamond", serif;
   --font-sans: "DM Sans", sans-serif;
 }
 
+/* Base Styles */
 body {
-  @apply bg-cream text-ink font-sans;
+  @apply bg-cream text-ink font-sans antialiased;
+  cursor: auto;
+  line-height: 1.6;
+}
+
+/* Custom Cursor initialization */
+body.custom-cursor-enabled {
   cursor: none;
 }
 
+/* Headings */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  @apply font-display;
+  font-family: var(--font-display);
 }
 
-/* Custom Cursor Styles */
+/* Custom Cursor Dot */
 .custom-cursor-dot {
   width: 10px;
   height: 10px;
@@ -38,6 +47,7 @@ h6 {
   z-index: 9999;
 }
 
+/* Custom Cursor Ring */
 .custom-cursor-ring {
   width: 32px;
   height: 32px;

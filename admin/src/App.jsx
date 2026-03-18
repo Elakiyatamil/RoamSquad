@@ -26,19 +26,6 @@ const RequireAuth = ({ children }) => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const hydrated = useAuthStore((s) => s.hydrated);
 
-  useEffect(() => {
-    fetch('http://localhost:5000/__debug-log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        hypothesisId: 'H-ui',
-        location: 'admin/src/App.jsx:RequireAuth',
-        message: 'RequireAuth render state',
-        data: { hydrated, isAuthenticated, path: window.location.pathname },
-      }),
-    }).catch(() => { });
-  }, [hydrated, isAuthenticated]);
-
   if (!hydrated) {
     return (
       <div className="min-h-screen bg-cream text-ink flex items-center justify-center p-6">

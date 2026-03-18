@@ -15,7 +15,6 @@ export const getSocket = (token) => {
     });
 
     socket.on('connect', () => {
-        console.log('📡 Global Socket connected:', socket.id);
     });
 
     socket.on('connect_error', (err) => {
