@@ -7,6 +7,7 @@ import {
     TreePalm,
     ClipboardCheck,
     Clock,
+    Inbox,
 } from 'lucide-react';
 
 // Native SVG Area Chart — no recharts needed

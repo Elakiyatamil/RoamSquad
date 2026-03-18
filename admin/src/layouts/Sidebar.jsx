@@ -9,7 +9,6 @@ import {
     Hotel,
     Package,
     ClipboardList,
-    Image as ImageIcon,
     ChevronLeft,
     ChevronRight,
     LayoutDashboard,
