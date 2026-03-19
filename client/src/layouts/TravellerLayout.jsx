@@ -6,6 +6,8 @@ export default function TravellerLayout() {
   const nav = [
     { to: '/', label: 'Discover' },
     { to: '/planner', label: 'Planner' },
+    { to: '/packages', label: 'Packages' },
+    { to: '/events', label: 'Events' },
     { to: '/wishlist', label: 'Wishlist' },
     { to: '/my-trips', label: 'My Trips' },
   ]

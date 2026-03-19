@@ -14,6 +14,8 @@ import ActivitiesManager from './pages/admin/ActivitiesManager';
 import FoodOptionsManager from './pages/admin/FoodOptionsManager';
 import AccommodationManager from './pages/admin/AccommodationManager';
 import PackagesManager from './pages/admin/PackagesManager';
+import GlobalPackagesManager from './pages/admin/GlobalPackagesManager';
+import EventsManager from './pages/admin/EventsManager';
 import RequestManager from './pages/admin/RequestManager';
 import ActivityLog from './pages/admin/ActivityLog';
 import InquiryManager from './pages/admin/InquiryManager';
@@ -60,6 +62,8 @@ function App() {
             <Route path="food" element={<FoodOptionsManager />} />
             <Route path="accommodation" element={<AccommodationManager />} />
             <Route path="packages" element={<PackagesManager />} />
+            <Route path="global-packages" element={<GlobalPackagesManager />} />
+            <Route path="events" element={<EventsManager />} />
             <Route path="requests" element={<RequestManager />} />
             <Route path="inquiries" element={<InquiryManager />} />
             <Route path="activity-log" element={<ActivityLog />} />

@@ -10,6 +10,8 @@ import MyTripsPage from './pages/traveller/MyTripsPage.jsx'
 import DestinationDetailsPage from './pages/traveller/DestinationDetailsPage.jsx'
 import JourneyDetails from './pages/JourneyDetails.jsx'
 import MyJourneys from './pages/MyJourneys.jsx'
+import PackagesPage from './pages/traveller/PackagesPage.jsx'
+import EventsPage from './pages/traveller/EventsPage.jsx'
 
 export default function App() {
   return (
@@ -23,6 +25,8 @@ export default function App() {
         <Route path="journey/:id" element={<JourneyDetails />} />
         <Route path="my-journeys" element={<MyJourneys />} />
         <Route path="destinations/:slug" element={<DestinationDetailsPage />} />
+        <Route path="packages" element={<PackagesPage />} />
+        <Route path="events" element={<EventsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

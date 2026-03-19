@@ -44,4 +44,39 @@ const deletePackage = async (req, res) => {
     }
 };
 
-module.exports = { getPackages, createPackage, updatePackage, deletePackage };
+const getPackagesPublic = async (req, res) => {
+    try {
+        const packages = await prisma.package.findMany({ where: { isActive: true } });
+        res.json(packages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const createPackageInterest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, phone } = req.body;
+        const email = req.user?.email || req.body.email;
+        const interest = await prisma.packageInterest.create({
+            data: { packageId: id, email, name: name || req.user?.name, phone }
+        });
+        res.json(interest);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getPackageInterests = async (req, res) => {
+    try {
+        const interests = await prisma.packageInterest.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { package: { select: { name: true } } }
+        });
+        res.json(interests);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { getPackages, createPackage, updatePackage, deletePackage, getPackagesPublic, createPackageInterest, getPackageInterests };

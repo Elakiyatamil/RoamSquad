@@ -1,21 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Trash2, MapPin, ArrowRight, Compass } from 'lucide-react';
+import { Heart, Trash2, MapPin, ArrowRight, Compass, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import useAuthStore from '../../store/authStore';
+
+const API = 'http://localhost:5000/api';
 
 const WishlistPage = () => {
     const [wishlist, setWishlist] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { user, isAuthenticated } = useAuthStore();
 
     useEffect(() => {
-        const saved = localStorage.getItem('roam_wishlist');
-        if (saved) setWishlist(JSON.parse(saved));
-    }, []);
+        const fetchWishlist = async () => {
+            if (!isAuthenticated || !user?.email) {
+                setIsLoading(false);
+                return;
+            }
+            try {
+                const res = await axios.get(`${API}/wishlist/leads/${user.email}`);
+                setWishlist(res.data);
+            } catch (err) {
+                console.error("Failed to fetch wishlist:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    const removeItem = (id) => {
-        const updated = wishlist.filter(item => item.id !== id);
-        setWishlist(updated);
-        localStorage.setItem('roam_wishlist', JSON.stringify(updated));
-    };
+        fetchWishlist();
+    }, [user?.email, isAuthenticated]);
+
+    if (isLoading) return (
+        <div className="flex items-center justify-center py-32 text-forest/40">
+            <Loader2 size={32} className="animate-spin mr-3" /> Loading your wishlist...
+        </div>
+    );
 
     return (
         <div className="container mx-auto px-6 py-20 min-h-[70vh]">
@@ -24,7 +44,12 @@ const WishlistPage = () => {
                 <p className="text-forest/50 text-xl font-display">Experiences you've fallen in love with.</p>
             </header>
 
-            {wishlist.length === 0 ? (
+            {!isAuthenticated ? (
+                <div className="text-center py-32 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
+                    <h2 className="text-2xl font-display font-bold text-forest mb-4">Please log in to view your wishlist</h2>
+                    <p className="text-forest/40 mb-10">Your saved itineraries are waiting for you.</p>
+                </div>
+            ) : wishlist.length === 0 ? (
                 <div className="text-center py-32 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
                     <div className="w-20 h-20 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-8 text-forest/20">
                         <Heart size={40} />
@@ -32,10 +57,10 @@ const WishlistPage = () => {
                     <h2 className="text-3xl font-display font-bold text-forest mb-4">Your heart is empty</h2>
                     <p className="text-forest/40 mb-10 max-w-sm mx-auto">Explore our curated destinations and save your favorites here.</p>
                     <Link 
-                        to="/" 
+                        to="/planner" 
                         className="inline-flex items-center gap-2 px-8 py-4 bg-forest text-cream rounded-full font-bold hover:scale-105 transition-transform"
                     >
-                        Start Exploring <Compass size={20} />
+                        Start Planning <Compass size={20} />
                     </Link>
                 </div>
             ) : (
@@ -50,33 +75,32 @@ const WishlistPage = () => {
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 className="group bg-white rounded-[2.5rem] overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all"
                             >
-                                <div className="relative h-64 overflow-hidden">
-                                    <img 
-                                        src={item.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1000'} 
-                                        alt={item.name} 
-                                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                                    />
-                                    <button 
-                                        onClick={() => removeItem(item.id)}
-                                        className="absolute top-6 right-6 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-cream hover:bg-red hover:text-white transition-all shadow-lg"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                <div className="relative h-64 overflow-hidden bg-forest/5 flex items-center justify-center">
+                                    <MapPin size={48} className="text-forest/10" />
+                                    {/* Since WishlistLead stores JSON itinerary, we don't have a direct image easily. 
+                                        We'll use a placeholder or the first activity image if we had it. */}
                                 </div>
                                 <div className="p-8">
                                     <div className="flex items-center gap-2 text-[10px] font-bold text-gold uppercase tracking-widest mb-2">
-                                        {item.type}
+                                        Saved Trip
                                     </div>
-                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.name}</h3>
-                                    <div className="flex items-center gap-2 text-forest/40 text-sm mb-8">
-                                        <MapPin size={14} /> {item.location}
+                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.destination}</h3>
+                                    <div className="flex items-center gap-2 text-forest/40 text-sm mb-4">
+                                        <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
                                     </div>
                                     
+                                    <div className="space-y-2 mb-8">
+                                        <p className="text-xs text-forest/60 font-medium">Budget: ₹{Number(item.totalBudget || 0).toLocaleString()}</p>
+                                        <p className="text-xs text-forest/60 font-medium italic">
+                                            {item.itinerary?.activities?.length || 0} activities saved
+                                        </p>
+                                    </div>
+
                                     <Link 
-                                        to={item.path}
+                                        to="/planner"
                                         className="flex items-center justify-between py-4 border-t border-forest/5 text-forest font-bold group-hover:text-gold transition-colors"
                                     >
-                                        View Details <ArrowRight size={20} />
+                                        Resume Planning <ArrowRight size={20} />
                                     </Link>
                                 </div>
                             </motion.div>

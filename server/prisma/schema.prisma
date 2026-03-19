@@ -139,17 +139,22 @@ model MustVisitSpot {
 }
 
 model UpcomingEvent {
-  id          String   @id @default(uuid())
-  districtId  String
-  name        String
-  description String?
-  startDate   DateTime
-  endDate     DateTime
-  bannerImage String?
-  location    String?
-  isFeatured  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  district    District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  id             String   @id @default(uuid())
+  districtId     String?
+  title          String
+  name           String?
+  description    String?
+  dateTime       DateTime?
+  startDate      DateTime?
+  endDate        DateTime?
+  bannerImage    String?
+  image          String?
+  location       String?
+  contactNumber  String?
+  isFeatured     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  district       District? @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  interests      EventInterest[]
 }
 
 model Package {
@@ -162,6 +167,7 @@ model Package {
   coverImage String?
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
+  interests  PackageInterest[]
 }
 
 model ItineraryRequest {
@@ -259,4 +265,33 @@ model Inquiry {
   tripDate    DateTime?
   status      String   @default("INQUIRY SENT")
   createdAt   DateTime @default(now())
+}
+
+model WishlistLead {
+  id          String   @id @default(uuid())
+  email       String
+  destination String
+  itinerary   Json?
+  totalBudget Float?
+  createdAt   DateTime @default(now())
+}
+
+model PackageInterest {
+  id         String   @id @default(uuid())
+  packageId  String
+  package    Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  email      String
+  name       String?
+  phone      String?
+  createdAt  DateTime @default(now())
+}
+
+model EventInterest {
+  id         String   @id @default(uuid())
+  eventId    String
+  event      UpcomingEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  email      String
+  name       String?
+  phone      String?
+  createdAt  DateTime @default(now())
 }

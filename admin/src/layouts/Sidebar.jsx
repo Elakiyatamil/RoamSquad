@@ -13,7 +13,9 @@ import {
     ChevronRight,
     LayoutDashboard,
     ShieldCheck,
-    Inbox
+    Inbox,
+    Globe,
+    CalendarDays
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
@@ -31,8 +33,10 @@ const Sidebar = () => {
         { title: 'Food Options', icon: Utensils, path: '/admin/food' },
         { title: 'Accommodation', icon: Hotel, path: '/admin/accommodation' },
         { title: 'Packages', icon: Package, path: '/admin/packages' },
-        { title: 'Requests', icon: ClipboardList, path: '/admin/requests' },
+        { title: 'Global Packages', icon: Globe, path: '/admin/global-packages' },
+        { title: 'Events', icon: CalendarDays, path: '/admin/events' },
         { title: 'Inquiries', icon: Inbox, path: '/admin/inquiries' },
+        { title: 'Requests', icon: ClipboardList, path: '/admin/requests' },
         { title: 'Activity Log', icon: ShieldCheck, path: '/admin/activity-log' },
     ];
 

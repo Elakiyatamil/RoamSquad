@@ -37,6 +37,7 @@ const PlannerPage = () => {
     const [selectedState, setSelectedState] = useState("");
     const [selectedDistrict, setSelectedDistrict] = useState("");
     const [selectedDestinationId, setSelectedDestinationId] = useState("");
+    const [selectedDayBuilder, setSelectedDayBuilder] = useState(1);
 
     const [activities, setActivities] = useState([]);
     const [food, setFood] = useState([]);
@@ -92,9 +93,8 @@ const PlannerPage = () => {
 
     // 🔴 STEP 9 — FIX STATE RESET
     React.useEffect(() => {
-        console.log("DESTINATION CHANGED:", selectedDestinationId);
-        setPlan({ activities: [], food: [], stays: [] });
-        setBudget(0);
+        console.log("DESTINATION CHANGED FOR CURATED DATA:", selectedDestinationId);
+        // WE DO NOT RESET `setPlan` or `setBudget` anymore to support multi-destination itineraries!
 
         if (!selectedDestinationId) {
             setActivities([]);
@@ -149,9 +149,10 @@ const PlannerPage = () => {
     };
 
     // 🔴 STEP 5 & 7 — FIX ADD TO PLAN (CORE FEATURE & INSTANT UPDATE)
-    const addToPlan = (type, item) => {
+    const addToPlan = (type, item, targetDay = null) => {
         const planKey = type === 'activity' ? 'activities' : type === 'food' ? 'food' : 'stays';
-        const itemId = `${selectedDestinationId}-${item.id}`;
+        // Make the item ID unique per day if a targetDay is provided
+        const itemId = `${selectedDestinationId}-${item.id}${targetDay ? `-day${targetDay}` : ''}`;
         
         setPlan(prev => {
             const isSelected = prev[planKey].find(i => i.planId === itemId);
@@ -163,16 +164,11 @@ const PlannerPage = () => {
                     [planKey]: prev[planKey].filter(i => i.planId !== itemId)
                 };
             } else {
-                // Keep the existing logic for activity limits if needed, but let's follow the simple 'addToPlan' for now
-                if (type === 'activity' && prev.activities.length >= (config.days || 1) * 2) {
-                    alert(`You can only add up to ${(config.days || 1) * 2} activities for a ${config.days}-day trip.`);
-                    return prev;
-                }
-
                 const newItem = {
                     ...item,
                     planId: itemId,
                     type,
+                    day: targetDay,
                     destinationId: selectedDestinationId,
                     destinationName: destinations?.find(d => d.id === selectedDestinationId)?.name || 'Destination'
                 };
@@ -213,17 +209,6 @@ const PlannerPage = () => {
         const minDate = new Date(today);
         minDate.setDate(minDate.getDate() + 15);
         if (start < minDate) return 'Trip must be at least 15 days from today';
-
-        // RULE 1: All places same state (if applicable - usually they are from same district here anyway)
-        const activityStates = new Set(plan.activities.map(a => a.stateId).filter(Boolean));
-        if (activityStates.size > 1) return 'All selected places must be from same state';
-
-
-        // RULE 2 + RULE 9: Max 2 places per day, no empty day
-        for (const day of timeline) {
-            if (!day.activities?.length) return 'Each day must have at least 1 place.';
-            if (day.activities.length > 2) return 'Maximum 2 places allowed per day';
-        }
 
         // RULE 3: days match plan
         const itineraryDays = timeline.length;
@@ -335,6 +320,36 @@ const PlannerPage = () => {
         await doSubmitInquiry();
     };
 
+    const handleAddToWishlist = async () => {
+        if (!isAuthenticated) {
+            setPendingSubmit(false); // We can reuse this or a separate flag if we wanted to resume wishlist add
+            setShowAuthModal(true);
+            return;
+        }
+
+        try {
+            const payload = {
+                email: user?.email || config.userEmail,
+                destination: destinations?.find(d => d.id === selectedDestinationId)?.name || plan.activities[0]?.destinationName || "Multiple",
+                itinerary: plan,
+                totalBudget: budget,
+                createdAt: new Date().toISOString()
+            };
+            
+            const token = useAuthStore.getState().token;
+            // Since it's a lead capture, we can send it with or without token, 
+            // but we're enforcing login now per user request.
+            await axios.post('http://localhost:5000/api/wishlist/lead', payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            toast.success("❤️ Saved to your Wishlist!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to save to Wishlist.");
+        }
+    };
+
     // Derived logic for rendering
     const allPlanItems = [...plan.activities, ...plan.food, ...plan.stays];
     const isOverScheduled = plan.activities.length > config.days * 2;
@@ -346,25 +361,23 @@ const PlannerPage = () => {
     }, 0);
 
 
-    // Group activities into days with logical distribution
+    // Group items explicitly based on the assigned day
     const generateTimeline = () => {
         const timeline = [];
-        const activitiesPerDay = 2; 
-
-        
         for (let i = 1; i <= config.days; i++) {
-            const dayActs = plan.activities.slice((i - 1) * activitiesPerDay, i * activitiesPerDay);
+            const dayActs = plan.activities.filter(a => a.day === i);
             const destinationsInDay = [...new Set(dayActs.map(a => a.destinationName))];
             
             timeline.push({
                 day: i,
                 activities: dayActs,
                 travelNote: destinationsInDay.length > 1 ? `Transfer between ${destinationsInDay.join(' & ')}` : null,
-                isOverloaded: dayActs.length > activitiesPerDay
+                isOverloaded: dayActs.length > 5 // Adjust limits if needed
             });
         }
         return timeline;
-    };    const timeline = generateTimeline();
+    };
+    const timeline = generateTimeline();
 
 
 
@@ -500,12 +513,13 @@ const PlannerPage = () => {
                                     <div className="flex-1">
                                         <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Country</label>
                                         <select 
-                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none"
                                             value={selectedCountry}
                                             onChange={(e) => {
                                                 setSelectedCountry(e.target.value);
                                                 setSelectedState('');
                                                 setSelectedDistrict('');
+                                                setSelectedDestinationId('');
                                             }}
                                         >
                                             <option value="">Select Country</option>
@@ -516,11 +530,12 @@ const PlannerPage = () => {
                                         <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">State</label>
                                         <select 
                                             disabled={!selectedCountry}
-                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedState}
                                             onChange={(e) => {
                                                 setSelectedState(e.target.value);
                                                 setSelectedDistrict('');
+                                                setSelectedDestinationId('');
                                             }}
                                         >
                                             <option value="">Select State</option>
@@ -531,7 +546,7 @@ const PlannerPage = () => {
                                         <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">District</label>
                                         <select 
                                             disabled={!selectedState}
-                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedDistrict}
                                             onChange={(e) => {
                                                 setSelectedDistrict(e.target.value);
@@ -546,7 +561,7 @@ const PlannerPage = () => {
                                         <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Destination</label>
                                         <select 
                                             disabled={!selectedDistrict}
-                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedDestinationId}
                                             onChange={(e) => {
                                                 console.log("SELECTING DESTINATION ID:", e.target.value);
@@ -564,7 +579,26 @@ const PlannerPage = () => {
                                 </div>
 
 
-                                <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
+                                    {selectedDestinationId && (
+                                        <div className="flex gap-2 overflow-x-auto pb-2">
+                                            {Array.from({ length: config.days }).map((_, i) => (
+                                                <button 
+                                                    key={i} 
+                                                    onClick={() => setSelectedDayBuilder(i + 1)}
+                                                    className={`px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap transition-colors ${
+                                                        selectedDayBuilder === i + 1 
+                                                        ? 'bg-forest text-cream shadow-md' 
+                                                        : 'bg-white border text-forest hover:bg-forest/5'
+                                                    }`}
+                                                >
+                                                    Day {i + 1}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 
                                 <div className="space-y-16">
                                     {!selectedDestinationId ? (
@@ -583,12 +617,14 @@ const PlannerPage = () => {
                                                 <div className="space-y-6">
                                                     <h3 className="text-2xl font-display font-bold text-forest">Activities</h3>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {activities.map(act => (
+                                                        {activities.map(act => {
+                                                            const isSelectedForDay = plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}-day${selectedDayBuilder}`);
+                                                            return (
                                                             <button
                                                                 key={act.id}
-                                                                onClick={() => addToPlan('activity', act)}
+                                                                onClick={() => addToPlan('activity', act, selectedDayBuilder)}
                                                                 className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
-                                                                    plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}`)
+                                                                    isSelectedForDay
                                                                     ? 'bg-forest text-cream shadow-xl shadow-forest/20'
                                                                     : 'bg-white border-2 border-forest/5 hover:border-forest/20'
                                                                 }`}
@@ -602,12 +638,12 @@ const PlannerPage = () => {
                                                                         <span className="text-xs text-forest/60">₹{act.price || 0} • {act.duration || 'N/A'}</span>
                                                                     </div>
                                                                 </div>
-                                                                {plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}`) 
+                                                                {isSelectedForDay
                                                                     ? <Trash2 size={16} className="text-cream" /> 
                                                                     : <Plus size={16} className="text-gold" />
                                                                 }
                                                             </button>
-                                                        ))}
+                                                        )})}
                                                     </div>
                                                 </div>
                                             ) : (
@@ -700,19 +736,41 @@ const PlannerPage = () => {
                                 <div className="bg-forest text-cream rounded-[2.5rem] p-10 shadow-2xl sticky top-28">
                                     <h3 className="text-3xl font-display font-bold mb-8">Trip Plan</h3>
                                     
-                                    <div className="space-y-6 mb-12 min-h-[200px]">
-                                        {allPlanItems.length === 0 ? (
+                                    <div className="space-y-6 mb-12 min-h-[200px] max-h-[400px] overflow-y-auto pr-2">
+                                        {timeline.filter(t => t.activities.length > 0).length === 0 && plan.stays.length === 0 && plan.food.length === 0 ? (
                                             <p className="text-cream/30 italic">No items added to your trip yet...</p>
                                         ) : (
-                                            allPlanItems.map(item => (
-                                                <div key={item.planId} className="flex items-center justify-between group">
-                                                    <div>
-                                                        <p className="font-bold text-sm leading-tight">{item.name || item.tier + ' Stay'}</p>
-                                                        <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.destinationName}</p>
+                                            <div className="space-y-6">
+                                                {timeline.map(t => t.activities.length > 0 && (
+                                                    <div key={`day-${t.day}`} className="space-y-3 pb-4 border-b border-cream/10">
+                                                        <h4 className="text-gold font-bold text-sm tracking-widest uppercase">Day {t.day}</h4>
+                                                        {t.activities.map(item => (
+                                                            <div key={item.planId} className="flex items-center justify-between group">
+                                                                <div>
+                                                                    <p className="font-bold text-sm leading-tight">{item.name}</p>
+                                                                    <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.destinationName}</p>
+                                                                </div>
+                                                                <p className="font-bold text-gold opacity-80">₹{item.price}</p>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                    <p className="font-bold text-gold">₹{item.price}</p>
-                                                </div>
-                                            ))
+                                                ))}
+                                                {/* Global Items (Stays & Food) */}
+                                                {(plan.stays.length > 0 || plan.food.length > 0) && (
+                                                    <div className="space-y-3 pt-2">
+                                                        <h4 className="text-white/40 font-bold text-xs tracking-widest uppercase">General Options</h4>
+                                                        {[...plan.stays, ...plan.food].map(item => (
+                                                            <div key={item.planId} className="flex items-center justify-between group">
+                                                                <div>
+                                                                    <p className="font-bold text-sm leading-tight">{item.name || item.tier + ' Stay'}</p>
+                                                                    <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.type || 'Stay'}</p>
+                                                                </div>
+                                                                <p className="font-bold text-gold opacity-80">₹{item.price}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
 
@@ -735,23 +793,28 @@ const PlannerPage = () => {
                                         </div>
                                     </div>
 
-                                    <button 
-                                        disabled={plan.activities.length === 0}
-                                        onClick={() => {
-                                            if (isOverScheduled) {
-                                                alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
-                                                return;
-                                            }
-                                            if (isAuthenticated) {
+                                    <div className="mt-10 flex gap-4">
+                                        <button 
+                                            disabled={plan.activities.length === 0}
+                                            onClick={handleAddToWishlist}
+                                            className="w-1/3 py-5 bg-white border-2 border-forest text-forest hover:bg-forest/5 rounded-full font-bold transition-colors disabled:opacity-30 disabled:border-transparent flex items-center justify-center gap-2"
+                                        >
+                                            <Sparkles size={16} /> Wishlist
+                                        </button>
+                                        <button 
+                                            disabled={plan.activities.length === 0}
+                                            onClick={() => {
+                                                if (isOverScheduled) {
+                                                    alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
+                                                    return;
+                                                }
                                                 nextStep();
-                                            } else {
-                                                setShowAuthModal(true);
-                                            }
-                                        }}
-                                        className="w-full mt-10 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
-                                    >
-                                        Review Inquiry
-                                    </button>
+                                            }}
+                                            className="w-2/3 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
+                                        >
+                                            Review Inquiry
+                                        </button>
+                                    </div>
                                     
                                     {isOverScheduled && (
                                         <p className="mt-4 text-center text-xs text-red-500 font-bold animate-pulse">

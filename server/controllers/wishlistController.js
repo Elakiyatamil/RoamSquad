@@ -88,3 +88,46 @@ exports.syncWishlist = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.createWishlistLead = async (req, res) => {
+    try {
+        const { email, destination, itinerary, totalBudget } = req.body;
+        const lead = await prisma.wishlistLead.create({
+            data: {
+                email,
+                destination: destination || "Unknown",
+                itinerary: itinerary || {},
+                totalBudget: parseFloat(totalBudget) || 0
+            }
+        });
+        res.json(lead);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getWishlistLeads = async (req, res) => {
+    try {
+        const leads = await prisma.wishlistLead.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(leads);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getWishlistLeadsByEmail = async (req, res) => {
+    try {
+        const { email } = req.params;
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+        
+        const leads = await prisma.wishlistLead.findMany({
+            where: { email },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(leads);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

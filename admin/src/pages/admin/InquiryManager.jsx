@@ -126,11 +126,17 @@ const DetailModal = ({ inquiry, onClose, onStatusUpdate }) => {
 export default function InquiryManager() {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('inquiries');
   const queryClient = useQueryClient();
 
   const { data: inquiries = [], isLoading, error } = useQuery({
     queryKey: ['inquiries'],
     queryFn: async () => (await apiClient.get('/inquiry')).data,
+  });
+
+  const { data: wishlist = [], isLoading: wlLoading } = useQuery({
+    queryKey: ['wishlistLeads'],
+    queryFn: async () => (await apiClient.get('/wishlist/leads')).data,
   });
 
   const filtered = useMemo(() => {
@@ -141,6 +147,14 @@ export default function InquiryManager() {
     );
   }, [inquiries, query]);
 
+  const filteredWishlist = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return wishlist;
+    return wishlist.filter((i) =>
+      [i.email, i.destination].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))
+    );
+  }, [wishlist, query]);
+
   const handleStatusUpdate = () => {
     queryClient.invalidateQueries({ queryKey: ['inquiries'] });
     setSelected(null);
@@ -150,8 +164,21 @@ export default function InquiryManager() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-5xl font-display font-bold text-ink mb-2">Inquiries</h1>
-          <p className="text-ink/60 font-medium">User itinerary inquiries saved from the traveller form.</p>
+          <h1 className="text-5xl font-display font-bold text-ink mb-2">Leads Dashboard</h1>
+          <div className="flex gap-4 mt-6">
+            <button 
+              onClick={() => setActiveTab('inquiries')}
+              className={`px-6 py-2 rounded-full font-bold transition ${activeTab === 'inquiries' ? 'bg-ink text-cream' : 'bg-ink/5 text-ink/60 hover:bg-ink/10'}`}
+            >
+              Inquiries
+            </button>
+            <button 
+              onClick={() => setActiveTab('wishlist')}
+              className={`px-6 py-2 rounded-full font-bold transition flex items-center gap-2 ${activeTab === 'wishlist' ? 'bg-gold text-ink' : 'bg-ink/5 text-ink/60 hover:bg-ink/10'}`}
+            >
+              Wishlist Leads
+            </button>
+          </div>
         </div>
         <div className="relative w-full sm:w-96">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/30" />
@@ -164,55 +191,89 @@ export default function InquiryManager() {
         </div>
       </div>
 
-      <div className="card p-0 overflow-hidden">
+      <div className="card p-0 overflow-hidden mt-6">
         <div className="p-6 border-b border-ink/5 flex items-center justify-between">
           <p className="text-xs font-bold uppercase tracking-widest text-ink/40">
-            {isLoading ? 'Loading…' : `${filtered.length} inquiries`}
+            {activeTab === 'inquiries' ? (isLoading ? 'Loading…' : `${filtered.length} inquiries`) : (wlLoading ? 'Loading…' : `${filteredWishlist.length} wishlist leads`)}
           </p>
-          {error ? <p className="text-xs font-bold text-red">Failed to load</p> : null}
+          {error && activeTab === 'inquiries' ? <p className="text-xs font-bold text-red">Failed to load</p> : null}
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-ink/5 text-ink/60">
-              <tr>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Name</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Contact</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Destination</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Budget</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Status</th>
-                <th className="text-right p-4 font-bold uppercase tracking-widest text-[10px]">View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((i) => (
-                <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
-                  <td className="p-4 font-bold text-ink">{i.name}</td>
-                  <td className="p-4 text-ink/70 font-semibold">{i.phone}</td>
-                  <td className="p-4 text-ink/70 font-semibold">{i.state ? `${i.state} / ${i.district || '-'}` : (i.district || '-')}</td>
-                  <td className="p-4 text-ink/70 font-semibold">₹{Number(i.totalBudget || 0).toLocaleString()}</td>
-                  <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
-                  <td className="p-4"><StatusBadge status={i.status} /></td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => setSelected(i)}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-ink text-cream hover:bg-ink/90 transition font-bold text-xs"
-                    >
-                      <Eye size={16} />
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {!isLoading && filtered.length === 0 ? (
+          {activeTab === 'inquiries' ? (
+            <table className="w-full text-sm">
+              <thead className="bg-ink/5 text-ink/60">
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-ink/40 font-bold">
-                    No inquiries yet.
-                  </td>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Name</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Contact</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Destination</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Budget</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Status</th>
+                  <th className="text-right p-4 font-bold uppercase tracking-widest text-[10px]">View</th>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((i) => (
+                  <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
+                    <td className="p-4 font-bold text-ink">{i.name}</td>
+                    <td className="p-4 text-ink/70 font-semibold">{i.phone}</td>
+                    <td className="p-4 text-ink/70 font-semibold">{i.state ? `${i.state} / ${i.district || '-'}` : (i.district || '-')}</td>
+                    <td className="p-4 text-ink/70 font-semibold">₹{Number(i.totalBudget || 0).toLocaleString()}</td>
+                    <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
+                    <td className="p-4"><StatusBadge status={i.status} /></td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => setSelected(i)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-ink text-cream hover:bg-ink/90 transition font-bold text-xs"
+                      >
+                        <Eye size={16} />
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {!isLoading && filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-10 text-center text-ink/40 font-bold">
+                      No inquiries yet.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-ink/5 text-ink/60">
+                <tr>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Email</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Destination</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
+                  <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Preview</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredWishlist.map((w) => (
+                  <tr key={w.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
+                    <td className="p-4 font-bold text-ink">{w.email}</td>
+                    <td className="p-4 text-ink/70 font-semibold">{w.destination}</td>
+                    <td className="p-4 text-ink/60 font-semibold">{new Date(w.createdAt).toLocaleString()}</td>
+                    <td className="p-4 text-ink/60 text-xs">
+                      <pre className="max-w-xs truncate overflow-hidden bg-ink/5 p-2 rounded-lg">
+                          {JSON.stringify(w.itinerary?.activities?.map(a => a.name) || w.itinerary, null, 2)}
+                      </pre>
+                    </td>
+                  </tr>
+                ))}
+                {!wlLoading && filteredWishlist.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-10 text-center text-ink/40 font-bold">
+                      No wishlist leads yet.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
