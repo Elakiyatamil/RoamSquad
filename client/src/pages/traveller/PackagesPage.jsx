@@ -17,7 +17,11 @@ export default function PackagesPage() {
 
     const { data: packages = [], isLoading } = useQuery({
         queryKey: ['publicPackages'],
-        queryFn: async () => (await axios.get(`${API}/packages/public`)).data
+        queryFn: async () => {
+            const res = await axios.get(`${API}/packages/public`);
+            console.log("[PackagesPage] API Response:", res.data);
+            return res.data.data || [];
+        }
     });
 
     const interestMutation = useMutation({

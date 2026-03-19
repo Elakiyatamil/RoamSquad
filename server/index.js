@@ -26,10 +26,13 @@ const server = http.createServer(app);
 // Initialize Sockets
 initSockets(server);
 
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+const corsOptions = {
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true,
-}));
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // #region agent log
@@ -61,14 +64,16 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/inquiry', inquiryRoutes);
 app.get('/public/destinations/:id/accommodation', experienceController.getAccommodationPublic);
 
-// Admin Routes (JWT & Admin checks are inside the route files)
-app.use('/api', hierarchyRoutes);
-app.use('/api', experienceRoutes);
-app.use('/api', districtFeatureRoutes);
+// Admin-Specific Routers (Mounted on specific sub-paths first)
 app.use('/api/packages', packageRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// Broad Admin Routers (Mounted on /api last)
+app.use('/api', hierarchyRoutes);
+app.use('/api', experienceRoutes);
+app.use('/api', districtFeatureRoutes);
 app.get('/api/audit-logs', verifyJWT, isAdmin, getAuditLogs);
 
 // Basic Health Check & Root
@@ -91,9 +96,14 @@ app.get('/api/stats', verifyJWT, isAdmin, async (req, res) => {
             prisma.itineraryRequest.count({ where: { status: 'New Inquiry' } }),
             prisma.itineraryRequest.count({ where: { status: 'Journey Confirmed' } }),
         ]);
-        res.json({ countries, destinations, activities, pendingRequests, confirmedRequests });
+        console.log(`[GET /api/stats] Calculated dashboard stats`);
+        res.status(200).json({ 
+            success: true, 
+            data: { countries, destinations, activities, pendingRequests, confirmedRequests } 
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /api/stats] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
@@ -107,8 +117,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, async () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    try {
+        const prisma = require('./utils/prisma');
+        await prisma.$connect();
+        console.log("✅ DB connected successfully");
+    } catch (e) {
+        console.error("❌ DB connection failed:", e);
+    }
 });
 
 module.exports = server;

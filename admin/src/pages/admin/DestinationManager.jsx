@@ -54,7 +54,8 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['destination-full', destination?.id],
         queryFn: async () => {
             const res = await apiClient.get(`/destinations/${destination.id}`);
-            return res.data;
+            console.log("[DestinationForm] Full Destination Response:", res.data);
+            return res.data.data;
         },
         enabled: !!destination?.id
     });
@@ -79,7 +80,8 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['countries'],
         queryFn: async () => {
             const res = await apiClient.get('/countries');
-            return res.data;
+            console.log("[DestinationForm] Countries Response:", res.data);
+            return res.data.data || [];
         }
     });
 
@@ -87,7 +89,8 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['states', selectedCountry],
         queryFn: async () => {
             const res = await apiClient.get(`/countries/${selectedCountry}/states`);
-            return res.data;
+            console.log("[DestinationForm] States Response:", res.data);
+            return res.data.data || [];
         },
         enabled: !!selectedCountry
     });
@@ -96,7 +99,8 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['districts', selectedState],
         queryFn: async () => {
             const res = await apiClient.get(`/states/${selectedState}/districts`);
-            return res.data;
+            console.log("[DestinationForm] Districts Response:", res.data);
+            return res.data.data || [];
         },
         enabled: !!selectedState
     });
@@ -741,7 +745,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                     });
                                     setFormData(prev => ({ 
                                         ...prev, 
-                                        images: [...(prev.images || []), ...res.data.urls] 
+                                        images: [...(prev.images || []), ...res.data.data.urls] 
                                     }));
                                 } catch (err) {
                                     alert('Failed to upload images.');
@@ -879,7 +883,8 @@ const DestinationManager = () => {
         queryFn: async () => {
             const statusParam = statusFilter !== 'All' ? `&status=${statusFilter.toUpperCase()}` : '';
             const res = await apiClient.get(`/destinations?page=${page}&limit=10&search=${search}${statusParam}`);
-            return res.data;
+            console.log("[DestinationManager] List View Response:", res.data);
+            return res.data.data; // this contains { data, meta }
         },
         keepPreviousData: true
     });

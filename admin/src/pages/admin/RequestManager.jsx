@@ -30,7 +30,7 @@ const RequestDetail = ({ request, onClose }) => {
     const updateMutation = useMutation({
         mutationFn: async (data) => await apiClient.patch(`/requests/${request.id}`, data),
         onSuccess: (res) => {
-            const updated = res.data;
+            const updated = res.data.data;
             setStatus(updated.status);
             queryClient.invalidateQueries(['requests']);
             alert('Updated successfully');
@@ -251,7 +251,8 @@ const RequestManager = () => {
         queryKey: ['requests'],
         queryFn: async () => {
             const res = await apiClient.get('/requests');
-            return res.data;
+            console.log("[RequestManager] Requests API Response:", res.data);
+            return res.data.data || [];
         }
     });
 

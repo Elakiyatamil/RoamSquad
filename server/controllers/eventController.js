@@ -6,9 +6,11 @@ const getEvents = async (req, res) => {
         const events = await prisma.upcomingEvent.findMany({
             orderBy: { dateTime: 'asc' }
         });
-        res.json(events);
+        console.log(`[GET /events] Feteched ${events.length} events`);
+        res.status(200).json({ success: true, data: events });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /events] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -17,9 +19,11 @@ const getEventsPublic = async (req, res) => {
         const events = await prisma.upcomingEvent.findMany({
             orderBy: { dateTime: 'asc' }
         });
-        res.json(events);
+        console.log(`[GET /events/public] Feteched ${events.length} events`);
+        res.status(200).json({ success: true, data: events });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /events/public] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -56,10 +60,11 @@ const createEvent = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Event', event.id, event.title);
-        res.json(event);
+        console.log(`[POST /events] Created event: ${event.id}`);
+        res.status(201).json({ success: true, data: event });
     } catch (error) {
-        console.error('createEvent error:', error);
-        res.status(500).json({ error: error.message });
+        console.error('[POST /events] Error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -93,9 +98,11 @@ const updateEvent = async (req, res) => {
             }
         });
         await logAction(req.user, 'UPDATE', 'Event', event.id, event.title);
-        res.json(event);
+        console.log(`[PATCH /events/${req.params.id}] Updated event`);
+        res.status(200).json({ success: true, data: event });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /events/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -104,9 +111,11 @@ const deleteEvent = async (req, res) => {
         const event = await prisma.upcomingEvent.findUnique({ where: { id: req.params.id } });
         await prisma.upcomingEvent.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Event', req.params.id, event?.title);
-        res.json({ message: 'Event deleted' });
+        console.log(`[DELETE /events/${req.params.id}] Deleted event`);
+        res.status(200).json({ success: true, message: 'Event deleted' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /events/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -130,9 +139,11 @@ const getEventInterests = async (req, res) => {
             orderBy: { createdAt: 'desc' },
             include: { event: { select: { title: true, dateTime: true } } }
         });
-        res.json(interests);
+        console.log(`[GET /events/interests] Fetched ${interests.length} registrations`);
+        res.status(200).json({ success: true, data: interests });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /events/interests] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

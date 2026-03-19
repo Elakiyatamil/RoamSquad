@@ -155,26 +155,14 @@ const COLORS = ['#C8391A', '#2A4A38', '#C4973A', '#2E6F95'];
 const DashboardOverview = () => {
     const navigate = useNavigate();
 
-    // #region agent log
-    useEffect(() => {
-        fetch('http://localhost:5000/__debug-log', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                hypothesisId: 'H-ui4',
-                location: 'admin/src/pages/admin/DashboardOverview.jsx',
-                message: 'DashboardOverview mounted',
-                data: { path: window.location.pathname },
-            }),
-        }).catch(() => { });
-    }, []);
-    // #endregion agent log
+
 
     const { data: stats = {} } = useQuery({
         queryKey: ['stats'],
         queryFn: async () => {
             const res = await apiClient.get('/stats');
-            return res.data;
+            console.log("[Dashboard] Stats API Response:", res.data);
+            return res.data.data || {};
         }
     });
 
@@ -182,7 +170,8 @@ const DashboardOverview = () => {
         queryKey: ['requests'],
         queryFn: async () => {
             const res = await apiClient.get('/requests');
-            return res.data;
+            console.log("[Dashboard] Requests API Response:", res.data);
+            return res.data.data || [];
         }
     });
 

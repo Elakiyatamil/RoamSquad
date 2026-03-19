@@ -6,9 +6,11 @@ exports.getWishlist = async (req, res) => {
         const items = await prisma.wishlistItem.findMany({
             where: { userId }
         });
-        res.json(items);
+        console.log(`[GET /wishlist] Fetched ${items.length} items for user ${userId}`);
+        res.status(200).json({ success: true, data: items });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /wishlist] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -18,7 +20,7 @@ exports.addToWishlist = async (req, res) => {
         const { entityType, entityId } = req.body;
 
         if (!['Destination', 'Activity'].includes(entityType)) {
-            return res.status(400).json({ error: 'Invalid entity type' });
+            return res.status(400).json({ success: false, error: 'Invalid entity type' });
         }
 
         const item = await prisma.wishlistItem.upsert({
@@ -29,9 +31,11 @@ exports.addToWishlist = async (req, res) => {
             create: { userId, entityType, entityId }
         });
 
-        res.json(item);
+        console.log(`[POST /wishlist] Added ${entityType} ${entityId} for user ${userId}`);
+        res.status(201).json({ success: true, data: item });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /wishlist] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -44,9 +48,11 @@ exports.removeFromWishlist = async (req, res) => {
             where: { id, userId }
         });
 
-        res.json({ message: 'Removed from wishlist' });
+        console.log(`[DELETE /wishlist/${id}] Removed item for user ${userId}`);
+        res.status(200).json({ success: true, message: 'Removed from wishlist' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /wishlist/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -56,7 +62,7 @@ exports.syncWishlist = async (req, res) => {
         const { items } = req.body; // Array of { entityType, entityId }
 
         if (!Array.isArray(items)) {
-            return res.status(400).json({ error: 'Items must be an array' });
+            return res.status(400).json({ success: false, error: 'Items must be an array' });
         }
 
         const operations = items.map(item => 
@@ -83,9 +89,11 @@ exports.syncWishlist = async (req, res) => {
             where: { userId }
         });
 
-        res.json(updatedWishlist);
+        console.log(`[POST /wishlist/sync] Synced ${items.length} items for user ${userId}`);
+        res.status(200).json({ success: true, data: updatedWishlist });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /wishlist/sync] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -100,9 +108,11 @@ exports.createWishlistLead = async (req, res) => {
                 totalBudget: parseFloat(totalBudget) || 0
             }
         });
-        res.json(lead);
+        console.log(`[POST /wishlist/lead] Created lead for ${email}`);
+        res.status(201).json({ success: true, data: lead });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /wishlist/lead] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -111,23 +121,27 @@ exports.getWishlistLeads = async (req, res) => {
         const leads = await prisma.wishlistLead.findMany({
             orderBy: { createdAt: 'desc' }
         });
-        res.json(leads);
+        console.log(`[GET /wishlist/leads] Fetched ${leads.length} leads`);
+        res.status(200).json({ success: true, data: leads });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /wishlist/leads] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
 exports.getWishlistLeadsByEmail = async (req, res) => {
     try {
         const { email } = req.params;
-        if (!email) return res.status(400).json({ error: 'Email is required' });
+        if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
         
         const leads = await prisma.wishlistLead.findMany({
             where: { email },
             orderBy: { createdAt: 'desc' }
         });
-        res.json(leads);
+        console.log(`[GET /wishlist/leads/${email}] Fetched ${leads.length} leads`);
+        res.status(200).json({ success: true, data: leads });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /wishlist/leads/${req.params.email}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };

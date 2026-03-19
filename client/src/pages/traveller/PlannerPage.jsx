@@ -55,7 +55,8 @@ const PlannerPage = () => {
         queryKey: ['countries'],
         queryFn: async () => {
             const res = await axios.get(`${API_BASE}/countries`);
-            return res.data;
+            console.log("[PlannerPage] Countries API Response:", res.data);
+            return res.data.data || [];
         }
     });
 
@@ -65,7 +66,8 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedCountry) return [];
             const res = await axios.get(`${API_BASE}/states/${selectedCountry}`);
-            return res.data;
+            console.log("[PlannerPage] States API Response:", res.data);
+            return res.data.data || [];
         },
         enabled: !!selectedCountry
     });
@@ -76,7 +78,8 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedState) return [];
             const res = await axios.get(`${API_BASE}/districts/${selectedState}`);
-            return res.data;
+            console.log("[PlannerPage] Districts API Response:", res.data);
+            return res.data.data || [];
         },
         enabled: !!selectedState
     });
@@ -86,7 +89,8 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedDistrict) return [];
             const res = await axios.get(`${API_BASE}/destinations/district/${selectedDistrict}`);
-            return res.data;
+            console.log("[PlannerPage] Destinations API Response:", res.data);
+            return res.data.data || [];
         },
         enabled: !!selectedDistrict
     });
@@ -106,7 +110,7 @@ const PlannerPage = () => {
         // 🔴 STEP 2 & 3 — FETCH FULL DATA & DEBUG
         axios.get(`${API_BASE}/destinations/id/${selectedDestinationId}`)
             .then(res => {
-                const data = res.data;
+                const data = res.data.data;
                 console.log("FULL DATA API RESPONSE:", data);
                 
                 // 🔴 STEP 4 — FIX RENDERING (Ensure consistent fields)

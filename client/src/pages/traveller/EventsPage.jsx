@@ -19,7 +19,8 @@ export default function EventsPage() {
         queryKey: ['publicEvents'],
         queryFn: async () => {
             const res = await axios.get(`${API}/events/public`);
-            return res.data;
+            console.log("[EventsPage] API Response:", res.data);
+            return res.data.data || [];
         }
     });
 

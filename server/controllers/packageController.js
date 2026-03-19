@@ -4,9 +4,11 @@ const { logAction } = require('../utils/auditLog');
 const getPackages = async (req, res) => {
     try {
         const packages = await prisma.package.findMany();
-        res.json(packages);
+        console.log(`[GET /packages] Fetched ${packages.length} packages`);
+        res.status(200).json({ success: true, data: packages });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /packages] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -14,9 +16,11 @@ const createPackage = async (req, res) => {
     try {
         const pkg = await prisma.package.create({ data: req.body });
         await logAction(req.user, 'CREATE', 'Package', pkg.id, pkg.name);
-        res.json(pkg);
+        console.log(`[POST /packages] Created package: ${pkg.id}`);
+        res.status(201).json({ success: true, data: pkg });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /packages] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -27,9 +31,11 @@ const updatePackage = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Package', pkg.id, pkg.name);
-        res.json(pkg);
+        console.log(`[PATCH /packages/${req.params.id}] Updated package`);
+        res.status(200).json({ success: true, data: pkg });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /packages/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -38,18 +44,22 @@ const deletePackage = async (req, res) => {
         const pkg = await prisma.package.findUnique({ where: { id: req.params.id } });
         await prisma.package.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Package', req.params.id, pkg?.name);
-        res.json({ message: 'Package deleted successfully' });
+        console.log(`[DELETE /packages/${req.params.id}] Deleted package`);
+        res.status(200).json({ success: true, message: 'Package deleted successfully' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /packages/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
 const getPackagesPublic = async (req, res) => {
     try {
         const packages = await prisma.package.findMany({ where: { isActive: true } });
-        res.json(packages);
+        console.log(`[GET /packages/public] Fetched ${packages.length} active packages`);
+        res.status(200).json({ success: true, data: packages });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /packages/public] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -73,9 +83,11 @@ const getPackageInterests = async (req, res) => {
             orderBy: { createdAt: 'desc' },
             include: { package: { select: { name: true } } }
         });
-        res.json(interests);
+        console.log(`[GET /packages/interests] Fetched ${interests.length} registrations`);
+        res.status(200).json({ success: true, data: interests });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /packages/interests] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

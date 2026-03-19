@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Trash2, MapPin, ArrowRight, Compass, Loader2 } from 'lucide-react';
+import { Heart, Trash2, MapPin, ArrowRight, Compass, Loader2, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
@@ -20,7 +20,8 @@ const WishlistPage = () => {
             }
             try {
                 const res = await axios.get(`${API}/wishlist/leads/${user.email}`);
-                setWishlist(res.data);
+                console.log("[WishlistPage] API Response:", res.data);
+                setWishlist(res.data.data || []);
             } catch (err) {
                 console.error("Failed to fetch wishlist:", err);
             } finally {

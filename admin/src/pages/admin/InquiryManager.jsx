@@ -131,12 +131,20 @@ export default function InquiryManager() {
 
   const { data: inquiries = [], isLoading, error } = useQuery({
     queryKey: ['inquiries'],
-    queryFn: async () => (await apiClient.get('/inquiry')).data,
+    queryFn: async () => {
+      const res = await apiClient.get('/inquiry');
+      console.log("[InquiryManager] Inquiries API Response:", res.data);
+      return res.data.data || [];
+    },
   });
 
   const { data: wishlist = [], isLoading: wlLoading } = useQuery({
     queryKey: ['wishlistLeads'],
-    queryFn: async () => (await apiClient.get('/wishlist/leads')).data,
+    queryFn: async () => {
+      const res = await apiClient.get('/wishlist/leads');
+      console.log("[InquiryManager] Wishlist API Response:", res.data);
+      return res.data.data || [];
+    },
   });
 
   const filtered = useMemo(() => {

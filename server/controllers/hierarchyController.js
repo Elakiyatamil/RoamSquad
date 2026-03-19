@@ -16,9 +16,11 @@ const getTree = async (req, res) => {
                 }
             }
         });
-        res.json(tree);
+        console.log(`[GET /hierarchy/tree] Fetched full hierarchy tree`);
+        res.status(200).json({ success: true, data: tree });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /hierarchy/tree] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -26,9 +28,11 @@ const getTree = async (req, res) => {
 const getCountries = async (req, res) => {
     try {
         const countries = await prisma.country.findMany();
-        res.json(countries);
+        console.log(`[GET /countries] Fetched ${countries.length} countries`);
+        res.status(200).json({ success: true, data: countries });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /countries] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -39,9 +43,11 @@ const createCountry = async (req, res) => {
             data: { name, active, flag, code } 
         });
         await logAction(req.user, 'CREATE', 'Country', country.id, country.name);
-        res.json(country);
+        console.log(`[POST /countries] Created country: ${country.id}`);
+        res.status(201).json({ success: true, data: country });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /countries] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -52,9 +58,11 @@ const updateCountry = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Country', country.id, country.name);
-        res.json(country);
+        console.log(`[PATCH /countries/${req.params.id}] Updated country`);
+        res.status(200).json({ success: true, data: country });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /countries/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -75,9 +83,11 @@ const getStates = async (req, res) => {
         const states = await prisma.state.findMany({
             where: { countryId: req.params.id }
         });
-        res.json(states);
+        console.log(`[GET /countries/${req.params.id}/states] Fetched ${states.length} states`);
+        res.status(200).json({ success: true, data: states });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /countries/${req.params.id}/states] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -124,9 +134,11 @@ const getDistricts = async (req, res) => {
         const districts = await prisma.district.findMany({
             where: { stateId: req.params.id }
         });
-        res.json(districts);
+        console.log(`[GET /states/${req.params.id}/districts] Fetched ${districts.length} districts`);
+        res.status(200).json({ success: true, data: districts });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /states/${req.params.id}/districts] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -173,9 +185,11 @@ const getDestinationsByDistrict = async (req, res) => {
         const destinations = await prisma.destination.findMany({
             where: { districtId: req.params.id }
         });
-        res.json(destinations);
+        console.log(`[GET /districts/${req.params.id}/destinations] Fetched ${destinations.length} destinations`);
+        res.status(200).json({ success: true, data: destinations });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /districts/${req.params.id}/destinations] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -197,9 +211,11 @@ const createDestination = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
-        res.json(destination);
+        console.log(`[POST /districts/${req.params.id}/destinations] Created destination: ${destination.name}`);
+        res.status(201).json({ success: true, data: destination });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /districts/${req.params.id}/destinations] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -232,7 +248,9 @@ const getFlatDestinations = async (req, res) => {
             prisma.destination.count({ where })
         ]);
 
-        res.json({
+        console.log(`[GET /destinations/flat] Fetched ${destinations.length} destinations (total: ${total})`);
+        res.status(200).json({
+            success: true,
             data: destinations,
             meta: {
                 total,
@@ -242,7 +260,8 @@ const getFlatDestinations = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /destinations/flat] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -267,11 +286,13 @@ const getFullDestination = async (req, res) => {
             }
         });
         if (!destination) {
-            return res.status(404).json({ message: 'Destination not found' });
+            return res.status(404).json({ success: false, error: 'Destination not found' });
         }
-        res.json(destination);
+        console.log(`[GET /destinations/${req.params.id}] Fetched full destination`);
+        res.status(200).json({ success: true, data: destination });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /destinations/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -302,9 +323,11 @@ const updateDestination = async (req, res) => {
         });
         
         await logAction(req.user, 'UPDATE', 'Destination', destination.id, destination.name);
-        res.json(destination);
+        console.log(`[PATCH /destinations/${req.params.id}] Updated destination: ${destination.name}`);
+        res.status(200).json({ success: true, data: destination });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /destinations/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -313,9 +336,11 @@ const deleteDestination = async (req, res) => {
         const destination = await prisma.destination.findUnique({ where: { id: req.params.id } });
         await prisma.destination.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Destination', req.params.id, destination?.name);
-        res.json({ message: 'Destination deleted successfully' });
+        console.log(`[DELETE /destinations/${req.params.id}] Deleted destination: ${destination?.name}`);
+        res.status(200).json({ success: true, data: { message: 'Destination deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /destinations/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

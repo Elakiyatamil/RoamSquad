@@ -11,10 +11,11 @@ const getActivities = async (req, res) => {
             where,
             orderBy: { sortOrder: 'asc' }
         });
-        res.json(activities);
-
+        console.log(`[GET /activities] Fetched ${activities.length} activities`);
+        res.status(200).json({ success: true, data: activities });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /activities] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -23,7 +24,7 @@ const createActivity = async (req, res) => {
         const { name, duration, price, description, destinationId } = req.body;
 
         if (!destinationId) {
-            return res.status(400).json({ error: "destinationId required" });
+            return res.status(400).json({ success: false, error: "destinationId required" });
         }
 
         const activity = await prisma.activity.create({
@@ -39,9 +40,11 @@ const createActivity = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Activity', activity.id, activity.name);
-        res.json(activity);
+        console.log(`[POST /activities] Created activity: ${activity.id}`);
+        res.status(201).json({ success: true, data: activity });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /activities] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -53,9 +56,11 @@ const updateActivity = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Activity', activity.id, activity.name);
-        res.json(activity);
+        console.log(`[PATCH /activities/${req.params.id}] Updated activity`);
+        res.status(200).json({ success: true, data: activity });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /activities/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -98,10 +103,11 @@ const getFoodOptions = async (req, res) => {
             where,
             orderBy: { sortOrder: 'asc' }
         });
-        res.json(food);
-
+        console.log(`[GET /food] Fetched ${food.length} food options`);
+        res.status(200).json({ success: true, data: food });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /food] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -128,9 +134,11 @@ const createFoodOption = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'FoodOption', food.id, food.name);
-        res.json(food);
+        console.log(`[POST /food] Created food option: ${food.id}`);
+        res.status(201).json({ success: true, data: food });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /food] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -142,9 +150,11 @@ const updateFoodOption = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'FoodOption', food.id, food.name);
-        res.json(food);
+        console.log(`[PATCH /food/${req.params.id}] Updated food option`);
+        res.status(200).json({ success: true, data: food });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /food/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -168,10 +178,11 @@ const getAccommodationAdmin = async (req, res) => {
         const accommodation = await prisma.accommodation.findMany({
             where
         });
-        res.json(accommodation);
-
+        console.log(`[GET /accommodation/admin] Fetched ${accommodation.length} options`);
+        res.status(200).json({ success: true, data: accommodation });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /accommodation/admin] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -189,10 +200,11 @@ const getAccommodationPublic = async (req, res) => {
                 imageUrl: true
             }
         });
-        res.json(accommodation);
-
+        console.log(`[GET /accommodation/public/${req.params.id}] Fetched ${accommodation.length} options`);
+        res.status(200).json({ success: true, data: accommodation });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /accommodation/public/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -219,9 +231,11 @@ const createAccommodation = async (req, res) => {
         });
 
         await logAction(req.user, 'CREATE', 'Accommodation', acc.id, `${acc.tier} tier`);
-        res.json(acc);
+        console.log(`[POST /accommodation] Created accommodation: ${acc.id}`);
+        res.status(201).json({ success: true, data: acc });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /accommodation] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -233,9 +247,11 @@ const updateAccommodation = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Accommodation', acc.id, `${acc.tier} tier`);
-        res.json(acc);
+        console.log(`[PATCH /accommodation/${req.params.id}] Updated accommodation`);
+        res.status(200).json({ success: true, data: acc });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /accommodation/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -258,10 +274,11 @@ const getTravelOptions = async (req, res) => {
         const options = await prisma.travelOption.findMany({
             where
         });
-        res.json(options);
-
+        console.log(`[GET /travel] Fetched ${options.length} travel options`);
+        res.status(200).json({ success: true, data: options });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /travel] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -282,10 +299,11 @@ const createTravelOption = async (req, res) => {
         });
 
         await logAction(req.user, 'CREATE', 'TravelOption', option.id, option.mode);
-        res.json(option);
-
+        console.log(`[POST /travel] Created travel option: ${option.id}`);
+        res.status(201).json({ success: true, data: option });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /travel] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -296,9 +314,11 @@ const updateTravelOption = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'TravelOption', option.id, option.mode);
-        res.json(option);
+        console.log(`[PATCH /travel/${req.params.id}] Updated travel option`);
+        res.status(200).json({ success: true, data: option });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /travel/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

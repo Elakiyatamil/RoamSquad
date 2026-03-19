@@ -24,9 +24,11 @@ exports.getDiscoveryTree = async (req, res) => {
                 }
             }
         });
-        res.json(tree);
+        console.log(`[GET /discovery-tree] Fetched active hierarchy tree`);
+        res.status(200).json({ success: true, data: tree });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /discovery-tree] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -89,31 +91,11 @@ exports.getDestinations = async (req, res) => {
             accommodations: dest.accommodations || []
         }));
 
-        // #region agent log
-        try {
-            const fs = require('fs');
-            fs.appendFileSync(
-                'c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log',
-                `${JSON.stringify({
-                    sessionId: 'b1a21f',
-                    runId: 'pre-fix',
-                    hypothesisId: 'H7',
-                    location: 'server/controllers/publicController.js:getDestinations',
-                    message: 'public destinations formatted',
-                    data: {
-                        count: formatted.length,
-                        sample: formatted[0] ? { id: formatted[0].id, activitiesCount: formatted[0].activities?.length ?? null } : null
-                    },
-                    timestamp: Date.now()
-                })}\n`,
-                'utf8'
-            );
-        } catch (_) {}
-        // #endregion agent log
-
-        res.json(formatted);
+        console.log(`[GET /public/destinations] Fetched ${formatted.length} destinations`);
+        res.status(200).json({ success: true, data: formatted });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/destinations] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -155,10 +137,11 @@ exports.getDestinationById = async (req, res) => {
             travelOptions: destination.travelOptions || []
         };
 
-        res.json(unified);
-
+        console.log(`[GET /public/destination/${id}] Fetched unified destination`);
+        res.status(200).json({ success: true, data: unified });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/destination/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -189,9 +172,11 @@ exports.getDestinationDetails = async (req, res) => {
             return res.status(404).json({ message: 'Destination not found' });
         }
 
-        res.json(destination);
+        console.log(`[GET /public/destinations/${slug}] Fetched destination details`);
+        res.status(200).json({ success: true, data: destination });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/destinations/${req.params.slug}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -202,9 +187,11 @@ exports.getCountries = async (req, res) => {
             where: { active: true },
             orderBy: { name: 'asc' }
         });
-        res.json(countries);
+        console.log(`[GET /public/countries] Fetched ${countries.length} countries`);
+        res.status(200).json({ success: true, data: countries });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/countries] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -216,9 +203,11 @@ exports.getStates = async (req, res) => {
             where: { countryId, active: true },
             orderBy: { name: 'asc' }
         });
-        res.json(states);
+        console.log(`[GET /public/states/${countryId}] Fetched ${states.length} states`);
+        res.status(200).json({ success: true, data: states });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/states/${req.params.countryId}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -230,9 +219,11 @@ exports.getDistricts = async (req, res) => {
             where: { stateId, active: true },
             orderBy: { name: 'asc' }
         });
-        res.json(districts);
+        console.log(`[GET /public/districts/${stateId}] Fetched ${districts.length} districts`);
+        res.status(200).json({ success: true, data: districts });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/districts/${req.params.stateId}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -249,9 +240,11 @@ exports.getDestinationsByDistrict = async (req, res) => {
             }
         });
 
-        res.json(destinations);
+        console.log(`[GET /public/destinations/district/${districtId}] Fetched ${destinations.length} destinations`);
+        res.status(200).json({ success: true, data: destinations });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /public/destinations/district/${req.params.districtId}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

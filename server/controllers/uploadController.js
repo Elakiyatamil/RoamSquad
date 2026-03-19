@@ -27,8 +27,12 @@ const uploadSingle = async (req, res) => {
         const stream = cloudinary.uploader.upload_stream(
             { folder: 'roam_squad' },
             (error, result) => {
-                if (error) return res.status(500).json({ error: error.message });
-                res.json({ url: result.secure_url, publicId: result.public_id });
+                if (error) {
+                    console.error("[uploadSingle] Error:", error);
+                    return res.status(500).json({ success: false, error: error.message });
+                }
+                console.log("[uploadSingle] Success:", result.secure_url);
+                res.status(200).json({ success: true, data: { url: result.secure_url, publicId: result.public_id } });
             }
         );
 
@@ -64,9 +68,11 @@ const uploadMultiple = async (req, res) => {
         });
 
         const results = await Promise.all(uploadPromises);
-        res.json({ urls: results.map(r => r.url), data: results });
+        console.log(`[uploadMultiple] Successfully uploaded ${results.length} images`);
+        res.status(200).json({ success: true, data: { urls: results.map(r => r.url), data: results } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("[uploadMultiple] Error:", error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -80,9 +86,11 @@ const deleteImage = async (req, res) => {
         }
 
         const result = await cloudinary.uploader.destroy(publicId);
-        res.json(result);
+        console.log(`[deleteImage] Success for publicId: ${publicId}`);
+        res.status(200).json({ success: true, data: result });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("[deleteImage] Error:", error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

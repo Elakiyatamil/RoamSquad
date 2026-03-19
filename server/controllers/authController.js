@@ -13,13 +13,13 @@ const login = async (req, res) => {
         console.log(`Login attempt for: ${email}`);
         if (!user) {
             console.log('User not found');
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         console.log(`Password match: ${isMatch}`);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
@@ -28,32 +28,16 @@ const login = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        // #region agent log
-        try {
-            const fs = require('fs');
-            fs.appendFileSync(
-                'c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log',
-                `${JSON.stringify({
-                    sessionId: 'b1a21f',
-                    runId: 'pre-fix',
-                    hypothesisId: 'H6',
-                    location: 'server/controllers/authController.js:login',
-                    message: 'login issued token',
-                    data: { userIdType: typeof user.id, userRole: user.role, hasJWTSecret: Boolean(process.env.JWT_SECRET) },
-                    timestamp: Date.now(),
-                })}\n`,
-                'utf8'
-            );
-        } catch (_) {}
-        // #endregion agent log
-
-        res.json({
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role
+        res.status(200).json({
+            success: true,
+            data: {
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role
+                }
             }
         });
     } catch (error) {
@@ -66,12 +50,12 @@ const register = async (req, res) => {
     const { name, email, password } = req.body;
     try {
         if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
+            return res.status(400).json({ success: false, message: 'Email and password are required' });
         }
 
         const existing = await prisma.user.findUnique({ where: { email } });
         if (existing) {
-            return res.status(409).json({ message: 'Email already in use' });
+            return res.status(409).json({ success: false, message: 'Email already in use' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -90,32 +74,17 @@ const register = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        // #region agent log
-        try {
-            const fs = require('fs');
-            fs.appendFileSync(
-                'c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log',
-                `${JSON.stringify({
-                    sessionId: 'b1a21f',
-                    runId: 'pre-fix',
-                    hypothesisId: 'H9',
-                    location: 'server/controllers/authController.js:register',
-                    message: 'register created user',
-                    data: { userIdType: typeof user.id, userRole: user.role, hasJWTSecret: Boolean(process.env.JWT_SECRET) },
-                    timestamp: Date.now(),
-                })}\n`,
-                'utf8'
-            );
-        } catch (_) { }
-        // #endregion agent log
-
+        console.log(`[AUTH] Registered user: ${user.email}`);
         res.status(201).json({
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role
+            success: true,
+            data: {
+                token,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role
+                }
             }
         });
     } catch (error) {
@@ -135,10 +104,10 @@ const getMe = async (req, res) => {
                 role: true
             }
         });
-        if (!user) return res.status(404).json({ message: 'User not found' });
-        res.json(user);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        res.status(200).json({ success: true, data: user });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 

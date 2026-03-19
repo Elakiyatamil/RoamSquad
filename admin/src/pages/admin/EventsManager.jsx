@@ -99,12 +99,20 @@ export default function EventsManager() {
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['adminEvents'],
-    queryFn: async () => (await apiClient.get('/events')).data
+    queryFn: async () => {
+      const res = await apiClient.get('/events');
+      console.log("[EventsManager] Events API Response:", res.data);
+      return res.data.data || [];
+    }
   });
 
   const { data: interests = [] } = useQuery({
     queryKey: ['eventInterests'],
-    queryFn: async () => (await apiClient.get('/events/interests')).data
+    queryFn: async () => {
+      const res = await apiClient.get('/events/interests');
+      console.log("[EventsManager] Interests API Response:", res.data);
+      return res.data.data || [];
+    }
   });
 
   const createMutation = useMutation({

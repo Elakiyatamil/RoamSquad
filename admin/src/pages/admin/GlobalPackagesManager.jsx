@@ -39,12 +39,20 @@ export default function GlobalPackagesManager() {
 
   const { data: packages = [], isLoading } = useQuery({
     queryKey: ['adminPackages'],
-    queryFn: async () => (await apiClient.get('/packages')).data
+    queryFn: async () => {
+      const res = await apiClient.get('/packages');
+      console.log("[GlobalPackagesManager] Packages API Response:", res.data);
+      return res.data.data || [];
+    }
   });
 
   const { data: interests = [] } = useQuery({
     queryKey: ['packageInterests'],
-    queryFn: async () => (await apiClient.get('/packages/interests')).data
+    queryFn: async () => {
+      const res = await apiClient.get('/packages/interests');
+      console.log("[GlobalPackagesManager] Interests API Response:", res.data);
+      return res.data.data || [];
+    }
   });
 
   const createMutation = useMutation({

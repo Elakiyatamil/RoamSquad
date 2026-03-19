@@ -188,7 +188,8 @@ const PackagesManager = () => {
         queryKey: ['packages'],
         queryFn: async () => {
             const res = await apiClient.get('/packages');
-            return res.data;
+            console.log("[PackagesManager] Packages API Response:", res.data);
+            return res.data.data || [];
         }
     });
 
