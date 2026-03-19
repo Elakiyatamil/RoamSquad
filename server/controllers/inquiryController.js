@@ -119,3 +119,23 @@ exports.getInquiryById = async (req, res) => {
   }
 };
 
+exports.updateInquiryStatus = async (req, res) => {
+  try {
+    if (!ensureInquiryModel(res)) return;
+    const id = Number(req.params.id);
+    const { status } = req.body;
+    
+    if (!Number.isFinite(id)) return res.status(400).json({ error: 'Invalid id' });
+    if (!status) return res.status(400).json({ error: 'status is required' });
+
+    const updatedInquiry = await prisma.inquiry.update({
+      where: { id },
+      data: { status }
+    });
+
+    res.json(updatedInquiry);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

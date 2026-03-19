@@ -92,31 +92,36 @@ async function main() {
 
     console.log('6. Creating activities...');
     const activities = [
-        { destinationId: munnar.id, name: 'Tea Garden Trek', icon: '🍵', price: 600, duration: '3h', images: [] },
-        { destinationId: munnar.id, name: 'Eravikulam Safari', icon: '🦌', price: 1200, duration: '4h', images: [] },
-        { destinationId: coorg.id, name: 'Coffee Plantation Tour', icon: '☕', price: 500, duration: '2h', images: [] },
-        { destinationId: gokarna.id, name: 'Beach Trek', icon: '🏖️', price: 800, duration: '3h', images: [] }
+        { destinationId: munnar.id, name: 'Tea Garden Trek', icon: '🍵', price: 600, duration: '3h', description: 'A beautiful trek through tea plantations.', images: [] },
+        { destinationId: munnar.id, name: 'Eravikulam Safari', icon: '🦌', price: 1200, duration: '4h', description: 'See the Nilgiri Tahr in their natural habitat.', images: [] },
+        { destinationId: coorg.id, name: 'Coffee Plantation Tour', icon: '☕', price: 500, duration: '2h', description: 'Learn about coffee processing.', images: [] },
+        { destinationId: gokarna.id, name: 'Beach Trek', icon: '🏖️', price: 800, duration: '3h', description: 'Scenic trek along the coastline.', images: [] }
     ];
+
     for (const act of activities) {
         await prisma.activity.create({ data: act });
     }
 
     console.log('7. Creating food options...');
     const foodItems = [
-        { destinationId: munnar.id, mealType: 'breakfast', name: 'Appam & Egg Roast', icon: '🍳', price: 120, dietaryTags: ['non_veg'] },
-        { destinationId: munnar.id, mealType: 'lunch', name: 'Banana Leaf Meal', icon: '🍱', price: 250, dietaryTags: ['veg'] },
-        { destinationId: coorg.id, mealType: 'dinner', name: 'Pandi Curry', icon: '🥘', price: 400, dietaryTags: ['non_veg'] },
-        { destinationId: gokarna.id, mealType: 'breakfast', name: 'Tatty Idli', icon: '⚪', price: 80, dietaryTags: ['veg'] }
+        { destinationId: munnar.id, type: 'BREAKFAST', name: 'Appam & Egg Roast', icon: '🍳', price: 120, dietaryTags: ['Non-Veg'], description: 'Classic Kerala breakfast.' },
+        { destinationId: munnar.id, type: 'LUNCH', name: 'Banana Leaf Meal', icon: '🍱', price: 250, dietaryTags: ['Veg'], description: 'Authentic Sadhya experience.' },
+        { destinationId: coorg.id, type: 'DINNER', name: 'Pandi Curry', icon: '🥘', price: 400, dietaryTags: ['Non-Veg'], description: 'Famous Coorg pork curry.' },
+        { destinationId: gokarna.id, type: 'BREAKFAST', name: 'Tatty Idli', icon: '⚪', price: 80, dietaryTags: ['Veg'], description: 'Soft idlis with spicy chutney.' }
     ];
+
+
     for (const item of foodItems) {
         await prisma.foodOption.create({ data: item });
     }
 
     console.log('8. Creating accommodation...');
     const rooms = [
-        { destinationId: munnar.id, tier: 'luxury', hotelNameInternal: 'Blanket Hotel', vibeDescription: 'Foggy tea garden views', stars: 5, pricePerNight: 12000, includes: ['High Tea', 'Infinity Pool'] },
-        { destinationId: coorg.id, tier: 'comfort', hotelNameInternal: 'Coorg Cliffs', vibeDescription: 'Mist-covered valleys', stars: 4, pricePerNight: 8000, includes: ['Estate Walk'] }
+        { destinationId: munnar.id, tier: 'Luxury', hotelNameInternal: 'Blanket Hotel', description: 'Foggy tea garden views', stars: 5, price: 12000, includes: ['High Tea', 'Infinity Pool'] },
+        { destinationId: coorg.id, tier: 'Comfort', hotelNameInternal: 'Coorg Cliffs', description: 'Mist-covered valleys', stars: 4, price: 8000, includes: ['Estate Walk'] }
     ];
+
+
     for (const room of rooms) {
         await prisma.accommodation.create({ data: room });
     }
@@ -128,10 +133,11 @@ async function main() {
             mode: 'private_car',
             icon: '🚘',
             description: 'Direct pickup from Kochi',
-            estimatedCost: '₹4,500',
-            durationMins: 240
+            cost: 4500,
+            duration: '4h'
         }
     });
+
 
     console.log('10. Creating must visit spots...');
     await prisma.mustVisitSpot.createMany({

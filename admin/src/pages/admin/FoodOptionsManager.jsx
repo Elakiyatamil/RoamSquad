@@ -21,10 +21,11 @@ const FoodForm = ({ food, destinationId, onClose }) => {
     const mutation = useMutation({
         mutationFn: async (data) => {
             if (food?.id) return await apiClient.patch(`/food/${food.id}`, data);
-            return await apiClient.post(`/destinations/${destinationId}/food`, data);
+            return await apiClient.post('/food', { ...data, destinationId });
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['food', destinationId]);
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries(['food', destinationId]);
             onClose();
         },
         onError: (err) => alert(`Error: ${err.response?.data?.error || err.message}`)
@@ -55,7 +56,8 @@ const FoodForm = ({ food, destinationId, onClose }) => {
                         </div>
                         <div className="flex-1 space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Name *</label>
-                            <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="e.g. Masala Dosa" />
+                            <input value={form.name || ""} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="e.g. Masala Dosa" />
+
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -69,7 +71,8 @@ const FoodForm = ({ food, destinationId, onClose }) => {
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹)</label>
-                            <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="220" />
+                            <input type="number" value={form.price || ""} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="220" />
+
                         </div>
                     </div>
                     <div className="space-y-1">
@@ -83,7 +86,8 @@ const FoodForm = ({ food, destinationId, onClose }) => {
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
-                        <textarea rows={2} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="Short description..." />
+                        <textarea rows={2} value={form.description || ""} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="Short description..." />
+
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button type="button" onClick={onClose} className="flex-1 py-3 border border-ink/10 rounded-xl font-bold text-sm hover:bg-ink/5 transition-colors">Cancel</button>
@@ -121,25 +125,55 @@ const FoodCard = ({ food, index, onEdit, onDelete }) => (
 
 const FoodOptionsManager = () => {
     const queryClient = useQueryClient();
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedDestId, setSelectedDestId] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingFood, setEditingFood] = useState(null);
     const [defaultMeal, setDefaultMeal] = useState('BREAKFAST');
 
-    const { data: destinations = [] } = useQuery({
-        queryKey: ['destinations', 'all'],
+    // Fetch Hierarchy Data
+    const { data: countries = [] } = useQuery({
+        queryKey: ['countries'],
         queryFn: async () => {
-            const res = await apiClient.get('/destinations?limit=100');
-            const dests = res.data.data || [];
-            if (dests.length > 0 && !selectedDestId) setSelectedDestId(dests[0].id);
-            return dests;
+            const res = await apiClient.get('/countries');
+            return res.data;
         }
     });
+
+    const { data: states = [] } = useQuery({
+        queryKey: ['states', selectedCountry],
+        queryFn: async () => {
+            const res = await apiClient.get(`/countries/${selectedCountry}/states`);
+            return res.data;
+        },
+        enabled: !!selectedCountry
+    });
+
+    const { data: districts = [] } = useQuery({
+        queryKey: ['districts', selectedState],
+        queryFn: async () => {
+            const res = await apiClient.get(`/states/${selectedState}/districts`);
+            return res.data;
+        },
+        enabled: !!selectedState
+    });
+
+    const { data: destinations = [] } = useQuery({
+        queryKey: ['destinations', selectedDistrict],
+        queryFn: async () => {
+            const res = await apiClient.get(`/districts/${selectedDistrict}/destinations`);
+            return res.data;
+        },
+        enabled: !!selectedDistrict
+    });
+
 
     const { data: foodOptions = [], isLoading } = useQuery({
         queryKey: ['food', selectedDestId],
         queryFn: async () => {
-            const res = await apiClient.get(`/destinations/${selectedDestId}/food`);
+            const res = await apiClient.get(`/food?destinationId=${selectedDestId}`);
             return res.data;
         },
         enabled: !!selectedDestId
@@ -168,13 +202,38 @@ const FoodOptionsManager = () => {
                 </button>
             </div>
 
-            <div className="relative group min-w-[300px] max-w-sm">
-                <label className="absolute -top-2 left-4 px-1 bg-cream text-[10px] font-bold uppercase tracking-widest text-ink/40 z-10">Select Destination</label>
-                <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} className="w-full pl-4 pr-10 py-3 bg-white border border-ink/5 rounded-2xl outline-none focus:ring-4 focus:ring-red/5 appearance-none font-bold text-ink shadow-sm">
-                    {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
-                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/30 pointer-events-none" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] border border-ink/5 shadow-sm">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Country</label>
+                    <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedState(''); setSelectedDistrict(''); setSelectedDestId(''); }} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink">
+                        <option value="">Select Country</option>
+                        {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">State</label>
+                    <select value={selectedState} onChange={e => { setSelectedState(e.target.value); setSelectedDistrict(''); setSelectedDestId(''); }} disabled={!selectedCountry} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select State</option>
+                        {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">District</label>
+                    <select value={selectedDistrict} onChange={e => { setSelectedDistrict(e.target.value); setSelectedDestId(''); }} disabled={!selectedState} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select District</option>
+                        {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Destination</label>
+                    <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} disabled={!selectedDistrict} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select Destination</option>
+                        {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                </div>
             </div>
+            <ChevronDown size={18} className="hidden" /> 
+
 
             {!selectedDestId ? (
                 <div className="py-24 text-center text-ink/30">

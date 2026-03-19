@@ -1,20 +1,44 @@
 import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, X, Search } from 'lucide-react';
+import { Eye, X, Search, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
-const DetailModal = ({ inquiry, onClose }) => {
+const StatusBadge = ({ status }) => {
+  const s = (status || '').toLowerCase();
+  if (s.includes('approve') || s.includes('confirm')) return <span className="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase rounded-md flex items-center gap-1 w-max"><CheckCircle2 size={12} /> Approved</span>;
+  if (s.includes('reject')) return <span className="px-2 py-1 bg-red/10 text-red text-[10px] font-bold uppercase rounded-md flex items-center gap-1 w-max"><AlertCircle size={12} /> Rejected</span>;
+  return <span className="px-2 py-1 bg-gold/20 text-gold text-[10px] font-bold uppercase rounded-md flex items-center gap-1 w-max"><Clock size={12} /> Pending</span>;
+};
+
+const DetailModal = ({ inquiry, onClose, onStatusUpdate }) => {
   const itinerary = inquiry?.itinerarySnapshot || inquiry?.itinerary || null;
   const timeline = itinerary?.timeline || itinerary?.itinerary?.timeline || [];
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdateStatus = async (newStatus) => {
+    setIsUpdating(true);
+    try {
+      await apiClient.patch(`/inquiry/${inquiry.id}/status`, { status: newStatus });
+      onStatusUpdate();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update status');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
-      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-8 z-10">
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-8 z-10 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-ink">{inquiry.name}</h2>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-2xl font-bold text-ink">{inquiry.name}</h2>
+              <StatusBadge status={inquiry.status} />
+            </div>
             <p className="text-sm text-ink/40 font-medium">{inquiry.email} · {inquiry.phone}</p>
           </div>
           <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all">
@@ -41,7 +65,7 @@ const DetailModal = ({ inquiry, onClose }) => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 mb-8">
           <div className="p-4 bg-forest/5 rounded-xl border border-forest/10">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest mb-2">Hotel</p>
             <p className="text-sm font-semibold text-ink/80">{inquiry.hotelSnapshot?.name || inquiry.hotel || '-'}</p>
@@ -76,6 +100,24 @@ const DetailModal = ({ inquiry, onClose }) => {
             )}
           </div>
         </div>
+
+        {/* Action Controls */}
+        <div className="flex gap-4 border-t border-ink/5 pt-6 mt-2">
+          <button 
+            disabled={isUpdating}
+            onClick={() => handleUpdateStatus('Approved')}
+            className="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition disabled:opacity-50"
+          >
+            Approve Journey
+          </button>
+          <button 
+            disabled={isUpdating}
+            onClick={() => handleUpdateStatus('Rejected')}
+            className="flex-1 py-3 bg-red text-white rounded-xl font-bold hover:bg-red/90 transition disabled:opacity-50"
+          >
+            Reject Inquiry
+          </button>
+        </div>
       </motion.div>
     </div>
   );
@@ -84,6 +126,7 @@ const DetailModal = ({ inquiry, onClose }) => {
 export default function InquiryManager() {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState('');
+  const queryClient = useQueryClient();
 
   const { data: inquiries = [], isLoading, error } = useQuery({
     queryKey: ['inquiries'],
@@ -94,9 +137,14 @@ export default function InquiryManager() {
     const q = query.trim().toLowerCase();
     if (!q) return inquiries;
     return inquiries.filter((i) =>
-      [i.name, i.email, i.phone, i.state, i.district].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))
+      [i.name, i.email, i.phone, i.state, i.district, i.status].filter(Boolean).some((v) => String(v).toLowerCase().includes(q))
     );
   }, [inquiries, query]);
+
+  const handleStatusUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: ['inquiries'] });
+    setSelected(null);
+  };
 
   return (
     <div className="space-y-8">
@@ -128,11 +176,11 @@ export default function InquiryManager() {
             <thead className="bg-ink/5 text-ink/60">
               <tr>
                 <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Name</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Phone</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">State</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">District</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Contact</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Destination</th>
                 <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Budget</th>
                 <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Status</th>
                 <th className="text-right p-4 font-bold uppercase tracking-widest text-[10px]">View</th>
               </tr>
             </thead>
@@ -141,10 +189,10 @@ export default function InquiryManager() {
                 <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
                   <td className="p-4 font-bold text-ink">{i.name}</td>
                   <td className="p-4 text-ink/70 font-semibold">{i.phone}</td>
-                  <td className="p-4 text-ink/70 font-semibold">{i.state || '-'}</td>
-                  <td className="p-4 text-ink/70 font-semibold">{i.district || '-'}</td>
+                  <td className="p-4 text-ink/70 font-semibold">{i.state ? `${i.state} / ${i.district || '-'}` : (i.district || '-')}</td>
                   <td className="p-4 text-ink/70 font-semibold">₹{Number(i.totalBudget || 0).toLocaleString()}</td>
                   <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
+                  <td className="p-4"><StatusBadge status={i.status} /></td>
                   <td className="p-4 text-right">
                     <button
                       onClick={() => setSelected(i)}
@@ -169,9 +217,8 @@ export default function InquiryManager() {
       </div>
 
       <AnimatePresence>
-        {selected ? <DetailModal inquiry={selected} onClose={() => setSelected(null)} /> : null}
+        {selected ? <DetailModal inquiry={selected} onClose={() => setSelected(null)} onStatusUpdate={handleStatusUpdate} /> : null}
       </AnimatePresence>
     </div>
   );
 }
-

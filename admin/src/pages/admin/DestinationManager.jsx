@@ -15,7 +15,12 @@ import {
     MapPin,
     X,
     Upload,
-    Image as ImageIcon
+    Image as ImageIcon,
+    Globe,
+    Clock,
+    Utensils,
+    Hotel,
+    Info
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
@@ -24,11 +29,11 @@ const DestinationForm = ({ destination, onClose }) => {
     const [activeTab, setActiveTab] = useState('Basic Info');
 
     // Hierarchy States
-    const [selectedCountry, setSelectedCountry] = useState(destination?.district?.state?.countryId || '');
-    const [selectedState, setSelectedState] = useState(destination?.district?.stateId || '');
-    const [selectedDistrict, setSelectedDistrict] = useState(destination?.districtId || '');
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
 
-    const [formData, setFormData] = useState(destination || {
+    const [formData, setFormData] = useState({
         name: '',
         slug: '',
         category: 'Nature',
@@ -36,8 +41,38 @@ const DestinationForm = ({ destination, onClose }) => {
         rating: 4.5,
         avgCost: '',
         bestSeason: '',
-        images: []
+        status: 'DRAFT',
+        active: true,
+        images: [],
+        activities: [],
+        accommodation: [],
+        travelOptions: []
     });
+
+    // Fetch Full Data if Editing
+    const { data: fullDestination, isLoading: isLoadingFull } = useQuery({
+        queryKey: ['destination-full', destination?.id],
+        queryFn: async () => {
+            const res = await apiClient.get(`/destinations/${destination.id}`);
+            return res.data;
+        },
+        enabled: !!destination?.id
+    });
+
+    // Sync full data to state
+    useEffect(() => {
+        if (fullDestination) {
+            setFormData({
+                ...fullDestination,
+                activities: fullDestination.activities || [],
+                accommodation: fullDestination.accommodation || [],
+                travelOptions: fullDestination.travelOptions || []
+            });
+            setSelectedCountry(fullDestination.district?.state?.countryId || '');
+            setSelectedState(fullDestination.district?.stateId || '');
+            setSelectedDistrict(fullDestination.districtId || '');
+        }
+    }, [fullDestination]);
 
     // Fetch Hierarchy Data
     const { data: countries = [] } = useQuery({
@@ -66,8 +101,8 @@ const DestinationForm = ({ destination, onClose }) => {
         enabled: !!selectedState
     });
 
-    // Mutations
-    const saveMutation = useMutation({
+    // Separate Mutations for each section
+    const basicInfoMutation = useMutation({
         mutationFn: async (data) => {
             if (destination?.id) {
                 return await apiClient.patch(`/destinations/${destination.id}`, data);
@@ -75,16 +110,33 @@ const DestinationForm = ({ destination, onClose }) => {
                 return await apiClient.post(`/districts/${selectedDistrict}/destinations`, data);
             }
         },
-        onSuccess: () => {
+        onSuccess: (res) => {
             queryClient.invalidateQueries(['destinations']);
-            onClose();
-        },
-        onError: (err) => {
-            alert('Failed to save destination. Please ensure all required fields are set and district is selected if new.');
+            if (destination?.id) {
+                queryClient.invalidateQueries(['destination-full', destination.id]);
+            }
+            if (!destination?.id) {
+                alert('Destination created! You can now add activities, food, and stays.');
+                onClose();
+            } else {
+                alert('Basic info updated!');
+            }
         }
     });
 
-    const handleSave = () => {
+    const activitiesMutation = useMutation({
+        mutationFn: async (activities) => {
+            // This is a bit tricky: do we save all at once or individually?
+            // The instruction says "POST /api/activities". Usually means one by one.
+            // But if we have an array locally, we can send it to a bulk endpoint if it exists,
+            // or just iterate. Let's see if we can use the reorder endpoint or just create/update.
+            // For now, let's assume we want to sync the whole list.
+            return await apiClient.patch(`/destinations/${destination.id}/activities/reorder`, { order: activities.map(a => a.id) });
+        },
+        onSuccess: () => alert('Activities synced!')
+    });
+
+    const handleSaveBasicInfo = (publishNow = false) => {
         if (!selectedDistrict && !destination?.id) {
             alert('Please select a District first.');
             return;
@@ -93,23 +145,49 @@ const DestinationForm = ({ destination, onClose }) => {
             alert('Name, Category, and Rating are required.');
             return;
         }
-        if (!formData.description) {
-            alert('Description is required.');
-            return;
-        }
-        // Generate a slug if missing
+
         const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         const coverImage = formData.coverImage || (formData.images && formData.images.length > 0 ? formData.images[0] : null);
 
-        saveMutation.mutate({
+        basicInfoMutation.mutate({
             ...formData,
+            status: publishNow ? 'ACTIVE' : (formData.status || 'DRAFT'),
             slug: slugToSave,
             coverImage,
             rating: parseFloat(formData.rating) || 0
         });
     };
 
-    const tabs = ['Basic Info', 'Travel Details', 'Experiences', 'Accommodation', 'Images'];
+    const tabs = ['Basic Info', 'Travel Details', 'Experiences', 'Food', 'Accommodation', 'Images'];
+
+    // Local Mutation for nested items
+    const addItem = (type, item) => {
+        setFormData(prev => ({ ...prev, [type]: [...prev[type], item] }));
+    };
+
+    const updateItem = (type, index, item) => {
+        setFormData(prev => {
+            const newList = [...prev[type]];
+            newList[index] = item;
+            return { ...prev, [type]: newList };
+        });
+    };
+
+    const removeItem = (type, index) => {
+        setFormData(prev => ({
+            ...prev,
+            [type]: prev[type].filter((_, i) => i !== index)
+        }));
+    };
+
+    if (isLoadingFull) return (
+        <div className="fixed inset-y-0 right-0 w-full max-w-[600px] bg-white shadow-2xl z-[60] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-red/10 border-t-red rounded-full animate-spin" />
+                <p className="text-sm font-bold text-ink/40 uppercase tracking-widest">Loading Configuration...</p>
+            </div>
+        </div>
+    );
 
     return (
         <motion.div
@@ -117,31 +195,47 @@ const DestinationForm = ({ destination, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 right-0 w-full max-w-[500px] bg-white shadow-2xl z-[60] flex flex-col"
+            className="fixed inset-y-0 right-0 w-full max-w-[600px] bg-white shadow-2xl z-[60] flex flex-col"
         >
             <div className="p-6 border-b border-ink/5 flex items-center justify-between bg-cream/30">
                 <div>
                     <h2 className="text-2xl font-bold text-ink">{destination ? 'Edit' : 'New'} Destination</h2>
-                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">Configuration Panel</p>
+                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">Master Configuration Panel</p>
                 </div>
                 <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all">
                     <X size={20} />
                 </button>
             </div>
 
-            <div className="flex border-b border-ink/5 bg-white overflow-x-auto no-scrollbar">
-                {tabs.map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`
-              px-6 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all border-b-2
-              ${activeTab === tab ? 'text-red border-red bg-red/5' : 'text-ink/40 border-transparent hover:text-ink'}
-            `}
-                    >
-                        {tab}
-                    </button>
-                ))}
+            <div className="flex border-b border-ink/5 bg-white overflow-x-auto no-scrollbar scroll-smooth">
+                {tabs.map(tab => {
+                    const getIcon = () => {
+                        switch(tab) {
+                            case 'Basic Info': return <Info size={14} />;
+                            case 'Travel Details': return <Globe size={14} />;
+                            case 'Experiences': return <Star size={14} />;
+                            case 'Food': return <Utensils size={14} />;
+                            case 'Accommodation': return <Hotel size={14} />;
+                            case 'Images': return <ImageIcon size={14} />;
+                            default: return null;
+                        }
+                    };
+                    return (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            disabled={!destination?.id && tab !== 'Basic Info'}
+                            className={`
+                                px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap transition-all border-b-2 flex items-center gap-2
+                                ${activeTab === tab ? 'text-red border-red bg-red/5' : 'text-ink/40 border-transparent hover:text-ink'}
+                                ${!destination?.id && tab !== 'Basic Info' ? 'opacity-30 cursor-not-allowed' : ''}
+                            `}
+                        >
+                            {getIcon()}
+                            {tab}
+                        </button>
+                    );
+                })}
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
@@ -151,7 +245,7 @@ const DestinationForm = ({ destination, onClose }) => {
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Destination Name</label>
                             <input
                                 type="text"
-                                value={formData.name}
+                                value={formData.name || ""}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="e.g. Coorg Coffee Estate"
                                 className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none focus:ring-4 focus:ring-red/5 outline-none font-medium"
@@ -175,6 +269,20 @@ const DestinationForm = ({ destination, onClose }) => {
                                     <option value="Mountains">Mountains</option>
                                 </select>
                             </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Status</label>
+                                <select
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                    className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-bold text-red"
+                                >
+                                    <option value="DRAFT">Draft</option>
+                                    <option value="ACTIVE">Active</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Rating (0-5)</label>
                                 <input
@@ -240,6 +348,374 @@ const DestinationForm = ({ destination, onClose }) => {
                                 placeholder="Describe the beauty and attractions..."
                                 className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none focus:ring-4 focus:ring-red/5 outline-none font-medium resize-none"
                             />
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Travel Details' && (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Available Travel Options</p>
+                            <button 
+                                onClick={() => addItem('travelOptions', { mode: 'Road', cost: 0, duration: '1h', description: '' })}
+
+
+                                className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
+                            >
+                                <Plus size={14} /> Add Mode
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {formData.travelOptions.length === 0 ? (
+                                <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
+                                    <p className="text-sm font-bold">No travel options added yet.</p>
+                                </div>
+                            ) : formData.travelOptions.map((opt, i) => (
+                                <div key={i} className="p-5 bg-ink/5 rounded-2xl space-y-4 relative group">
+                                    <button 
+                                        onClick={() => removeItem('travelOptions', i)}
+                                        className="absolute top-4 right-4 text-ink/20 hover:text-red transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Mode</label>
+                                            <select 
+                                                value={opt.mode || "Road"} 
+                                                onChange={(e) => updateItem('travelOptions', i, { ...opt, mode: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            >
+                                                <option>Road</option>
+                                                <option>Flight</option>
+                                                <option>Train</option>
+                                                <option>Boat</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Cost (₹)</label>
+                                            <input 
+                                                type="number"
+                                                value={opt.cost || 0}
+                                                onChange={(e) => updateItem('travelOptions', i, { ...opt, cost: parseFloat(e.target.value) || 0 })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                placeholder="e.g. 1500"
+                                            />
+                                        </div>
+
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration & Description</label>
+                                        <div className="flex gap-2">
+                                            <input 
+                                                value={opt.duration || ""}
+                                                onChange={(e) => updateItem('travelOptions', i, { ...opt, duration: e.target.value })}
+                                                className="w-[100px] px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                placeholder="e.g. 4h"
+                                            />
+                                            <input 
+                                                value={opt.description || ""}
+                                                onChange={(e) => updateItem('travelOptions', i, { ...opt, description: e.target.value })}
+                                                className="flex-1 px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                                placeholder="Distance or specific transport details..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="pt-6 border-t border-ink/5">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Best Season</label>
+                                    <input 
+                                        value={formData.bestSeason || ""}
+                                        onChange={(e) => setFormData({ ...formData, bestSeason: e.target.value })}
+                                        className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium"
+                                        placeholder="e.g. Oct to Mar"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Avg Cost / Person</label>
+                                    <input 
+                                        value={formData.avgCost || ""}
+                                        onChange={(e) => setFormData({ ...formData, avgCost: e.target.value })}
+                                        className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium"
+                                        placeholder="e.g. ₹5,000 - ₹10,000"
+                                    />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Experiences' && (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Top Activities</p>
+                            <button 
+                                onClick={() => addItem('activities', { name: '', description: '', price: 0, duration: '', icon: '🏕️' })}
+                                className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
+                            >
+                                <Plus size={14} /> Add Activity
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {formData.activities.length === 0 ? (
+                                <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
+                                    <p className="text-sm font-bold">No activities added yet.</p>
+                                </div>
+                            ) : formData.activities.map((act, i) => (
+                                <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative">
+                                    <button 
+                                        onClick={() => removeItem('activities', i)}
+                                        className="absolute top-4 right-4 text-ink/20 hover:text-red transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="flex gap-4">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
+                                            <input 
+                                                value={act.icon || "🏕️"}
+                                                onChange={(e) => updateItem('activities', i, { ...act, icon: e.target.value })}
+                                                className="w-full text-center bg-transparent border-none outline-none"
+                                            />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Name</label>
+                                            <input 
+                                                value={act.name || ""}
+                                                onChange={(e) => updateItem('activities', i, { ...act, name: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                placeholder="Activity Name"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration</label>
+                                            <input 
+                                                value={act.duration || ""}
+                                                onChange={(e) => updateItem('activities', i, { ...act, duration: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                                placeholder="e.g. 2 Hours"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹)</label>
+                                            <input 
+                                                type="number"
+                                                value={act.price || 0}
+                                                onChange={(e) => updateItem('activities', i, { ...act, price: parseFloat(e.target.value) || 0 })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            />
+                                        </div>
+
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
+                                        <textarea 
+                                            rows={2}
+                                            value={act.description || ""}
+                                            onChange={(e) => updateItem('activities', i, { ...act, description: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                            placeholder="What makes this experience special?"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Food' && (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Local Cuisine & Food Options</p>
+                            <button 
+                                onClick={() => addItem('foodOptions', { name: '', description: '', price: 0, type: 'Local Special', icon: '🍲', isActive: true })}
+
+                                className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
+                            >
+                                <Plus size={14} /> Add Food
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {(formData.foodOptions || []).length === 0 ? (
+                                <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
+                                    <p className="text-sm font-bold">No food options added yet.</p>
+                                </div>
+                            ) : formData.foodOptions.map((food, i) => (
+                                <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative">
+                                    <button 
+                                        onClick={() => removeItem('foodOptions', i)}
+                                        className="absolute top-4 right-4 text-ink/20 hover:text-red transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="flex gap-4">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
+                                            <input 
+                                                value={food.icon || "🍲"}
+                                                onChange={(e) => updateItem('foodOptions', i, { ...food, icon: e.target.value })}
+                                                className="w-full text-center bg-transparent border-none outline-none"
+                                            />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Food / Dish Name</label>
+                                            <input 
+                                                value={food.name || ""}
+                                                onChange={(e) => updateItem('foodOptions', i, { ...food, name: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                placeholder="e.g. Pandi Curry"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Meal Type</label>
+                                            <select 
+                                                value={food.type || "Local Special"}
+                                                onChange={(e) => updateItem('foodOptions', i, { ...food, type: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                            >
+                                                <option>Breakfast</option>
+                                                <option>Lunch</option>
+                                                <option>Dinner</option>
+                                                <option>Snack</option>
+                                                <option>Local Special</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Avg Price (₹)</label>
+                                            <input 
+                                                type="number"
+                                                value={food.price || 0}
+                                                onChange={(e) => updateItem('foodOptions', i, { ...food, price: parseFloat(e.target.value) })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
+                                        <textarea 
+                                            rows={2}
+                                            value={food.description || ""}
+                                            onChange={(e) => updateItem('foodOptions', i, { ...food, description: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                            placeholder="Tastes like..."
+                                        />
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'Accommodation' && (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stay Tiers</p>
+                            <button 
+                                onClick={() => addItem('accommodation', { tier: 'Budget', stars: 3, price: 0, description: '', hotelNameInternal: '', includes: [] })}
+
+                                className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
+                            >
+
+                                <Plus size={14} /> Add Tier
+                            </button>
+
+                        </div>
+
+                        <div className="space-y-6">
+                            {formData.accommodation.length === 0 ? (
+                                <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
+                                    <p className="text-sm font-bold">No accommodation data yet.</p>
+                                </div>
+                            ) : formData.accommodation.map((acc, i) => (
+                                <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative border border-ink/5">
+                                    <button 
+                                        onClick={() => removeItem('accommodation', i)}
+                                        className="absolute top-4 right-4 text-ink/20 hover:text-red transition-colors"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Tier</label>
+                                            <select 
+                                                value={acc.tier}
+                                                onChange={(e) => updateItem('accommodation', i, { ...acc, tier: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            >
+                                                <option>Budget</option>
+                                                <option>Comfort</option>
+                                                <option>Luxury</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stars</label>
+                                            <select 
+                                                value={acc.stars || 3}
+                                                onChange={(e) => updateItem('accommodation', i, { ...acc, stars: parseInt(e.target.value) })}
+                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            >
+
+                                                {[1, 2, 3, 4, 5].map(s => <option key={s} value={s}>{s} Stars</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price / Night (₹)</label>
+                                        <input 
+                                            type="number"
+                                            value={acc.price || 0}
+                                            onChange={(e) => updateItem('accommodation', i, { ...acc, price: parseFloat(e.target.value) || 0 })}
+                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                        />
+                                    </div>
+
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
+                                        <textarea 
+                                            rows={2}
+                                            value={acc.description || ""}
+                                            onChange={(e) => updateItem('accommodation', i, { ...acc, description: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                            placeholder="e.g. Eco-friendly riverside camping..."
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Hotel Name (Private)</label>
+                                        <input 
+                                            value={acc.hotelNameInternal || ""}
+                                            onChange={(e) => updateItem('accommodation', i, { ...acc, hotelNameInternal: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                            placeholder="Internal reference name"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Inclusions (comma separated)</label>
+                                        <input 
+                                            value={(acc.includes || []).join(', ')}
+                                            onChange={(e) => updateItem('accommodation', i, { ...acc, includes: e.target.value.split(',').map(s => s.trim()) })}
+                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                            placeholder="WiFi, Pool, Breakfast"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -322,11 +798,69 @@ const DestinationForm = ({ destination, onClose }) => {
                 )}
             </div>
 
-            <div className="p-8 border-t border-ink/5 bg-cream/30 flex gap-4">
+            <div className="p-8 border-t border-ink/5 bg-cream/30 flex gap-4 sticky bottom-0">
                 <button onClick={onClose} className="flex-1 py-4 border border-ink/10 rounded-2xl font-bold text-ink hover:bg-white transition-colors">Discard</button>
-                <button onClick={handleSave} disabled={saveMutation.isPending} className="flex-[2] btn-primary py-4 disabled:opacity-70">
-                    {saveMutation.isPending ? 'Saving...' : 'Save Destination'}
-                </button>
+                
+                {activeTab === 'Basic Info' ? (
+                    <>
+                        {formData.status !== 'ACTIVE' && (
+                            <button onClick={() => handleSaveBasicInfo(true)} disabled={basicInfoMutation.isPending} className="flex-1 py-4 border border-red/20 rounded-2xl font-bold text-red hover:bg-red/5 transition-colors">Save & Publish</button>
+                        )}
+                        <button onClick={() => handleSaveBasicInfo(false)} disabled={basicInfoMutation.isPending} className="flex-[2] btn-primary py-4 disabled:opacity-70">
+                            {basicInfoMutation.isPending ? 'Syncing...' : 'Save Basic Info'}
+                        </button>
+                    </>
+                ) : (
+                    <button 
+                        onClick={async (e) => {
+                            const btn = e.currentTarget;
+                            const originalText = btn.innerText;
+                            btn.innerText = 'Syncing...';
+                            btn.disabled = true;
+                            
+                            try {
+                                const endpointMapping = {
+                                    'Travel Details': { path: 'travel-options', type: 'travelOptions' },
+                                    'Experiences': { path: 'activities', type: 'activities' },
+                                    'Food': { path: 'food', type: 'foodOptions' },
+                                    'Accommodation': { path: 'accommodation', type: 'accommodation' }
+                                };
+                                
+                                const { path, type } = endpointMapping[activeTab];
+                                const items = formData[type] || [];
+
+                                const results = await Promise.all(items.map(item => {
+                                    if (item.id) {
+                                        // Update existing
+                                        return apiClient.patch(`/${path}/${item.id}`, item).then(res => res.data);
+                                    } else {
+                                        // Create new
+                                        return apiClient.post(`/${path}`, { ...item, destinationId: destination.id }).then(res => res.data);
+                                    }
+                                }));
+
+                                // Immediately update local state with saved objects (prevents empty ID renders)
+                                setFormData(prev => ({
+                                    ...prev,
+                                    [type]: results
+                                }));
+
+                                alert(`${activeTab} updated successfully!`);
+                                queryClient.invalidateQueries(['destination-full', destination.id]);
+
+                            } catch (err) {
+                                console.error(err);
+                                alert(`Failed to save ${activeTab}: ` + (err.response?.data?.error || err.message));
+                            } finally {
+                                btn.innerText = originalText;
+                                btn.disabled = false;
+                            }
+                        }}
+                        className="flex-[2] btn-primary py-4 disabled:opacity-70"
+                    >
+                        Save {activeTab}
+                    </button>
+                )}
             </div>
         </motion.div>
     );
@@ -338,11 +872,13 @@ const DestinationManager = () => {
     const [editingDestination, setEditingDestination] = useState(null);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
 
     const { data: responseData, isLoading } = useQuery({
-        queryKey: ['destinations', page, search],
+        queryKey: ['destinations', page, search, statusFilter],
         queryFn: async () => {
-            const res = await apiClient.get(`/destinations?page=${page}&limit=8&search=${search}`);
+            const statusParam = statusFilter !== 'All' ? `&status=${statusFilter.toUpperCase()}` : '';
+            const res = await apiClient.get(`/destinations?page=${page}&limit=10&search=${search}${statusParam}`);
             return res.data;
         },
         keepPreviousData: true
@@ -355,6 +891,16 @@ const DestinationManager = () => {
         mutationFn: async (id) => await apiClient.delete(`/destinations/${id}`),
         onSuccess: () => queryClient.invalidateQueries(['destinations'])
     });
+
+    const publishMutation = useMutation({
+        mutationFn: async (id) => await apiClient.patch(`/destinations/${id}`, { status: 'ACTIVE' }),
+        onSuccess: () => queryClient.invalidateQueries(['destinations'])
+    });
+
+    const handlePublish = (e, id) => {
+        e.stopPropagation();
+        publishMutation.mutate(id);
+    };
 
     const handleDelete = (e, id) => {
         e.stopPropagation();
@@ -388,7 +934,11 @@ const DestinationManager = () => {
                 </div>
                 <div className="flex gap-2 w-full lg:w-auto">
                     {['All', 'Active', 'Draft'].map(filter => (
-                        <button key={filter} className="px-5 py-2.5 rounded-xl bg-white border border-ink/5 font-bold text-sm text-ink/60 hover:text-red transition-all">
+                        <button 
+                            key={filter} 
+                            onClick={() => { setStatusFilter(filter); setPage(1); }}
+                            className={`px-5 py-2.5 rounded-xl border border-ink/5 font-bold text-sm transition-all ${statusFilter === filter ? 'bg-red text-white shadow-lg shadow-red/20' : 'bg-white text-ink/60 hover:text-red'}`}
+                        >
                             {filter}
                         </button>
                     ))}
@@ -475,14 +1025,23 @@ const DestinationManager = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-1.5">
-                                                <span className={`w-1.5 h-1.5 rounded-full ${dest.active !== false ? 'bg-forest' : 'bg-red'}`} />
-                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${dest.active !== false ? 'text-forest' : 'text-red'}`}>
-                                                    {dest.active !== false ? 'Active' : 'Draft'}
+                                                <span className={`w-1.5 h-1.5 rounded-full ${dest.status === 'ACTIVE' ? 'bg-forest' : 'bg-red'}`} />
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${dest.status === 'ACTIVE' ? 'text-forest' : 'text-red'}`}>
+                                                    {dest.status || 'DRAFT'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {dest.status !== 'ACTIVE' && (
+                                                    <button 
+                                                        onClick={(e) => handlePublish(e, dest.id)}
+                                                        disabled={publishMutation.isPending}
+                                                        className="px-3 py-1 bg-forest/10 hover:bg-forest text-forest hover:text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all mr-2"
+                                                    >
+                                                        Publish
+                                                    </button>
+                                                )}
                                                 <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-ink/5 text-ink/40 hover:text-ink transition-all">
                                                     <Eye size={16} />
                                                 </button>

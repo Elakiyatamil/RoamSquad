@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { MapPin, Star, Clock, Check, ArrowLeft, ArrowRight, Heart } from 'lucide-react';
+import useAuthStore from '../../store/authStore';
+import toast from 'react-hot-toast';
 
 const API_BASE = 'http://localhost:5000/api/public';
 
@@ -19,28 +21,85 @@ const DestinationDetailsPage = () => {
     });
 
     const [wishlist, setWishlist] = React.useState([]);
+    const { isAuthenticated, token } = useAuthStore();
 
     React.useEffect(() => {
-        const saved = localStorage.getItem('roam_wishlist');
-        if (saved) setWishlist(JSON.parse(saved));
-    }, []);
+        const loadWishlist = async () => {
+            if (isAuthenticated && token) {
+                try {
+                    const res = await axios.get(`${API_BASE.replace('/public', '/wishlist')}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const serverItems = res.data.map(i => ({ id: i.entityId, type: i.entityType }));
+                    setWishlist(serverItems);
+                    return;
+                } catch (err) {
+                    console.error("Wishlist load error", err);
+                }
+            }
+            const saved = localStorage.getItem('roam_wishlist');
+            if (saved) setWishlist(JSON.parse(saved));
+        };
+        loadWishlist();
+    }, [isAuthenticated, token]);
 
-    const toggleWishlist = () => {
-        let updated;
-        if (wishlist.find(item => item.id === dest.id)) {
-            updated = wishlist.filter(item => item.id !== dest.id);
+    const toggleWishlist = async () => {
+        const isSaved = wishlist.find(item => item.id === dest.id);
+        
+        if (isAuthenticated && token) {
+            try {
+                if (isSaved) {
+                    await axios.delete(`${API_BASE.replace('/public', '/wishlist')}/${dest.id}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    toast.success("Removed from wishlist");
+                } else {
+                    await axios.post(`${API_BASE.replace('/public', '/wishlist')}`, {
+                        entityType: 'Destination', entityId: dest.id
+                    }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    toast.success("Added to wishlist ♥️");
+                }
+                // Toggle locally for UI update
+                let updated;
+                if (isSaved) {
+                    updated = wishlist.filter(item => item.id !== dest.id);
+                } else {
+                    updated = [...wishlist, { 
+                        id: dest.id, 
+                        name: dest.name, 
+                        location: `${dest.district?.name}, ${dest.district?.state?.name}`, 
+                        image: dest.coverImage, 
+                        type: 'Destination',
+                        path: `/destinations/${dest.slug}`
+                    }];
+                }
+                setWishlist(updated);
+                localStorage.setItem('roam_wishlist', JSON.stringify(updated));
+            } catch (err) {
+                toast.error("Failed to update wishlist");
+                console.error(err);
+            }
         } else {
-            updated = [...wishlist, { 
-                id: dest.id, 
-                name: dest.name, 
-                location: `${dest.district?.name}, ${dest.district?.state?.name}`, 
-                image: dest.coverImage, 
-                type: 'Destination',
-                path: `/destinations/${dest.slug}`
-            }];
+            let updated;
+            if (isSaved) {
+                updated = wishlist.filter(item => item.id !== dest.id);
+                toast.success("Removed from wishlist");
+            } else {
+                updated = [...wishlist, { 
+                    id: dest.id, 
+                    name: dest.name, 
+                    location: `${dest.district?.name}, ${dest.district?.state?.name}`, 
+                    image: dest.coverImage, 
+                    type: 'Destination',
+                    path: `/destinations/${dest.slug}`
+                }];
+                toast.success("Added to wishlist ♥️");
+            }
+            setWishlist(updated);
+            localStorage.setItem('roam_wishlist', JSON.stringify(updated));
         }
-        setWishlist(updated);
-        localStorage.setItem('roam_wishlist', JSON.stringify(updated));
     };
 
     if (isLoading) return <div className="h-screen flex items-center justify-center text-forest font-bold">Loading your next adventure...</div>;
@@ -164,6 +223,36 @@ const DestinationDetailsPage = () => {
                             ))}
                         </div>
                     </section>
+
+                    {/* Food Options */}
+                    {dest.foodOptions?.length > 0 && (
+                        <section>
+                            <h2 className="text-4xl font-display font-bold text-forest mb-10 flex items-center gap-4">
+                                Cuisine & Local Must-Tries
+                                <div className="h-px flex-1 bg-forest/10" />
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {dest.foodOptions.map((food) => (
+                                    <div key={food.id} className="bg-white p-8 rounded-3xl border border-forest/5">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-2xl">
+                                                {food.icon || '🍱'}
+                                            </div>
+                                            <h3 className="text-xl font-bold text-forest">{food.name}</h3>
+                                        </div>
+                                        <p className="text-forest/60 text-sm mb-6">{food.description || 'Discover local flavors curated by our experts.'}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {food.tags?.map(tag => (
+                                                <span key={tag} className="px-3 py-1 bg-forest/5 text-[10px] font-bold text-forest/40 rounded-full uppercase tracking-widest">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </div>
 
                 {/* Right Sidebar */}

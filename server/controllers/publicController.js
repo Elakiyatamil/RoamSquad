@@ -12,6 +12,9 @@ exports.getDiscoveryTree = async (req, res) => {
                         districts: {
                             where: { active: true },
                             include: {
+                                destinations: {
+                                    where: { status: 'ACTIVE' }
+                                },
                                 _count: {
                                     select: { destinations: true }
                                 }
@@ -31,7 +34,7 @@ exports.getDiscoveryTree = async (req, res) => {
 exports.getDestinations = async (req, res) => {
     try {
         const destinations = await prisma.destination.findMany({
-            where: { active: true },
+            where: { status: 'ACTIVE' },
             include: {
                 district: {
                     include: {
@@ -46,9 +49,9 @@ exports.getDestinations = async (req, res) => {
                     where: { isActive: true },
                     take: 5
                 },
-                accommodation: {
+                accommodations: {
                     where: { isActive: true },
-                    orderBy: { pricePerNight: 'asc' },
+                    orderBy: { price: 'asc' },
                     take: 1
                 }
             }
@@ -63,6 +66,7 @@ exports.getDestinations = async (req, res) => {
             coverImage: dest.coverImage,
             images: dest.images,
             rating: dest.rating,
+            status: dest.status,
             category: dest.category,
             location: `${dest.district.name}, ${dest.district.state.name}`,
             districtId: dest.district.id,
@@ -71,7 +75,7 @@ exports.getDestinations = async (req, res) => {
             stateName: dest.district.state.name,
             countryName: dest.district.state.country?.name,
             highlights: dest.activities.map(a => a.name),
-            startingPrice: dest.accommodation[0]?.pricePerNight || 0,
+            startingPrice: dest.accommodations[0]?.price || 0,
             avgCost: dest.avgCost,
             bestSeason: dest.bestSeason,
             activities: dest.activities.map((a) => ({
@@ -80,7 +84,9 @@ exports.getDestinations = async (req, res) => {
                 price: a.price ?? 0,
                 duration: a.duration ?? null,
                 icon: a.icon ?? null
-            }))
+            })),
+            foodOptions: dest.foodOptions || [],
+            accommodations: dest.accommodations || []
         }));
 
         // #region agent log
@@ -112,11 +118,12 @@ exports.getDestinations = async (req, res) => {
 };
 
 // Get full destination details including all activities, food, and stays
-exports.getDestinationDetails = async (req, res) => {
+// Get full destination details by ID including all activities, food, and stays
+exports.getDestinationById = async (req, res) => {
     try {
-        const { slug } = req.params;
+        const { id } = req.params;
         const destination = await prisma.destination.findUnique({
-            where: { slug },
+            where: { id, status: 'ACTIVE' },
             include: {
                 district: {
                     include: {
@@ -129,7 +136,51 @@ exports.getDestinationDetails = async (req, res) => {
                 },
                 activities: { where: { isActive: true } },
                 foodOptions: { where: { isActive: true } },
-                accommodation: { where: { isActive: true } },
+                accommodations: { where: { isActive: true } },
+                travelOptions: true
+            }
+        });
+
+        if (!destination) {
+            return res.status(404).json({ message: 'Destination not found' });
+        }
+
+        // Exact Unified Response
+        const unified = {
+            id: destination.id,
+            name: destination.name,
+            activities: destination.activities || [],
+            foodOptions: destination.foodOptions || [],
+            accommodations: destination.accommodations || [],
+            travelOptions: destination.travelOptions || []
+        };
+
+        res.json(unified);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getDestinationDetails = async (req, res) => {
+
+    try {
+        const { slug } = req.params;
+        const destination = await prisma.destination.findFirst({
+            where: { slug, status: 'ACTIVE' },
+            include: {
+                district: {
+                    include: {
+                        state: {
+                            include: {
+                                country: true
+                            }
+                        }
+                    }
+                },
+                activities: { where: { isActive: true } },
+                foodOptions: { where: { isActive: true } },
+                accommodations: { where: { isActive: true } },
                 travelOptions: true
             }
         });
@@ -139,6 +190,115 @@ exports.getDestinationDetails = async (req, res) => {
         }
 
         res.json(destination);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get all active countries
+exports.getCountries = async (req, res) => {
+    try {
+        const countries = await prisma.country.findMany({
+            where: { active: true },
+            orderBy: { name: 'asc' }
+        });
+        res.json(countries);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get active states for a country
+exports.getStates = async (req, res) => {
+    try {
+        const { countryId } = req.params;
+        const states = await prisma.state.findMany({
+            where: { countryId, active: true },
+            orderBy: { name: 'asc' }
+        });
+        res.json(states);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get active districts for a state
+exports.getDistricts = async (req, res) => {
+    try {
+        const { stateId } = req.params;
+        const districts = await prisma.district.findMany({
+            where: { stateId, active: true },
+            orderBy: { name: 'asc' }
+        });
+        res.json(districts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get active destinations for a district
+exports.getDestinationsByDistrict = async (req, res) => {
+    try {
+        const { districtId } = req.params;
+        const destinations = await prisma.destination.findMany({
+            where: { districtId, status: 'ACTIVE' },
+            include: {
+                activities: { where: { isActive: true } },
+                accommodations: { where: { isActive: true } },
+                foodOptions: { where: { isActive: true } }
+            }
+        });
+
+        res.json(destinations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Granular Detail Endpoints
+exports.getDestinationActivities = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const activities = await prisma.activity.findMany({
+            where: { destinationId: id, isActive: true }
+        });
+        res.json(activities);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getDestinationAccommodation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const accommodation = await prisma.accommodation.findMany({
+            where: { destinationId: id, isActive: true }
+        });
+        res.json(accommodation);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getDestinationFood = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const food = await prisma.foodOption.findMany({
+            where: { destinationId: id, isActive: true }
+        });
+        res.json(food);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getDestinationTravelOptions = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const travelOptions = await prisma.travelOption.findMany({
+            where: { destinationId: id }
+        });
+        res.json(travelOptions);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

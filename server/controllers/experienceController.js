@@ -4,11 +4,15 @@ const { logAction } = require('../utils/auditLog');
 // Activities
 const getActivities = async (req, res) => {
     try {
+        const destinationId = req.params.id || req.query.destinationId;
+        const where = destinationId ? { destinationId } : {};
+        
         const activities = await prisma.activity.findMany({
-            where: { destinationId: req.params.id },
+            where,
             orderBy: { sortOrder: 'asc' }
         });
         res.json(activities);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -16,8 +20,23 @@ const getActivities = async (req, res) => {
 
 const createActivity = async (req, res) => {
     try {
+        const { name, duration, price, description, destinationId } = req.body;
+
+        if (!destinationId) {
+            return res.status(400).json({ error: "destinationId required" });
+        }
+
         const activity = await prisma.activity.create({
-            data: { ...req.body, destinationId: req.params.id }
+            data: {
+                name,
+                duration,
+                price: Number(price) || 0,
+                description: description || "",
+                destinationId,
+                isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+                icon: req.body.icon || '📍',
+                sortOrder: req.body.sortOrder || 0
+            }
         });
         await logAction(req.user, 'CREATE', 'Activity', activity.id, activity.name);
         res.json(activity);
@@ -25,6 +44,7 @@ const createActivity = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const updateActivity = async (req, res) => {
     try {
@@ -68,8 +88,10 @@ const reorderActivities = async (req, res) => {
 // Food Options
 const getFoodOptions = async (req, res) => {
     try {
-        const { mealType } = req.query;
-        const where = { destinationId: req.params.id };
+        const { mealType, destinationId: queryId } = req.query;
+        const destinationId = req.params.id || queryId;
+        const where = destinationId ? { destinationId } : {};
+        
         if (mealType) where.mealType = mealType;
 
         const food = await prisma.foodOption.findMany({
@@ -77,6 +99,7 @@ const getFoodOptions = async (req, res) => {
             orderBy: { sortOrder: 'asc' }
         });
         res.json(food);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -84,8 +107,25 @@ const getFoodOptions = async (req, res) => {
 
 const createFoodOption = async (req, res) => {
     try {
+        const { name, type, price, description, destinationId } = req.body;
+
+        if (!destinationId) {
+            return res.status(400).json({ error: "destinationId required" });
+        }
+
         const food = await prisma.foodOption.create({
-            data: { ...req.body, destinationId: req.params.id }
+            data: {
+                name,
+                type: type || req.body.mealType || 'RESTAURANT',
+                price: Number(price) || 0,
+                description: description || req.body.description || "",
+                destinationId,
+                mealType: req.body.mealType || type || 'LUNCH',
+                dietaryTags: req.body.dietaryTags || [],
+                isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+                icon: req.body.icon || req.body.emoji || '🍴',
+                sortOrder: req.body.sortOrder || 0
+            }
         });
         await logAction(req.user, 'CREATE', 'FoodOption', food.id, food.name);
         res.json(food);
@@ -93,6 +133,7 @@ const createFoodOption = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const updateFoodOption = async (req, res) => {
     try {
@@ -121,10 +162,14 @@ const deleteFoodOption = async (req, res) => {
 // Accommodation
 const getAccommodationAdmin = async (req, res) => {
     try {
+        const destinationId = req.params.id || req.query.destinationId;
+        const where = destinationId ? { destinationId } : {};
+
         const accommodation = await prisma.accommodation.findMany({
-            where: { destinationId: req.params.id }
+            where
         });
         res.json(accommodation);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -137,14 +182,15 @@ const getAccommodationPublic = async (req, res) => {
             select: {
                 id: true,
                 tier: true,
-                vibeDescription: true,
+                description: true,
                 stars: true,
-                pricePerNight: true,
+                price: true,
                 includes: true,
                 imageUrl: true
             }
         });
         res.json(accommodation);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -152,15 +198,33 @@ const getAccommodationPublic = async (req, res) => {
 
 const createAccommodation = async (req, res) => {
     try {
+        const { tier, price, destinationId } = req.body;
+
+        if (!destinationId) {
+            return res.status(400).json({ error: "destinationId required" });
+        }
+
         const acc = await prisma.accommodation.create({
-            data: { ...req.body, destinationId: req.params.id }
+            data: {
+                tier,
+                price: Number(price) || 0,
+                destinationId,
+                hotelNameInternal: req.body.hotelNameInternal || "",
+                description: req.body.description || "",
+                stars: req.body.stars ? Number(req.body.stars) : 3,
+                includes: req.body.includes || [],
+                imageUrl: req.body.imageUrl || "",
+                isActive: req.body.isActive !== undefined ? req.body.isActive : true
+            }
         });
+
         await logAction(req.user, 'CREATE', 'Accommodation', acc.id, `${acc.tier} tier`);
         res.json(acc);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const updateAccommodation = async (req, res) => {
     try {
@@ -189,10 +253,13 @@ const deleteAccommodation = async (req, res) => {
 // Travel Options
 const getTravelOptions = async (req, res) => {
     try {
+        const destinationId = req.params.id || req.query.destinationId;
+        const where = destinationId ? { destinationId } : {};
         const options = await prisma.travelOption.findMany({
-            where: { destinationId: req.params.id }
+            where
         });
         res.json(options);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -200,11 +267,23 @@ const getTravelOptions = async (req, res) => {
 
 const createTravelOption = async (req, res) => {
     try {
+        const destinationId = req.params.id || req.body.destinationId;
+        if (!destinationId) return res.status(400).json({ error: "destinationId required" });
+
         const option = await prisma.travelOption.create({
-            data: { ...req.body, destinationId: req.params.id }
+            data: { 
+                mode: req.body.mode || "Road",
+                cost: Number(req.body.cost) || 0,
+                duration: req.body.duration || "1h",
+                destinationId,
+                icon: req.body.icon || "🚘",
+                description: req.body.description || ""
+            }
         });
+
         await logAction(req.user, 'CREATE', 'TravelOption', option.id, option.mode);
         res.json(option);
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

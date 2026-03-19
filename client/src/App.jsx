@@ -1,6 +1,7 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import TravellerLayout from './layouts/TravellerLayout.jsx'
+import { Toaster } from 'react-hot-toast'
 
 import DiscoveryPage from './pages/traveller/DiscoveryPage.jsx'
 import PlannerPage from './pages/traveller/PlannerPage.jsx'
@@ -12,6 +13,7 @@ import MyJourneys from './pages/MyJourneys.jsx'
 
 export default function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<TravellerLayout />}>
         <Route index element={<DiscoveryPage />} />
@@ -24,6 +26,8 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <Toaster position="top-center" />
+    </>
   )
 }
 

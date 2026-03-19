@@ -14,8 +14,9 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
     const [form, setForm] = useState(accommodation || {
         tier: 'Budget',
         stars: 3,
-        pricePerNight: '',
+        price: '',
         vibeDescription: '',
+
         hotelNameInternal: '',
         includes: '',
         imageUrl: '',
@@ -25,10 +26,11 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
     const mutation = useMutation({
         mutationFn: async (data) => {
             if (accommodation?.id) return await apiClient.patch(`/accommodation/${accommodation.id}`, data);
-            return await apiClient.post(`/destinations/${destinationId}/accommodation`, data);
+            return await apiClient.post('/accommodation', { ...data, destinationId });
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['accommodation', destinationId]);
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries(['accommodation', destinationId]);
             onClose();
         },
         onError: (err) => alert(`Error: ${err.response?.data?.error || err.message}`)
@@ -36,16 +38,18 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.pricePerNight) { alert('Price per night is required.'); return; }
+        if (!form.price) { alert('Price is required.'); return; }
+
         const includesArray = form.includes
             ? (typeof form.includes === 'string' ? form.includes.split(',').map(s => s.trim()).filter(Boolean) : form.includes)
             : [];
         mutation.mutate({
             ...form,
             stars: parseInt(form.stars) || 3,
-            pricePerNight: parseFloat(form.pricePerNight) || 0,
+            price: parseFloat(form.price) || 0,
             includes: includesArray
         });
+
     };
 
     const includesStr = Array.isArray(form.includes) ? form.includes.join(', ') : form.includes;
@@ -77,20 +81,25 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price per Night (₹) *</label>
-                        <input type="number" value={form.pricePerNight} onChange={e => setForm({ ...form, pricePerNight: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="3500" />
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹) *</label>
+                        <input type="number" value={form.price || ""} onChange={e => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="3500" />
+
                     </div>
+
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Vibe Description</label>
-                        <textarea rows={2} value={form.vibeDescription} onChange={e => setForm({ ...form, vibeDescription: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="Cozy eco-friendly stays surrounded by nature..." />
+                        <textarea rows={2} value={form.vibeDescription || ""} onChange={e => setForm({ ...form, vibeDescription: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium resize-none" placeholder="Cozy eco-friendly stays surrounded by nature..." />
+
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Includes (comma-separated)</label>
-                        <input value={includesStr} onChange={e => setForm({ ...form, includes: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="WiFi, Breakfast, Parking" />
+                        <input value={includesStr || ""} onChange={e => setForm({ ...form, includes: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="WiFi, Breakfast, Parking" />
+
                     </div>
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Internal Hotel Name (Private)</label>
-                        <input value={form.hotelNameInternal} onChange={e => setForm({ ...form, hotelNameInternal: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
+                        <input value={form.hotelNameInternal || ""} onChange={e => setForm({ ...form, hotelNameInternal: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Vendor contact hotel name" />
+
                     </div>
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Property Image</label>
@@ -175,8 +184,9 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
             </div>
 
             <h3 className="text-3xl font-display font-bold text-ink mb-4">
-                {record?.pricePerNight ? `₹${record.pricePerNight}` : 'Not Configured'}
+                {record?.price ? `₹${record.price}` : 'Not Configured'}
             </h3>
+
             <p className="text-sm text-ink/60 font-medium mb-6 line-clamp-3">
                 {record?.vibeDescription || 'No description provided for this tier.'}
             </p>
@@ -211,24 +221,54 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
 // --- Main Manager ---
 const AccommodationManager = () => {
     const queryClient = useQueryClient();
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedDestId, setSelectedDestId] = useState('');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
 
-    const { data: destinations = [] } = useQuery({
-        queryKey: ['destinations', 'all'],
+    // Fetch Hierarchy Data
+    const { data: countries = [] } = useQuery({
+        queryKey: ['countries'],
         queryFn: async () => {
-            const res = await apiClient.get('/destinations?limit=100');
-            const dests = res.data.data || [];
-            if (dests.length > 0 && !selectedDestId) setSelectedDestId(dests[0].id);
-            return dests;
+            const res = await apiClient.get('/countries');
+            return res.data;
         }
     });
+
+    const { data: states = [] } = useQuery({
+        queryKey: ['states', selectedCountry],
+        queryFn: async () => {
+            const res = await apiClient.get(`/countries/${selectedCountry}/states`);
+            return res.data;
+        },
+        enabled: !!selectedCountry
+    });
+
+    const { data: districts = [] } = useQuery({
+        queryKey: ['districts', selectedState],
+        queryFn: async () => {
+            const res = await apiClient.get(`/states/${selectedState}/districts`);
+            return res.data;
+        },
+        enabled: !!selectedState
+    });
+
+    const { data: destinations = [] } = useQuery({
+        queryKey: ['destinations', selectedDistrict],
+        queryFn: async () => {
+            const res = await apiClient.get(`/districts/${selectedDistrict}/destinations`);
+            return res.data;
+        },
+        enabled: !!selectedDistrict
+    });
+
 
     const { data: accommodations = [], isLoading } = useQuery({
         queryKey: ['accommodation', selectedDestId],
         queryFn: async () => {
-            const res = await apiClient.get(`/destinations/${selectedDestId}/accommodation`);
+            const res = await apiClient.get(`/accommodation?destinationId=${selectedDestId}`);
             return res.data; // Array of accommodation records
         },
         enabled: !!selectedDestId
@@ -255,13 +295,38 @@ const AccommodationManager = () => {
                 </div>
             </div>
 
-            <div className="relative group min-w-[300px] max-w-sm">
-                <label className="absolute -top-2 left-4 px-1 bg-cream text-[10px] font-bold uppercase tracking-widest text-ink/40 z-10">Select Destination</label>
-                <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} className="w-full pl-4 pr-10 py-3 bg-white border border-ink/5 rounded-2xl outline-none focus:ring-4 focus:ring-red/5 appearance-none font-bold text-ink shadow-sm">
-                    {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
-                <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/30 pointer-events-none" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] border border-ink/5 shadow-sm">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Country</label>
+                    <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedState(''); setSelectedDistrict(''); setSelectedDestId(''); }} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink">
+                        <option value="">Select Country</option>
+                        {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">State</label>
+                    <select value={selectedState} onChange={e => { setSelectedState(e.target.value); setSelectedDistrict(''); setSelectedDestId(''); }} disabled={!selectedCountry} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select State</option>
+                        {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">District</label>
+                    <select value={selectedDistrict} onChange={e => { setSelectedDistrict(e.target.value); setSelectedDestId(''); }} disabled={!selectedState} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select District</option>
+                        {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Destination</label>
+                    <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} disabled={!selectedDistrict} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                        <option value="">Select Destination</option>
+                        {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                </div>
             </div>
+            <ChevronDown size={18} className="hidden" /> 
+
 
             {!selectedDestId ? (
                 <div className="py-24 text-center text-ink/30">

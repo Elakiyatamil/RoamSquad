@@ -181,14 +181,15 @@ const getDestinationsByDistrict = async (req, res) => {
 
 const createDestination = async (req, res) => {
     try {
-        const { name, category = 'Other', rating = 0, active = false, coverImage = null, description = '' } = req.body;
+        const { name, category = 'Other', rating = 0, status = 'DRAFT', active = true, coverImage = null, description = '' } = req.body;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const destination = await prisma.destination.create({
             data: { 
                 name, 
                 category, 
                 rating: parseFloat(rating) || 0, 
-                active: active === true, 
+                active,
+                status, 
                 coverImage, 
                 description, 
                 slug, 
@@ -211,6 +212,7 @@ const getFlatDestinations = async (req, res) => {
         const where = {};
         if (search) where.name = { contains: search, mode: 'insensitive' };
         if (category) where.category = category;
+        if (req.query.status) where.status = req.query.status;
         if (active !== undefined) where.active = active === 'true';
 
         const [destinations, total] = await Promise.all([
@@ -251,7 +253,7 @@ const getFullDestination = async (req, res) => {
             include: {
                 activities: { orderBy: { sortOrder: 'asc' } },
                 foodOptions: { orderBy: { sortOrder: 'asc' } },
-                accommodation: true,
+                accommodations: true,
                 travelOptions: true,
                 district: {
                     include: {
@@ -275,10 +277,30 @@ const getFullDestination = async (req, res) => {
 
 const updateDestination = async (req, res) => {
     try {
+        const { id, name, description, category, rating, active, status, slug, coverImage, images, avgCost, bestSeason } = req.body;
+        
+        const updateData = {
+            name,
+            description,
+            category,
+            rating: parseFloat(rating) || 0,
+            active: active === true,
+            status: status || 'DRAFT',
+            slug,
+            coverImage,
+            images,
+            avgCost,
+            bestSeason
+        };
+
+        // Filter out undefined fields to prevent Prisma errors
+        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
         const destination = await prisma.destination.update({
             where: { id: req.params.id },
-            data: req.body
+            data: updateData
         });
+        
         await logAction(req.user, 'UPDATE', 'Destination', destination.id, destination.name);
         res.json(destination);
     } catch (error) {

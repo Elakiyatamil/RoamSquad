@@ -42,7 +42,7 @@ model District {
 }
 
 model Destination {
-  id            String          @id @default(uuid())
+  id            String          @id @default(cuid())
   name          String
   slug          String          @unique
   districtId    String
@@ -54,57 +54,67 @@ model Destination {
   avgCost       String?
   bestSeason    String?
   active        Boolean         @default(true)
+  status        String          @default("DRAFT")
   createdAt     DateTime        @default(now())
-  accommodation Accommodation[]
+
   activities    Activity[]
-  district      District        @relation(fields: [districtId], references: [id], onDelete: Cascade)
   foodOptions   FoodOption[]
+  accommodations Accommodation[]
+  district      District        @relation(fields: [districtId], references: [id], onDelete: Cascade)
   travelOptions TravelOption[]
 }
 
+
 model Activity {
-  id            String      @id @default(uuid())
-  destinationId String
+  id            String   @id @default(cuid())
   name          String
+  duration      String
+  price         Float
+  description   String
   icon          String?
-  description   String?
-  duration      String?
-  price         Int
-  priceLabel    String?
   images        String[]
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
+
+  destinationId String
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
 }
 
+
 model FoodOption {
-  id            String      @id @default(uuid())
-  destinationId String
+  id            String   @id @default(cuid())
   name          String
+  type          String
+  price         Float
   icon          String?
-  mealType      String
-  price         Int
-  priceLabel    String?
-  description   String?
+  description   String
+  mealType      String?
+
   dietaryTags   String[]
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
+
+  destinationId String
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
 }
 
+
 model Accommodation {
-  id                String      @id @default(uuid())
-  destinationId     String
+  id                String   @id @default(cuid())
   tier              String
+  price             Float
   hotelNameInternal String?
-  vibeDescription   String
-  stars             Int
-  pricePerNight     Int
+  description       String
+  stars             Int?
   includes          String[]
   imageUrl          String?
   isActive          Boolean     @default(true)
-  destination       Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
 }
+
 
 model TravelOption {
   id            String      @id @default(uuid())
@@ -112,10 +122,11 @@ model TravelOption {
   mode          String
   icon          String?
   description   String?
-  estimatedCost String?
-  durationMins  Int?
+  cost          Float
+  duration      String
   destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
 }
+
 
 model MustVisitSpot {
   id          String   @id @default(uuid())

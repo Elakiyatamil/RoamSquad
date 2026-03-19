@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus, TreePalm } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 
@@ -29,31 +30,99 @@ const PlannerPage = () => {
         food: ''
     });
 
-    const [selectedActivities, setSelectedActivities] = useState([]);
+
     const [pendingSubmit, setPendingSubmit] = useState(false);
 
-    const { data: destinations } = useQuery({
-        queryKey: ['public-destinations'],
+    const [selectedCountry, setSelectedCountry] = useState("");
+    const [selectedState, setSelectedState] = useState("");
+    const [selectedDistrict, setSelectedDistrict] = useState("");
+    const [selectedDestinationId, setSelectedDestinationId] = useState("");
+
+    const [activities, setActivities] = useState([]);
+    const [food, setFood] = useState([]);
+    const [stays, setStays] = useState([]);
+    const [plan, setPlan] = useState({
+        activities: [],
+        food: [],
+        stays: []
+    });
+    const [budget, setBudget] = useState(0);
+
+
+    // Fetch Countries
+    const { data: countries } = useQuery({
+        queryKey: ['countries'],
         queryFn: async () => {
-            const res = await axios.get(`${API_BASE}/destinations`);
-            // #region agent log
-            fetch('http://localhost:5000/__debug-log', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    hypothesisId: 'H8',
-                    location: 'client/src/pages/traveller/PlannerPage.jsx:destinationsQuery',
-                    message: 'planner received public destinations',
-                    data: {
-                        count: Array.isArray(res.data) ? res.data.length : null,
-                        sampleActivitiesCount: Array.isArray(res.data) && res.data[0]?.activities ? res.data[0].activities.length : null
-                    }
-                })
-            }).catch(() => { });
-            // #endregion agent log
+            const res = await axios.get(`${API_BASE}/countries`);
             return res.data;
         }
     });
+
+    // Fetch States
+    const { data: states } = useQuery({
+        queryKey: ['states', selectedCountry],
+        queryFn: async () => {
+            if (!selectedCountry) return [];
+            const res = await axios.get(`${API_BASE}/states/${selectedCountry}`);
+            return res.data;
+        },
+        enabled: !!selectedCountry
+    });
+
+    // Fetch Districts
+    const { data: districts } = useQuery({
+        queryKey: ['districts', selectedState],
+        queryFn: async () => {
+            if (!selectedState) return [];
+            const res = await axios.get(`${API_BASE}/districts/${selectedState}`);
+            return res.data;
+        },
+        enabled: !!selectedState
+    });
+
+    const { data: destinations } = useQuery({
+        queryKey: ['public-destinations', selectedDistrict],
+        queryFn: async () => {
+            if (!selectedDistrict) return [];
+            const res = await axios.get(`${API_BASE}/destinations/district/${selectedDistrict}`);
+            return res.data;
+        },
+        enabled: !!selectedDistrict
+    });
+
+    // 🔴 STEP 9 — FIX STATE RESET
+    React.useEffect(() => {
+        console.log("DESTINATION CHANGED:", selectedDestinationId);
+        setPlan({ activities: [], food: [], stays: [] });
+        setBudget(0);
+
+        if (!selectedDestinationId) {
+            setActivities([]);
+            setFood([]);
+            setStays([]);
+            return;
+        }
+
+        // 🔴 STEP 2 & 3 — FETCH FULL DATA & DEBUG
+        axios.get(`${API_BASE}/destinations/id/${selectedDestinationId}`)
+            .then(res => {
+                const data = res.data;
+                console.log("FULL DATA API RESPONSE:", data);
+                
+                // 🔴 STEP 4 — FIX RENDERING (Ensure consistent fields)
+                setActivities(data.activities || []);
+                setFood(data.foodOptions || []);
+                setStays(data.accommodations || []);
+            })
+            .catch(err => {
+                console.error("API FETCH ERROR:", err);
+                setActivities([]);
+                setFood([]);
+                setStays([]);
+            });
+    }, [selectedDestinationId]);
+
+
 
     const travelTypes = ['Solo', 'Couple', 'Family', 'Friends', 'Squad', 'Girls Trip'];
     const vibes = [
@@ -68,39 +137,73 @@ const PlannerPage = () => {
     const nextStep = () => setStep(s => s + 1);
     const prevStep = () => setStep(s => s - 1);
 
-    const toggleActivity = (activity, destination) => {
-        const id = `${destination.id}-${activity.id}`;
-        if (selectedActivities.find(a => a.planId === id)) {
-            setSelectedActivities(selectedActivities.filter(a => a.planId !== id));
-        } else {
-            if (selectedActivities.length >= config.days * 2) {
-                alert(`You can only add up to ${config.days * 2} activities for a ${config.days}-day trip to keep it logical.`);
-                return;
-            }
-            setSelectedActivities([
-                ...selectedActivities,
-                {
-                    ...activity,
-                    planId: id,
-                    destinationName: destination.name,
-                    destinationId: destination.id,
-                    stateId: destination.stateId,
-                    stateName: destination.stateName,
-                    districtId: destination.districtId,
-                    districtName: destination.districtName,
-                }
-            ]);
-        }
+    // 🔴 STEP 6 — REAL-TIME BUDGET CALCULATION
+    const calculateBudget = (currentPlan) => {
+        return [
+            ...currentPlan.activities,
+            ...currentPlan.food,
+            ...currentPlan.stays
+        ].reduce((sum, item) => {
+            return sum + (item.price || item.cost || 0);
+        }, 0);
     };
 
+    // 🔴 STEP 5 & 7 — FIX ADD TO PLAN (CORE FEATURE & INSTANT UPDATE)
+    const addToPlan = (type, item) => {
+        const planKey = type === 'activity' ? 'activities' : type === 'food' ? 'food' : 'stays';
+        const itemId = `${selectedDestinationId}-${item.id}`;
+        
+        setPlan(prev => {
+            const isSelected = prev[planKey].find(i => i.planId === itemId);
+            let updated;
+
+            if (isSelected) {
+                updated = {
+                    ...prev,
+                    [planKey]: prev[planKey].filter(i => i.planId !== itemId)
+                };
+            } else {
+                // Keep the existing logic for activity limits if needed, but let's follow the simple 'addToPlan' for now
+                if (type === 'activity' && prev.activities.length >= (config.days || 1) * 2) {
+                    alert(`You can only add up to ${(config.days || 1) * 2} activities for a ${config.days}-day trip.`);
+                    return prev;
+                }
+
+                const newItem = {
+                    ...item,
+                    planId: itemId,
+                    type,
+                    destinationId: selectedDestinationId,
+                    destinationName: destinations?.find(d => d.id === selectedDestinationId)?.name || 'Destination'
+                };
+
+                updated = {
+                    ...prev,
+                    [planKey]: [...prev[planKey], newItem]
+                };
+            }
+
+            setBudget(calculateBudget(updated));
+            return updated;
+        });
+    };
+
+
+
     const validateBeforeConfirm = () => {
+
         // RULE 7: Required fields
         if (!config.userName?.trim() || !config.userEmail?.trim() || !config.userPhone?.trim()) {
             return 'Please fill name, email and phone';
         }
         if (!config.startDate) return 'Please select a start date';
-        if (!config.hotel?.trim()) return 'Please enter/select a hotel';
-        if (!selectedActivities.length) return 'Please select at least 1 place';
+        
+        // If they didn't manually enter a hotel, check if they selected a 'stay' item in the trip
+        const selectedStay = plan.stays[0];
+        if (!config.hotel?.trim() && !selectedStay) return 'Please enter or select an accommodation';
+        
+        if (plan.activities.length === 0) return 'Please select at least 1 activity';
+
 
         // RULE 8: startDate valid + RULE 3 (25-day rule): trip must be >= today + 25 days
         const start = new Date(`${config.startDate}T00:00:00`);
@@ -108,12 +211,13 @@ const PlannerPage = () => {
         today.setHours(0, 0, 0, 0);
         if (Number.isNaN(start.getTime())) return 'Start date is invalid';
         const minDate = new Date(today);
-        minDate.setDate(minDate.getDate() + 25);
-        if (start < minDate) return 'Trip must be at least 25 days from today';
+        minDate.setDate(minDate.getDate() + 15);
+        if (start < minDate) return 'Trip must be at least 15 days from today';
 
-        // RULE 1: All places same state
-        const stateIds = new Set(selectedActivities.map(a => a.stateId).filter(Boolean));
-        if (stateIds.size > 1) return 'All selected places must be from same state';
+        // RULE 1: All places same state (if applicable - usually they are from same district here anyway)
+        const activityStates = new Set(plan.activities.map(a => a.stateId).filter(Boolean));
+        if (activityStates.size > 1) return 'All selected places must be from same state';
+
 
         // RULE 2 + RULE 9: Max 2 places per day, no empty day
         for (const day of timeline) {
@@ -145,9 +249,14 @@ const PlannerPage = () => {
             return;
         }
         try {
-            const first = selectedActivities[0];
+            const selectedFood = plan.food;
+            const selectedStay = plan.stays[0];
+
+
+            const first = plan.activities[0] || plan.food[0] || plan.stays[0];
             const state = first?.stateName || null;
             const district = first?.districtName || null;
+            
             const payload = {
                 userId: user?.id,
                 name: user?.name || config.userName,
@@ -160,7 +269,9 @@ const PlannerPage = () => {
                     people: config.travellers,
                     travelType: config.travelType,
                     vibe: config.vibe,
-                    places: selectedActivities,
+                    places: plan.activities,
+                    food: selectedFood,
+                    stay: selectedStay,
                     timeline
                 },
                 itinerarySnapshot: {
@@ -168,13 +279,18 @@ const PlannerPage = () => {
                     people: config.travellers,
                     travelType: config.travelType,
                     vibe: config.vibe,
-                    places: selectedActivities,
+                    places: plan.activities,
                     timeline
                 },
-                hotelSnapshot: { name: config.hotel, districtId: first?.districtId, districtName: first?.districtName },
-                foodSnapshot: config.food ? { name: config.food } : null,
-                totalBudget,
+                hotelSnapshot: selectedStay 
+                    ? { name: selectedStay.tier + " Stay", price: selectedStay.price }
+                    : { name: config.hotel, districtId: first?.districtId, districtName: first?.districtName },
+                foodSnapshot: selectedFood.length > 0 
+                    ? { count: selectedFood.length, items: selectedFood.map(f => f.name) }
+                    : config.food ? { name: config.food } : null,
+                totalBudget: budget,
                 tripDate: config.startDate,
+
                 startDate: config.startDate,
                 days: Number(config.days),
                 people: Number(config.travellers)
@@ -195,6 +311,7 @@ const PlannerPage = () => {
             localStorage.setItem('submitted_inquiries', JSON.stringify(savedInquiries));
 
             setInquiryStatus('success');
+            toast.success("Inquiry sent successfully 🚀");
             setStep(4);
         } catch (error) {
             console.error(error);
@@ -218,19 +335,25 @@ const PlannerPage = () => {
         await doSubmitInquiry();
     };
 
-    const totalBudget = selectedActivities.reduce((sum, act) => sum + act.price, 0);
-    const totalActivityTime = selectedActivities.reduce((sum, act) => {
-        const mins = parseInt(act.duration) || 120; // Default 2h if not parsed
+    // Derived logic for rendering
+    const allPlanItems = [...plan.activities, ...plan.food, ...plan.stays];
+    const isOverScheduled = plan.activities.length > config.days * 2;
+
+    const totalActivityTime = plan.activities.reduce((sum, act) => {
+        const durationStr = act.duration || "2h";
+        const mins = parseInt(durationStr) * (durationStr.includes('h') ? 60 : 1) || 120;
         return sum + mins;
     }, 0);
+
 
     // Group activities into days with logical distribution
     const generateTimeline = () => {
         const timeline = [];
-        const activitiesPerDay = 2; // Strict curated limit
+        const activitiesPerDay = 2; 
+
         
         for (let i = 1; i <= config.days; i++) {
-            const dayActs = selectedActivities.slice((i - 1) * activitiesPerDay, i * activitiesPerDay);
+            const dayActs = plan.activities.slice((i - 1) * activitiesPerDay, i * activitiesPerDay);
             const destinationsInDay = [...new Set(dayActs.map(a => a.destinationName))];
             
             timeline.push({
@@ -241,10 +364,9 @@ const PlannerPage = () => {
             });
         }
         return timeline;
-    };
+    };    const timeline = generateTimeline();
 
-    const timeline = generateTimeline();
-    const isOverScheduled = selectedActivities.length > config.days * 2;
+
 
     return (
         <div className="container mx-auto px-6 py-12 min-h-[80vh]">
@@ -374,57 +496,203 @@ const PlannerPage = () => {
                         <div key="step3" className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                             {/* Discovery Panel */}
                             <div className="lg:col-span-2 space-y-12">
+                                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                                    <div className="flex-1">
+                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Country</label>
+                                        <select 
+                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                            value={selectedCountry}
+                                            onChange={(e) => {
+                                                setSelectedCountry(e.target.value);
+                                                setSelectedState('');
+                                                setSelectedDistrict('');
+                                            }}
+                                        >
+                                            <option value="">Select Country</option>
+                                            {countries?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">State</label>
+                                        <select 
+                                            disabled={!selectedCountry}
+                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            value={selectedState}
+                                            onChange={(e) => {
+                                                setSelectedState(e.target.value);
+                                                setSelectedDistrict('');
+                                            }}
+                                        >
+                                            <option value="">Select State</option>
+                                            {states?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">District</label>
+                                        <select 
+                                            disabled={!selectedState}
+                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            value={selectedDistrict}
+                                            onChange={(e) => {
+                                                setSelectedDistrict(e.target.value);
+                                                setSelectedDestinationId("");
+                                            }}
+                                        >
+                                            <option value="">Select District</option>
+                                            {districts?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Destination</label>
+                                        <select 
+                                            disabled={!selectedDistrict}
+                                            className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
+                                            value={selectedDestinationId}
+                                            onChange={(e) => {
+                                                console.log("SELECTING DESTINATION ID:", e.target.value);
+                                                setSelectedDestinationId(e.target.value);
+                                            }}
+                                        >
+                                            <option value="">Select Destination</option>
+                                            {destinations?.map(d => (
+                                                <option key={d.id} value={d.id}>
+                                                    {d.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+
                                 <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
                                 
                                 <div className="space-y-16">
-                                    {destinations?.length === 0 ? (
+                                    {!selectedDestinationId ? (
+                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
+                                            <MapPin size={48} className="mx-auto text-forest/20 mb-4" />
+                                            <p className="text-xl font-bold text-forest/40">Select a destination to see experiences.</p>
+                                        </div>
+                                    ) : activities.length === 0 && food.length === 0 && stays.length === 0 ? (
                                         <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
                                             <Sparkles size={48} className="mx-auto text-forest/20 mb-4" />
-                                            <p className="text-xl font-bold text-forest/40">No curated experiences available yet.</p>
+                                            <p className="text-xl font-bold text-forest/40">No activities available — Add from admin</p>
                                         </div>
                                     ) : (
-                                        destinations?.map(dest => (
-                                            <div key={dest.id} className="space-y-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <h3 className="text-2xl font-display font-bold text-forest">{dest.name}</h3>
-                                                        <div className="flex items-center gap-2 text-forest/40 text-xs">
-                                                            <MapPin size={12} /> {dest.location || 'Location'}
-                                                        </div>
+                                        <div className="space-y-12">
+                                            {activities.length > 0 ? (
+                                                <div className="space-y-6">
+                                                    <h3 className="text-2xl font-display font-bold text-forest">Activities</h3>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {activities.map(act => (
+                                                            <button
+                                                                key={act.id}
+                                                                onClick={() => addToPlan('activity', act)}
+                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
+                                                                    plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}`)
+                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
+                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
+                                                                }`}
+                                                            >
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+                                                                        {act.icon || '📍'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="font-bold leading-tight text-forest">{act.name}</h4>
+                                                                        <span className="text-xs text-forest/60">₹{act.price || 0} • {act.duration || 'N/A'}</span>
+                                                                    </div>
+                                                                </div>
+                                                                {plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}`) 
+                                                                    ? <Trash2 size={16} className="text-cream" /> 
+                                                                    : <Plus size={16} className="text-gold" />
+                                                                }
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 </div>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {dest.activities?.map(act => (
-                                                        <button
-                                                            key={act.id}
-                                                            onClick={() => toggleActivity(act, dest)}
-                                                            className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
-                                                                selectedActivities.find(a => a.planId === `${dest.id}-${act.id}`)
-                                                                ? 'bg-forest text-cream shadow-xl shadow-forest/20'
-                                                                : 'bg-white border-2 border-forest/5 hover:border-forest/20'
-                                                            }`}
-                                                        >
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
-                                                                    {act.icon || '📍'}
-                                                                </div>
-                                                                <div>
-                                                                    <h4 className="font-bold leading-tight text-forest">{act.name}</h4>
-                                                                    <span className="text-xs text-forest/60">₹{act.price || 0} • {act.duration || 'N/A'}</span>
-                                                                </div>
-                                                            </div>
-                                                            {selectedActivities.find(a => a.planId === `${dest.id}-${act.id}`) 
-                                                                ? <Trash2 size={16} className="text-cream" /> 
-                                                                : <Plus size={16} className="text-gold" />
-                                                            }
-                                                        </button>
-                                                    ))}
+                                            ) : (
+                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+                                                    <p className="text-lg font-bold text-forest/40">No activities available</p>
                                                 </div>
-                                            </div>
-                                        ))
+                                            )}
+
+                                            {food.length > 0 ? (
+                                                <div className="space-y-6">
+                                                    <h3 className="text-2xl font-display font-bold text-forest">Food Options</h3>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {food.map(f => (
+                                                            <button
+                                                                key={f.id}
+                                                                onClick={() => addToPlan('food', f)}
+                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
+                                                                    plan.food.find(a => a.planId === `${selectedDestinationId}-${f.id}`)
+                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
+                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
+                                                                }`}
+                                                            >
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+                                                                        {f.icon || '🍴'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="font-bold leading-tight text-forest">{f.name}</h4>
+                                                                        <span className="text-xs text-forest/60">₹{f.price || 0} • {f.type}</span>
+                                                                    </div>
+                                                                </div>
+                                                                {plan.food.find(a => a.planId === `${selectedDestinationId}-${f.id}`) 
+                                                                    ? <Trash2 size={16} className="text-cream" /> 
+                                                                    : <Plus size={16} className="text-gold" />
+                                                                }
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+                                                    <p className="text-lg font-bold text-forest/40">No food options available</p>
+                                                </div>
+                                            )}
+
+                                            {stays.length > 0 ? (
+                                                <div className="space-y-6">
+                                                    <h3 className="text-2xl font-display font-bold text-forest">Accommodations</h3>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        {stays.map(s => (
+                                                            <button
+                                                                key={s.id}
+                                                                onClick={() => addToPlan('stay', s)}
+                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
+                                                                    plan.stays.find(a => a.planId === `${selectedDestinationId}-${s.id}`)
+                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
+                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
+                                                                }`}
+                                                            >
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+                                                                        {s.tier.charAt(0)}
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="font-bold leading-tight text-forest">{s.tier} Stay</h4>
+                                                                        <span className="text-xs text-forest/60">₹{s.price || 0} / night</span>
+                                                                    </div>
+                                                                </div>
+                                                                {plan.stays.find(a => a.planId === `${selectedDestinationId}-${s.id}`) 
+                                                                    ? <Trash2 size={16} className="text-cream" /> 
+                                                                    : <Plus size={16} className="text-gold" />
+                                                                }
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+                                                    <p className="text-lg font-bold text-forest/40">No stays available</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
+
                             </div>
 
                             {/* Trip Plan Summary (Fixed Sidebar-like) */}
@@ -433,20 +701,21 @@ const PlannerPage = () => {
                                     <h3 className="text-3xl font-display font-bold mb-8">Trip Plan</h3>
                                     
                                     <div className="space-y-6 mb-12 min-h-[200px]">
-                                        {selectedActivities.length === 0 ? (
-                                            <p className="text-cream/30 italic">No experiences added yet...</p>
+                                        {allPlanItems.length === 0 ? (
+                                            <p className="text-cream/30 italic">No items added to your trip yet...</p>
                                         ) : (
-                                            selectedActivities.map(act => (
-                                                <div key={act.planId} className="flex items-center justify-between group">
+                                            allPlanItems.map(item => (
+                                                <div key={item.planId} className="flex items-center justify-between group">
                                                     <div>
-                                                        <p className="font-bold text-sm leading-tight">{act.name}</p>
-                                                        <p className="text-[10px] text-cream/40 uppercase tracking-widest">{act.destinationName}</p>
+                                                        <p className="font-bold text-sm leading-tight">{item.name || item.tier + ' Stay'}</p>
+                                                        <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.destinationName}</p>
                                                     </div>
-                                                    <p className="font-bold text-gold">₹{act.price}</p>
+                                                    <p className="font-bold text-gold">₹{item.price}</p>
                                                 </div>
                                             ))
                                         )}
                                     </div>
+
 
                                     <div className="pt-8 border-t border-cream/10 space-y-4">
                                         <div className="flex justify-between text-sm">
@@ -460,14 +729,14 @@ const PlannerPage = () => {
                                         <div className="flex justify-between items-end pt-4">
                                             <span className="text-cream/40 text-sm">Est. Budget</span>
                                             <div className="text-right">
-                                                <p className="text-3xl font-display font-bold text-gold">₹{totalBudget.toLocaleString()}</p>
+                                                <p className="text-3xl font-display font-bold text-gold">₹{budget.toLocaleString()}</p>
                                                 <p className="text-[10px] text-cream/40">Excluding Stays & Flights</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <button 
-                                        disabled={selectedActivities.length === 0}
+                                        disabled={plan.activities.length === 0}
                                         onClick={() => {
                                             if (isOverScheduled) {
                                                 alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
@@ -485,7 +754,7 @@ const PlannerPage = () => {
                                     </button>
                                     
                                     {isOverScheduled && (
-                                        <p className="mt-4 text-center text-xs text-red font-bold animate-pulse">
+                                        <p className="mt-4 text-center text-xs text-red-500 font-bold animate-pulse">
                                             ⚠️ Warning: Activities exceed trip duration!
                                         </p>
                                     )}
@@ -497,9 +766,9 @@ const PlannerPage = () => {
                                         </div>
                                         <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                                             <motion.div 
-                                                className={`h-full ${isOverScheduled ? 'bg-red' : 'bg-gold'}`}
+                                                className={`h-full ${isOverScheduled ? 'bg-red-500' : 'bg-gold'}`}
                                                 initial={{ width: 0 }}
-                                                animate={{ width: `${Math.min(100, (selectedActivities.length / (config.days * 2)) * 100)}%` }}
+                                                animate={{ width: `${Math.min(100, (plan.activities.length / (config.days * 2)) * 100)}%` }}
                                             />
                                         </div>
                                     </div>
@@ -634,7 +903,7 @@ const PlannerPage = () => {
                                             <div className="pt-6 border-t border-forest/5">
                                                 <div className="flex justify-between items-end mb-8">
                                                     <span className="text-forest/40 text-sm italic">Est. Total Budget</span>
-                                                    <span className="text-4xl font-display font-bold text-forest">₹{totalBudget.toLocaleString()}</span>
+                                                    <span className="text-4xl font-display font-bold text-forest">₹{budget.toLocaleString()}</span>
                                                 </div>
                                                 <button 
                                                     type="submit"

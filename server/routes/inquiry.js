@@ -14,5 +14,8 @@ router.get('/', verifyJWT, isAdmin, inquiryController.getInquiries);
 // Owner or admin can view
 router.get('/:id', verifyJWT, inquiryController.getInquiryById);
 
+// Admin: update status
+router.patch('/:id/status', verifyJWT, isAdmin, inquiryController.updateInquiryStatus);
+
 module.exports = router;
 
