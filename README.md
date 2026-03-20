@@ -7,6 +7,11 @@ Roam Squad is a curated travel platform that helps users explore and book custom
 - `/client` - React frontend application (Vite, TailwindCSS, React Query)
 - `/server` - Node.js backend application (Express, Prisma, PostgreSQL)
 
+## 📖 Documentation & Contribution
+To help you get started with development or if you're looking to contribute:
+- [Developer Guide](DEVELOPER_GUIDE.md) - Deep dive into architecture and tech stack.
+- [Contributing Guide](CONTRIBUTING.md) - How to set up locally and submit Pull Requests.
+
 ## Prerequisites
 
 Ensure you have the following installed before starting:

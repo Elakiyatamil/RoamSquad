@@ -103,57 +103,49 @@ const MyTripsPage = () => {
                 ) : (
                     <div className="space-y-6">
                         {Array.isArray(trips) && trips.map((trip, idx) => {
+                            const statusConfig = getStatusConfig(trip.status);
+                            const StatusIcon = statusConfig.icon;
                             
                             return (
                             <motion.div
-                                key={trip.id || trip._id}
-                                layout
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                onClick={() => navigate(`/journey/${trip.id || trip._id}`)}
-                                className="bg-white rounded-[2.5rem] p-8 border border-forest/5 shadow-sm hover:shadow-xl transition-all group relative cursor-pointer"
+                                key={trip.id ?? idx}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="bg-white p-8 rounded-[2.5rem] border border-forest/5 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-8"
                             >
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                                    <div className="flex items-start gap-6 flex-1">
-                                        <div className="w-16 h-16 bg-forest/5 rounded-2xl flex items-center justify-center text-forest shrink-0">
-                                            <MapPin size={32} />
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="text-2xl font-bold text-forest line-clamp-1">
-                                                    {trip.destinationName || trip.state ? (
-                                                        <>
-                                                            {trip.destinationName || trip.district || trip.state} 
-                                                            <span className="text-forest/20 mx-2 text-base font-normal">/</span>
-                                                            <span className="text-base text-forest/40">{trip.days ? `${trip.days} Days` : ''}</span>
-                                                        </>
-                                                    ) : (trip.destination || 'Custom Trip')}
-                                                </h3>
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                                                    trip.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 
-                                                    trip.status === 'PENDING' ? 'bg-gold/10 text-gold' : 
-                                                    'bg-forest/5 text-forest/40'
-                                                }`}>
-                                                    {trip.status || 'DRAFT'}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-forest/40 text-sm font-medium">
-                                                <span className="flex items-center gap-1.5"><Calendar size={14} /> {new Date(trip.tripDate || trip.startDate || trip.createdAt).toLocaleDateString()}</span>
-                                                <span className="flex items-center gap-1.5"><Users size={14} /> {trip.people || trip.itinerary?.people || 0} Travelers</span>
-                                            </div>
-                                        </div>
+                                <div className="flex items-start gap-6 cursor-pointer flex-1" onClick={() => { if (trip?.id != null) navigate(`/journey/${trip.id}`); }}>
+                                    <div className="w-16 h-16 bg-forest/5 rounded-2xl flex items-center justify-center text-forest/30 shrink-0">
+                                        <Calendar size={32} />
                                     </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest flex items-center gap-1 ${statusConfig.color}`}>
+                                                <StatusIcon size={12} /> {statusConfig.label}
+                                            </span>
+                                            <span className="text-forest/30 text-xs">{new Date(trip.date || trip.startDate || trip.tripDate || trip.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        <h3 className="text-2xl font-bold text-forest">{trip.destinationName || trip.state ? `${trip.state}${trip.district ? ` · ${trip.district}` : ''}` : (trip.destination || 'Custom Trip')}</h3>
+                                        <p className="text-forest/50 text-sm">{trip.people ?? trip.travelers ?? trip.itinerarySnapshot?.people ?? trip.itinerary?.people ?? 0} Pax • {trip.vibe ?? trip.itinerarySnapshot?.vibe ?? 'Custom'} Vibe</p>
+                                    </div>
+                                </div>
 
-                                    <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-4 shrink-0 border-t md:border-t-0 md:border-l border-forest/5 pt-4 md:pt-0 md:pl-8">
+                                    <div className="text-right hidden sm:block">
+                                        <p className="text-[10px] font-bold text-forest/30 uppercase tracking-widest">Est. Budget</p>
+                                        <p className="text-xl font-display font-bold text-forest">₹{Number(trip.totalBudget || 0).toLocaleString()}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
                                         <button 
-                                            onClick={(e) => { e.stopPropagation(); }}
-                                            className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest/10 transition-all"
-                                            title="Copy Details"
+                                            onClick={() => handleReuse(trip)}
+                                            className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest hover:text-cream transition-all group relative"
+                                            title="Reuse Itinerary"
                                         >
                                             <Copy size={20} />
                                         </button>
                                         <button 
-                                            className="p-4 bg-forest/5 rounded-2xl text-forest group-hover:bg-forest group-hover:text-cream transition-all flex items-center gap-2 font-bold px-6"
+                                            onClick={() => navigate(`/journey/${trip.id || trip._id}`)}
+                                            className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest hover:text-cream transition-all"
                                         >
                                             View Details
                                         </button>
@@ -187,11 +179,7 @@ const MyTripsPage = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {(wishlist?.length > 0 ? wishlist : []).map(item => (
-                            <div 
-                                key={item.id || item._id} 
-                                onClick={() => navigate(`/journey/${item.id || item._id}`)}
-                                className="bg-white rounded-3xl overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all block cursor-pointer"
-                            >
+                            <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all block">
                                 <div className="h-48 relative bg-forest/5 flex items-center justify-center">
                                     {item.image ? (
                                         <img src={item.image} alt={item.destinationName} className="w-full h-full object-cover" />
@@ -200,13 +188,13 @@ const MyTripsPage = () => {
                                     )}
                                 </div>
                                 <div className="p-6">
-                                    <h4 className="text-lg font-bold text-forest mb-1">{item.destinationName || item.destination}</h4>
+                                    <h3 className="text-xl font-bold text-forest mb-1">{item.destinationName || item.name}</h3>
                                     <p className="text-forest/40 text-[12px] font-bold uppercase tracking-widest mb-4">
                                         Budget: ₹{Number(item.budget || 0).toLocaleString()}
                                     </p>
-                                    <div className="text-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                    <Link to={`/journey/${item.id || item._id}`} className="text-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
                                         View Details <ChevronRight size={16} />
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
                         ))}
