@@ -250,7 +250,8 @@ const PlannerPage = () => {
 
 
             const state = states?.find(s => s.id === selectedState)?.name || null;
-            const district = destinations?.find(d => d.id === selectedDestinationId)?.name || districts?.find(d => d.id === selectedDistrict)?.name || null;
+            const destinationName = destinations?.find(d => d.id === selectedDestinationId)?.name || null;
+            const district = destinationName || districts?.find(d => d.id === selectedDistrict)?.name || null;
             const name = user?.name || config.userName;
             const email = user?.email || config.userEmail;
             const phone = config.userPhone;
@@ -266,6 +267,7 @@ const PlannerPage = () => {
                 email,
                 phone,
                 destinationId: selectedDestinationId || null,
+                destinationName,
                 state,
                 district,
                 itinerary: {

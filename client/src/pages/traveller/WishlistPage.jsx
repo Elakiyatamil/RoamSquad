@@ -19,10 +19,10 @@ const WishlistPage = () => {
                 return;
             }
             try {
-                const res = await axios.get(`${API}/wishlist/leads/${user.email}`, {
+                const res = await axios.get(`${API}/wishlist`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setWishlist(res.data.data || []);
+                setWishlist(res.data?.data || []);
             } catch (err) {
                 console.error("Failed to fetch wishlist:", err);
             } finally {
@@ -86,15 +86,15 @@ const WishlistPage = () => {
                                     <div className="flex items-center gap-2 text-[10px] font-bold text-gold uppercase tracking-widest mb-2">
                                         Saved Trip
                                     </div>
-                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.destination}</h3>
+                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.destinationName || item.destination}</h3>
                                     <div className="flex items-center gap-2 text-forest/40 text-sm mb-4">
-                                        <Calendar size={14} /> {new Date(item.createdAt).toLocaleDateString()}
+                                        <Calendar size={14} /> {new Date(item.date || item.createdAt).toLocaleDateString()}
                                     </div>
                                     
                                     <div className="space-y-2 mb-8">
-                                        <p className="text-xs text-forest/60 font-medium">Budget: ₹{Number(item.totalBudget || 0).toLocaleString()}</p>
+                                        <p className="text-xs text-forest/60 font-medium">Budget: ₹{Number(item.budget || item.totalBudget || 0).toLocaleString()}</p>
                                         <p className="text-xs text-forest/60 font-medium italic">
-                                            {item.itinerary?.activities?.length || 0} activities saved
+                                            {item.activities?.length || item.itinerary?.activities?.length || 0} activities saved
                                         </p>
                                     </div>
 

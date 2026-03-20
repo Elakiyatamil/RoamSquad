@@ -31,8 +31,18 @@ const MyTripsPage = () => {
             }
             
             // Load Wishlist
-            const savedWishlist = localStorage.getItem('roam_wishlist');
-            if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+            if (isAuthenticated && token) {
+                try {
+                    const resW = await axios.get('http://localhost:5000/api/wishlist', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setWishlist(resW.data?.data || []);
+                } catch (err) {
+                    console.error("[MyTripsPage] Wishlist Fetch Error:", err);
+                }
+            } else {
+                setWishlist([]); // Strict requirement: do not use local state
+            }
         };
         load();
     }, [isAuthenticated, token]);
@@ -113,10 +123,10 @@ const MyTripsPage = () => {
                                             <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-widest flex items-center gap-1 ${statusConfig.color}`}>
                                                 <StatusIcon size={12} /> {statusConfig.label}
                                             </span>
-                                            <span className="text-forest/30 text-xs">{new Date(trip.createdAt || trip.date).toLocaleDateString()}</span>
+                                            <span className="text-forest/30 text-xs">{new Date(trip.date || trip.startDate || trip.tripDate || trip.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <h3 className="text-2xl font-bold text-forest">{trip.state ? `${trip.state}${trip.district ? ` · ${trip.district}` : ''}` : (trip.destination || 'Custom Trip')}</h3>
-                                        <p className="text-forest/50 text-sm">{(trip.people ?? trip.travelers ?? trip.itinerarySnapshot?.people ?? trip.itinerary?.people) || 0} Pax • {(trip.itinerarySnapshot?.vibe ?? trip.vibe) || 'Custom'} Vibe</p>
+                                        <h3 className="text-2xl font-bold text-forest">{trip.destinationName || trip.state ? `${trip.state}${trip.district ? ` · ${trip.district}` : ''}` : (trip.destination || 'Custom Trip')}</h3>
+                                        <p className="text-forest/50 text-sm">{trip.people ?? trip.travelers ?? trip.itinerarySnapshot?.people ?? trip.itinerary?.people ?? 0} Pax • {trip.vibe ?? trip.itinerarySnapshot?.vibe ?? 'Custom'} Vibe</p>
                                     </div>
                                 </div>
 
@@ -170,14 +180,20 @@ const MyTripsPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {(Array.isArray(wishlist) ? wishlist : []).map(item => (
+                        {(wishlist?.length > 0 ? wishlist : []).map(item => (
                             <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all block">
-                                <div className="h-48 relative">
-                                    <img src={item.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1000'} alt={item.name} className="w-full h-full object-cover" />
+                                <div className="h-48 relative bg-forest/5 flex items-center justify-center">
+                                    {item.image ? (
+                                        <img src={item.image} alt={item.destinationName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <MapPin size={40} className="text-forest/20" />
+                                    )}
                                 </div>
                                 <div className="p-6">
-                                    <h3 className="text-xl font-bold text-forest mb-1">{item.name}</h3>
-                                    <p className="text-forest/40 text-sm mb-4"><MapPin size={14} className="inline mr-1" />{item.location}</p>
+                                    <h3 className="text-xl font-bold text-forest mb-1">{item.destinationName || item.name}</h3>
+                                    <p className="text-forest/40 text-[12px] font-bold uppercase tracking-widest mb-4">
+                                        Budget: ₹{Number(item.budget || 0).toLocaleString()}
+                                    </p>
                                     <Link to={item.path} className="text-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
                                         View Details <ChevronRight size={16} />
                                     </Link>

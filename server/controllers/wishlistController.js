@@ -4,9 +4,30 @@ exports.getWishlist = async (req, res) => {
     try {
         const userId = req.user.id;
         const items = await prisma.wishlistItem.findMany({
-            where: { userId }
+            where: { userId },
+            orderBy: { createdAt: 'desc' }
         });
-        res.status(200).json({ success: true, data: items });
+        
+        const enriched = await Promise.all(items.map(async (item) => {
+            if (item.entityType === 'Destination') {
+                const dest = await prisma.destination.findUnique({ 
+                    where: { id: item.entityId },
+                    include: { activities: true }
+                });
+                return {
+                    id: item.id,
+                    entityId: item.entityId,
+                    destinationName: dest ? dest.name : 'Unknown Destination',
+                    date: item.createdAt,
+                    budget: dest ? parseFloat(dest.avgCost?.replace(/[^0-9.-]+/g,"") || '0') : 0,
+                    activities: dest?.activities || [],
+                    image: dest?.coverImage || null
+                };
+            }
+            return { id: item.id, destinationName: 'Unknown', date: item.createdAt, budget: 0, activities: [] };
+        }));
+
+        res.status(200).json({ success: true, data: enriched });
     } catch (error) {
         console.error(`[GET /wishlist] Error:`, error);
         res.status(500).json({ success: false, error: error.message });

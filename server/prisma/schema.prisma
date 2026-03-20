@@ -250,6 +250,8 @@ model Inquiry {
   name        String
   email       String
   phone       String
+  destinationId String?
+  destinationName String?
   state       String?
   district    String?
   itinerary   Json?

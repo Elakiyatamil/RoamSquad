@@ -32,6 +32,8 @@ exports.createInquiry = async (req, res) => {
       totalBudget,
       startDate,
       tripDate,
+      destinationId,
+      destinationName
     } = req.body;
 
     const effectiveUserId = req.user?.id || userId || null;
@@ -55,6 +57,8 @@ exports.createInquiry = async (req, res) => {
         name,
         email,
         phone,
+        destinationId: destinationId ?? null,
+        destinationName: destinationName ?? null,
         state: state ?? null,
         district: district ?? null,
         itinerary: itinerary ?? null,

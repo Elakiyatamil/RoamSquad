@@ -56,56 +56,54 @@ export default function JourneyDetails() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl p-5 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Name</p>
-            <p className="font-bold text-forest">{inquiry.name}</p>
+            <p className="font-bold text-forest">{inquiry.name || 'Not provided'}</p>
           </div>
           <div className="bg-white rounded-2xl p-5 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Trip date</p>
-            <p className="font-bold text-forest">{new Date(inquiry.tripDate || inquiry.startDate).toLocaleDateString()}</p>
+            <p className="font-bold text-forest">{(inquiry.tripDate || inquiry.startDate) ? new Date(inquiry.tripDate || inquiry.startDate).toLocaleDateString() : 'Not provided'}</p>
           </div>
           <div className="bg-white rounded-2xl p-5 border border-forest/5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">State</p>
-            <p className="font-bold text-forest">{inquiry.state || '-'}</p>
-          </div>
-          <div className="bg-white rounded-2xl p-5 border border-forest/5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">District</p>
-            <p className="font-bold text-forest">{inquiry.district || '-'}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Destination</p>
+            <p className="font-bold text-forest">{inquiry.destinationName || inquiry.district || inquiry.state || 'Custom Trip'}</p>
           </div>
           <div className="bg-white rounded-2xl p-5 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">Days</p>
-            <p className="font-bold text-forest">{inquiry.days ?? itinerary.days ?? '-'}</p>
+            <p className="font-bold text-forest">{inquiry.days ?? itinerary.days ?? 'Not provided'}</p>
           </div>
           <div className="bg-white rounded-2xl p-5 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-1">People</p>
-            <p className="font-bold text-forest">{inquiry.people ?? itinerary.people ?? '-'}</p>
+            <p className="font-bold text-forest">{inquiry.people ?? itinerary.people ?? 'Not provided'}</p>
           </div>
         </div>
 
         <div className="bg-white rounded-[2.5rem] p-8 border border-forest/5 shadow-sm">
           <h2 className="text-2xl font-display font-bold text-forest mb-6">Itinerary</h2>
           <div className="space-y-6">
-            {timeline.map((day) => (
+            {(Array.isArray(timeline) && timeline.length > 0) ? timeline.map((day) => (
               <div key={day.day} className="border-l-2 border-gold/40 pl-5">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-2">Day {day.day}</p>
                 <ul className="space-y-1">
-                  {(day.activities || []).map((act) => (
+                  {(Array.isArray(day.activities) ? day.activities : []).map((act) => (
                     <li key={act.planId || `${act.destinationName}:${act.name}`} className="font-bold text-forest/80">
                       {act.destinationName}: {act.name}
                     </li>
                   ))}
                 </ul>
               </div>
-            ))}
+            )) : (
+                <p className="text-forest/60 italic">No itinerary details saved.</p>
+            )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl p-6 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Accommodation</p>
-            <p className="font-bold text-forest">{inquiry.hotelSnapshot?.name || inquiry.hotel || '-'}</p>
+            <p className="font-bold text-forest">{inquiry.hotelSnapshot?.name || inquiry.hotel || 'Not provided'}</p>
           </div>
           <div className="bg-white rounded-2xl p-6 border border-forest/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Food</p>
-            <p className="font-bold text-forest">{inquiry.foodSnapshot?.name || inquiry.food || '-'}</p>
+            <p className="font-bold text-forest">{inquiry.foodSnapshot?.name || inquiry.food || 'Not provided'}</p>
           </div>
           <div className="bg-white rounded-2xl p-6 border border-forest/5 sm:col-span-2">
             <p className="text-[10px] font-bold uppercase tracking-widest text-forest/40 mb-2">Budget</p>
