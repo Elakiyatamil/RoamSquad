@@ -143,14 +143,12 @@ const MyTripsPage = () => {
                                         >
                                             <Copy size={20} />
                                         </button>
-                                        {trip?.id && (
                                         <button 
-                                            onClick={() => navigate(`/journey/${trip.id}`)}
+                                            onClick={() => navigate(`/journey/${trip.id || trip._id}`)}
                                             className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest hover:text-cream transition-all"
                                         >
-                                            <ChevronRight size={20} />
+                                            View Details
                                         </button>
-                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -194,7 +192,7 @@ const MyTripsPage = () => {
                                     <p className="text-forest/40 text-[12px] font-bold uppercase tracking-widest mb-4">
                                         Budget: ₹{Number(item.budget || 0).toLocaleString()}
                                     </p>
-                                    <Link to={item.path} className="text-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                    <Link to={`/journey/${item.id || item._id}`} className="text-gold font-bold flex items-center gap-1 hover:gap-2 transition-all">
                                         View Details <ChevronRight size={16} />
                                     </Link>
                                 </div>

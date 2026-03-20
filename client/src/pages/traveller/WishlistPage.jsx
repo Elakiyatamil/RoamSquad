@@ -88,10 +88,10 @@ const WishlistPage = () => {
                                     </div>
 
                                     <Link 
-                                        to={item.isLead ? "/planner" : `/destinations/${item.entityId}`}
+                                        to={`/journey/${item.id}`}
                                         className="flex items-center justify-between py-4 border-t border-forest/5 text-forest font-bold group-hover:text-gold transition-colors"
                                     >
-                                        {item.isLead ? "Resume Planning" : "View Details"} <ArrowRight size={20} />
+                                        View Details <ArrowRight size={20} />
                                     </Link>
                                 </div>
                             </motion.div>
