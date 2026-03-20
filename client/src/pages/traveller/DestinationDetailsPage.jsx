@@ -27,10 +27,11 @@ const DestinationDetailsPage = () => {
         const loadWishlist = async () => {
             if (isAuthenticated && token) {
                 try {
-                    const res = await axios.get(`${API_BASE.replace('/public', '/wishlist')}`, {
+                    const res = await axios.get(`${API_BASE.replace('/public', '/wishlist')}?email=${useAuthStore.getState().user?.email}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    const serverItems = res.data.map(i => ({ id: i.entityId, type: i.entityType }));
+                    const items = res.data?.data || [];
+                    const serverItems = items.map(i => ({ id: i.entityId || i.id, type: i.entityType || 'Destination' }));
                     setWishlist(serverItems);
                     return;
                 } catch (err) {
@@ -55,7 +56,9 @@ const DestinationDetailsPage = () => {
                     toast.success("Removed from wishlist");
                 } else {
                     await axios.post(`${API_BASE.replace('/public', '/wishlist')}`, {
-                        entityType: 'Destination', entityId: dest.id
+                        entityType: 'Destination', 
+                        entityId: dest.id,
+                        email: useAuthStore.getState().user?.email
                     }, {
                         headers: { Authorization: `Bearer ${token}` }
                     });

@@ -31,9 +31,9 @@ const MyTripsPage = () => {
             }
             
             // Load Wishlist
-            if (isAuthenticated && token) {
+            if (isAuthenticated && token && useAuthStore.getState().user?.email) {
                 try {
-                    const resW = await axios.get('http://localhost:5000/api/wishlist', {
+                    const resW = await axios.get(`http://localhost:5000/api/wishlist?email=${useAuthStore.getState().user.email}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setWishlist(resW.data?.data || []);
@@ -41,7 +41,7 @@ const MyTripsPage = () => {
                     console.error("[MyTripsPage] Wishlist Fetch Error:", err);
                 }
             } else {
-                setWishlist([]); // Strict requirement: do not use local state
+                setWishlist([]); 
             }
         };
         load();
