@@ -122,14 +122,29 @@ const deleteEvent = async (req, res) => {
 const joinEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone } = req.body;
-        const email = req.user?.email || req.body.email;
+        const { name, phone, email: bodyEmail } = req.body;
+        const email = req.user?.email || bodyEmail;
+        
+        console.log("New Lead (Event):", req.body);
+
+        if (!email || !name || !phone) {
+            return res.status(400).json({ success: false, error: 'Name, Email, and Phone are required' });
+        }
+
         const interest = await prisma.eventInterest.create({
-            data: { eventId: id, email, name: name || req.user?.name, phone }
+            data: { 
+                eventId: id, 
+                email, 
+                name, 
+                phone 
+            }
         });
-        res.json(interest);
+        
+        console.log(`[POST /events/${id}/join] Created registration: ${interest.id}`);
+        res.status(201).json({ success: true, data: interest });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /events/${id}/join] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

@@ -9,11 +9,12 @@ import { Heart } from 'lucide-react';
 const API_BASE = 'http://localhost:5000/api/public';
 
 const DiscoveryPage = () => {
-    const { data: destinations, isLoading } = useQuery({
+    const { data: destinations = [], isLoading } = useQuery({
         queryKey: ['public-destinations'],
         queryFn: async () => {
             const res = await axios.get(`${API_BASE}/destinations`);
-            return res.data;
+            console.log("[DiscoveryPage] API Response:", res.data);
+            return res.data.data || [];
         }
     });
 
@@ -101,7 +102,7 @@ const DiscoveryPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {destinations?.map((dest, idx) => (
+                        {Array.isArray(destinations) && destinations.map((dest, idx) => (
                             <motion.div
                                 key={dest.id}
                                 initial={{ opacity: 0, y: 20 }}

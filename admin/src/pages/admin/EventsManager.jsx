@@ -109,7 +109,7 @@ export default function EventsManager() {
   const { data: interests = [] } = useQuery({
     queryKey: ['eventInterests'],
     queryFn: async () => {
-      const res = await apiClient.get('/events/interests');
+      const res = await apiClient.get('/event-interest');
       console.log("[EventsManager] Interests API Response:", res.data);
       return res.data.data || [];
     }

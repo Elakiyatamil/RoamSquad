@@ -20,8 +20,10 @@ const MyTripsPage = () => {
                     const res = await axios.get('http://localhost:5000/api/inquiry/my', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    setTrips(res.data || []);
-                } catch {
+                    console.log("[MyTripsPage] Fetched Trips:", res.data);
+                    setTrips(res.data.data || []);
+                } catch (err) {
+                    console.error("[MyTripsPage] Fetch Error:", err);
                     // fall back
                 }
             } else {
@@ -91,7 +93,7 @@ const MyTripsPage = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {trips.map((trip, idx) => {
+                        {Array.isArray(trips) && trips.map((trip, idx) => {
                             const statusConfig = getStatusConfig(trip.status);
                             const StatusIcon = statusConfig.icon;
                             

@@ -30,6 +30,18 @@ const PlannerPage = () => {
         food: ''
     });
 
+    // Sync auth details
+    React.useEffect(() => {
+        if (isAuthenticated && user) {
+            setConfig(prev => ({
+                ...prev,
+                userName: prev.userName || user.name || '',
+                userEmail: prev.userEmail || user.email || '',
+                userPhone: prev.userPhone || user.phone || ''
+            }));
+        }
+    }, [isAuthenticated, user]);
+
 
     const [pendingSubmit, setPendingSubmit] = useState(false);
 

@@ -13,6 +13,7 @@ const ensureInquiryModel = (res) => {
 
 exports.createInquiry = async (req, res) => {
   try {
+    console.log("New Lead (Inquiry):", req.body);
     if (!ensureInquiryModel(res)) return;
     const {
       userId,

@@ -49,7 +49,7 @@ export default function GlobalPackagesManager() {
   const { data: interests = [] } = useQuery({
     queryKey: ['packageInterests'],
     queryFn: async () => {
-      const res = await apiClient.get('/packages/interests');
+      const res = await apiClient.get('/package-interest');
       console.log("[GlobalPackagesManager] Interests API Response:", res.data);
       return res.data.data || [];
     }
@@ -146,15 +146,15 @@ export default function GlobalPackagesManager() {
               </tr>
             </thead>
             <tbody>
-              {interests.map(i => (
-                <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5">
-                  <td className="p-4 font-bold text-ink">{i.email}</td>
-                  <td className="p-4 text-ink/70">{i.name || '-'}</td>
-                  <td className="p-4 text-ink/70">{i.phone || '-'}</td>
-                  <td className="p-4 text-ink/70 font-semibold">{i.package?.name || '-'}</td>
-                  <td className="p-4 text-ink/50 text-xs">{new Date(i.createdAt).toLocaleString()}</td>
-                </tr>
-              ))}
+                {interests.map((i) => (
+                  <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
+                    <td className="p-4 font-bold text-ink">{i.email}</td>
+                    <td className="p-4 text-ink/70">{i.name || '-'}</td>
+                    <td className="p-4 text-ink/70 font-bold text-red">{i.phone || '-'}</td>
+                    <td className="p-4 text-ink/70 font-semibold">{i.package?.name || '-'}</td>
+                    <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
               {interests.length === 0 && (
                 <tr><td colSpan={5} className="p-10 text-center text-ink/40 font-bold">No interests yet.</td></tr>
               )}

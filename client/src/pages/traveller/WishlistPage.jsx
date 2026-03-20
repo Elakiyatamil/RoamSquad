@@ -10,7 +10,7 @@ const API = 'http://localhost:5000/api';
 const WishlistPage = () => {
     const [wishlist, setWishlist] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, token } = useAuthStore();
 
     useEffect(() => {
         const fetchWishlist = async () => {
@@ -19,7 +19,9 @@ const WishlistPage = () => {
                 return;
             }
             try {
-                const res = await axios.get(`${API}/wishlist/leads/${user.email}`);
+                const res = await axios.get(`${API}/wishlist/leads/${user.email}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 console.log("[WishlistPage] API Response:", res.data);
                 setWishlist(res.data.data || []);
             } catch (err) {
@@ -30,7 +32,7 @@ const WishlistPage = () => {
         };
 
         fetchWishlist();
-    }, [user?.email, isAuthenticated]);
+    }, [user?.email, isAuthenticated, token]);
 
     if (isLoading) return (
         <div className="flex items-center justify-center py-32 text-forest/40">
@@ -67,7 +69,7 @@ const WishlistPage = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     <AnimatePresence>
-                        {wishlist.map((item) => (
+                        {Array.isArray(wishlist) && wishlist.map((item) => (
                             <motion.div
                                 key={item.id}
                                 layout

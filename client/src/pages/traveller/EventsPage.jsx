@@ -12,7 +12,7 @@ const API = 'http://localhost:5000/api';
 export default function EventsPage() {
     const [showAuth, setShowAuth] = useState(false);
     const [pendingId, setPendingId] = useState(null);
-    const { isAuthenticated } = useAuthStore();
+    const { isAuthenticated, user } = useAuthStore();
     const token = useAuthStore(s => s.token);
 
     const { data: events = [], isLoading, error } = useQuery({
@@ -25,12 +25,25 @@ export default function EventsPage() {
     });
 
     const joinMutation = useMutation({
-        mutationFn: async (eventId) => {
-            return axios.post(`${API}/events/${eventId}/join`, {}, {
+        mutationFn: async ({ eventId, eventTitle, contactNumber }) => {
+            const payload = {
+                email: user?.email,
+                name: user?.name,
+                phone: user?.phone,
+                eventId,
+                eventTitle,
+                contactNumber,
+                createdAt: new Date()
+            };
+            console.log("Event interest sent", payload);
+            return axios.post(`${API}/events/${eventId}/join`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
         },
-        onSuccess: () => toast.success("You're registered! See you there 🎉"),
+        onSuccess: () => {
+            alert("Your interest has been sent to admin. They will contact you.");
+            toast.success("Registration sent! 🎉");
+        },
         onError: (err) => {
             if (err.response?.status === 401) {
                 toast.error("Please log in to join events.");
@@ -40,13 +53,18 @@ export default function EventsPage() {
         }
     });
 
-    const handleJoin = (eventId) => {
+    const handleJoin = (evt) => {
         if (!isAuthenticated) {
-            setPendingId(eventId);
+            alert("Please login first");
+            setPendingId(evt.id);
             setShowAuth(true);
             return;
         }
-        joinMutation.mutate(eventId);
+        joinMutation.mutate({ 
+            eventId: evt.id, 
+            eventTitle: evt.title, 
+            contactNumber: evt.contactNumber || '' 
+        });
     };
 
     const formatDate = (dt) => {
@@ -145,7 +163,7 @@ export default function EventsPage() {
                                     </div>
 
                                     <button
-                                        onClick={() => handleJoin(evt.id)}
+                                        onClick={() => handleJoin(evt)}
                                         disabled={joinMutation.isPending}
                                         className="mt-auto self-start px-8 py-4 bg-forest text-cream rounded-2xl font-bold hover:bg-forest/90 hover:scale-[1.02] active:scale-100 transition-all flex items-center gap-2 disabled:opacity-50"
                                     >
@@ -161,7 +179,14 @@ export default function EventsPage() {
 
             <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} onSuccess={() => {
                 setShowAuth(false);
-                if (pendingId) joinMutation.mutate(pendingId);
+                if (pendingId) {
+                    const evt = events.find(e => e.id === pendingId);
+                    if (evt) joinMutation.mutate({ 
+                        eventId: evt.id, 
+                        eventTitle: evt.title, 
+                        contactNumber: evt.contactNumber || '' 
+                    });
+                }
             }} />
         </div>
     );

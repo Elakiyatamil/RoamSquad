@@ -313,7 +313,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                         className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium"
                                     >
                                         <option value="">Select Country</option>
-                                        {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        {(Array.isArray(countries) ? countries : []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
@@ -325,7 +325,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                         className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
                                     >
                                         <option value="">Select State</option>
-                                        {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                        {(Array.isArray(states) ? states : []).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
@@ -337,7 +337,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                         className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium disabled:opacity-50"
                                     >
                                         <option value="">Select District</option>
-                                        {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                        {(Array.isArray(districts) ? districts : []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                                     </select>
                                 </div>
                             </div>
@@ -994,7 +994,7 @@ const DestinationManager = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                destinations.map((dest, i) => (
+                                (Array.isArray(destinations) ? destinations : []).map((dest, i) => (
                                     <motion.tr
                                         key={dest.id}
                                         initial={{ opacity: 0, y: 10 }}

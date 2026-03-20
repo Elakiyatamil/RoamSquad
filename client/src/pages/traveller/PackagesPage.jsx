@@ -12,7 +12,7 @@ const API = 'http://localhost:5000/api';
 export default function PackagesPage() {
     const [showAuth, setShowAuth] = useState(false);
     const [pendingId, setPendingId] = useState(null);
-    const { isAuthenticated } = useAuthStore();
+    const { isAuthenticated, user } = useAuthStore();
     const token = useAuthStore(s => s.token);
 
     const { data: packages = [], isLoading } = useQuery({
@@ -25,22 +25,35 @@ export default function PackagesPage() {
     });
 
     const interestMutation = useMutation({
-        mutationFn: async (packageId) => {
-            return axios.post(`${API}/packages/${packageId}/interest`, {}, {
+        mutationFn: async ({ packageId, packageName }) => {
+            const payload = {
+                email: user?.email,
+                name: user?.name,
+                phone: user?.phone,
+                packageId,
+                packageName,
+                createdAt: new Date()
+            };
+            console.log("Package interest sent to admin", payload);
+            return axios.post(`${API}/packages/${packageId}/interest`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
         },
-        onSuccess: () => toast.success("We'll reach out to you soon! 🚀"),
+        onSuccess: () => {
+            alert("Your interest has been sent to admin. They will contact you.");
+            toast.success("Interest sent! 🚀");
+        },
         onError: () => toast.error("Failed to register interest.")
     });
 
-    const handleInterest = (packageId) => {
+    const handleInterest = (pkg) => {
         if (!isAuthenticated) {
-            setPendingId(packageId);
+            alert("Please login first");
+            setPendingId(pkg.id);
             setShowAuth(true);
             return;
         }
-        interestMutation.mutate(packageId);
+        interestMutation.mutate({ packageId: pkg.id, packageName: pkg.name });
     };
 
     if (isLoading) return (
@@ -110,7 +123,7 @@ export default function PackagesPage() {
                                     </ul>
                                 )}
                                 <button
-                                    onClick={() => handleInterest(pkg.id)}
+                                    onClick={() => handleInterest(pkg)}
                                     disabled={interestMutation.isPending}
                                     className="mt-auto w-full py-4 bg-forest text-cream rounded-2xl font-bold hover:bg-forest/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
@@ -125,7 +138,10 @@ export default function PackagesPage() {
 
             <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} onSuccess={() => {
                 setShowAuth(false);
-                if (pendingId) interestMutation.mutate(pendingId);
+                if (pendingId) {
+                    const pkg = packages.find(p => p.id === pendingId);
+                    if (pkg) interestMutation.mutate({ packageId: pkg.id, packageName: pkg.name });
+                }
             }} />
         </div>
     );

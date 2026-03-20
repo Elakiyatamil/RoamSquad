@@ -221,7 +221,7 @@ export default function InquiryManager() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((i) => (
+                {(Array.isArray(filtered) ? filtered : []).map((i) => (
                   <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
                     <td className="p-4 font-bold text-ink">{i.name}</td>
                     <td className="p-4 text-ink/70 font-semibold">{i.phone}</td>
@@ -260,7 +260,7 @@ export default function InquiryManager() {
                 </tr>
               </thead>
               <tbody>
-                {filteredWishlist.map((w) => (
+                {(Array.isArray(filteredWishlist) ? filteredWishlist : []).map((w) => (
                   <tr key={w.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
                     <td className="p-4 font-bold text-ink">{w.email}</td>
                     <td className="p-4 text-ink/70 font-semibold">{w.destination}</td>

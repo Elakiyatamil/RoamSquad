@@ -218,7 +218,7 @@ const ActivitiesManager = () => {
         queryKey: ['countries'],
         queryFn: async () => {
             const res = await apiClient.get('/countries');
-            return res.data;
+            return res.data.data || [];
         }
     });
 
@@ -226,7 +226,7 @@ const ActivitiesManager = () => {
         queryKey: ['states', selectedCountry],
         queryFn: async () => {
             const res = await apiClient.get(`/countries/${selectedCountry}/states`);
-            return res.data;
+            return res.data.data || [];
         },
         enabled: !!selectedCountry
     });
@@ -235,7 +235,7 @@ const ActivitiesManager = () => {
         queryKey: ['districts', selectedState],
         queryFn: async () => {
             const res = await apiClient.get(`/states/${selectedState}/districts`);
-            return res.data;
+            return res.data.data || [];
         },
         enabled: !!selectedState
     });
@@ -244,7 +244,7 @@ const ActivitiesManager = () => {
         queryKey: ['destinations', selectedDistrict],
         queryFn: async () => {
             const res = await apiClient.get(`/districts/${selectedDistrict}/destinations`);
-            return res.data;
+            return res.data.data || [];
         },
         enabled: !!selectedDistrict
     });
@@ -253,8 +253,8 @@ const ActivitiesManager = () => {
     const { data: activities = [], isLoading } = useQuery({
         queryKey: ['activities', selectedDestId],
         queryFn: async () => {
-            const res = await apiClient.get(`/activities?destinationId=${selectedDestId}`);
-            return res.data;
+            const res = await apiClient.get(`/destinations/${selectedDestId}/activities`);
+            return res.data.data || [];
         },
         enabled: !!selectedDestId
     });
@@ -291,28 +291,28 @@ const ActivitiesManager = () => {
                     <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Country</label>
                     <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedState(''); setSelectedDistrict(''); setSelectedDestId(''); }} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink">
                         <option value="">Select Country</option>
-                        {countries.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        {(Array.isArray(countries) ? countries : []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                 </div>
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">State</label>
                     <select value={selectedState} onChange={e => { setSelectedState(e.target.value); setSelectedDistrict(''); setSelectedDestId(''); }} disabled={!selectedCountry} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
                         <option value="">Select State</option>
-                        {states.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        {(Array.isArray(states) ? states : []).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                 </div>
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">District</label>
                     <select value={selectedDistrict} onChange={e => { setSelectedDistrict(e.target.value); setSelectedDestId(''); }} disabled={!selectedState} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
                         <option value="">Select District</option>
-                        {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        {(Array.isArray(districts) ? districts : []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                 </div>
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Destination</label>
                     <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} disabled={!selectedDistrict} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
                         <option value="">Select Destination</option>
-                        {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        {(Array.isArray(destinations) ? destinations : []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                 </div>
             </div>
