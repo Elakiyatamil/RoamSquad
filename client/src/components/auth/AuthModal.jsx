@@ -18,7 +18,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
         setError('');
         try {
             const res = await axios.post(`http://localhost:5000/api${endpoint}`, formData);
-            const { user, token } = res.data;
+            const { user, token } = res.data.data;
             login(user, token);
             
             // Sync Wishlist

@@ -43,8 +43,9 @@ const LoginPage = () => {
         setError('');
         try {
             const response = await apiClient.post('/auth/login', { email, password });
-            login(response.data.user, response.data.token);
-            localStorage.setItem("token", response.data.token);
+            const { user, token } = response.data.data;
+            login(user, token);
+            localStorage.setItem("token", token);
 
             if (rememberMe) {
                 localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, password }));
