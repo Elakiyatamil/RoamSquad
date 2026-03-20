@@ -57,12 +57,13 @@ const WishlistPage = () => {
                     <AnimatePresence>
                         {Array.isArray(wishlist) && wishlist.length > 0 ? wishlist.map((item, index) => (
                             <motion.div
-                                key={item.id || index}
+                                key={item.id || item._id || index}
                                 layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                className="group bg-white rounded-[2.5rem] overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all"
+                                onClick={() => navigate(`/journey/${item.id || item._id}`)}
+                                className="group bg-white rounded-[2.5rem] overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all cursor-pointer"
                             >
                                 <div className="relative h-64 overflow-hidden bg-forest/5 flex items-center justify-center">
                                     {item.image ? (
@@ -87,12 +88,9 @@ const WishlistPage = () => {
                                         </p>
                                     </div>
 
-                                    <Link 
-                                        to={`/journey/${item.id}`}
-                                        className="flex items-center justify-between py-4 border-t border-forest/5 text-forest font-bold group-hover:text-gold transition-colors"
-                                    >
+                                    <div className="flex items-center justify-between py-4 border-t border-forest/5 text-forest font-bold group-hover:text-gold transition-colors">
                                         View Details <ArrowRight size={20} />
-                                    </Link>
+                                    </div>
                                 </div>
                             </motion.div>
                         )) : (
