@@ -832,10 +832,10 @@ const DestinationForm = ({ destination, onClose }) => {
                                 const results = await Promise.all(items.map(item => {
                                     if (item.id) {
                                         // Update existing
-                                        return apiClient.patch(`/${path}/${item.id}`, item).then(res => res.data);
+                                        return apiClient.patch(`/${path}/${item.id}`, item).then(res => res.data?.data || res.data);
                                     } else {
                                         // Create new
-                                        return apiClient.post(`/${path}`, { ...item, destinationId: destination.id }).then(res => res.data);
+                                        return apiClient.post(`/${path}`, { ...item, destinationId: destination.id }).then(res => res.data?.data || res.data);
                                     }
                                 }));
 

@@ -36,9 +36,20 @@ export default function JourneyDetails() {
   if (isLoading) return <div className="container mx-auto px-6 py-16 text-forest/60 font-bold">Loading…</div>
   if (error) return <div className="container mx-auto px-6 py-16 text-red font-bold">Failed to load.</div>
 
-  const inquiry = data
-  const itinerary = inquiry?.itinerarySnapshot || inquiry?.itinerary || {}
-  const timeline = Array.isArray(itinerary?.timeline) ? itinerary.timeline : []
+  const inquiry = data;
+  
+  // Safely extract the itinerary array assuming the backend could store it directly as an array
+  // OR as an object with { timeline: [...] }
+  let itineraryArray = [];
+  if (Array.isArray(inquiry?.itinerary)) {
+      itineraryArray = inquiry.itinerary;
+  } else if (Array.isArray(inquiry?.itinerary?.timeline)) {
+      itineraryArray = inquiry.itinerary.timeline;
+  } else if (Array.isArray(inquiry?.itinerarySnapshot?.timeline)) {
+      itineraryArray = inquiry.itinerarySnapshot.timeline;
+  }
+
+  const timeline = itineraryArray;
 
   return (
     <div className="container mx-auto px-6 py-16">
@@ -83,11 +94,15 @@ export default function JourneyDetails() {
               <div key={day.day} className="border-l-2 border-gold/40 pl-5">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-2">Day {day.day}</p>
                 <ul className="space-y-1">
-                  {(Array.isArray(day.activities) ? day.activities : []).map((act) => (
+                  {Array.isArray(day.activities) ? day.activities.map((act) => (
                     <li key={act.planId || `${act.destinationName}:${act.name}`} className="font-bold text-forest/80">
                       {act.destinationName}: {act.name}
                     </li>
-                  ))}
+                  )) : (
+                    <li className="font-bold text-forest/80">
+                      {day.location || 'Activity'}: {day.title || 'Details to be added'}
+                    </li>
+                  )}
                 </ul>
               </div>
             )) : (
