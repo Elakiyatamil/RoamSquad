@@ -81,7 +81,7 @@ const DetailModal = ({ inquiry, onClose, onStatusUpdate }) => {
             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-3">Itinerary</p>
             {timeline.length ? (
               <div className="space-y-3">
-                {timeline.map((day) => (
+                {(Array.isArray(timeline) ? timeline : []).map((day) => (
                   <div key={day.day} className="border-l-2 border-gold/30 pl-4 py-1">
                     <p className="text-[10px] font-bold text-gold uppercase tracking-tighter mb-1">Day {day.day}</p>
                     <div className="space-y-1">
@@ -133,7 +133,6 @@ export default function InquiryManager() {
     queryKey: ['inquiries'],
     queryFn: async () => {
       const res = await apiClient.get('/inquiry');
-      console.log("[InquiryManager] Inquiries API Response:", res.data);
       return res.data.data || [];
     },
   });
@@ -142,7 +141,6 @@ export default function InquiryManager() {
     queryKey: ['wishlistLeads'],
     queryFn: async () => {
       const res = await apiClient.get('/wishlist/leads');
-      console.log("[InquiryManager] Wishlist API Response:", res.data);
       return res.data.data || [];
     },
   });
@@ -265,10 +263,44 @@ export default function InquiryManager() {
                     <td className="p-4 font-bold text-ink">{w.email}</td>
                     <td className="p-4 text-ink/70 font-semibold">{w.destination}</td>
                     <td className="p-4 text-ink/60 font-semibold">{new Date(w.createdAt).toLocaleString()}</td>
-                    <td className="p-4 text-ink/60 text-xs">
-                      <pre className="max-w-xs truncate overflow-hidden bg-ink/5 p-2 rounded-lg">
-                          {JSON.stringify(w.itinerary?.activities?.map(a => a.name) || w.itinerary, null, 2)}
-                      </pre>
+                    <td className="p-4 text-ink/60 text-xs align-top">
+                      {w.itinerary ? (
+                          <div className="space-y-2 bg-ink/5 p-4 rounded-xl max-w-sm whitespace-normal">
+                              {w.itinerary.user && (
+                                  <div className="mb-3 pb-3 border-b border-ink/10">
+                                      <p className="font-bold text-ink">User: <span className="font-medium text-ink/70">{w.itinerary.user.name || 'N/A'}</span></p>
+                                      <p className="font-bold text-ink">Phone: <span className="font-medium text-ink/70">{w.itinerary.user.phone || 'N/A'}</span></p>
+                                      <p className="font-bold text-ink mt-2">Details: <span className="font-medium text-ink/70">{w.itinerary.days} Days • {w.itinerary.travelType} • {w.itinerary.vibe}</span></p>
+                                  </div>
+                              )}
+                              <p className="font-bold text-ink mb-2">Est. Budget: ₹{Number(w.totalBudget || 0).toLocaleString()}</p>
+                              
+                              {Array.isArray(w.itinerary.activities) && w.itinerary.activities.length > 0 && (
+                                  <div className="mb-2">
+                                      <p className="font-bold text-ink/80 mb-1">Selected Activities:</p>
+                                      <ul className="list-disc list-inside text-[11px] text-ink/60 space-y-1">
+                                          {w.itinerary.activities.map((a, i) => (
+                                              <li key={i}>{a.name} <span className="opacity-60 text-[9px]">({a.destinationName})</span></li>
+                                          ))}
+                                      </ul>
+                                  </div>
+                              )}
+                              
+                              {Array.isArray(w.itinerary.stays) && w.itinerary.stays.length > 0 && (
+                                  <div className="mt-2">
+                                      <p className="font-bold text-ink/80">Stay: <span className="font-normal text-ink/60 text-[11px]">{w.itinerary.stays[0].tier} Tier Stay</span></p>
+                                  </div>
+                              )}
+                              
+                              {Array.isArray(w.itinerary.food) && w.itinerary.food.length > 0 && (
+                                  <div className="mt-2">
+                                      <p className="font-bold text-ink/80">Food Options: <span className="font-normal text-ink/60 text-[11px]">{w.itinerary.food.map(f => f.name).join(', ')}</span></p>
+                                  </div>
+                              )}
+                          </div>
+                      ) : (
+                          <span className="italic text-ink/40">No structured plan available</span>
+                      )}
                     </td>
                   </tr>
                 ))}

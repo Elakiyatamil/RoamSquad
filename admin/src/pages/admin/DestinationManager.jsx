@@ -54,7 +54,6 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['destination-full', destination?.id],
         queryFn: async () => {
             const res = await apiClient.get(`/destinations/${destination.id}`);
-            console.log("[DestinationForm] Full Destination Response:", res.data);
             return res.data.data;
         },
         enabled: !!destination?.id
@@ -80,7 +79,6 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['countries'],
         queryFn: async () => {
             const res = await apiClient.get('/countries');
-            console.log("[DestinationForm] Countries Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -89,7 +87,6 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['states', selectedCountry],
         queryFn: async () => {
             const res = await apiClient.get(`/countries/${selectedCountry}/states`);
-            console.log("[DestinationForm] States Response:", res.data);
             return res.data.data || [];
         },
         enabled: !!selectedCountry
@@ -99,7 +96,6 @@ const DestinationForm = ({ destination, onClose }) => {
         queryKey: ['districts', selectedState],
         queryFn: async () => {
             const res = await apiClient.get(`/states/${selectedState}/districts`);
-            console.log("[DestinationForm] Districts Response:", res.data);
             return res.data.data || [];
         },
         enabled: !!selectedState
@@ -212,7 +208,7 @@ const DestinationForm = ({ destination, onClose }) => {
             </div>
 
             <div className="flex border-b border-ink/5 bg-white overflow-x-auto no-scrollbar scroll-smooth">
-                {tabs.map(tab => {
+                {(Array.isArray(tabs) ? tabs : []).map(tab => {
                     const getIcon = () => {
                         switch(tab) {
                             case 'Basic Info': return <Info size={14} />;
@@ -371,11 +367,11 @@ const DestinationForm = ({ destination, onClose }) => {
                         </div>
                         
                         <div className="space-y-4">
-                            {formData.travelOptions.length === 0 ? (
+                            {(Array.isArray(formData.travelOptions) ? formData.travelOptions : []).length === 0 ? (
                                 <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
                                     <p className="text-sm font-bold">No travel options added yet.</p>
                                 </div>
-                            ) : formData.travelOptions.map((opt, i) => (
+                            ) : (Array.isArray(formData.travelOptions) ? formData.travelOptions : []).map((opt, i) => (
                                 <div key={i} className="p-5 bg-ink/5 rounded-2xl space-y-4 relative group">
                                     <button 
                                         onClick={() => removeItem('travelOptions', i)}
@@ -470,11 +466,11 @@ const DestinationForm = ({ destination, onClose }) => {
                         </div>
 
                         <div className="space-y-4">
-                            {formData.activities.length === 0 ? (
+                            {(Array.isArray(formData.activities) ? formData.activities : []).length === 0 ? (
                                 <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
                                     <p className="text-sm font-bold">No activities added yet.</p>
                                 </div>
-                            ) : formData.activities.map((act, i) => (
+                            ) : (Array.isArray(formData.activities) ? formData.activities : []).map((act, i) => (
                                 <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative">
                                     <button 
                                         onClick={() => removeItem('activities', i)}
@@ -551,11 +547,11 @@ const DestinationForm = ({ destination, onClose }) => {
                         </div>
 
                         <div className="space-y-4">
-                            {(formData.foodOptions || []).length === 0 ? (
+                            {(Array.isArray(formData.foodOptions) ? formData.foodOptions : []).length === 0 ? (
                                 <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
                                     <p className="text-sm font-bold">No food options added yet.</p>
                                 </div>
-                            ) : formData.foodOptions.map((food, i) => (
+                            ) : (Array.isArray(formData.foodOptions) ? formData.foodOptions : []).map((food, i) => (
                                 <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative">
                                     <button 
                                         onClick={() => removeItem('foodOptions', i)}
@@ -640,11 +636,11 @@ const DestinationForm = ({ destination, onClose }) => {
                         </div>
 
                         <div className="space-y-6">
-                            {formData.accommodation.length === 0 ? (
+                            {(Array.isArray(formData.accommodation) ? formData.accommodation : []).length === 0 ? (
                                 <div className="py-12 border-2 border-dashed border-ink/5 rounded-2xl flex flex-col items-center justify-center text-ink/20">
                                     <p className="text-sm font-bold">No accommodation data yet.</p>
                                 </div>
-                            ) : formData.accommodation.map((acc, i) => (
+                            ) : (Array.isArray(formData.accommodation) ? formData.accommodation : []).map((acc, i) => (
                                 <div key={i} className="p-6 bg-ink/5 rounded-3xl space-y-4 relative border border-ink/5">
                                     <button 
                                         onClick={() => removeItem('accommodation', i)}
@@ -831,7 +827,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                 };
                                 
                                 const { path, type } = endpointMapping[activeTab];
-                                const items = formData[type] || [];
+                                const items = Array.isArray(formData[type]) ? formData[type] : [];
 
                                 const results = await Promise.all(items.map(item => {
                                     if (item.id) {
@@ -883,13 +879,12 @@ const DestinationManager = () => {
         queryFn: async () => {
             const statusParam = statusFilter !== 'All' ? `&status=${statusFilter.toUpperCase()}` : '';
             const res = await apiClient.get(`/destinations?page=${page}&limit=10&search=${search}${statusParam}`);
-            console.log("[DestinationManager] List View Response:", res.data);
-            return res.data.data; // this contains { data, meta }
+            return res.data; // this contains { success, data, meta }
         },
         keepPreviousData: true
     });
 
-    const destinations = responseData?.data || [];
+    const destinations = Array.isArray(responseData?.data) ? responseData.data : [];
     const meta = responseData?.meta || { total: 0, totalPages: 1 };
 
     const deleteMutation = useMutation({
@@ -938,7 +933,7 @@ const DestinationManager = () => {
                     />
                 </div>
                 <div className="flex gap-2 w-full lg:w-auto">
-                    {['All', 'Active', 'Draft'].map(filter => (
+                    {(Array.isArray(['All', 'Active', 'Draft']) ? ['All', 'Active', 'Draft'] : []).map(filter => (
                         <button 
                             key={filter} 
                             onClick={() => { setStatusFilter(filter); setPage(1); }}
@@ -969,7 +964,7 @@ const DestinationManager = () => {
                         </thead>
                         <tbody className="divide-y divide-ink/5">
                             {isLoading ? (
-                                [...Array(8)].map((_, i) => (
+                                (Array.isArray([...Array(8)]) ? [...Array(8)] : []).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
                                         <td className="px-6 py-4"><div className="w-12 h-12 bg-ink/5 rounded-xl" /></td>
                                         <td className="px-6 py-4"><div className="h-4 bg-ink/5 rounded w-32" /></td>
@@ -987,7 +982,7 @@ const DestinationManager = () => {
                                             <div className="w-16 h-16 bg-ink/5 rounded-full flex items-center justify-center mb-4">
                                                 <MapPin size={24} className="text-ink/20" />
                                             </div>
-                                            <p className="font-bold text-ink mb-1">Start by adding your first destination.</p>
+                                            <p className="font-bold text-ink mb-1">No destinations found</p>
                                             <p className="text-xs text-ink/40 font-medium">Capture the essence of a new location to build your travel ecosystem.</p>
                                             <button onClick={() => { setEditingDestination(null); setIsFormOpen(true); }} className="mt-6 text-xs font-bold uppercase tracking-widest text-red hover:underline">Add Destination Now</button>
                                         </div>
@@ -1079,7 +1074,7 @@ const DestinationManager = () => {
                             <ChevronLeft size={18} />
                         </button>
                         <div className="flex items-center gap-1">
-                            {[...Array(meta.totalPages || 1)].map((_, i) => (
+                            {(Array.isArray([...Array(meta.totalPages || 1)]) ? [...Array(meta.totalPages || 1)] : []).map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setPage(i + 1)}

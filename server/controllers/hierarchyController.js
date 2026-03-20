@@ -16,7 +16,6 @@ const getTree = async (req, res) => {
                 }
             }
         });
-        console.log(`[GET /hierarchy/tree] Fetched full hierarchy tree`);
         res.status(200).json({ success: true, data: tree });
     } catch (error) {
         console.error(`[GET /hierarchy/tree] Error:`, error);
@@ -28,7 +27,6 @@ const getTree = async (req, res) => {
 const getCountries = async (req, res) => {
     try {
         const countries = await prisma.country.findMany();
-        console.log(`[GET /countries] Fetched ${countries.length} countries`);
         res.status(200).json({ success: true, data: countries });
     } catch (error) {
         console.error(`[GET /countries] Error:`, error);
@@ -43,7 +41,6 @@ const createCountry = async (req, res) => {
             data: { name, active, flag, code } 
         });
         await logAction(req.user, 'CREATE', 'Country', country.id, country.name);
-        console.log(`[POST /countries] Created country: ${country.id}`);
         res.status(201).json({ success: true, data: country });
     } catch (error) {
         console.error(`[POST /countries] Error:`, error);
@@ -58,7 +55,6 @@ const updateCountry = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Country', country.id, country.name);
-        console.log(`[PATCH /countries/${req.params.id}] Updated country`);
         res.status(200).json({ success: true, data: country });
     } catch (error) {
         console.error(`[PATCH /countries/${req.params.id}] Error:`, error);
@@ -83,7 +79,6 @@ const getStates = async (req, res) => {
         const states = await prisma.state.findMany({
             where: { countryId: req.params.id }
         });
-        console.log(`[GET /countries/${req.params.id}/states] Fetched ${states.length} states`);
         res.status(200).json({ success: true, data: states });
     } catch (error) {
         console.error(`[GET /countries/${req.params.id}/states] Error:`, error);
@@ -98,9 +93,10 @@ const createState = async (req, res) => {
             data: { name, active, countryId: req.params.id }
         });
         await logAction(req.user, 'CREATE', 'State', state.id, state.name);
-        res.json(state);
+        res.status(201).json({ success: true, data: state });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /countries/${req.params.id}/states] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -111,9 +107,10 @@ const updateState = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'State', state.id, state.name);
-        res.json(state);
+        res.status(200).json({ success: true, data: state });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /states/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -122,9 +119,10 @@ const deleteState = async (req, res) => {
         const state = await prisma.state.findUnique({ where: { id: req.params.id } });
         await prisma.state.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'State', req.params.id, state?.name);
-        res.json({ message: 'State deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'State deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /states/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -134,7 +132,6 @@ const getDistricts = async (req, res) => {
         const districts = await prisma.district.findMany({
             where: { stateId: req.params.id }
         });
-        console.log(`[GET /states/${req.params.id}/districts] Fetched ${districts.length} districts`);
         res.status(200).json({ success: true, data: districts });
     } catch (error) {
         console.error(`[GET /states/${req.params.id}/districts] Error:`, error);
@@ -149,9 +146,10 @@ const createDistrict = async (req, res) => {
             data: { name, active, stateId: req.params.id }
         });
         await logAction(req.user, 'CREATE', 'District', district.id, district.name);
-        res.json(district);
+        res.status(201).json({ success: true, data: district });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /states/${req.params.id}/districts] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -162,9 +160,10 @@ const updateDistrict = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'District', district.id, district.name);
-        res.json(district);
+        res.status(200).json({ success: true, data: district });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /districts/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -173,9 +172,10 @@ const deleteDistrict = async (req, res) => {
         const district = await prisma.district.findUnique({ where: { id: req.params.id } });
         await prisma.district.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'District', req.params.id, district?.name);
-        res.json({ message: 'District deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'District deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /districts/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -185,7 +185,6 @@ const getDestinationsByDistrict = async (req, res) => {
         const destinations = await prisma.destination.findMany({
             where: { districtId: req.params.id }
         });
-        console.log(`[GET /districts/${req.params.id}/destinations] Fetched ${destinations.length} destinations`);
         res.status(200).json({ success: true, data: destinations });
     } catch (error) {
         console.error(`[GET /districts/${req.params.id}/destinations] Error:`, error);
@@ -195,7 +194,7 @@ const getDestinationsByDistrict = async (req, res) => {
 
 const createDestination = async (req, res) => {
     try {
-        const { name, category = 'Other', rating = 0, status = 'DRAFT', active = true, coverImage = null, description = '' } = req.body;
+        const { name, category = 'Other', rating = 0, status = 'ACTIVE', active = true, coverImage = null, description = '' } = req.body;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const destination = await prisma.destination.create({
             data: { 
@@ -211,7 +210,6 @@ const createDestination = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
-        console.log(`[POST /districts/${req.params.id}/destinations] Created destination: ${destination.name}`);
         res.status(201).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[POST /districts/${req.params.id}/destinations] Error:`, error);
@@ -248,7 +246,6 @@ const getFlatDestinations = async (req, res) => {
             prisma.destination.count({ where })
         ]);
 
-        console.log(`[GET /destinations/flat] Fetched ${destinations.length} destinations (total: ${total})`);
         res.status(200).json({
             success: true,
             data: destinations,
@@ -288,7 +285,6 @@ const getFullDestination = async (req, res) => {
         if (!destination) {
             return res.status(404).json({ success: false, error: 'Destination not found' });
         }
-        console.log(`[GET /destinations/${req.params.id}] Fetched full destination`);
         res.status(200).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[GET /destinations/${req.params.id}] Error:`, error);
@@ -306,7 +302,7 @@ const updateDestination = async (req, res) => {
             category,
             rating: parseFloat(rating) || 0,
             active: active === true,
-            status: status || 'DRAFT',
+            status: status || 'ACTIVE',
             slug,
             coverImage,
             images,
@@ -323,7 +319,6 @@ const updateDestination = async (req, res) => {
         });
         
         await logAction(req.user, 'UPDATE', 'Destination', destination.id, destination.name);
-        console.log(`[PATCH /destinations/${req.params.id}] Updated destination: ${destination.name}`);
         res.status(200).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[PATCH /destinations/${req.params.id}] Error:`, error);
@@ -336,7 +331,6 @@ const deleteDestination = async (req, res) => {
         const destination = await prisma.destination.findUnique({ where: { id: req.params.id } });
         await prisma.destination.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Destination', req.params.id, destination?.name);
-        console.log(`[DELETE /destinations/${req.params.id}] Deleted destination: ${destination?.name}`);
         res.status(200).json({ success: true, data: { message: 'Destination deleted successfully' } });
     } catch (error) {
         console.error(`[DELETE /destinations/${req.params.id}] Error:`, error);

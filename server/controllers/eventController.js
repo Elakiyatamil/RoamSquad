@@ -6,7 +6,6 @@ const getEvents = async (req, res) => {
         const events = await prisma.upcomingEvent.findMany({
             orderBy: { dateTime: 'asc' }
         });
-        console.log(`[GET /events] Feteched ${events.length} events`);
         res.status(200).json({ success: true, data: events });
     } catch (error) {
         console.error(`[GET /events] Error:`, error);
@@ -19,7 +18,6 @@ const getEventsPublic = async (req, res) => {
         const events = await prisma.upcomingEvent.findMany({
             orderBy: { dateTime: 'asc' }
         });
-        console.log(`[GET /events/public] Feteched ${events.length} events`);
         res.status(200).json({ success: true, data: events });
     } catch (error) {
         console.error(`[GET /events/public] Error:`, error);
@@ -60,7 +58,6 @@ const createEvent = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Event', event.id, event.title);
-        console.log(`[POST /events] Created event: ${event.id}`);
         res.status(201).json({ success: true, data: event });
     } catch (error) {
         console.error('[POST /events] Error:', error);
@@ -98,7 +95,6 @@ const updateEvent = async (req, res) => {
             }
         });
         await logAction(req.user, 'UPDATE', 'Event', event.id, event.title);
-        console.log(`[PATCH /events/${req.params.id}] Updated event`);
         res.status(200).json({ success: true, data: event });
     } catch (error) {
         console.error(`[PATCH /events/${req.params.id}] Error:`, error);
@@ -111,8 +107,7 @@ const deleteEvent = async (req, res) => {
         const event = await prisma.upcomingEvent.findUnique({ where: { id: req.params.id } });
         await prisma.upcomingEvent.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Event', req.params.id, event?.title);
-        console.log(`[DELETE /events/${req.params.id}] Deleted event`);
-        res.status(200).json({ success: true, message: 'Event deleted' });
+        res.status(200).json({ success: true, data: { message: 'Event deleted' } });
     } catch (error) {
         console.error(`[DELETE /events/${req.params.id}] Error:`, error);
         res.status(500).json({ success: false, error: error.message });
@@ -125,7 +120,6 @@ const joinEvent = async (req, res) => {
         const { name, phone, email: bodyEmail } = req.body;
         const email = req.user?.email || bodyEmail;
         
-        console.log("New Lead (Event):", req.body);
 
         if (!email || !name || !phone) {
             return res.status(400).json({ success: false, error: 'Name, Email, and Phone are required' });
@@ -140,7 +134,6 @@ const joinEvent = async (req, res) => {
             }
         });
         
-        console.log(`[POST /events/${id}/join] Created registration: ${interest.id}`);
         res.status(201).json({ success: true, data: interest });
     } catch (error) {
         console.error(`[POST /events/${id}/join] Error:`, error);
@@ -154,7 +147,6 @@ const getEventInterests = async (req, res) => {
             orderBy: { createdAt: 'desc' },
             include: { event: { select: { title: true, dateTime: true } } }
         });
-        console.log(`[GET /events/interests] Fetched ${interests.length} registrations`);
         res.status(200).json({ success: true, data: interests });
     } catch (error) {
         console.error(`[GET /events/interests] Error:`, error);

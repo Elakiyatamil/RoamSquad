@@ -86,7 +86,7 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
                     <div className="space-y-4 pt-2">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Images (Max 4)</label>
                         <div className="flex gap-2 items-center">
-                            {form.images.map((img, i) => (
+                            {(Array.isArray(form.images) ? form.images : []).map((img, i) => (
                                 <div key={i} className="w-16 h-16 rounded-xl bg-ink/5 relative group overflow-hidden shrink-0">
                                     <img src={img} alt="" className="w-full h-full object-cover" />
                                     <button
@@ -271,7 +271,8 @@ const ActivitiesManager = () => {
     const openAdd = () => { setEditingActivity(null); setIsFormOpen(true); };
     const openEdit = (activity) => { setEditingActivity(activity); setIsFormOpen(true); };
 
-    const filtered = activities.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+    const activityList = Array.isArray(activities) ? activities : [];
+    const filtered = activityList.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
 
     return (
         <div className="space-y-8">
@@ -341,7 +342,7 @@ const ActivitiesManager = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filtered.map((activity, i) => (
+                    {(Array.isArray(filtered) ? filtered : []).map((activity, i) => (
                         <ActivityCard key={activity.id} activity={activity} index={i} onEdit={openEdit} onDelete={handleDelete} />
                     ))}
                 </div>

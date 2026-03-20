@@ -10,14 +10,11 @@ const login = async (req, res) => {
             where: { email }
         });
 
-        console.log(`Login attempt for: ${email}`);
         if (!user) {
-            console.log('User not found');
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log(`Password match: ${isMatch}`);
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
@@ -74,7 +71,6 @@ const register = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        console.log(`[AUTH] Registered user: ${user.email}`);
         res.status(201).json({
             success: true,
             data: {

@@ -92,16 +92,16 @@ const RequestDetail = ({ request, onClose }) => {
                             <p className="text-sm text-ink/70 font-medium leading-relaxed italic">"{request.vibe}"</p>
                         </div>
                     )}
-                    {request.activities && request.activities.length > 0 && (
+                    {request.activities && (Array.isArray(request.activities) ? request.activities : []).length > 0 && (
                         <div className="p-4 bg-forest/5 rounded-xl border border-forest/10">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-forest mb-2">Handcrafted Itinerary</p>
                             <div className="space-y-4">
                                 {request.timeline ? (
-                                    request.timeline.map((day, idx) => (
+                                    (Array.isArray(request.timeline) ? request.timeline : []).map((day, idx) => (
                                         <div key={idx} className="border-l-2 border-gold/30 pl-4 py-1">
                                             <p className="text-[10px] font-bold text-gold uppercase tracking-tighter mb-1">Day {day.day}</p>
                                             <div className="space-y-1">
-                                                {day.activities.map((act, i) => (
+                                                {(Array.isArray(day.activities) ? day.activities : []).map((act, i) => (
                                                     <p key={i} className="text-xs font-bold text-ink/70 leading-tight">
                                                         {act.destinationName}: {act.name}
                                                     </p>
@@ -112,7 +112,7 @@ const RequestDetail = ({ request, onClose }) => {
                                     ))
                                 ) : (
                                     <div className="flex flex-wrap gap-2">
-                                        {request.activities.map((act, i) => (
+                                        {(Array.isArray(request.activities) ? request.activities : []).map((act, i) => (
                                             <span key={i} className="px-2 py-1 bg-white rounded-lg text-[10px] font-bold text-forest border border-forest/5 shadow-sm">
                                                 {act}
                                             </span>
@@ -251,7 +251,6 @@ const RequestManager = () => {
         queryKey: ['requests'],
         queryFn: async () => {
             const res = await apiClient.get('/requests');
-            console.log("[RequestManager] Requests API Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -266,7 +265,7 @@ const RequestManager = () => {
         if (socket) {
             const handleUpdate = (updated) => {
                 queryClient.setQueryData(['requests'], (old) => {
-                    if (!old) return old;
+                    if (!Array.isArray(old)) return old;
                     return old.map(r => r.id === updated.id ? updated : r);
                 });
             };
@@ -322,7 +321,7 @@ const RequestManager = () => {
                                     <p className="text-xs font-bold">No requests here</p>
                                 </div>
                             ) : (
-                                filtered.filter(r => r.status === col).map(req => (
+                                (Array.isArray(filtered.filter(r => r.status === col)) ? filtered.filter(r => r.status === col) : []).map(req => (
                                     <KanbanCard key={req.id} request={req} onClick={setSelectedRequest} />
                                 ))
                             )}

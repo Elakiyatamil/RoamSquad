@@ -12,6 +12,9 @@ const API = 'http://localhost:5000/api';
 export default function PackagesPage() {
     const [showAuth, setShowAuth] = useState(false);
     const [pendingId, setPendingId] = useState(null);
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneInput, setPhoneInput] = useState('');
+    const [pendingPkg, setPendingPkg] = useState(null);
     const { isAuthenticated, user } = useAuthStore();
     const token = useAuthStore(s => s.token);
 
@@ -19,22 +22,20 @@ export default function PackagesPage() {
         queryKey: ['publicPackages'],
         queryFn: async () => {
             const res = await axios.get(`${API}/packages/public`);
-            console.log("[PackagesPage] API Response:", res.data);
             return res.data.data || [];
         }
     });
 
     const interestMutation = useMutation({
-        mutationFn: async ({ packageId, packageName }) => {
+        mutationFn: async ({ packageId, packageName, customPhone }) => {
             const payload = {
                 email: user?.email,
-                name: user?.name,
-                phone: user?.phone,
+                name: user?.name || 'Interested User',
+                phone: customPhone,
                 packageId,
                 packageName,
                 createdAt: new Date()
             };
-            console.log("Package interest sent to admin", payload);
             return axios.post(`${API}/packages/${packageId}/interest`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -53,7 +54,9 @@ export default function PackagesPage() {
             setShowAuth(true);
             return;
         }
-        interestMutation.mutate({ packageId: pkg.id, packageName: pkg.name });
+        setPhoneInput(user?.phone || '');
+        setPendingPkg(pkg);
+        setShowPhoneModal(true);
     };
 
     if (isLoading) return (
@@ -81,7 +84,7 @@ export default function PackagesPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {packages.map((pkg, idx) => (
+                    {(Array.isArray(packages) ? packages : []).map((pkg, idx) => (
                         <motion.div
                             key={pkg.id}
                             initial={{ opacity: 0, y: 24 }}
@@ -140,9 +143,59 @@ export default function PackagesPage() {
                 setShowAuth(false);
                 if (pendingId) {
                     const pkg = packages.find(p => p.id === pendingId);
-                    if (pkg) interestMutation.mutate({ packageId: pkg.id, packageName: pkg.name });
+                    if (pkg) {
+                        setPhoneInput(user?.phone || '');
+                        setPendingPkg(pkg);
+                        setShowPhoneModal(true);
+                    }
                 }
             }} />
+
+            {/* Phone Modal */}
+            {showPhoneModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
+                    >
+                        <h3 className="text-2xl font-display font-bold text-forest mb-2">Contact Details</h3>
+                        <p className="text-forest/60 text-sm mb-6">Please provide your phone number so our team can reach out about this package.</p>
+                        
+                        <input
+                            type="tel"
+                            value={phoneInput}
+                            onChange={e => setPhoneInput(e.target.value)}
+                            placeholder="+91 98765 43210"
+                            className="w-full p-4 bg-forest/5 rounded-2xl border border-forest/10 focus:border-gold outline-none mb-6 font-medium text-forest"
+                            autoFocus
+                        />
+                        
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowPhoneModal(false)}
+                                className="flex-1 py-4 font-bold text-forest/60 hover:bg-forest/5 rounded-2xl transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (!phoneInput.trim()) return toast.error("Phone number is required!");
+                                    setShowPhoneModal(false);
+                                    interestMutation.mutate({ 
+                                        packageId: pendingPkg.id, 
+                                        packageName: pendingPkg.name,
+                                        customPhone: phoneInput
+                                    });
+                                }}
+                                className="flex-1 py-4 bg-gold text-ink rounded-2xl font-bold hover:bg-gold/90 transition-colors"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 }

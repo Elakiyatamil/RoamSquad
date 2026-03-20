@@ -18,14 +18,14 @@ const NativeAreaChart = ({ data }) => {
     const W = width - padL - padR;
     const H = height - padT - padB;
 
-    const allVals = data.flatMap(d => [d.bookings, d.confirmed]);
+    const allVals = (Array.isArray(data) ? data : []).flatMap(d => [d.bookings, d.confirmed]);
     const maxVal = Math.max(...allVals, 1);
 
     const toX = i => padL + (i / (data.length - 1)) * W;
     const toY = v => padT + H - (v / maxVal) * H;
 
     const makePath = key =>
-        data.map((d, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(d[key])}`).join(' ');
+        (Array.isArray(data) ? data : []).map((d, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(d[key])}`).join(' ');
     const makeArea = key => {
         const last = data.length - 1;
         return `${makePath(key)} L${toX(last)},${padT + H} L${toX(0)},${padT + H} Z`;
@@ -55,7 +55,7 @@ const NativeAreaChart = ({ data }) => {
             <path d={makePath('bookings')} fill="none" stroke="#C8391A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d={makePath('confirmed')} fill="none" stroke="#2A4A38" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             {/* X labels */}
-            {data.map((d, i) => (
+            {(Array.isArray(data) ? data : []).map((d, i) => (
                 <text key={i} x={toX(i)} y={height - 8} textAnchor="middle"
                     fontSize="11" fill="#1C141066">{d.name}</text>
             ))}
@@ -71,10 +71,10 @@ const NativeAreaChart = ({ data }) => {
 // Native SVG Pie/Donut Chart — no recharts needed
 const NativePieChart = ({ data, colors }) => {
     const cx = 100, cy = 90, ro = 65, ri = 40;
-    let total = data.reduce((s, d) => s + d.value, 0);
+    let total = (Array.isArray(data) ? data : []).reduce((s, d) => s + d.value, 0);
     if (total === 0) return null;
     let angle = -Math.PI / 2;
-    const slices = data.map((d, i) => {
+    const slices = (Array.isArray(data) ? data : []).map((d, i) => {
         const sweep = (d.value / total) * 2 * Math.PI;
         const x1 = cx + ro * Math.cos(angle), y1 = cy + ro * Math.sin(angle);
         const x2 = cx + ri * Math.cos(angle), y2 = cy + ri * Math.sin(angle);
@@ -96,7 +96,7 @@ const NativePieChart = ({ data, colors }) => {
             ))}
             {data.map((d, i) => (
                 <g key={i}>
-                    <rect x={4 + (i % 2) * 96} y={140 + Math.floor(i / 2) * 16} width="8" height="8" rx="2" fill={colors[i % colors.length]} />
+                    <rect x={4 + (i % 2) * 96} y={140 + Math.floor(i / 2) * 16} width="8" height="8" rx="2" fill={(Array.isArray(colors) ? colors : [])[i % (Array.isArray(colors) ? colors : []).length]} />
                     <text x={16 + (i % 2) * 96} y={148 + Math.floor(i / 2) * 16} fontSize="9" fill="#1C141080">{d.name} ({d.value})</text>
                 </g>
             ))}
@@ -161,7 +161,6 @@ const DashboardOverview = () => {
         queryKey: ['stats'],
         queryFn: async () => {
             const res = await apiClient.get('/stats');
-            console.log("[Dashboard] Stats API Response:", res.data);
             return res.data.data || {};
         }
     });
@@ -170,7 +169,6 @@ const DashboardOverview = () => {
         queryKey: ['requests'],
         queryFn: async () => {
             const res = await apiClient.get('/requests');
-            console.log("[Dashboard] Requests API Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -275,7 +273,7 @@ const DashboardOverview = () => {
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {recentRequests.slice(0, 6).map((req, i) => (
+                        {(Array.isArray(recentRequests) ? recentRequests : []).slice(0, 6).map((req, i) => (
                             <motion.div
                                 key={req.id}
                                 initial={{ opacity: 0, x: -10 }}

@@ -11,7 +11,8 @@ const SearchableSelect = ({
     error,
     disabled = false,
     className = "",
-    loading = false
+    loading = false,
+    emptyMessage = "No matches found"
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +98,7 @@ const SearchableSelect = ({
                             <div className="max-h-[250px] overflow-y-auto p-1 custom-scrollbar">
                                 {filteredOptions.length === 0 ? (
                                     <div className="py-8 text-center text-xs text-ink/40 font-bold uppercase tracking-widest">
-                                        No matches found
+                                        {emptyMessage}
                                     </div>
                                 ) : (
                                     filteredOptions.map((option) => (

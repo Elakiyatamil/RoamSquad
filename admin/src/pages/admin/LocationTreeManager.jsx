@@ -16,6 +16,8 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
     const [name, setName] = useState(node?.name || '');
     const [saving, setSaving] = useState(false);
 
+    // Initial log for debugging
+
     const getTitle = () => {
         if (isEdit) return `Edit ${parentType}`;
         const childMap = { root: 'Country', country: 'State', state: 'District', district: 'Destination' };
@@ -108,7 +110,7 @@ const TreeNode = ({ node, depth, type, onSelect, onRefresh }) => {
 
     const childType = { country: 'state', state: 'district', district: 'destination' }[type];
     const children = node.states || node.districts || node.destinations || [];
-    const hasChildren = children.length > 0;
+    const hasChildren = Array.isArray(children) && children.length > 0;
 
     const handleDelete = async (e) => {
         e.stopPropagation();
@@ -179,7 +181,7 @@ const TreeNode = ({ node, depth, type, onSelect, onRefresh }) => {
             <AnimatePresence>
                 {isExpanded && hasChildren && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                        {children.map(child => (
+                        {(Array.isArray(children) ? children : []).map(child => (
                             <TreeNode
                                 key={child.id} node={child} depth={depth + 1}
                                 type={childType}
@@ -218,7 +220,8 @@ const LocationTreeManager = () => {
         setLoading(true);
         try {
             const response = await apiClient.get('/tree');
-            setTree(response.data);
+            const data = response.data.data || response.data; // Handle both {data:[]} and []
+            setTree(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Failed to fetch tree:', error);
         } finally {
@@ -231,8 +234,8 @@ const LocationTreeManager = () => {
     const handleSelect = (node, type) => setSelectedNode({ ...node, type });
 
     const filteredTree = search.trim()
-        ? tree.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
-        : tree;
+        ? (Array.isArray(tree) ? tree : []).filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+        : (Array.isArray(tree) ? tree : []);
 
     return (
         <div className="h-[calc(100vh-160px)] flex gap-8">
@@ -265,7 +268,7 @@ const LocationTreeManager = () => {
                         <div className="flex flex-col gap-2">
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-10 bg-white/50 rounded-lg animate-pulse" />)}
                         </div>
-                    ) : filteredTree.length === 0 ? (
+                    ) : (Array.isArray(filteredTree) ? filteredTree : []).length === 0 ? (
                         <div className="py-16 text-center text-ink/30">
                             <Globe size={40} className="mx-auto mb-3 opacity-20" />
                             <p className="font-bold text-sm">Start by adding your first country.</p>
@@ -273,7 +276,7 @@ const LocationTreeManager = () => {
                         </div>
                     ) : (
                         <div className="space-y-1">
-                            {filteredTree.map(country => (
+                            {(Array.isArray(filteredTree) ? filteredTree : []).map(country => (
                                 <TreeNode
                                     key={country.id} node={country} depth={0} type="country"
                                     onSelect={handleSelect}
@@ -374,12 +377,12 @@ const LocationTreeManager = () => {
                                         </div>
                                         
                                         <div className="grid grid-cols-1 gap-2">
-                                            {(selectedNode.states || selectedNode.districts || selectedNode.destinations || []).length === 0 ? (
+                                            {(Array.isArray(selectedNode.states || selectedNode.districts || selectedNode.destinations) ? (selectedNode.states || selectedNode.districts || selectedNode.destinations) : []).length === 0 ? (
                                                 <div className="py-12 text-center border-2 border-dashed border-ink/10 rounded-3xl">
                                                     <p className="text-sm font-medium text-ink/20">No items found.</p>
                                                 </div>
                                             ) : (
-                                                (selectedNode.states || selectedNode.districts || selectedNode.destinations || []).map(child => (
+                                                (Array.isArray(selectedNode.states || selectedNode.districts || selectedNode.destinations) ? (selectedNode.states || selectedNode.districts || selectedNode.destinations) : []).map(child => (
                                                     <div 
                                                         key={child.id}
                                                         onClick={() => setSelectedNode({ ...child, type: selectedNode.type === 'country' ? 'state' : selectedNode.type === 'state' ? 'district' : 'destination' })}

@@ -21,7 +21,7 @@ exports.saveTripPlan = async (req, res) => {
             }
         });
 
-        res.status(201).json(tripPlan);
+        res.status(201).json({ success: true, data: tripPlan });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -35,7 +35,7 @@ exports.getUserTripPlans = async (req, res) => {
             where: { userId },
             orderBy: { updatedAt: 'desc' }
         });
-        res.json(plans);
+        res.status(200).json({ success: true, data: plans });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -80,7 +80,7 @@ exports.createInquiry = async (req, res) => {
         const io = getIO();
         io.emit('request:new', inquiry);
 
-        res.status(201).json(inquiry);
+        res.status(201).json({ success: true, data: inquiry });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -108,7 +108,7 @@ exports.addToWishlist = async (req, res) => {
             }
         });
 
-        res.status(201).json(item);
+        res.status(201).json({ success: true, data: item });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -121,7 +121,7 @@ exports.getWishlist = async (req, res) => {
         const items = await prisma.wishlistItem.findMany({
             where: { userId }
         });
-        res.json(items);
+        res.status(200).json({ success: true, data: items });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -13,7 +13,6 @@ const ensureInquiryModel = (res) => {
 
 exports.createInquiry = async (req, res) => {
   try {
-    console.log("New Lead (Inquiry):", req.body);
     if (!ensureInquiryModel(res)) return;
     const {
       userId,
@@ -72,7 +71,6 @@ exports.createInquiry = async (req, res) => {
       },
     });
 
-    console.log(`[POST /inquiry] Created inquiry: ${inquiry.id}`);
     res.status(201).json({ success: true, data: inquiry });
   } catch (err) {
     console.error(`[POST /inquiry] Error:`, err);
@@ -88,7 +86,6 @@ exports.getMyInquiries = async (req, res) => {
       where: { userId: req.user.id },
       orderBy: { createdAt: 'desc' },
     });
-    console.log(`[GET /inquiry/my] Fetched ${inquiries.length} inquiries for user ${req.user.id}`);
     res.status(200).json({ success: true, data: inquiries });
   } catch (err) {
     console.error(`[GET /inquiry/my] Error:`, err);
@@ -102,7 +99,6 @@ exports.getInquiries = async (req, res) => {
     const inquiries = await prisma.inquiry.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    console.log(`[GET /inquiry] Fetched ${inquiries.length} total inquiries`);
     res.status(200).json({ success: true, data: inquiries });
   } catch (err) {
     console.error(`[GET /inquiry] Error:`, err);
@@ -120,7 +116,6 @@ exports.getInquiryById = async (req, res) => {
     const isOwner = req.user?.id && inquiry.userId && req.user.id === inquiry.userId;
     const isAdminUser = req.user?.role === 'ADMIN';
     if (!isOwner && !isAdminUser) return res.sendStatus(403);
-    console.log(`[GET /inquiry/${id}] Fetched inquiry`);
     res.status(200).json({ success: true, data: inquiry });
   } catch (err) {
     console.error(`[GET /inquiry/${req.params.id}] Error:`, err);
@@ -141,7 +136,6 @@ exports.updateInquiryStatus = async (req, res) => {
       where: { id },
       data: { status }
     });
-    console.log(`[PATCH /inquiry/${id}] Updated status to ${status}`);
     res.status(200).json({ success: true, data: updatedInquiry });
   } catch (err) {
     console.error(`[PATCH /inquiry/${req.params.id}] Error:`, err);

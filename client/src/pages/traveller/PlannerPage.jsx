@@ -6,6 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
+import SearchableSelect from '../../components/ui/SearchableSelect';
 
 const API_BASE = 'http://localhost:5000/api/public';
 
@@ -67,7 +68,6 @@ const PlannerPage = () => {
         queryKey: ['countries'],
         queryFn: async () => {
             const res = await axios.get(`${API_BASE}/countries`);
-            console.log("[PlannerPage] Countries API Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -78,7 +78,6 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedCountry) return [];
             const res = await axios.get(`${API_BASE}/states/${selectedCountry}`);
-            console.log("[PlannerPage] States API Response:", res.data);
             return res.data.data || [];
         },
         enabled: !!selectedCountry
@@ -90,7 +89,6 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedState) return [];
             const res = await axios.get(`${API_BASE}/districts/${selectedState}`);
-            console.log("[PlannerPage] Districts API Response:", res.data);
             return res.data.data || [];
         },
         enabled: !!selectedState
@@ -101,7 +99,6 @@ const PlannerPage = () => {
         queryFn: async () => {
             if (!selectedDistrict) return [];
             const res = await axios.get(`${API_BASE}/destinations/district/${selectedDistrict}`);
-            console.log("[PlannerPage] Destinations API Response:", res.data);
             return res.data.data || [];
         },
         enabled: !!selectedDistrict
@@ -109,7 +106,6 @@ const PlannerPage = () => {
 
     // 🔴 STEP 9 — FIX STATE RESET
     React.useEffect(() => {
-        console.log("DESTINATION CHANGED FOR CURATED DATA:", selectedDestinationId);
         // WE DO NOT RESET `setPlan` or `setBudget` anymore to support multi-destination itineraries!
 
         if (!selectedDestinationId) {
@@ -123,7 +119,6 @@ const PlannerPage = () => {
         axios.get(`${API_BASE}/destinations/id/${selectedDestinationId}`)
             .then(res => {
                 const data = res.data.data;
-                console.log("FULL DATA API RESPONSE:", data);
                 
                 // 🔴 STEP 4 — FIX RENDERING (Ensure consistent fields)
                 setActivities(data.activities || []);
@@ -254,15 +249,15 @@ const PlannerPage = () => {
             const selectedStay = plan.stays[0];
 
 
-            const first = plan.activities[0] || plan.food[0] || plan.stays[0];
-            const state = first?.stateName || null;
-            const district = first?.districtName || null;
+            const state = states?.find(s => s.id === selectedState)?.name || null;
+            const district = destinations?.find(d => d.id === selectedDestinationId)?.name || districts?.find(d => d.id === selectedDistrict)?.name || null;
             
             const payload = {
                 userId: user?.id,
                 name: user?.name || config.userName,
                 email: user?.email || config.userEmail,
                 phone: config.userPhone,
+                destinationId: selectedDestinationId, // added for strict frontend tracking
                 state,
                 district,
                 itinerary: {
@@ -290,12 +285,12 @@ const PlannerPage = () => {
                     ? { count: selectedFood.length, items: selectedFood.map(f => f.name) }
                     : config.food ? { name: config.food } : null,
                 totalBudget: budget,
-                tripDate: config.startDate,
-
-                startDate: config.startDate,
+                tripDate: new Date(`${config.startDate}T00:00:00`).toISOString(),
+                startDate: new Date(`${config.startDate}T00:00:00`).toISOString(),
                 days: Number(config.days),
                 people: Number(config.travellers)
             };
+            
             
             const token = useAuthStore.getState().token;
             await axios.post('http://localhost:5000/api/inquiry', payload, {
@@ -347,7 +342,16 @@ const PlannerPage = () => {
             const payload = {
                 email: user?.email || config.userEmail,
                 destination: destinations?.find(d => d.id === selectedDestinationId)?.name || plan.activities[0]?.destinationName || "Multiple",
-                itinerary: plan,
+                itinerary: {
+                    ...plan,
+                    days: config.days,
+                    travelType: config.travelType,
+                    vibe: config.vibe,
+                    user: {
+                        name: user?.name || config.userName,
+                        phone: config.userPhone
+                    }
+                },
                 totalBudget: budget,
                 createdAt: new Date().toISOString()
             };
@@ -527,70 +531,58 @@ const PlannerPage = () => {
                             <div className="lg:col-span-2 space-y-12">
                                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Country</label>
-                                        <select 
-                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none"
+                                        <SearchableSelect
+                                            label="Country"
+                                            placeholder="Select Country"
                                             value={selectedCountry}
-                                            onChange={(e) => {
-                                                setSelectedCountry(e.target.value);
+                                            options={(countries || []).map(c => ({ id: c.id, label: c.name }))}
+                                            onChange={(val) => {
+                                                setSelectedCountry(val);
                                                 setSelectedState('');
                                                 setSelectedDistrict('');
                                                 setSelectedDestinationId('');
                                             }}
-                                        >
-                                            <option value="">Select Country</option>
-                                            {countries?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                        </select>
+                                        />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">State</label>
-                                        <select 
+                                        <SearchableSelect
+                                            label="State"
+                                            placeholder="Select State"
                                             disabled={!selectedCountry}
-                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedState}
-                                            onChange={(e) => {
-                                                setSelectedState(e.target.value);
+                                            options={(states || []).map(s => ({ id: s.id, label: s.name }))}
+                                            onChange={(val) => {
+                                                setSelectedState(val);
                                                 setSelectedDistrict('');
                                                 setSelectedDestinationId('');
                                             }}
-                                        >
-                                            <option value="">Select State</option>
-                                            {states?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                        </select>
+                                        />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">District</label>
-                                        <select 
+                                        <SearchableSelect
+                                            label="District"
+                                            placeholder="Select District"
                                             disabled={!selectedState}
-                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedDistrict}
-                                            onChange={(e) => {
-                                                setSelectedDistrict(e.target.value);
+                                            options={(districts || []).map(d => ({ id: d.id, label: d.name }))}
+                                            onChange={(val) => {
+                                                setSelectedDistrict(val);
                                                 setSelectedDestinationId("");
                                             }}
-                                        >
-                                            <option value="">Select District</option>
-                                            {districts?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                                        </select>
+                                        />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Destination</label>
-                                        <select 
+                                        <SearchableSelect
+                                            label="Destination"
+                                            placeholder="Select Destination"
                                             disabled={!selectedDistrict}
-                                            className="w-full p-4 bg-forest/5 text-forest rounded-xl border-2 border-transparent focus:border-gold outline-none disabled:opacity-50"
                                             value={selectedDestinationId}
-                                            onChange={(e) => {
-                                                console.log("SELECTING DESTINATION ID:", e.target.value);
-                                                setSelectedDestinationId(e.target.value);
+                                            options={(destinations || []).map(d => ({ id: d.id, label: d.name }))}
+                                            emptyMessage="No destinations available"
+                                            onChange={(val) => {
+                                                setSelectedDestinationId(val);
                                             }}
-                                        >
-                                            <option value="">Select Destination</option>
-                                            {destinations?.map(d => (
-                                                <option key={d.id} value={d.id}>
-                                                    {d.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        />
                                     </div>
                                 </div>
 
@@ -599,7 +591,7 @@ const PlannerPage = () => {
                                     <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
                                     {selectedDestinationId && (
                                         <div className="flex gap-2 overflow-x-auto pb-2">
-                                            {Array.from({ length: config.days }).map((_, i) => (
+                                            {(Array.isArray(Array.from({ length: config.days })) ? Array.from({ length: config.days }) : []).map((_, i) => (
                                                 <button 
                                                     key={i} 
                                                     onClick={() => setSelectedDayBuilder(i + 1)}
@@ -633,7 +625,7 @@ const PlannerPage = () => {
                                                 <div className="space-y-6">
                                                     <h3 className="text-2xl font-display font-bold text-forest">Activities</h3>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {activities.map(act => {
+                                                        {(Array.isArray(activities) ? activities : []).map(act => {
                                                             const isSelectedForDay = plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}-day${selectedDayBuilder}`);
                                                             return (
                                                             <button
@@ -672,7 +664,7 @@ const PlannerPage = () => {
                                                 <div className="space-y-6">
                                                     <h3 className="text-2xl font-display font-bold text-forest">Food Options</h3>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {food.map(f => (
+                                                        {(Array.isArray(food) ? food : []).map(f => (
                                                             <button
                                                                 key={f.id}
                                                                 onClick={() => addToPlan('food', f)}
@@ -709,7 +701,7 @@ const PlannerPage = () => {
                                                 <div className="space-y-6">
                                                     <h3 className="text-2xl font-display font-bold text-forest">Accommodations</h3>
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {stays.map(s => (
+                                                        {(Array.isArray(stays) ? stays : []).map(s => (
                                                             <button
                                                                 key={s.id}
                                                                 onClick={() => addToPlan('stay', s)}
@@ -757,7 +749,7 @@ const PlannerPage = () => {
                                             <p className="text-cream/30 italic">No items added to your trip yet...</p>
                                         ) : (
                                             <div className="space-y-6">
-                                                {timeline.map(t => t.activities.length > 0 && (
+                                                {(Array.isArray(timeline) ? timeline : []).map(t => t.activities.length > 0 && (
                                                     <div key={`day-${t.day}`} className="space-y-3 pb-4 border-b border-cream/10">
                                                         <h4 className="text-gold font-bold text-sm tracking-widest uppercase">Day {t.day}</h4>
                                                         {t.activities.map(item => (

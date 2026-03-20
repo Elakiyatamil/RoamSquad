@@ -38,7 +38,7 @@ export default function JourneyDetails() {
 
   const inquiry = data
   const itinerary = inquiry?.itinerarySnapshot || inquiry?.itinerary || {}
-  const timeline = itinerary?.timeline || []
+  const timeline = Array.isArray(itinerary?.timeline) ? itinerary.timeline : []
 
   return (
     <div className="container mx-auto px-6 py-16">

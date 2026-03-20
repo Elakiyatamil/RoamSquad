@@ -20,7 +20,6 @@ const MyTripsPage = () => {
                     const res = await axios.get('http://localhost:5000/api/inquiry/my', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    console.log("[MyTripsPage] Fetched Trips:", res.data);
                     setTrips(res.data.data || []);
                 } catch (err) {
                     console.error("[MyTripsPage] Fetch Error:", err);
@@ -171,7 +170,7 @@ const MyTripsPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {wishlist.map(item => (
+                        {(Array.isArray(wishlist) ? wishlist : []).map(item => (
                             <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all block">
                                 <div className="h-48 relative">
                                     <img src={item.image || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1000'} alt={item.name} className="w-full h-full object-cover" />

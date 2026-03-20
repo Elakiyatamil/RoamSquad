@@ -31,7 +31,6 @@ const uploadSingle = async (req, res) => {
                     console.error("[uploadSingle] Error:", error);
                     return res.status(500).json({ success: false, error: error.message });
                 }
-                console.log("[uploadSingle] Success:", result.secure_url);
                 res.status(200).json({ success: true, data: { url: result.secure_url, publicId: result.public_id } });
             }
         );
@@ -68,7 +67,6 @@ const uploadMultiple = async (req, res) => {
         });
 
         const results = await Promise.all(uploadPromises);
-        console.log(`[uploadMultiple] Successfully uploaded ${results.length} images`);
         res.status(200).json({ success: true, data: { urls: results.map(r => r.url), data: results } });
     } catch (error) {
         console.error("[uploadMultiple] Error:", error);
@@ -86,7 +84,6 @@ const deleteImage = async (req, res) => {
         }
 
         const result = await cloudinary.uploader.destroy(publicId);
-        console.log(`[deleteImage] Success for publicId: ${publicId}`);
         res.status(200).json({ success: true, data: result });
     } catch (error) {
         console.error("[deleteImage] Error:", error);

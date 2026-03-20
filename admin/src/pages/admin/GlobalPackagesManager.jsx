@@ -41,7 +41,6 @@ export default function GlobalPackagesManager() {
     queryKey: ['adminPackages'],
     queryFn: async () => {
       const res = await apiClient.get('/packages');
-      console.log("[GlobalPackagesManager] Packages API Response:", res.data);
       return res.data.data || [];
     }
   });
@@ -50,7 +49,6 @@ export default function GlobalPackagesManager() {
     queryKey: ['packageInterests'],
     queryFn: async () => {
       const res = await apiClient.get('/package-interest');
-      console.log("[GlobalPackagesManager] Interests API Response:", res.data);
       return res.data.data || [];
     }
   });
@@ -95,7 +93,7 @@ export default function GlobalPackagesManager() {
           </div>
           <div className="lg:col-span-2 space-y-4">
             {isLoading && <p className="text-ink/40 font-bold animate-pulse">Loading packages...</p>}
-            {packages.map(pkg => (
+            {(Array.isArray(packages) ? packages : []).map(pkg => (
               <div key={pkg.id} className="bg-white rounded-2xl p-6 border border-ink/5 flex items-center gap-4 shadow-sm">
                 {pkg.coverImage && <img src={pkg.coverImage} alt={pkg.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />}
                 <div className="flex-1">
@@ -105,9 +103,9 @@ export default function GlobalPackagesManager() {
                   </div>
                   <h3 className="font-bold text-ink text-lg">{pkg.name}</h3>
                   <p className="text-sm text-ink/60">{pkg.daysCount} days · ₹{Number(pkg.totalPrice).toLocaleString()}</p>
-                  {pkg.highlights?.length > 0 && (
+                  {(Array.isArray(pkg.highlights) ? pkg.highlights : []).length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {pkg.highlights.map(h => <span key={h} className="text-[10px] bg-ink/5 text-ink/60 px-2 py-0.5 rounded-full">{h}</span>)}
+                      {(Array.isArray(pkg.highlights) ? pkg.highlights : []).map(h => <span key={h} className="text-[10px] bg-ink/5 text-ink/60 px-2 py-0.5 rounded-full">{h}</span>)}
                     </div>
                   )}
                 </div>
@@ -146,7 +144,7 @@ export default function GlobalPackagesManager() {
               </tr>
             </thead>
             <tbody>
-                {interests.map((i) => (
+                {(Array.isArray(interests) ? interests : []).map((i) => (
                   <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
                     <td className="p-4 font-bold text-ink">{i.email}</td>
                     <td className="p-4 text-ink/70">{i.name || '-'}</td>

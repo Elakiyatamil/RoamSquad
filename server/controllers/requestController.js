@@ -6,9 +6,10 @@ const getRequests = async (req, res) => {
         const { status } = req.query;
         const where = status ? { status } : {};
         const requests = await prisma.itineraryRequest.findMany({ where, orderBy: { createdAt: 'desc' } });
-        res.json(requests);
+        res.status(200).json({ success: true, data: requests });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[GET /requests] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -23,9 +24,10 @@ const updateRequest = async (req, res) => {
         const io = getIO();
         io.emit('request:updated', request);
 
-        res.json(request);
+        res.status(200).json({ success: true, data: request });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[PATCH /requests/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -42,9 +44,10 @@ const createRequest = async (req, res) => {
         const io = getIO();
         io.emit('request:created', request);
 
-        res.json(request);
+        res.status(201).json({ success: true, data: request });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /requests] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -58,9 +61,10 @@ const deleteRequest = async (req, res) => {
         const io = getIO();
         io.emit('request:deleted', { id: req.params.id });
 
-        res.json({ message: 'Request deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'Request deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /requests/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

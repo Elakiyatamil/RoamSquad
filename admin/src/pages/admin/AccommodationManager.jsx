@@ -172,7 +172,7 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
                 <div className="px-4 py-1.5 rounded-lg bg-ink/5 text-[10px] font-bold uppercase tracking-widest text-ink/60 border border-ink/5">{tier}</div>
                 <div className="flex items-center gap-2">
                     <div className="flex text-gold">
-                        {[...Array(record?.stars || 3)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                        {(Array.isArray([...Array(record?.stars || 3)]) ? [...Array(record?.stars || 3)] : []).map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                     </div>
                     {record && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -194,8 +194,8 @@ const AccommodationCard = ({ tier, record, onEdit, onDelete }) => {
             <div className="space-y-4 mb-8">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Includes</p>
                 <div className="flex flex-wrap gap-2">
-                    {(record?.includes || []).length > 0
-                        ? record.includes.map((item, i) => (
+                    {(Array.isArray(record?.includes) ? record.includes : []).length > 0
+                        ? (Array.isArray(record.includes) ? record.includes : []).map((item, i) => (
                             <span key={i} className="px-3 py-1 bg-ink/5 rounded-full text-[10px] font-bold text-ink/60">{item}</span>
                         ))
                         : <span className="text-[10px] text-ink/20 font-bold italic">None configured</span>
@@ -284,7 +284,7 @@ const AccommodationManager = () => {
 
     // Map tiers to records
     const tierMap = {};
-    accommodations.forEach(a => { tierMap[a.tier] = a; });
+    (Array.isArray(accommodations) ? accommodations : []).forEach(a => { tierMap[a.tier] = a; });
 
     return (
         <div className="space-y-8">

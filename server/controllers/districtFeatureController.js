@@ -7,7 +7,7 @@ const getMustVisit = async (req, res) => {
         const spots = await prisma.mustVisitSpot.findMany({
             where: { districtId: req.params.id }
         });
-        res.json(spots);
+        res.status(200).json({ success: true, data: spots });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -19,7 +19,7 @@ const createMustVisit = async (req, res) => {
             data: { ...req.body, districtId: req.params.id }
         });
         await logAction(req.user, 'CREATE', 'MustVisitSpot', spot.id, spot.name);
-        res.json(spot);
+        res.status(201).json({ success: true, data: spot });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -32,7 +32,7 @@ const updateMustVisit = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'MustVisitSpot', spot.id, spot.name);
-        res.json(spot);
+        res.status(200).json({ success: true, data: spot });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -43,7 +43,7 @@ const deleteMustVisit = async (req, res) => {
         const spot = await prisma.mustVisitSpot.findUnique({ where: { id: req.params.id } });
         await prisma.mustVisitSpot.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'MustVisitSpot', req.params.id, spot?.name);
-        res.json({ message: 'Must Visit Spot deleted successfully' });
+        res.status(200).json({ success: true, message: 'Must Visit Spot deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -55,7 +55,7 @@ const getEvents = async (req, res) => {
         const events = await prisma.upcomingEvent.findMany({
             where: { districtId: req.params.id }
         });
-        res.json(events);
+        res.status(200).json({ success: true, data: events });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -67,7 +67,7 @@ const createEvent = async (req, res) => {
             data: { ...req.body, districtId: req.params.id }
         });
         await logAction(req.user, 'CREATE', 'UpcomingEvent', event.id, event.name);
-        res.json(event);
+        res.status(201).json({ success: true, data: event });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -80,7 +80,7 @@ const updateEvent = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'UpcomingEvent', event.id, event.name);
-        res.json(event);
+        res.status(200).json({ success: true, data: event });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -91,7 +91,7 @@ const deleteEvent = async (req, res) => {
         const event = await prisma.upcomingEvent.findUnique({ where: { id: req.params.id } });
         await prisma.upcomingEvent.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'UpcomingEvent', req.params.id, event?.name);
-        res.json({ message: 'Event deleted successfully' });
+        res.status(200).json({ success: true, message: 'Event deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -11,7 +11,6 @@ const getActivities = async (req, res) => {
             where,
             orderBy: { sortOrder: 'asc' }
         });
-        console.log(`[GET /activities] Fetched ${activities.length} activities`);
         res.status(200).json({ success: true, data: activities });
     } catch (error) {
         console.error(`[GET /activities] Error:`, error);
@@ -40,7 +39,6 @@ const createActivity = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'Activity', activity.id, activity.name);
-        console.log(`[POST /activities] Created activity: ${activity.id}`);
         res.status(201).json({ success: true, data: activity });
     } catch (error) {
         console.error(`[POST /activities] Error:`, error);
@@ -56,7 +54,6 @@ const updateActivity = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Activity', activity.id, activity.name);
-        console.log(`[PATCH /activities/${req.params.id}] Updated activity`);
         res.status(200).json({ success: true, data: activity });
     } catch (error) {
         console.error(`[PATCH /activities/${req.params.id}] Error:`, error);
@@ -69,9 +66,10 @@ const deleteActivity = async (req, res) => {
         const activity = await prisma.activity.findUnique({ where: { id: req.params.id } });
         await prisma.activity.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Activity', req.params.id, activity?.name);
-        res.json({ message: 'Activity deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'Activity deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /activities/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -84,9 +82,10 @@ const reorderActivities = async (req, res) => {
                 data: { sortOrder: index }
             })
         ));
-        res.json({ message: 'Activities reordered successfully' });
+        res.status(200).json({ success: true, data: { message: 'Activities reordered successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[POST /activities/reorder] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -103,7 +102,6 @@ const getFoodOptions = async (req, res) => {
             where,
             orderBy: { sortOrder: 'asc' }
         });
-        console.log(`[GET /food] Fetched ${food.length} food options`);
         res.status(200).json({ success: true, data: food });
     } catch (error) {
         console.error(`[GET /food] Error:`, error);
@@ -116,7 +114,7 @@ const createFoodOption = async (req, res) => {
         const { name, type, price, description, destinationId } = req.body;
 
         if (!destinationId) {
-            return res.status(400).json({ error: "destinationId required" });
+            return res.status(400).json({ success: false, error: "destinationId required" });
         }
 
         const food = await prisma.foodOption.create({
@@ -134,7 +132,6 @@ const createFoodOption = async (req, res) => {
             }
         });
         await logAction(req.user, 'CREATE', 'FoodOption', food.id, food.name);
-        console.log(`[POST /food] Created food option: ${food.id}`);
         res.status(201).json({ success: true, data: food });
     } catch (error) {
         console.error(`[POST /food] Error:`, error);
@@ -150,7 +147,6 @@ const updateFoodOption = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'FoodOption', food.id, food.name);
-        console.log(`[PATCH /food/${req.params.id}] Updated food option`);
         res.status(200).json({ success: true, data: food });
     } catch (error) {
         console.error(`[PATCH /food/${req.params.id}] Error:`, error);
@@ -163,9 +159,10 @@ const deleteFoodOption = async (req, res) => {
         const food = await prisma.foodOption.findUnique({ where: { id: req.params.id } });
         await prisma.foodOption.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'FoodOption', req.params.id, food?.name);
-        res.json({ message: 'Food option deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'Food option deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /food/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -178,7 +175,6 @@ const getAccommodationAdmin = async (req, res) => {
         const accommodation = await prisma.accommodation.findMany({
             where
         });
-        console.log(`[GET /accommodation/admin] Fetched ${accommodation.length} options`);
         res.status(200).json({ success: true, data: accommodation });
     } catch (error) {
         console.error(`[GET /accommodation/admin] Error:`, error);
@@ -200,7 +196,6 @@ const getAccommodationPublic = async (req, res) => {
                 imageUrl: true
             }
         });
-        console.log(`[GET /accommodation/public/${req.params.id}] Fetched ${accommodation.length} options`);
         res.status(200).json({ success: true, data: accommodation });
     } catch (error) {
         console.error(`[GET /accommodation/public/${req.params.id}] Error:`, error);
@@ -231,7 +226,6 @@ const createAccommodation = async (req, res) => {
         });
 
         await logAction(req.user, 'CREATE', 'Accommodation', acc.id, `${acc.tier} tier`);
-        console.log(`[POST /accommodation] Created accommodation: ${acc.id}`);
         res.status(201).json({ success: true, data: acc });
     } catch (error) {
         console.error(`[POST /accommodation] Error:`, error);
@@ -247,7 +241,6 @@ const updateAccommodation = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'Accommodation', acc.id, `${acc.tier} tier`);
-        console.log(`[PATCH /accommodation/${req.params.id}] Updated accommodation`);
         res.status(200).json({ success: true, data: acc });
     } catch (error) {
         console.error(`[PATCH /accommodation/${req.params.id}] Error:`, error);
@@ -260,9 +253,10 @@ const deleteAccommodation = async (req, res) => {
         const acc = await prisma.accommodation.findUnique({ where: { id: req.params.id } });
         await prisma.accommodation.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'Accommodation', req.params.id, acc?.tier);
-        res.json({ message: 'Accommodation deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'Accommodation deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /accommodation/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -274,7 +268,6 @@ const getTravelOptions = async (req, res) => {
         const options = await prisma.travelOption.findMany({
             where
         });
-        console.log(`[GET /travel] Fetched ${options.length} travel options`);
         res.status(200).json({ success: true, data: options });
     } catch (error) {
         console.error(`[GET /travel] Error:`, error);
@@ -285,7 +278,7 @@ const getTravelOptions = async (req, res) => {
 const createTravelOption = async (req, res) => {
     try {
         const destinationId = req.params.id || req.body.destinationId;
-        if (!destinationId) return res.status(400).json({ error: "destinationId required" });
+        if (!destinationId) return res.status(400).json({ success: false, error: "destinationId required" });
 
         const option = await prisma.travelOption.create({
             data: { 
@@ -299,7 +292,6 @@ const createTravelOption = async (req, res) => {
         });
 
         await logAction(req.user, 'CREATE', 'TravelOption', option.id, option.mode);
-        console.log(`[POST /travel] Created travel option: ${option.id}`);
         res.status(201).json({ success: true, data: option });
     } catch (error) {
         console.error(`[POST /travel] Error:`, error);
@@ -314,7 +306,6 @@ const updateTravelOption = async (req, res) => {
             data: req.body
         });
         await logAction(req.user, 'UPDATE', 'TravelOption', option.id, option.mode);
-        console.log(`[PATCH /travel/${req.params.id}] Updated travel option`);
         res.status(200).json({ success: true, data: option });
     } catch (error) {
         console.error(`[PATCH /travel/${req.params.id}] Error:`, error);
@@ -327,9 +318,10 @@ const deleteTravelOption = async (req, res) => {
         const option = await prisma.travelOption.findUnique({ where: { id: req.params.id } });
         await prisma.travelOption.delete({ where: { id: req.params.id } });
         await logAction(req.user, 'DELETE', 'TravelOption', req.params.id, option?.mode);
-        res.json({ message: 'Travel option deleted successfully' });
+        res.status(200).json({ success: true, data: { message: 'Travel option deleted successfully' } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(`[DELETE /travel/${req.params.id}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

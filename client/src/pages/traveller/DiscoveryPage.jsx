@@ -13,7 +13,6 @@ const DiscoveryPage = () => {
         queryKey: ['public-destinations'],
         queryFn: async () => {
             const res = await axios.get(`${API_BASE}/destinations`);
-            console.log("[DiscoveryPage] API Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -102,7 +101,13 @@ const DiscoveryPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {Array.isArray(destinations) && destinations.map((dest, idx) => (
+                        {(!Array.isArray(destinations) || destinations.length === 0) ? (
+                            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
+                                <Compass size={48} className="mx-auto text-forest/20 mb-4" />
+                                <h3 className="text-2xl font-bold text-forest/40">No destinations available at the moment.</h3>
+                                <p className="text-forest/30 mt-2">Please check back later.</p>
+                            </div>
+                        ) : destinations.map((dest, idx) => (
                             <motion.div
                                 key={dest.id}
                                 initial={{ opacity: 0, y: 20 }}
@@ -140,7 +145,7 @@ const DiscoveryPage = () => {
                                         </h3>
                                         <div className="flex items-center gap-2 text-cream/70 text-sm mb-4">
                                             <MapPin size={14} />
-                                            {dest.location}
+                                            {dest.location || dest.district?.name || 'Explore'}
                                         </div>
                                         
                                         <div className="flex flex-wrap gap-2">
@@ -153,11 +158,11 @@ const DiscoveryPage = () => {
                                     </div>
 
                                     <div className="absolute top-8 right-8 px-4 py-2 bg-cream text-forest rounded-full text-xs font-bold shadow-lg">
-                                        Starting ₹{dest.startingPrice.toLocaleString()}
+                                        Avg ₹{dest.avgCost || '0'}
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between px-2">
-                                    <span className="text-forest/40 font-medium">{dest.category.replace('_', ' ')}</span>
+                                    <span className="text-forest/40 font-medium">{(dest.category || 'Destination').replace('_', ' ')}</span>
                                     <Link to={`/destinations/${dest.slug}`} className="text-forest font-bold inline-flex items-center gap-2 hover:text-gold transition-colors">
                                         Explore <ArrowRight size={16} />
                                     </Link>

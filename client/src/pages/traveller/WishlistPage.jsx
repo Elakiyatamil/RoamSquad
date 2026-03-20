@@ -22,7 +22,6 @@ const WishlistPage = () => {
                 const res = await axios.get(`${API}/wishlist/leads/${user.email}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log("[WishlistPage] API Response:", res.data);
                 setWishlist(res.data.data || []);
             } catch (err) {
                 console.error("Failed to fetch wishlist:", err);

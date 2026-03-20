@@ -24,7 +24,6 @@ exports.getDiscoveryTree = async (req, res) => {
                 }
             }
         });
-        console.log(`[GET /discovery-tree] Fetched active hierarchy tree`);
         res.status(200).json({ success: true, data: tree });
     } catch (error) {
         console.error(`[GET /discovery-tree] Error:`, error);
@@ -91,7 +90,6 @@ exports.getDestinations = async (req, res) => {
             accommodations: dest.accommodations || []
         }));
 
-        console.log(`[GET /public/destinations] Fetched ${formatted.length} destinations`);
         res.status(200).json({ success: true, data: formatted });
     } catch (error) {
         console.error(`[GET /public/destinations] Error:`, error);
@@ -137,7 +135,6 @@ exports.getDestinationById = async (req, res) => {
             travelOptions: destination.travelOptions || []
         };
 
-        console.log(`[GET /public/destination/${id}] Fetched unified destination`);
         res.status(200).json({ success: true, data: unified });
     } catch (error) {
         console.error(`[GET /public/destination/${req.params.id}] Error:`, error);
@@ -172,7 +169,6 @@ exports.getDestinationDetails = async (req, res) => {
             return res.status(404).json({ message: 'Destination not found' });
         }
 
-        console.log(`[GET /public/destinations/${slug}] Fetched destination details`);
         res.status(200).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[GET /public/destinations/${req.params.slug}] Error:`, error);
@@ -187,7 +183,6 @@ exports.getCountries = async (req, res) => {
             where: { active: true },
             orderBy: { name: 'asc' }
         });
-        console.log(`[GET /public/countries] Fetched ${countries.length} countries`);
         res.status(200).json({ success: true, data: countries });
     } catch (error) {
         console.error(`[GET /public/countries] Error:`, error);
@@ -203,7 +198,6 @@ exports.getStates = async (req, res) => {
             where: { countryId, active: true },
             orderBy: { name: 'asc' }
         });
-        console.log(`[GET /public/states/${countryId}] Fetched ${states.length} states`);
         res.status(200).json({ success: true, data: states });
     } catch (error) {
         console.error(`[GET /public/states/${req.params.countryId}] Error:`, error);
@@ -219,7 +213,6 @@ exports.getDistricts = async (req, res) => {
             where: { stateId, active: true },
             orderBy: { name: 'asc' }
         });
-        console.log(`[GET /public/districts/${stateId}] Fetched ${districts.length} districts`);
         res.status(200).json({ success: true, data: districts });
     } catch (error) {
         console.error(`[GET /public/districts/${req.params.stateId}] Error:`, error);
@@ -240,7 +233,6 @@ exports.getDestinationsByDistrict = async (req, res) => {
             }
         });
 
-        console.log(`[GET /public/destinations/district/${districtId}] Fetched ${destinations.length} destinations`);
         res.status(200).json({ success: true, data: destinations });
     } catch (error) {
         console.error(`[GET /public/destinations/district/${req.params.districtId}] Error:`, error);
@@ -255,7 +247,7 @@ exports.getDestinationActivities = async (req, res) => {
         const activities = await prisma.activity.findMany({
             where: { destinationId: id, isActive: true }
         });
-        res.json(activities);
+        res.status(200).json({ success: true, data: activities || [] });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -267,7 +259,7 @@ exports.getDestinationAccommodation = async (req, res) => {
         const accommodation = await prisma.accommodation.findMany({
             where: { destinationId: id, isActive: true }
         });
-        res.json(accommodation);
+        res.status(200).json({ success: true, data: accommodation || [] });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -279,7 +271,7 @@ exports.getDestinationFood = async (req, res) => {
         const food = await prisma.foodOption.findMany({
             where: { destinationId: id, isActive: true }
         });
-        res.json(food);
+        res.status(200).json({ success: true, data: food || [] });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -291,7 +283,7 @@ exports.getDestinationTravelOptions = async (req, res) => {
         const travelOptions = await prisma.travelOption.findMany({
             where: { destinationId: id }
         });
-        res.json(travelOptions);
+        res.status(200).json({ success: true, data: travelOptions || [] });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

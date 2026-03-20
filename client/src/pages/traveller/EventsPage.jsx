@@ -12,6 +12,9 @@ const API = 'http://localhost:5000/api';
 export default function EventsPage() {
     const [showAuth, setShowAuth] = useState(false);
     const [pendingId, setPendingId] = useState(null);
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneInput, setPhoneInput] = useState('');
+    const [pendingEvent, setPendingEvent] = useState(null);
     const { isAuthenticated, user } = useAuthStore();
     const token = useAuthStore(s => s.token);
 
@@ -19,23 +22,21 @@ export default function EventsPage() {
         queryKey: ['publicEvents'],
         queryFn: async () => {
             const res = await axios.get(`${API}/events/public`);
-            console.log("[EventsPage] API Response:", res.data);
             return res.data.data || [];
         }
     });
 
     const joinMutation = useMutation({
-        mutationFn: async ({ eventId, eventTitle, contactNumber }) => {
+        mutationFn: async ({ eventId, eventTitle, contactNumber, customPhone }) => {
             const payload = {
                 email: user?.email,
-                name: user?.name,
-                phone: user?.phone,
+                name: user?.name || 'Interested User',
+                phone: customPhone,
                 eventId,
                 eventTitle,
                 contactNumber,
                 createdAt: new Date()
             };
-            console.log("Event interest sent", payload);
             return axios.post(`${API}/events/${eventId}/join`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -60,11 +61,9 @@ export default function EventsPage() {
             setShowAuth(true);
             return;
         }
-        joinMutation.mutate({ 
-            eventId: evt.id, 
-            eventTitle: evt.title, 
-            contactNumber: evt.contactNumber || '' 
-        });
+        setPhoneInput(user?.phone || '');
+        setPendingEvent(evt);
+        setShowPhoneModal(true);
     };
 
     const formatDate = (dt) => {
@@ -107,7 +106,7 @@ export default function EventsPage() {
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {events.map((evt, idx) => (
+                    {(Array.isArray(events) ? events : []).map((evt, idx) => (
                         <motion.div
                             key={evt.id}
                             initial={{ opacity: 0, x: -20 }}
@@ -181,13 +180,61 @@ export default function EventsPage() {
                 setShowAuth(false);
                 if (pendingId) {
                     const evt = events.find(e => e.id === pendingId);
-                    if (evt) joinMutation.mutate({ 
-                        eventId: evt.id, 
-                        eventTitle: evt.title, 
-                        contactNumber: evt.contactNumber || '' 
-                    });
+                    if (evt) {
+                        setPhoneInput(user?.phone || '');
+                        setPendingEvent(evt);
+                        setShowPhoneModal(true);
+                    }
                 }
             }} />
+
+            {/* Phone Modal */}
+            {showPhoneModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
+                    >
+                        <h3 className="text-2xl font-display font-bold text-forest mb-2">Contact Details</h3>
+                        <p className="text-forest/60 text-sm mb-6">Please provide your phone number so our team can reach out to you seamlessly.</p>
+                        
+                        <input
+                            type="tel"
+                            value={phoneInput}
+                            onChange={e => setPhoneInput(e.target.value)}
+                            placeholder="+91 98765 43210"
+                            className="w-full p-4 bg-forest/5 rounded-2xl border border-forest/10 focus:border-gold outline-none mb-6 font-medium text-forest"
+                            autoFocus
+                        />
+                        
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowPhoneModal(false)}
+                                className="flex-1 py-4 font-bold text-forest/60 hover:bg-forest/5 rounded-2xl transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (!phoneInput.trim()) return toast.error("Phone number is required!");
+                                    setShowPhoneModal(false);
+                                    joinMutation.mutate({ 
+                                        eventId: pendingEvent.id, 
+                                        eventTitle: pendingEvent.title, 
+                                        contactNumber: pendingEvent.contactNumber || '',
+                                        customPhone: phoneInput
+                                    });
+                                }}
+                                className="flex-1 py-4 bg-gold text-ink rounded-2xl font-bold hover:bg-gold/90 transition-colors"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
         </div>
     );
 }

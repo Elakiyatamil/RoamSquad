@@ -116,7 +116,7 @@ const ActivityLog = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {logs.map((log, i) => {
+                            {(Array.isArray(logs) ? logs : []).map((log, i) => {
                                 const config = ACTION_ICONS[log.action] || ACTION_ICONS.CREATE;
                                 const Icon = config.icon;
                                 return (

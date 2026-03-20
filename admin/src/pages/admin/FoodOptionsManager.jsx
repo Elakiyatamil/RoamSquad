@@ -247,14 +247,14 @@ const FoodOptionsManager = () => {
                             <div className="flex items-center justify-between px-2">
                                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-ink/40">{meal}</h3>
                                 <span className="w-8 h-8 rounded-lg bg-white border border-ink/5 flex items-center justify-center text-xs font-bold text-ink/20">
-                                    {foodOptions.filter(f => f.mealType === meal).length}
+                                    {(Array.isArray(foodOptions) ? foodOptions : []).filter(f => f.mealType === meal).length}
                                 </span>
                             </div>
                             <div className="space-y-3">
                                 {isLoading ? (
-                                    [1, 2].map(i => <div key={i} className="h-20 bg-white/50 rounded-xl animate-pulse" />)
+                                    (Array.isArray([1, 2]) ? [1, 2] : []).map(i => <div key={i} className="h-20 bg-white/50 rounded-xl animate-pulse" />)
                                 ) : (
-                                    foodOptions.filter(f => f.mealType === meal).map((food, i) => (
+                                    (Array.isArray(foodOptions) ? foodOptions : []).filter(f => f.mealType === meal).map((food, i) => (
                                         <FoodCard key={food.id} food={food} index={i} onEdit={openEdit} onDelete={handleDelete} />
                                     ))
                                 )}
@@ -264,7 +264,7 @@ const FoodOptionsManager = () => {
                                         className="w-full py-3 border-2 border-dashed border-ink/10 rounded-2xl text-[11px] font-bold uppercase tracking-widest text-ink/30 hover:border-red/20 hover:text-red transition-all flex items-center justify-center gap-2"
                                     >
                                         <Plus size={14} />
-                                        {foodOptions.filter(f => f.mealType === meal).length === 0 ? `Add first ${meal.toLowerCase()} option` : `Add more`}
+                                        {(Array.isArray(foodOptions) ? foodOptions : []).filter(f => f.mealType === meal).length === 0 ? `Add first ${meal.toLowerCase()} option` : `Add more`}
                                     </button>
                                 )}
                             </div>

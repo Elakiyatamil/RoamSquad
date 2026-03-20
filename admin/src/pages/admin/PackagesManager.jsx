@@ -163,13 +163,13 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
                 <div className="w-1.5 h-1.5 bg-ink/10 rounded-full" />
                 <p className="text-ink/40 font-bold text-[10px] uppercase tracking-widest">Starting Price</p>
             </div>
-            {item.highlights?.length > 0 && (
+            {(Array.isArray(item.highlights) ? item.highlights : []).length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-6">
-                    {item.highlights.slice(0, 3).map((h, i) => (
+                    {(Array.isArray(item.highlights) ? item.highlights : []).slice(0, 3).map((h, i) => (
                         <span key={i} className="px-2 py-1 bg-ink/5 rounded-lg text-[10px] font-bold text-ink/50 border border-ink/5">{h}</span>
                     ))}
-                    {item.highlights.length > 3 && (
-                        <span className="px-2 py-1 bg-ink/5 rounded-lg text-[10px] font-bold text-ink/30">+{item.highlights.length - 3} more</span>
+                    {(Array.isArray(item.highlights) ? item.highlights : []).length > 3 && (
+                        <span className="px-2 py-1 bg-ink/5 rounded-lg text-[10px] font-bold text-ink/30">+{(Array.isArray(item.highlights) ? item.highlights : []).length - 3} more</span>
                     )}
                 </div>
             )}
@@ -188,7 +188,6 @@ const PackagesManager = () => {
         queryKey: ['packages'],
         queryFn: async () => {
             const res = await apiClient.get('/packages');
-            console.log("[PackagesManager] Packages API Response:", res.data);
             return res.data.data || [];
         }
     });
@@ -227,7 +226,7 @@ const PackagesManager = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {packages.map((pkg, i) => (
+                    {(Array.isArray(packages) ? packages : []).map((pkg, i) => (
                         <PackageCard key={pkg.id} item={pkg} index={i} onEdit={openEdit} onDelete={handleDelete} />
                     ))}
                 </div>

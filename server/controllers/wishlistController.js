@@ -6,7 +6,6 @@ exports.getWishlist = async (req, res) => {
         const items = await prisma.wishlistItem.findMany({
             where: { userId }
         });
-        console.log(`[GET /wishlist] Fetched ${items.length} items for user ${userId}`);
         res.status(200).json({ success: true, data: items });
     } catch (error) {
         console.error(`[GET /wishlist] Error:`, error);
@@ -31,7 +30,6 @@ exports.addToWishlist = async (req, res) => {
             create: { userId, entityType, entityId }
         });
 
-        console.log(`[POST /wishlist] Added ${entityType} ${entityId} for user ${userId}`);
         res.status(201).json({ success: true, data: item });
     } catch (error) {
         console.error(`[POST /wishlist] Error:`, error);
@@ -48,7 +46,6 @@ exports.removeFromWishlist = async (req, res) => {
             where: { id, userId }
         });
 
-        console.log(`[DELETE /wishlist/${id}] Removed item for user ${userId}`);
         res.status(200).json({ success: true, message: 'Removed from wishlist' });
     } catch (error) {
         console.error(`[DELETE /wishlist/${req.params.id}] Error:`, error);
@@ -89,7 +86,6 @@ exports.syncWishlist = async (req, res) => {
             where: { userId }
         });
 
-        console.log(`[POST /wishlist/sync] Synced ${items.length} items for user ${userId}`);
         res.status(200).json({ success: true, data: updatedWishlist });
     } catch (error) {
         console.error(`[POST /wishlist/sync] Error:`, error);
@@ -108,7 +104,6 @@ exports.createWishlistLead = async (req, res) => {
                 totalBudget: parseFloat(totalBudget) || 0
             }
         });
-        console.log(`[POST /wishlist/lead] Created lead for ${email}`);
         res.status(201).json({ success: true, data: lead });
     } catch (error) {
         console.error(`[POST /wishlist/lead] Error:`, error);
@@ -121,7 +116,6 @@ exports.getWishlistLeads = async (req, res) => {
         const leads = await prisma.wishlistLead.findMany({
             orderBy: { createdAt: 'desc' }
         });
-        console.log(`[GET /wishlist/leads] Fetched ${leads.length} leads`);
         res.status(200).json({ success: true, data: leads });
     } catch (error) {
         console.error(`[GET /wishlist/leads] Error:`, error);
@@ -138,7 +132,6 @@ exports.getWishlistLeadsByEmail = async (req, res) => {
             where: { email },
             orderBy: { createdAt: 'desc' }
         });
-        console.log(`[GET /wishlist/leads/${email}] Fetched ${leads.length} leads`);
         res.status(200).json({ success: true, data: leads });
     } catch (error) {
         console.error(`[GET /wishlist/leads/${req.params.email}] Error:`, error);

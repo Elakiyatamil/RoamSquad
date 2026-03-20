@@ -101,7 +101,6 @@ export default function EventsManager() {
     queryKey: ['adminEvents'],
     queryFn: async () => {
       const res = await apiClient.get('/events');
-      console.log("[EventsManager] Events API Response:", res.data);
       return res.data.data || [];
     }
   });
@@ -110,7 +109,6 @@ export default function EventsManager() {
     queryKey: ['eventInterests'],
     queryFn: async () => {
       const res = await apiClient.get('/event-interest');
-      console.log("[EventsManager] Interests API Response:", res.data);
       return res.data.data || [];
     }
   });
@@ -166,7 +164,7 @@ export default function EventsManager() {
           </div>
           <div className="lg:col-span-2 space-y-4">
             {isLoading && <p className="text-ink/40 font-bold animate-pulse">Loading events...</p>}
-            {events.map(evt => (
+            {(Array.isArray(events) ? events : []).map(evt => (
               <div key={evt.id} className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden flex">
                 {evt.image && (
                   <img src={evt.image} alt={evt.title} className="w-28 h-full object-cover shrink-0" />
@@ -205,13 +203,13 @@ export default function EventsManager() {
           <table className="w-full text-sm">
             <thead className="bg-ink/5 text-ink/60">
               <tr>
-                {['Email', 'Name', 'Phone', 'Event', 'Registered'].map(h => (
+                {(Array.isArray(['Email', 'Name', 'Phone', 'Event', 'Registered']) ? ['Email', 'Name', 'Phone', 'Event', 'Registered'] : []).map(h => (
                   <th key={h} className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {interests.map(i => (
+              {(Array.isArray(interests) ? interests : []).map(i => (
                 <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5">
                   <td className="p-4 font-bold text-ink">{i.email}</td>
                   <td className="p-4 text-ink/70">{i.name || '-'}</td>
