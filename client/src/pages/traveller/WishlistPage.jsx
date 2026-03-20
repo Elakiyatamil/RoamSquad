@@ -52,26 +52,12 @@ const WishlistPage = () => {
                     <h2 className="text-2xl font-display font-bold text-forest mb-4">Please log in to view your wishlist</h2>
                     <p className="text-forest/40 mb-10">Your saved itineraries are waiting for you.</p>
                 </div>
-            ) : wishlist.length === 0 ? (
-                <div className="text-center py-32 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
-                    <div className="w-20 h-20 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-8 text-forest/20">
-                        <Heart size={40} />
-                    </div>
-                    <h2 className="text-3xl font-display font-bold text-forest mb-4">Your heart is empty</h2>
-                    <p className="text-forest/40 mb-10 max-w-sm mx-auto">Explore our curated destinations and save your favorites here.</p>
-                    <Link 
-                        to="/planner" 
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-forest text-cream rounded-full font-bold hover:scale-105 transition-transform"
-                    >
-                        Start Planning <Compass size={20} />
-                    </Link>
-                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     <AnimatePresence>
-                        {Array.isArray(wishlist) && wishlist.map((item) => (
+                        {Array.isArray(wishlist) && wishlist.length > 0 ? wishlist.map((item, index) => (
                             <motion.div
-                                key={item.id}
+                                key={item.id || index}
                                 layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -79,15 +65,17 @@ const WishlistPage = () => {
                                 className="group bg-white rounded-[2.5rem] overflow-hidden border border-forest/5 shadow-sm hover:shadow-xl transition-all"
                             >
                                 <div className="relative h-64 overflow-hidden bg-forest/5 flex items-center justify-center">
-                                    <MapPin size={48} className="text-forest/10" />
-                                    {/* Since WishlistLead stores JSON itinerary, we don't have a direct image easily. 
-                                        We'll use a placeholder or the first activity image if we had it. */}
+                                    {item.image ? (
+                                        <img src={item.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.destinationName} />
+                                    ) : (
+                                        <MapPin size={48} className="text-forest/10" />
+                                    )}
                                 </div>
                                 <div className="p-8">
                                     <div className="flex items-center gap-2 text-[10px] font-bold text-gold uppercase tracking-widest mb-2">
-                                        Saved Trip
+                                        {item.isLead ? 'Planned Trip' : 'Saved Destination'}
                                     </div>
-                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.destinationName || item.destination}</h3>
+                                    <h3 className="text-2xl font-bold text-forest mb-2">{item.destinationName || item.destination || 'Untitled Trip'}</h3>
                                     <div className="flex items-center gap-2 text-forest/40 text-sm mb-4">
                                         <Calendar size={14} /> {new Date(item.date || item.createdAt).toLocaleDateString()}
                                     </div>
@@ -95,19 +83,33 @@ const WishlistPage = () => {
                                     <div className="space-y-2 mb-8">
                                         <p className="text-xs text-forest/60 font-medium">Budget: ₹{Number(item.budget || item.totalBudget || 0).toLocaleString()}</p>
                                         <p className="text-xs text-forest/60 font-medium italic">
-                                            {item.activities?.length || item.itinerary?.activities?.length || 0} activities saved
+                                            {item.activities?.length || 0} activities saved
                                         </p>
                                     </div>
 
                                     <Link 
-                                        to="/planner"
+                                        to={item.isLead ? "/planner" : `/destinations/${item.entityId}`}
                                         className="flex items-center justify-between py-4 border-t border-forest/5 text-forest font-bold group-hover:text-gold transition-colors"
                                     >
-                                        Resume Planning <ArrowRight size={20} />
+                                        {item.isLead ? "Resume Planning" : "View Details"} <ArrowRight size={20} />
                                     </Link>
                                 </div>
                             </motion.div>
-                        ))}
+                        )) : (
+                            <div className="col-span-full text-center py-32 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
+                                <div className="w-20 h-20 bg-forest/10 rounded-full flex items-center justify-center mx-auto mb-8 text-forest/20">
+                                    <Heart size={40} />
+                                </div>
+                                <h2 className="text-3xl font-display font-bold text-forest mb-4">Your heart is empty</h2>
+                                <p className="text-forest/40 mb-10 max-w-sm mx-auto">Explore our curated destinations and save your favorites here.</p>
+                                <Link 
+                                    to="/planner" 
+                                    className="inline-flex items-center gap-2 px-8 py-4 bg-forest text-cream rounded-full font-bold hover:scale-105 transition-transform"
+                                >
+                                    Start Planning <Compass size={20} />
+                                </Link>
+                            </div>
+                        )}
                     </AnimatePresence>
                 </div>
             )}
