@@ -251,13 +251,21 @@ const PlannerPage = () => {
 
             const state = states?.find(s => s.id === selectedState)?.name || null;
             const district = destinations?.find(d => d.id === selectedDestinationId)?.name || districts?.find(d => d.id === selectedDistrict)?.name || null;
-            
+            const name = user?.name || config.userName;
+            const email = user?.email || config.userEmail;
+            const phone = config.userPhone;
+
+            if (!name || !email || !phone) {
+                alert("Please fill all required fields");
+                return;
+            }
+
             const payload = {
                 userId: user?.id,
-                name: user?.name || config.userName,
-                email: user?.email || config.userEmail,
-                phone: config.userPhone,
-                destinationId: selectedDestinationId, // added for strict frontend tracking
+                name,
+                email,
+                phone,
+                destinationId: selectedDestinationId || null,
                 state,
                 district,
                 itinerary: {
@@ -280,7 +288,7 @@ const PlannerPage = () => {
                 },
                 hotelSnapshot: selectedStay 
                     ? { name: selectedStay.tier + " Stay", price: selectedStay.price }
-                    : { name: config.hotel, districtId: first?.districtId, districtName: first?.districtName },
+                    : { name: config.hotel },
                 foodSnapshot: selectedFood.length > 0 
                     ? { count: selectedFood.length, items: selectedFood.map(f => f.name) }
                     : config.food ? { name: config.food } : null,
@@ -307,10 +315,10 @@ const PlannerPage = () => {
             localStorage.setItem('submitted_inquiries', JSON.stringify(savedInquiries));
 
             setInquiryStatus('success');
-            toast.success("Inquiry sent successfully 🚀");
+            toast.success("Inquiry sent successfully. Admin will contact you.");
             setStep(4);
         } catch (error) {
-            console.error(error);
+            console.error("Inquiry error:", error.response?.data || error.message);
             setInquiryStatus('error');
             
             if (error.response?.status === 401 || error.response?.status === 403) {
