@@ -17,7 +17,7 @@ const MyTripsPage = () => {
         const load = async () => {
             if (isAuthenticated && token) {
                 try {
-                    const res = await axios.get('http://localhost:5000/api/inquiry/my', {
+                    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/inquiry/my`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setTrips(res.data.data || []);
@@ -33,7 +33,7 @@ const MyTripsPage = () => {
             // Load Wishlist
             if (isAuthenticated && token && useAuthStore.getState().user?.email) {
                 try {
-                    const resW = await axios.get(`http://localhost:5000/api/wishlist?email=${useAuthStore.getState().user.email}`, {
+                    const resW = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/wishlist?email=${useAuthStore.getState().user.email}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setWishlist(resW.data?.data || []);

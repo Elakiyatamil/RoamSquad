@@ -155,6 +155,7 @@ async function main() {
     await prisma.upcomingEvent.createMany({
         data: [
             {
+                title: 'Munnar Tea Festival',
                 name: 'Munnar Tea Festival',
                 description: 'Annual tea culture festival',
                 startDate: new Date('2026-02-10'),
@@ -162,6 +163,7 @@ async function main() {
                 districtId: districtsMap['Idukki'].id
             },
             {
+                title: 'Kodagu Coffee Harvest',
                 name: 'Kodagu Coffee Harvest',
                 description: 'Celebrating the season of coffee',
                 startDate: new Date('2026-03-20'),
@@ -169,6 +171,7 @@ async function main() {
                 districtId: districtsMap['Kodagu'].id
             },
             {
+                title: 'Thrissur Pooram',
                 name: 'Thrissur Pooram',
                 description: 'Festival of elephants and umbrellas',
                 startDate: new Date('2026-04-15'),
@@ -176,6 +179,7 @@ async function main() {
                 districtId: districtsMap['Thrissur'].id
             },
             {
+                title: 'Kochi Biennale',
                 name: 'Kochi Biennale',
                 description: 'International contemporary art exhibition',
                 startDate: new Date('2026-12-12'),

@@ -7,7 +7,7 @@ export const getSocket = (token) => {
     
     if (!token) return null;
 
-    socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+    socket = io(import.meta.env.VITE_SOCKET_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'), {
         auth: { token },
         reconnection: true,
         reconnectionAttempts: 5,

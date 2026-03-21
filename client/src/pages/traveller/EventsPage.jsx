@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 
-const API = 'http://localhost:5000/api';
+const API = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api`;
 
 export default function EventsPage() {
     const [showAuth, setShowAuth] = useState(false);

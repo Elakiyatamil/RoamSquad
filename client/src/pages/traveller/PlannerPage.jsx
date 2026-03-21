@@ -8,7 +8,7 @@ import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 import SearchableSelect from '../../components/ui/SearchableSelect';
 
-const API_BASE = 'http://localhost:5000/api/public';
+const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
 
 const PlannerPage = () => {
     const [step, setStep] = useState(1);
@@ -303,7 +303,7 @@ const PlannerPage = () => {
             
             
             const token = useAuthStore.getState().token;
-            await axios.post('http://localhost:5000/api/inquiry', payload, {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/inquiry`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -369,7 +369,7 @@ const PlannerPage = () => {
             const token = useAuthStore.getState().token;
             // Since it's a lead capture, we can send it with or without token, 
             // but we're enforcing login now per user request.
-            await axios.post('http://localhost:5000/api/wishlist/lead', payload, {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/wishlist/lead`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
