@@ -28,7 +28,12 @@ const server = http.createServer(app);
 initSockets(server);
 
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://roam-squad-7bl6.vercel.app',
+        'https://roam-squad-xt2h.vercel.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
