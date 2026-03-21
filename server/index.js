@@ -27,13 +27,24 @@ const server = http.createServer(app);
 // Initialize Sockets
 initSockets(server);
 
+const allowedOrigins = [
+    /^http:\/\/localhost:\d+$/,
+    /^https:\/\/roam-squad[\w-]*\.vercel\.app$/,
+    /^https:\/\/roam-squad[\w-]*-elakiyatamils-projects\.vercel\.app$/,
+];
+
 const corsOptions = {
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'https://roam-squad-7bl6.vercel.app',
-        'https://roam-squad-xt2h.vercel.app'
-    ],
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Render health checks)
+        if (!origin) return callback(null, true);
+        const allowed = allowedOrigins.some((pattern) => pattern.test(origin));
+        if (allowed) {
+            callback(null, true);
+        } else {
+            console.warn(`[CORS] Blocked origin: ${origin}`);
+            callback(new Error(`CORS: Origin ${origin} not allowed`));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
