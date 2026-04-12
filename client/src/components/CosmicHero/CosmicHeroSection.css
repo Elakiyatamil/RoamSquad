@@ -1,0 +1,191 @@
+:root {
+    --v10-navy: #0a0a14;
+    --v10-indigo: #1a1b3a;
+    --v10-violet: #2e1065;
+    --v10-amber: #ffedd5;
+    --v10-red: #b11226;
+    
+    --font-luxury: 'Playfair Display', serif;
+    --font-clean: 'Inter', sans-serif;
+}
+
+.editorial-hero-wrap {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: var(--v10-navy);
+    overflow: hidden;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+}
+
+.editorial-bg-v10 {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.v10-sky-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, var(--v10-navy), var(--v10-indigo) 40%, var(--v10-violet) 80%);
+}
+
+.v10-horizon-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30vh;
+    background: linear-gradient(to top, rgba(255, 237, 213, 0.15), transparent);
+    filter: blur(40px);
+}
+
+/* ARCHITECTURAL ARCH */
+.v10-arch-wrapper {
+    position: absolute;
+    top: -10vh;
+    width: 80vw;
+    height: 45vw;
+    z-index: 10;
+}
+
+.v10-arch-surface {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(30, 41, 59, 0.4), transparent 80%);
+    backdrop-filter: blur(45px);
+    border-radius: 40vw 40vw 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.5),
+        inset 0 0 40px rgba(255, 237, 213, 0.05); /* Soft Amber inner glow */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.v10-arch-rim {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), var(--v10-amber), rgba(255, 255, 255, 0.3), transparent);
+    opacity: 0.6;
+}
+
+/* EDITORIAL CONTENT */
+.v10-content-center {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 5vw;
+    z-index: 20;
+}
+
+.v10-branding {
+    position: relative;
+    margin-bottom: 2vw;
+}
+
+.v10-logo {
+    font-family: var(--font-luxury);
+    font-size: 6.5vw;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--v10-red);
+    margin: 0;
+    filter: drop-shadow(0 0 20px rgba(177, 18, 38, 0.2));
+}
+
+.v10-logo-accent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle at center, rgba(177, 18, 38, 0.1), transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.v10-nav-arc {
+    width: 100%;
+    margin-top: -3.5vw;
+}
+
+.v10-arc-svg {
+    width: 100%;
+    height: auto;
+}
+
+.v10-nav-text {
+    font-family: var(--font-clean);
+    font-size: 1vw;
+    font-weight: 700;
+    fill: #ffffff;
+    letter-spacing: 0.35em;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+textPath {
+    opacity: 0.5;
+    transition: opacity 0.4s ease, fill 0.4s ease;
+}
+
+textPath:hover {
+    opacity: 1;
+    fill: var(--v10-amber);
+}
+
+.v10-focus-area {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.2;
+}
+
+/* HERO FOOTER */
+.v10-hero-footer {
+    position: absolute;
+    bottom: 6vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+}
+
+.v10-explore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vh;
+    font-family: var(--font-clean);
+    font-size: 0.8vw;
+    font-weight: 700;
+    letter-spacing: 0.6em;
+    opacity: 0.5;
+}
+
+.v10-scroll-line {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, #fff, transparent);
+}
+
+@media (max-width: 1024px) {
+    .v10-arch-wrapper { width: 95vw; height: 55vw; }
+    .v10-logo { font-size: 10vw; }
+    .v10-nav-text { font-size: 1.8vw; }
+}

@@ -5,8 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import DoorAnimationSection from '../../components/DoorAnimation/DoorAnimationSection';
+import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
 
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
+const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
 
 const DiscoveryPage = () => {
     const { data: destinations = [], isLoading } = useQuery({
@@ -46,39 +48,10 @@ const DiscoveryPage = () => {
 
     return (
         <div className="relative">
-            {/* Hero Section */}
-            <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-forest">
-                <div className="absolute inset-0 opacity-40">
-                    <img 
-                        src="https://images.unsplash.com/photo-1506461883276-594a12b11cf3?q=80&w=2070" 
-                        alt="Hero" 
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/80 via-transparent to-transparent" />
-                
-                <div className="container mx-auto px-6 relative z-10 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <h1 className="text-5xl md:text-8xl font-display font-bold text-cream mb-6 tracking-tight">
-                            Design Your <span className="text-gold">Handcrafted</span> Journey
-                        </h1>
-                        <p className="text-xl md:text-2xl text-cream/80 mb-10 max-w-3xl mx-auto font-sans leading-relaxed">
-                            Discover expert-curated experiences across India and beyond. 
-                            Build itineraries that reflect your unique vibe.
-                        </p>
-                        <Link 
-                            to="/planner" 
-                            className="inline-flex items-center gap-3 px-10 py-5 bg-gold text-ink rounded-full text-lg font-bold hover:bg-gold/90 transition-all hover:scale-105 shadow-xl shadow-gold/20"
-                        >
-                            Start Planning <ArrowRight size={24} />
-                        </Link>
-                    </motion.div>
-                </div>
-            </section>
+            {/* Editorial Typographic Arch Hero */}
+            <TypographicHeroSection />
+
+            <DoorAnimationSection />
 
             {/* Destination Grid */}
             <section className="py-24 container mx-auto px-6">
