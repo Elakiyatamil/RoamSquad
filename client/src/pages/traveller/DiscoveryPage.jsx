@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import DoorAnimationSection from '../../components/DoorAnimation/DoorAnimationSection';
 import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
+import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
 
@@ -50,6 +51,7 @@ const DiscoveryPage = () => {
         <div className="relative">
             {/* Editorial Typographic Arch Hero */}
             <TypographicHeroSection />
+            <CloudNavbarSection />
 
             <DoorAnimationSection />
 

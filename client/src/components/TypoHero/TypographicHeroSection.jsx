@@ -2,50 +2,82 @@ import React from 'react';
 import './TypographicHeroSection.css';
 
 const TypographicHeroSection = () => {
+    const twinkleStars = React.useMemo(() => {
+        const count = 80;
+        const seed = 1337;
+        let s = seed;
+        const rand = () => {
+            // deterministic LCG for stable layouts across reloads
+            s = (s * 1664525 + 1013904223) % 4294967296;
+            return s / 4294967296;
+        };
+
+        return Array.from({ length: count }, (_, i) => {
+            const size = rand() > 0.65 ? 2 : 1;
+            return {
+                key: i,
+                left: `${Math.floor(rand() * 100)}%`,
+                top: `${Math.floor(rand() * 100)}%`,
+                size,
+                opacity: 0.35 + rand() * 0.45,
+                delay: `${(rand() * 5).toFixed(2)}s`,
+                duration: `${(3 + rand() * 3).toFixed(2)}s`,
+            };
+        });
+    }, []);
+
     return (
-        <section className="typo-hero-wrap">
-            {/* COSMIC BACKGROUND LAYERS */}
-            <div className="v11-cosmic-bg">
-                <div className="v11-stars"></div>
-                <div className="v11-nebula"></div>
-                <div className="v11-aurora"></div>
-            </div>
-
-            {/* CORNER METADATA - EDITORIAL STYLE */}
-            <div className="v11-metadata v11-meta-left">DESTINATIONS</div>
-            <div className="v11-metadata v11-meta-right">YOUR STORY</div>
-
-            {/* CENTERED HERO CONTENT */}
-            <div className="v11-arch-container">
-                {/* FORCED NEBULA GLOW BEHIND TEXT */}
-                <div className="v11-nebula-glow"></div>
-                
-                <div className="v11-brand-h1">
-                    <h1 className="hero-text">
+        <section className="v12-mindjoin-hero">
+            {/* MAIN CONTENT AREA */}
+            <div className="v12-hero-container">
+                <div className="v12-center-content">
+                    <div className="v12-title-wrapper">
+                    <h1 className="v12-hero-text">
                         {"ROAMSQUAD".split("").map((char, i) => (
-                            <span key={i} className="hero-letter">{char}</span>
+                            <span key={i} className={`v12-char char-${i}`}>{char}</span>
                         ))}
                     </h1>
+                    </div>
+
+                    <div className="v12-motto-wrapper" aria-label="Roam together. Explore forever.">
+                        <span className="v12-motto-word v12-motto-roam">ROAM</span>
+                        <span className="v12-motto-word v12-motto-together">TOGETHER</span>
+                        <span className="v12-motto-dot">·</span>
+                        <span className="v12-motto-word v12-motto-explore">EXPLORE</span>
+                        <span className="v12-motto-word v12-motto-forever">FOREVER</span>
+                    </div>
                 </div>
 
-                {/* EDITORIAL TAGLINE */}
-                <div className="v11-tagline">
-                    DESTINATIONS <span className="v11-dot-sep">·</span> EXPERIENCES <span className="v11-dot-sep">·</span> YOUR STORY
+                <div className="v12-scroll-indicator" aria-hidden="true">
+                    <div className="v12-scroll-text">EXPLORE ↓</div>
+                    <div className="scroll-line"></div>
                 </div>
-
-                {/* HIDDEN SECONDARY NAV (Maintained for logic but styled minimally) */}
-                <nav className="v11-secondary-nav">
-                    <a href="#destinations" className="v11-nav-item">DISCOVER</a>
-                    <a href="#experiences" className="v11-nav-item">EXPLORE</a>
-                    <a href="#about" className="v11-nav-item">JOURNEY</a>
-                </nav>
             </div>
 
-            {/* MINIMAL FOOTER SCROLL INDICATOR */}
-            <div className="v11-hero-footer">
-                <div className="v11-scroll">
-                    <span>SCROLL TO EXPLORE</span>
-                    <div className="v11-scroll-line"></div>
+            {/* MINIMAL BACKGROUND EFFECT */}
+            <div className="v12-bg-elements">
+                <div className="v12-comet-field" aria-hidden="true">
+                    <span className="v12-comet v12-comet-one"></span>
+                    <span className="v12-comet v12-comet-two"></span>
+                </div>
+                <div className="v12-stars-static" aria-hidden="true"></div>
+
+                <div className="v12-stars-twinkle" aria-hidden="true">
+                    {twinkleStars.map((st) => (
+                        <span
+                            key={st.key}
+                            className="v12-twinkle-star"
+                            style={{
+                                left: st.left,
+                                top: st.top,
+                                width: `${st.size}px`,
+                                height: `${st.size}px`,
+                                opacity: st.opacity,
+                                animationDelay: st.delay,
+                                animationDuration: st.duration,
+                            }}
+                        />
+                    ))}
                 </div>
             </div>
         </section>

@@ -14,7 +14,8 @@ export default function TravellerLayout() {
 
   return (
     <div className="min-h-screen bg-cream text-ink">
-      <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur border-b border-ink/5">
+      {location.pathname !== '/' && (
+      <header className="sticky top-0 z-50 bg-transparent backdrop-blur border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="font-bold tracking-tight">
             RoamSquad
@@ -34,6 +35,7 @@ export default function TravellerLayout() {
           </nav>
         </div>
       </header>
+      )}
       <main>
         <Outlet />
       </main>
