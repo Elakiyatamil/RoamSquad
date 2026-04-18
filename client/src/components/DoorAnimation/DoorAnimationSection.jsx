@@ -5,11 +5,7 @@ const DoorAnimationSection = () => {
     const containerRef = useRef(null);
     const [lerpedProgress, setLerpedProgress] = useState(0);
 
-    // Section 3 Draggable Cards state
-    const dragRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
+
 
     useEffect(() => {
         let requestRef;
@@ -59,20 +55,7 @@ const DoorAnimationSection = () => {
     const scene2Opacity = Math.max(0, Math.min(1, (lerpedProgress - 0.5) / 0.2));
 
     // Draggable Cards Handlers
-    const handleMouseDown = (e) => {
-        setIsDragging(true);
-        setStartX(e.pageX - dragRef.current.offsetLeft);
-        setScrollLeft(dragRef.current.scrollLeft);
-    };
-    const handleMouseLeave = () => setIsDragging(false);
-    const handleMouseUp = () => setIsDragging(false);
-    const handleMouseMove = (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const x = e.pageX - dragRef.current.offsetLeft;
-        const walk = (x - startX) * 2;
-        dragRef.current.scrollLeft = scrollLeft - walk;
-    };
+
 
     return (
         <div className="luxury-hero-section" ref={containerRef}>
@@ -160,46 +143,7 @@ const DoorAnimationSection = () => {
                         <img src="https://images.unsplash.com/photo-1540206276207-39257862cd99?auto=format&fit=crop&w=2000&q=100" alt="Lush Life" />
                     </div>
 
-                    <div className="paradise-content-overlay">
-                        <h2 className="paradise-header-v8">Travel To Exotic Places Where <i>Nature</i> Meets Luxury</h2>
-                        <p className="paradise-sub-v8">Experience the wild like never before with curated itineraries designed for the bold.</p>
-                        <button className="v8-itinerary-btn" onClick={() => window.location.href = '#planner'}>
-                            Create your own itinerary →
-                        </button>
-                    </div>
-                </div>
-            </div>
 
-            {/* SECTION 3: EDITORIAL CARDS */}
-            <div className="gems-section-v8">
-                <div className="v8-gems-header">
-                    <h2 className="v8-gems-title">Hidden Gem Places to Travel That Defy Imagination</h2>
-                </div>
-
-                <div 
-                    className="v8-track" 
-                    ref={dragRef}
-                    onMouseDown={handleMouseDown}
-                    onMouseLeave={handleMouseLeave}
-                    onMouseUp={handleMouseUp}
-                    onMouseMove={handleMouseMove}
-                >
-                    {[
-                        { name: 'Hollywood, USA', img: 'https://images.unsplash.com/photo-1501183007986-d0d080b147f9', badge: 'Featured', price: '$1,200' },
-                        { name: 'Beverly Hills, USA', img: 'https://images.unsplash.com/photo-1512100356956-c1b4724619be', badge: 'Luxury', price: '$2,500' },
-                        { name: 'Banff, Canada', img: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5', badge: 'Nature', price: '$1,800' },
-                        { name: 'Cancún, Mexico', img: 'https://images.unsplash.com/photo-1510414842594-a01c89b2bb51', badge: 'Beach', price: '$1,500' },
-                        { name: 'Santorini, Greece', img: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff', badge: 'Island', price: '$2,200' }
-                    ].map((dest, i) => (
-                        <div className="v8-card" key={i}>
-                            <div className="v8-badge">{dest.badge}</div>
-                            <img src={`${dest.img}?auto=format&fit=crop&w=600`} alt={dest.name} />
-                            <div className="v8-card-info">
-                                <span className="v8-loc">{dest.name}</span>
-                                <span className="v8-price">{dest.price}</span>
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>

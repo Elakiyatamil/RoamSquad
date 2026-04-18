@@ -8,6 +8,7 @@ import { Heart } from 'lucide-react';
 import DoorAnimationSection from '../../components/DoorAnimation/DoorAnimationSection';
 import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
 import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
+import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
 
@@ -55,98 +56,7 @@ const DiscoveryPage = () => {
 
             <DoorAnimationSection />
 
-            {/* Destination Grid */}
-            <section className="py-24 container mx-auto px-6">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                    <div>
-                        <h2 className="text-4xl md:text-5xl font-display font-bold text-forest mb-4">
-                            Discover Destinations
-                        </h2>
-                        <p className="text-forest/60 text-lg max-w-xl">
-                            Curated spots from our expert travellers. Explore Dandeli's river rapids to Gokarna's serene beaches.
-                        </p>
-                    </div>
-                </div>
-
-                {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-96 bg-forest/5 rounded-3xl animate-pulse" />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {(!Array.isArray(destinations) || destinations.length === 0) ? (
-                            <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-forest/5 rounded-[3rem] border-2 border-dashed border-forest/10">
-                                <Compass size={48} className="mx-auto text-forest/20 mb-4" />
-                                <h3 className="text-2xl font-bold text-forest/40">No destinations available at the moment.</h3>
-                                <p className="text-forest/30 mt-2">Please check back later.</p>
-                            </div>
-                        ) : destinations.map((dest, idx) => (
-                            <motion.div
-                                key={dest.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
-                                className="group cursor-pointer"
-                            >
-                                <div className="relative h-[480px] rounded-[2rem] overflow-hidden mb-6 shadow-2xl shadow-forest/10">
-                                    <img 
-                                        src={dest.coverImage || 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1000'} 
-                                        alt={dest.name}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-forest/90 via-forest/20 to-transparent" />
-                                    
-                                    <button 
-                                        onClick={(e) => toggleWishlist(e, dest)}
-                                        className={`absolute top-8 left-8 w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all z-20 ${
-                                            wishlist.find(item => item.id === dest.id) 
-                                            ? 'bg-red text-white' 
-                                            : 'bg-white/20 text-cream hover:bg-white/40'
-                                        }`}
-                                    >
-                                        <Heart size={20} fill={wishlist.find(item => item.id === dest.id) ? 'currentColor' : 'none'} />
-                                    </button>
-                                    
-                                    <div className="absolute bottom-8 left-8 right-8">
-                                        <div className="flex items-center gap-2 text-gold mb-2">
-                                            <Star size={16} fill="currentColor" />
-                                            <span className="text-sm font-bold">{dest.rating}</span>
-                                        </div>
-                                        <h3 className="text-3xl font-display font-bold text-cream mb-2 group-hover:text-gold transition-colors">
-                                            {dest.name}
-                                        </h3>
-                                        <div className="flex items-center gap-2 text-cream/70 text-sm mb-4">
-                                            <MapPin size={14} />
-                                            {dest.location || dest.district?.name || 'Explore'}
-                                        </div>
-                                        
-                                        <div className="flex flex-wrap gap-2">
-                                            {dest.highlights?.slice(0, 3).map(h => (
-                                                <span key={h} className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] text-cream uppercase tracking-widest font-bold">
-                                                    {h}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="absolute top-8 right-8 px-4 py-2 bg-cream text-forest rounded-full text-xs font-bold shadow-lg">
-                                        Avg ₹{dest.avgCost || '0'}
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between px-2">
-                                    <span className="text-forest/40 font-medium">{(dest.category || 'Destination').replace('_', ' ')}</span>
-                                    <Link to={`/destinations/${dest.slug}`} className="text-forest font-bold inline-flex items-center gap-2 hover:text-gold transition-colors">
-                                        Explore <ArrowRight size={16} />
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-            </section>
+            <ExpandingCards />
         </div>
     );
 };
