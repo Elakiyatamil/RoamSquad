@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import DoorAnimationSection from '../../components/DoorAnimation/DoorAnimationSection';
+import PlannerPortalSection from '../../components/PlannerPortal/PlannerPortalSection';
 import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
 import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
 import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
@@ -52,9 +52,8 @@ const DiscoveryPage = () => {
         <div className="relative">
             {/* Editorial Typographic Arch Hero */}
             <TypographicHeroSection />
+            <PlannerPortalSection />
             <CloudNavbarSection />
-
-            <DoorAnimationSection />
 
             <ExpandingCards />
         </div>

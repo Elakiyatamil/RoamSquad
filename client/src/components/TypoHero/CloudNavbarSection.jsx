@@ -148,7 +148,17 @@ export default function CloudNavbarSection() {
             const active = location.pathname === n.to
             return (
               <React.Fragment key={n.to}>
-                <Link to={n.to} className={`cloud-link ${active ? 'is-active' : ''}`}>
+                <Link 
+                  to={n.to} 
+                  className={`cloud-link ${active ? 'is-active' : ''}`}
+                  data-nav={n.label.toLowerCase()}
+                  onClick={(e) => {
+                    if (n.label === 'Planner' && location.pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('planner-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
                   {n.label}
                 </Link>
                 {idx !== nav.length - 1 && <span className="cloud-sep">·</span>}
