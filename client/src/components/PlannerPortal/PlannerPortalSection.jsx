@@ -6,16 +6,18 @@ const CIRCUMFERENCE = 653;
 const HOLD_MS = 1800;
 
 const DESTINATIONS = [
-  { name: 'SANTORINI', image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=500&q=80', color: 'rgba(255,180,100,0.15)' },
-  { name: 'MALDIVES', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80', color: 'rgba(100,220,200,0.15)' },
-  { name: 'BALI', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80', color: 'rgba(150,200,100,0.12)' },
-  { name: 'ICELAND', image: 'https://images.unsplash.com/photo-1520769669658-f07657f5a307?w=500&q=80', color: 'rgba(100,180,255,0.15)' },
-  { name: 'KYOTO', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80', color: 'rgba(255,150,150,0.12)' },
-  { name: 'PATAGONIA', image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=500&q=80', color: 'rgba(100,255,180,0.12)' },
-  { name: 'AMALFI', image: 'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=500&q=80', color: 'rgba(255,220,100,0.12)' },
-  { name: 'TOKYO', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500&q=80', color: 'rgba(200,150,255,0.12)' },
-  { name: 'SAHARA', image: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=500&q=80', color: 'rgba(255,200,100,0.15)' },
-  { name: 'FJORDS', image: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=500&q=80', color: 'rgba(100,200,255,0.15)' }
+  { name: 'SANTORINI', image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&q=90', color: 'rgba(255,180,100,0.15)' },
+  { name: 'MALDIVES', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600&q=90', color: 'rgba(100,220,200,0.15)' },
+  { name: 'BALI', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=90', color: 'rgba(150,200,100,0.12)' },
+  { name: 'ICELAND', image: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&q=90', color: 'rgba(100,180,255,0.15)' },
+  { name: 'KYOTO', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=90', color: 'rgba(255,150,150,0.12)' },
+  { name: 'PATAGONIA', image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=90', color: 'rgba(100,255,180,0.12)' },
+  { name: 'AMALFI', image: 'https://images.unsplash.com/photo-1533587851505-d119e13fa0d7?w=600&q=90', color: 'rgba(255,220,100,0.12)' },
+  { name: 'TOKYO', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=90', color: 'rgba(200,150,255,0.12)' },
+  { name: 'SAHARA', image: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&q=90', color: 'rgba(255,200,100,0.15)' },
+  { name: 'FJORDS', image: 'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=90', color: 'rgba(100,200,255,0.15)' },
+  { name: 'MALDIVES AERIAL', image: 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=600&q=90', color: 'rgba(80,240,255,0.2)' },
+  { name: 'GREEK ISLANDS', image: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&q=90', color: 'rgba(100,180,255,0.2)' }
 ];
 
 const ZONES = [
@@ -168,14 +170,16 @@ const PlannerPortalSection = () => {
                 const zone = ZONES[Math.floor(Math.random() * ZONES.length)];
                 const top = rand(zone.top[0], zone.top[1]);
                 const left = rand(zone.left[0], zone.left[1]);
-                const size = Math.floor(rand(120, 200));
+                const size = Math.floor(rand(200, 320));
                 const tilt = rand(-12, 12).toFixed(1);
                 const duration = rand(3.5, 6).toFixed(1);
+                const hueShift = Math.floor(rand(-20, 20));
+                const hasRing = Math.random() < 0.4;
 
                 const newSpawn = {
                     id: Date.now() + Math.random(),
                     ...dest,
-                    top, left, size, tilt, duration,
+                    top, left, size, tilt, duration, hueShift, hasRing,
                     rotateDur: rand(16, 28).toFixed(0)
                 };
 
@@ -293,22 +297,70 @@ const PlannerPortalSection = () => {
                             width: `${p.size}px`,
                             height: `${p.size}px`,
                             '--r': `${p.tilt}deg`,
-                            animation: `popIn ${p.duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`
+                            animation: `popIn ${p.duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`,
+                            boxShadow: `
+                                0 0 0 2px rgba(80, 160, 255, 0.25),
+                                0 0 ${p.size * 0.18}px rgba(40, 120, 255, 0.55),
+                                0 0 ${p.size * 0.35}px rgba(20, 80, 220, 0.30),
+                                0 0 ${p.size * 0.55}px rgba(10, 50, 180, 0.15),
+                                inset 0 0 ${p.size * 0.15}px rgba(0, 20, 80, 0.5)
+                            `
                         }}
                     >
                         <div 
                             className="sphere-bg"
                             style={{ 
                                 backgroundImage: `url(${p.image})`,
-                                animation: `rotatePlanet ${p.rotateDur}s linear infinite`
+                                animation: `rotatePlanet ${p.rotateDur}s linear infinite`,
+                                filter: `saturate(1.6) contrast(1.25) brightness(0.95) hue-rotate(${p.hueShift}deg)`
                             }}
                         />
-                        <div className="sphere-highlight" />
-                        <div className="sphere-shadow" />
+                        <div 
+                            className="sphere-highlight" 
+                            style={{
+                                background: `radial-gradient(
+                                    circle at 30% 28%,
+                                    rgba(180, 220, 255, 0.45) 0%,
+                                    rgba(100, 180, 255, 0.12) 35%,
+                                    transparent 55%
+                                )`
+                            }}
+                        />
+                        <div 
+                            className="sphere-shadow" 
+                            style={{
+                                background: `radial-gradient(
+                                    circle at 70% 72%,
+                                    rgba(0, 5, 40, 0.75) 0%,
+                                    rgba(0, 10, 60, 0.4) 30%,
+                                    transparent 55%
+                                )`
+                            }}
+                        />
+                        
+                        {/* Saturn-like Ring */}
+                        {p.hasRing && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                width: `${p.size * 1.5}px`,
+                                height: `${p.size * 0.28}px`,
+                                transform: 'translate(-50%, -50%) rotateX(72deg)',
+                                borderRadius: '50%',
+                                border: '2px solid rgba(80, 160, 255, 0.22)',
+                                boxShadow: `
+                                    0 0 12px rgba(60, 140, 255, 0.18),
+                                    inset 0 0 8px rgba(40, 100, 255, 0.10)
+                                `,
+                                pointerEvents: 'none',
+                                zIndex: -1 // Behind the planet image for semi-realism
+                            }} />
+                        )}
                     </div>
                     <span 
                         className="pop-label"
-                        style={{ top: `${p.size + 10}px`, '--r': `${p.tilt}deg` }}
+                        style={{ top: `${p.size + 14}px`, '--r': `${p.tilt}deg` }}
                     >
                         {p.name}
                     </span>
