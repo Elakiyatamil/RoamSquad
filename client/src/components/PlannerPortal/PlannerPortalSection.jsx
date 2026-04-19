@@ -14,20 +14,25 @@ const DESTINATIONS = [
   { name: 'BALI RICE TERRACES', image: '/assets/destinations/bali.png' },
   { name: 'TOKYO NEON', image: '/assets/destinations/tokyo.png' },
   { name: 'ICELAND AURORA', image: '/assets/destinations/iceland.png' },
-  { name: 'MACHU PICCHU', image: 'https://images.unsplash.com/photo-1587590227264-0ac64ce63ce8?w=800&q=80' },
+  { name: 'MACHU PICCHU', image: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=400&q=80' },
   { name: 'DISNEYLAND', image: 'https://images.unsplash.com/photo-1542125387-c71274d94f0a?w=800&q=80' },
   { name: 'DUBAI TWILIGHT', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80' },
   { name: 'KYOTO CHERRY BLOSSOMS', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80' },
-  { name: 'MALDIVES AERIAL', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80' }
+  { name: 'MALDIVES AERIAL', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80' },
+  { name: 'PARIS · EIFFEL', image: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=400&q=80' },
+  { name: 'AGRA · TAJ MAHAL', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&q=80' },
+  { name: 'TANJORE · BRIHADEESWARAR', image: 'https://images.unsplash.com/photo-1621996659490-3275b4d0d951?w=400&q=80' }
 ];
 
 const ZONES = [
   {top:[5,25],  left:[0,18]},
   {top:[5,30],  left:[15,42]},
-  {top:[5,35],  left:[55,85]},
-  {top:[5,28],  left:[82,99]},
-  {top:[55,80], left:[0,20]},
-  {top:[55,80], left:[80,99]}
+  {top:[5,35],  left:[55,85]},     // top mid right
+  {top:[5,28],  left:[82,99]},     // top right
+  {top:[55,80], left:[0,20]},      // bottom left
+  {top:[55,80], left:[80,99]},     // bottom right
+  {top:[35,55], left:[0,15]},      // mid-left
+  {top:[65,85], left:[35,65]}      // bottom-center
 ];
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -40,6 +45,10 @@ const PlannerPortalSection = () => {
     const ringRef = useRef(null);
     const btnRef = useRef(null);
     const anchorRef = useRef(null);
+    const starsRef = useRef(null);
+    const bloomRef = useRef(null);
+    const warpRafId = useRef(null);
+    const warpIntensity = useRef(0); // 0 → 1 over HOLD_MS
     
     const [holding, setHolding] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -192,21 +201,44 @@ const PlannerPortalSection = () => {
     const startTime = useRef(null);
     const rafId = useRef(null);
 
-    const updateRing = (now) => {
+    // ── Warp RAF: drives star intensity in sync with hold progress ──
+    const driveWarp = (now) => {
         if (!startTime.current) return;
         const elapsed = now - startTime.current;
-        const p = Math.min(elapsed / HOLD_MS, 1);
-        setProgress(p);
+        const p = Math.min(elapsed / HOLD_MS, 1); // 0→1
 
+        // Ring progress
+        setProgress(p);
         if (ringRef.current) {
-            const offset = CIRCUMFERENCE * (1 - p);
-            ringRef.current.style.strokeDashoffset = offset;
+            ringRef.current.style.strokeDashoffset = CIRCUMFERENCE * (1 - p);
+        }
+
+        // Warp star streaks — scaleY 1→12, opacity 0.4→1
+        const scaleY = 1 + p * 11;       // 1 at start, 12 at full warp
+        const translateY = p * -180;      // shoots upward progressively
+        const starOpacity = 0.3 + p * 0.7;
+        if (starsRef.current) {
+            starsRef.current.style.transform = `scaleY(${scaleY}) translateY(${translateY}%)`;
+            starsRef.current.style.opacity = starOpacity;
+        }
+
+        // Energy bloom from button center — grows and reddens
+        if (bloomRef.current) {
+            const bloomSize = 20 + p * 160; // 20% → 180% radius
+            const bloomOpacity = p * 0.18;
+            bloomRef.current.style.background = `radial-gradient(ellipse ${bloomSize}% ${bloomSize}% at center, rgba(193,53,26,${bloomOpacity}) 0%, transparent 70%)`;
+        }
+
+        // Section brightness surge
+        if (sectionRef.current) {
+            const brightness = 1 + p * 0.35; // 1.0 → 1.35
+            sectionRef.current.style.filter = `brightness(${brightness})`;
         }
 
         if (p >= 1) {
             triggerEntry();
         } else {
-            rafId.current = requestAnimationFrame(updateRing);
+            rafId.current = requestAnimationFrame(driveWarp);
         }
     };
 
@@ -215,60 +247,73 @@ const PlannerPortalSection = () => {
         setHolding(true);
         startTime.current = performance.now();
         if (btnRef.current) btnRef.current.classList.add('holding');
-        rafId.current = requestAnimationFrame(updateRing);
+        if (starsRef.current) starsRef.current.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 1, 1), opacity 0.3s ease';
+        rafId.current = requestAnimationFrame(driveWarp);
     };
 
     const cancelHold = () => {
+        if (!startTime.current) return; // already cancelled
         setHolding(false);
         startTime.current = null;
         setProgress(0);
         if (rafId.current) cancelAnimationFrame(rafId.current);
         if (btnRef.current) btnRef.current.classList.remove('holding');
         if (ringRef.current) ringRef.current.style.strokeDashoffset = CIRCUMFERENCE;
+
+        // Graceful warp reset
+        if (starsRef.current) {
+            starsRef.current.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+            starsRef.current.style.transform = 'scaleY(1) translateY(0)';
+            starsRef.current.style.opacity = '1';
+        }
+        if (bloomRef.current) {
+            bloomRef.current.style.background = 'none';
+        }
+        if (sectionRef.current) {
+            sectionRef.current.style.filter = 'brightness(1)';
+            sectionRef.current.style.transition = 'filter 0.4s ease-out';
+        }
     };
 
     const triggerEntry = () => {
-        setHolding(false);
-        if (sectionRef.current) {
-            sectionRef.current.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            sectionRef.current.style.opacity = '0';
-            sectionRef.current.style.transform = 'scale(1.04)';
+        // Carry warp into the page transition — stars exit upward fully
+        if (starsRef.current) {
+            starsRef.current.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 1, 1), opacity 0.3s ease';
+            starsRef.current.style.transform = 'scaleY(20) translateY(-100vh)';
+            starsRef.current.style.opacity = '0';
         }
-        setTimeout(() => {
-            navigate('/planner');
-        }, 520);
+        if (sectionRef.current) {
+            sectionRef.current.style.transition = 'opacity 0.45s ease, filter 0.45s ease';
+            sectionRef.current.style.opacity = '0';
+            sectionRef.current.style.filter = 'brightness(2)';
+        }
+        setHolding(false);
+        setTimeout(() => navigate('/planner'), 480);
     };
 
     return (
         <section id="planner-section" ref={sectionRef}>
-            {/* Star Field */}
-            <div className="portal-stars">
-                {[...Array(80)].map((_, i) => (
-                    <motion.div 
-                        key={i} 
-                        className="star" 
-                        initial={{ 
+            {/* Star Field — warp target */}
+            <div className="portal-stars" ref={starsRef}>
+                {[...Array(100)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="star"
+                        style={{
                             left: `${Math.random() * 100}%`,
                             top: `${Math.random() * 100}%`,
-                            opacity: rand(0.1, 0.4)
-                        }}
-                        animate={{ 
-                            top: ['100%', '-10%'],
-                            opacity: [0.1, 0.6, 0.1]
-                        }}
-                        transition={{ 
-                            duration: rand(15, 30),
-                            repeat: Infinity,
-                            ease: "linear",
-                            delay: rand(0, 20)
-                        }}
-                        style={{
                             width: `${1 + Math.random() * 2}px`,
                             height: `${1 + Math.random() * 2}px`,
+                            opacity: rand(0.2, 0.5),
+                            '--dur': `${rand(3, 6)}s`,
+                            animationDelay: `${rand(0, 5)}s`,
                         }}
                     />
                 ))}
             </div>
+
+            {/* Energy Bloom (warp glow from button) */}
+            <div className="warp-bloom" ref={bloomRef} />
 
             {/* Cinematic Floating Memory Orbs */}
             <AnimatePresence>

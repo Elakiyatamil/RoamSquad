@@ -47,11 +47,11 @@ const TypographicHeroSection = () => {
                         <span className="v12-motto-word v12-motto-forever">FOREVER</span>
                     </div>
                 </div>
+            </div>
 
-                <div className="v12-scroll-indicator" aria-hidden="true">
-                    <div className="v12-scroll-text">EXPLORE ↓</div>
-                    <div className="scroll-line"></div>
-                </div>
+            <div className="v12-scroll-indicator" aria-hidden="true">
+                <div className="v12-scroll-text">EXPLORE ↓</div>
+                <div className="scroll-line"></div>
             </div>
 
             {/* MINIMAL BACKGROUND EFFECT */}

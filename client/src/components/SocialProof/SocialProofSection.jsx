@@ -108,7 +108,7 @@ const SocialProofSection = () => {
                 <motion.h2 
                     className="squad-title"
                     initial={{ opacity: 0, filter: "blur(12px)", letterSpacing: "0.4em" }}
-                    whileInView={{ opacity: 1, filter: "blur(0px)", letterSpacing: "0.06em" }}
+                    whileInView={{ opacity: 1, filter: "blur(0px)", letterSpacing: "0.02em" }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
                 >

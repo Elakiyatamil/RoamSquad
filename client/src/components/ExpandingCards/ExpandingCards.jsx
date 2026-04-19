@@ -24,6 +24,8 @@ const FALLBACK_EVENTS = [
 const ExpandingCards = () => {
     const [activeTab, setActiveTab] = useState('packages');
     const [activePanel, setActivePanel] = useState(0);
+    const [isTabFading, setIsTabFading] = useState(false);
+    const [isImageFading, setIsImageFading] = useState(false);
     const sectionRef = useRef(null);
 
     // Fetch Packages
@@ -62,27 +64,51 @@ const ExpandingCards = () => {
             const hash = window.location.hash;
             if (hash === '#packages' || hash === '#events') {
                 const tab = hash.replace('#', '');
-                setActiveTab(tab);
-                setActivePanel(0);
-                // Allow time for DOM update if tab changed
+                if (window.currentTabRef !== tab) {
+                    setIsTabFading(true);
+                    setTimeout(() => {
+                        setActiveTab(tab);
+                        window.currentTabRef = tab;
+                        setActivePanel(0);
+                        setIsTabFading(false);
+                    }, 300);
+                }
                 setTimeout(() => {
                     sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                }, 400);
             }
         };
 
-        // Listen for both hashchange and a custom event if needed
         window.addEventListener('hashchange', handleHash);
-        // Also check on mount
         handleHash();
-
         return () => window.removeEventListener('hashchange', handleHash);
     }, []);
 
     const switchTab = (tab) => {
-        setActiveTab(tab);
-        setActivePanel(0);
+        if (tab === activeTab) return;
+        setIsTabFading(true);
+        setTimeout(() => {
+            setActiveTab(tab);
+            setActivePanel(0);
+            setIsTabFading(false);
+        }, 300);
     };
+
+    const switchPanel = (index) => {
+        if (index === activePanel) return;
+        setIsImageFading(true);
+        setTimeout(() => {
+            setActivePanel(index);
+            setIsImageFading(false);
+        }, 300);
+    };
+
+    const activeItem = currentData[activePanel] || currentData[0];
+    const activeTitle = activeItem?.name || activeItem?.title || '';
+    const activeImage = activeItem?.coverImage || activeItem?.image || activeItem?.bannerImage || '';
+    const activeDesc = activeItem?.description || (activeItem?.daysCount ? `${activeItem?.daysCount} days · ${activeItem?.highlights?.join(', ')}` : '');
+    const activeLink = activeItem?.link || (activeTab === 'packages' ? `/packages/${activeItem?.id}` : `/events/${activeItem?.id}`);
+    const activeCta = activeItem?.linkText || (activeTab === 'packages' ? 'VIEW PACKAGE →' : 'JOIN EVENT →');
 
     return (
         <section id="packages-events-section" className="expanding-cards-section" ref={sectionRef}>
@@ -104,48 +130,59 @@ const ExpandingCards = () => {
                 </button>
             </div>
 
-            {/* Panels Container */}
-            <div className={`cards-wrapper ${activeTab}-cards`}>
-                {currentData.slice(0, 5).map((item, index) => {
-                    const title = item.name || item.title;
-                    const image = item.coverImage || item.image || item.bannerImage;
-                    const desc = item.description || (item.daysCount ? `${item.daysCount} days · ${item.highlights?.join(', ')}` : '');
-                    const link = item.link || (activeTab === 'packages' ? `/packages/${item.id}` : `/events/${item.id}`);
-                    const ctaText = item.linkText || (activeTab === 'packages' ? 'VIEW PACKAGE →' : 'JOIN EVENT →');
+            {/* Layout Wrapper */}
+            <div className={`cards-wrapper ${isTabFading ? 'fading' : ''}`}>
+                
+                {/* Child 1: Main Feature Card */}
+                <div className={`main-feature-card ${isImageFading ? 'fading' : ''}`}>
+                    {activeImage && (
+                        <img src={activeImage} className="main-bg" loading="eager" alt={activeTitle} />
+                    )}
+                    <div className="main-overlay" />
+                    
+                    <div className="main-content">
+                        <span className="category-tag">{activeTab}</span>
+                        <h3 className="main-title">{activeTitle}</h3>
+                        <p className="main-description">{activeDesc}</p>
+                        <a href={activeLink} className="main-cta">
+                            {activeCta}
+                        </a>
+                    </div>
 
-                    return (
-                        <div 
-                            key={item.id || index}
-                            className={`panel ${activePanel === index ? 'active' : ''}`}
-                            onClick={() => setActivePanel(index)}
-                        >
+                    {/* Mobile Dots */}
+                    <div className="mobile-dots">
+                        {currentData.slice(0, 5).map((_, index) => (
                             <div 
-                                className="panel-bg" 
-                                style={{ backgroundImage: `url(${image})` }}
-                                loading="lazy"
+                                key={`dot-${index}`}
+                                className={`dot ${activePanel === index ? 'active' : ''}`}
+                                onClick={() => switchPanel(index)}
                             />
-                            <div className="panel-overlay" />
-                            
-                            {/* Collapsed vertical label */}
-                            <div className="panel-label">
-                                {title}
-                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                            {/* Expanded Content */}
-                            <div className="panel-content">
-                                <span className="category-tag">{activeTab}</span>
-                                <h3 className="panel-title">{title}</h3>
-                                <p className="panel-description">{desc}</p>
-                                <a href={link} className="panel-cta" onClick={(e) => {
-                                    // Prevent panel click from triggering when clicking link
-                                    e.stopPropagation();
-                                }}>
-                                    {ctaText}
-                                </a>
+                {/* Child 2: Thumbnail Filmstrip */}
+                <div className="thumbnail-filmstrip">
+                    {currentData.slice(0, 5).map((item, index) => {
+                        const thumbImage = item.coverImage || item.image || item.bannerImage;
+                        const thumbTitle = item.name || item.title;
+                        const isActiveThumb = activePanel === index;
+
+                        return (
+                            <div 
+                                key={`thumb-${item.id || index}`}
+                                className={`thumb-card ${isActiveThumb ? 'active-thumb' : ''}`}
+                                onClick={() => switchPanel(index)}
+                            >
+                                <img src={thumbImage} className="thumb-bg" loading="lazy" alt={thumbTitle}/>
+                                <div className="thumb-overlay">
+                                    <span className="thumb-text">{thumbTitle}</span>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
+
             </div>
         </section>
     );

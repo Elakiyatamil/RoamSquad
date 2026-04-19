@@ -13,15 +13,17 @@
 .v12-mindjoin-hero {
     position: relative;
     width: 100%;
-    height: 100vh;
+    min-height: 100svh;
     background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: visible;
     color: var(--v12-cream);
     font-family: var(--font-ui);
+    padding: 100px 1.5rem 80px;
 }
 
 
@@ -167,7 +169,6 @@
     position: relative;
     z-index: 10;
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -184,16 +185,15 @@
     justify-content: center;
     align-items: center;
     gap: 2rem;
-    margin-bottom: 2vh;
     overflow: visible;
-    height: min(48vh, 520px);
     z-index: 2;
 }
 
 .v12-title-wrapper {
     width: 100%;
-    padding: 0.5em 2vw;
     white-space: nowrap;
+    position: relative;
+    z-index: 2;
 }
 
 .v12-hero-text {
@@ -201,9 +201,8 @@
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    margin-top: -8vw;
     transform: perspective(900px) rotateX(18deg);
-    transform-origin: 50% 35%;
+    transform-origin: 50% 50%;
     transform-style: preserve-3d;
     white-space: nowrap;
     overflow: visible;
@@ -213,7 +212,7 @@
 .v12-char {
     display: inline-block;
     font-family: var(--font-tall);
-    font-size: clamp(2.8rem, 10vw, 9rem);
+    font-size: clamp(3.5rem, 13vw, 11rem);
     font-weight: 900;
     font-stretch: condensed;
     line-height: 0.78;
@@ -244,6 +243,7 @@
     margin-top: 1.5rem;
     text-transform: uppercase;
     white-space: nowrap;
+    pointer-events: none;
 }
 
 @keyframes float-a { 0%,100%{transform:translateY(0px) rotate(-1deg)} 50%{transform:translateY(-12px) rotate(1deg)} }
@@ -298,12 +298,13 @@
 
 .v12-scroll-indicator {
     position: absolute;
-    bottom: 24px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 5;
+    z-index: 10;
     text-align: center;
-    pointer-events: none;
+    pointer-events: auto;
+    white-space: nowrap;
 }
 
 .v12-scroll-text {
@@ -330,18 +331,43 @@
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
-    .v12-center-content { height: min(44vh, 480px); }
+    .v12-center-content {  }
 }
 
 @media (max-width: 768px) {
+    .v12-mindjoin-hero {
+        padding: 80px 1rem 60px;
+    }
+
     .v12-center-content { 
-        height: min(34vh, 320px); 
         gap: 1.25rem; 
         width: 100%;
-        padding: 0 1.5rem;
         text-align: center;
     }
-    .v12-hero-text { margin-top: -6vw; transform: none; }
-    .v12-motto-wrapper { gap: 0.75rem; margin-top: 1rem; }
+    
+    .v12-title-wrapper {
+        width: 100vw;
+    }
+
+    .v12-char {
+        font-size: clamp(3rem, 18vw, 5rem);
+    }
+    
+    .v12-hero-text { 
+        transform: perspective(900px) rotateX(11deg) rotateY(0deg); 
+    }
+    
+    .v12-motto-wrapper { 
+        gap: 0.4rem; 
+        margin-top: 1rem; 
+    }
+
+    .v12-motto-roam, 
+    .v12-motto-together, 
+    .v12-motto-explore, 
+    .v12-motto-forever {
+        font-size: clamp(0.55rem, 1.8vw, 0.85rem);
+        letter-spacing: clamp(0.1em, 0.3vw, 0.25em);
+    }
 }
 

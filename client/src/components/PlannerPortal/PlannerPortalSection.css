@@ -16,19 +16,29 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
+    transform-origin: center center;
+    will-change: transform, opacity;
 }
 
 .star {
     position: absolute;
     background: white;
     border-radius: 50%;
-    opacity: 0.3;
-    animation: twinkle var(--duration) infinite alternate ease-in-out;
+    animation: twinkle var(--dur, 4s) infinite alternate ease-in-out;
 }
 
 @keyframes twinkle {
-    from { opacity: 0.1; transform: scale(0.8); }
-    to { opacity: 0.6; transform: scale(1.1); }
+    from { opacity: 0.15; transform: scale(0.8); }
+    to   { opacity: 0.6;  transform: scale(1.15); }
+}
+
+/* Warp energy bloom — expands from center on hold */
+.warp-bloom {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.1s linear;
 }
 
 /* Magnetic Creative Cursor System */

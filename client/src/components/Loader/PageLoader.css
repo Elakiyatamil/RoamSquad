@@ -4,66 +4,30 @@
     width: 100vw;
     height: 100vh;
     z-index: 9999;
-    pointer-events: all;
-}
-
-.loader-curtain {
-    position: absolute;
-    left: 0;
-    width: 100vw;
-    height: 50vh;
+    pointer-events: none;
     background-color: #050d1a;
-    z-index: 1;
-}
-.loader-top-half { top: 0; }
-.loader-bottom-half { bottom: 0; }
-
-.loader-content-layer {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
 }
 
-/* Stage 1: Burst Stars */
-.loader-stars-burst {
+.loader-content-layer {
     position: absolute;
-    top: 50%; left: 50%;
-    width: 0; height: 0;
-    pointer-events: none;
-    z-index: 0;
-}
-.burst-star {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: #fff;
-    border-radius: 50%;
-    margin-top: -1px; margin-left: -1px;
-    box-shadow: 0 0 6px rgba(255,255,255,0.9);
-}
-
-.loader-center-content {
-    position: relative;
+    inset: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 2;
 }
 
-/* Stage 2: Logo and Line */
 .loader-brand-cinematic {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    z-index: 10;
     perspective: 1000px;
+    z-index: 10;
+    width: 100%;
 }
 
 .cinematic-word {
@@ -75,11 +39,14 @@
     line-height: 0.95;
     margin: 0;
     display: flex;
+    justify-content: center;
     transform-style: preserve-3d;
 }
 
-.roam-char { display: inline-block; transform-style: preserve-3d; }
-.squad-char { display: inline-block; transform-style: preserve-3d; }
+.roam-char, .squad-char { 
+    display: inline-block; 
+    transform-style: preserve-3d; 
+}
 
 .cinematic-divider {
     width: 120px;
@@ -89,75 +56,63 @@
     transform-origin: left center;
 }
 
-.cinematic-tagline {
+.loader-spatial-zone {
     position: absolute;
-    bottom: -3.5rem; /* place safely below SQUAD */
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.6rem;
-    letter-spacing: 0.4em;
-    color: rgba(245, 240, 232, 0.5);
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-/* Stage 3: Flight Plane */
-.loader-arc-zone {
-    position: absolute;
-    top: 50%;
-    margin-top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: clamp(320px, 85vw, 800px);
-    height: 250px;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 20;
 }
 
-.cinematic-flight-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
 .cinematic-plane {
     position: absolute;
+    top: 0; left: 0;
+    width: 0; height: 0;
     offset-rotate: auto;
-    /* Plane center offset adjusted for 32px SVG scale */
-    margin-top: -16px; margin-left: -16px;
-    filter: drop-shadow(0 6px 12px rgba(193, 53, 26, 0.6));
+}
+
+.cinematic-plane svg {
+    position: absolute;
+    top: -14px; left: -14px;
+    width: 28px; height: 28px;
 }
 
 .cinematic-pin-wrapper {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Offset vertically so the point of the teardrop matches path exactly */
-    margin-top: -20px; margin-left: -7px;
-    offset-rotate: 0deg; /* KEEP PINS UPRIGHT AND STATIONARY ON TILT */
+    top: 0; left: 0;
+    width: 0; height: 0;
+    offset-rotate: 0deg;
 }
 
 .pin-icon-box {
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8));
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    width: 16px; height: 16px;
+    transform-origin: bottom center;
 }
 
 .pin-city-name {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
     font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-    font-size: 0.45rem;
-    letter-spacing: 0.1em;
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
     color: #F5F0E8;
-    margin-top: 5px;
     font-weight: 700;
+    white-space: nowrap;
 }
 
-/* Stage 4: Premium Bottom Bar */
 .cinematic-progress-bar {
     position: absolute;
     bottom: 0; left: 0;
     width: 100%;
     height: 3px;
     background-color: #C1351A;
-    box-shadow: 0 0 8px #C1351A;
+    box-shadow: 0 0 10px #C1351A, 0 0 20px rgba(193,53,26,0.4);
     transform-origin: left center;
     z-index: 50;
 }
