@@ -2,6 +2,7 @@ import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import TravellerLayout from './layouts/TravellerLayout.jsx'
 import { Toaster } from 'react-hot-toast'
+import PageLoader from './components/Loader/PageLoader.jsx'
 
 import DiscoveryPage from './pages/traveller/DiscoveryPage.jsx'
 import PlannerPage from './pages/traveller/PlannerPage.jsx'
@@ -16,6 +17,7 @@ import EventsPage from './pages/traveller/EventsPage.jsx'
 export default function App() {
   return (
     <>
+    <PageLoader />
     <Routes>
       <Route path="/" element={<TravellerLayout />}>
         <Route index element={<DiscoveryPage />} />

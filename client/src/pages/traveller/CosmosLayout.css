@@ -1,0 +1,12 @@
+.discovery-cosmos-parent {
+    background: linear-gradient(to bottom, #0a1628, #050d1a);
+    overflow: hidden;
+    min-height: 200vh; /* Cover at least Hero + Planner */
+}
+
+/* Ensure no borders or shadows between sections */
+.discovery-cosmos-parent section {
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}

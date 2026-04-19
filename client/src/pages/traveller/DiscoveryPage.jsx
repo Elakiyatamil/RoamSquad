@@ -9,6 +9,8 @@ import PlannerPortalSection from '../../components/PlannerPortal/PlannerPortalSe
 import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
 import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
 import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
+import SocialProofSection from '../../components/SocialProof/SocialProofSection';
+import './CosmosLayout.css';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
 
@@ -49,13 +51,14 @@ const DiscoveryPage = () => {
     };
 
     return (
-        <div className="relative">
+        <div className="discovery-cosmos-parent relative">
             {/* Editorial Typographic Arch Hero */}
             <TypographicHeroSection />
             <PlannerPortalSection />
             <CloudNavbarSection />
 
             <ExpandingCards />
+            <SocialProofSection />
         </div>
     );
 };

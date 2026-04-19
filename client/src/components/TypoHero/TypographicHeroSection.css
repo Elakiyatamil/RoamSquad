@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@700&family=DM+Serif+Display&family=Playfair+Display:ital,wght@1,700&display=swap');
+
 :root {
     --v12-bg: #02020f;
     --v12-cream: #F5F0E0;
@@ -12,7 +14,7 @@
     position: relative;
     width: 100%;
     height: 100vh;
-    background: var(--v12-bg);
+    background: transparent;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,40 +24,13 @@
     font-family: var(--font-ui);
 }
 
-.v12-mindjoin-hero::after {
-    /* atmospheric fade into clouds (removes hard cut) */
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 140px;
-    z-index: 5;
-    pointer-events: none;
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 22, 40, 0) 0%,
-        rgba(10, 22, 40, 0.7) 60%,
-        rgba(10, 22, 40, 1) 100%
-    );
-    filter: blur(0);
-    transform: none;
-}
 
 /* --- BACKGROUND ELEMENTS --- */
 .v12-bg-elements {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(
-        to bottom,
-        #000000 0%,
-        #020208 15%,
-        #060820 35%,
-        #0a0d3a 55%,
-        #0d1557 75%,
-        #0a1628 100%
-    );
+    background: transparent;
     overflow: hidden;
 }
 
@@ -238,7 +213,7 @@
 .v12-char {
     display: inline-block;
     font-family: var(--font-tall);
-    font-size: clamp(4rem, 13vw, 16rem);
+    font-size: clamp(2.8rem, 10vw, 9rem);
     font-weight: 900;
     font-stretch: condensed;
     line-height: 0.78;
@@ -278,20 +253,21 @@
 
 .v12-motto-word { display: inline-block; }
 .v12-motto-roam {
-    font-family: var(--font-ui);
-    font-size: clamp(0.8rem, 1.8vw, 1.1rem);
-    letter-spacing: 0.3em;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(0.78rem, 2.6vw, 1.2rem);
+    letter-spacing: clamp(0.15em, 0.5vw, 0.35em);
     color: rgba(220, 230, 255, 0.75);
-    font-weight: 300;
+    font-weight: 700;
+    font-style: italic;
     animation: float-a 4s ease-in-out infinite;
     animation-delay: 0.1s;
 }
 .v12-motto-together {
-    font-family: Inter, system-ui, -apple-system, sans-serif;
-    font-size: clamp(0.8rem, 1.8vw, 1.1rem);
-    letter-spacing: 0.3em;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(0.78rem, 2.6vw, 1.2rem);
+    letter-spacing: clamp(0.15em, 0.5vw, 0.35em);
     color: rgba(220, 230, 255, 0.75);
-    font-weight: 300;
+    font-weight: 700;
     animation: float-b 5.5s ease-in-out infinite;
     animation-delay: 0.35s;
 }
@@ -302,20 +278,20 @@
     align-self: center;
 }
 .v12-motto-explore {
-    font-family: Inter, system-ui, -apple-system, sans-serif;
-    font-size: clamp(0.8rem, 1.8vw, 1.1rem);
-    letter-spacing: 0.3em;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.78rem, 2.6vw, 1.2rem);
+    letter-spacing: clamp(0.15em, 0.5vw, 0.35em);
     color: rgba(220, 230, 255, 0.75);
-    font-weight: 300;
+    font-weight: 700;
     animation: float-c 4.8s ease-in-out infinite;
     animation-delay: 0.7s;
 }
 .v12-motto-forever {
-    font-family: Inter, system-ui, -apple-system, sans-serif;
-    font-size: clamp(0.8rem, 1.8vw, 1.1rem);
-    letter-spacing: 0.3em;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(0.78rem, 2.6vw, 1.2rem);
+    letter-spacing: clamp(0.15em, 0.5vw, 0.35em);
     color: rgba(220, 230, 255, 0.75);
-    font-weight: 300;
+    font-weight: 700;
     animation: float-d 6s ease-in-out infinite;
     animation-delay: 1s;
 }
@@ -358,8 +334,13 @@
 }
 
 @media (max-width: 768px) {
-    .v12-char { font-size: clamp(4rem, 13vw, 10rem); }
-    .v12-center-content { height: min(34vh, 320px); gap: 1.25rem; }
+    .v12-center-content { 
+        height: min(34vh, 320px); 
+        gap: 1.25rem; 
+        width: 100%;
+        padding: 0 1.5rem;
+        text-align: center;
+    }
     .v12-hero-text { margin-top: -6vw; transform: none; }
     .v12-motto-wrapper { gap: 0.75rem; margin-top: 1rem; }
 }
