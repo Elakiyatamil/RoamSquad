@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, X, Search, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Eye, X, Search, CheckCircle2, Clock, AlertCircle, Download } from 'lucide-react';
+import { generatePDF } from '../../utils/pdfExport';
 import apiClient from '../../services/apiClient';
 
 const StatusBadge = ({ status }) => {
@@ -215,7 +216,7 @@ export default function InquiryManager() {
                   <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Budget</th>
                   <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
                   <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Status</th>
-                  <th className="text-right p-4 font-bold uppercase tracking-widest text-[10px]">View</th>
+                  <th className="text-right p-4 font-bold uppercase tracking-widest text-[10px]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,15 +228,22 @@ export default function InquiryManager() {
                     <td className="p-4 text-ink/70 font-semibold">₹{Number(i.totalBudget || 0).toLocaleString()}</td>
                     <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
                     <td className="p-4"><StatusBadge status={i.status} /></td>
-                    <td className="p-4 text-right">
-                      <button
-                        onClick={() => setSelected(i)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-ink text-cream hover:bg-ink/90 transition font-bold text-xs"
-                      >
-                        <Eye size={16} />
-                        View
-                      </button>
-                    </td>
+                     <td className="p-4 text-right flex items-center justify-end gap-2">
+                       <button
+                         onClick={() => generatePDF(i)}
+                         title="Download Itinerary PDF"
+                         className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-ink/5 text-ink/40 hover:bg-forest hover:text-white transition-all shadow-sm"
+                       >
+                         <Download size={16} />
+                       </button>
+                       <button
+                         onClick={() => setSelected(i)}
+                         className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-ink text-cream hover:bg-ink/90 transition font-bold text-xs"
+                       >
+                         <Eye size={16} />
+                         View
+                       </button>
+                     </td>
                   </tr>
                 ))}
                 {!isLoading && filtered.length === 0 ? (

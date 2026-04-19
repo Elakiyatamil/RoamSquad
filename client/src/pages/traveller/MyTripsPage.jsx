@@ -4,6 +4,8 @@ import { Plane, Calendar, MapPin, ChevronRight, AlertCircle, Heart, Plus, Copy, 
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import axios from 'axios';
+import { Download } from 'lucide-react';
+import { generatePDF } from '../../utils/pdfExport';
 
 const MyTripsPage = () => {
     const [trips, setTrips] = useState([]);
@@ -137,8 +139,15 @@ const MyTripsPage = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button 
+                                            onClick={() => generatePDF(trip)}
+                                            className="p-4 bg-forest/5 rounded-2xl text-forest/40 hover:bg-forest hover:text-cream transition-all group relative"
+                                            title="Download Itinerary"
+                                        >
+                                            <Download size={20} />
+                                        </button>
+                                        <button 
                                             onClick={() => handleReuse(trip)}
-                                            className="p-4 bg-forest/5 rounded-2xl text-forest hover:bg-forest hover:text-cream transition-all group relative"
+                                            className="p-4 bg-forest/5 rounded-2xl text-forest/40 hover:bg-forest hover:text-cream transition-all group relative"
                                             title="Reuse Itinerary"
                                         >
                                             <Copy size={20} />

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 import SearchableSelect from '../../components/ui/SearchableSelect';
+import { generatePDF } from '../../utils/pdfExport';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
 
@@ -14,6 +15,7 @@ const PlannerPage = () => {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [inquiryStatus, setInquiryStatus] = useState(null);
+    const [submittedData, setSubmittedData] = useState(null);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const { isAuthenticated, user } = useAuthStore();
     const [errorMessage, setErrorMessage] = useState('');
@@ -316,6 +318,7 @@ const PlannerPage = () => {
             });
             localStorage.setItem('submitted_inquiries', JSON.stringify(savedInquiries));
 
+            setSubmittedData(payload);
             setInquiryStatus('success');
             toast.success("Inquiry sent successfully. Admin will contact you.");
             setStep(4);
@@ -811,27 +814,30 @@ const PlannerPage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-10 flex gap-4">
-                                        <button 
-                                            disabled={plan.activities.length === 0}
-                                            onClick={handleAddToWishlist}
-                                            className="w-1/3 py-5 bg-white border-2 border-forest text-forest hover:bg-forest/5 rounded-full font-bold transition-colors disabled:opacity-30 disabled:border-transparent flex items-center justify-center gap-2"
-                                        >
-                                            <Sparkles size={16} /> Wishlist
-                                        </button>
-                                        <button 
-                                            disabled={plan.activities.length === 0}
-                                            onClick={() => {
-                                                if (isOverScheduled) {
-                                                    alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
-                                                    return;
-                                                }
-                                                nextStep();
-                                            }}
-                                            className="w-2/3 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
-                                        >
-                                            Review Inquiry
-                                        </button>
+                                    <div className="mt-10 flex flex-col gap-4">
+                                        <div className="flex gap-4">
+                                            <button 
+                                                disabled={plan.activities.length === 0}
+                                                onClick={handleAddToWishlist}
+                                                className="w-1/3 py-5 bg-white border-2 border-forest text-forest hover:bg-forest/5 rounded-full font-bold transition-colors disabled:opacity-30 disabled:border-transparent flex items-center justify-center gap-2"
+                                            >
+                                                <Sparkles size={16} /> Wishlist
+                                            </button>
+                                            <button 
+                                                disabled={plan.activities.length === 0}
+                                                onClick={() => {
+                                                    if (isOverScheduled) {
+                                                        alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
+                                                        return;
+                                                    }
+                                                    nextStep();
+                                                }}
+                                                className="w-2/3 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
+                                            >
+                                                Review Inquiry
+                                            </button>
+                                        </div>
+                                        {/* Row with Wishlist and Review buttons moved back to normal layout */}
                                     </div>
                                     
                                     {isOverScheduled && (
@@ -873,12 +879,20 @@ const PlannerPage = () => {
                                 Our Roam Squad experts are already reviewing your handcrafted {config.days}-day journey. 
                                 We'll get back to you within 24 hours.
                             </p>
-                            <button 
-                                onClick={() => window.location.href = '/'}
-                                className="px-10 py-4 bg-forest text-cream rounded-full font-bold"
-                            >
-                                Back to Discovery
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button 
+                                    onClick={() => window.location.href = '/'}
+                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold"
+                                >
+                                    Back to Discovery
+                                </button>
+                                <button 
+                                    onClick={() => generatePDF(submittedData)}
+                                    className="px-10 py-4 bg-gold text-forest rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
+                                >
+                                    <Sparkles size={20} /> Download Itinerary
+                                </button>
+                            </div>
                         </motion.div>
                     ) : step === 4 && (
                         <motion.div
