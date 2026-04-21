@@ -13,6 +13,7 @@ import JourneyDetails from './pages/JourneyDetails.jsx'
 import MyJourneys from './pages/MyJourneys.jsx'
 import PackagesPage from './pages/traveller/PackagesPage.jsx'
 import EventsPage from './pages/traveller/EventsPage.jsx'
+import ComingSoonPage from './pages/traveller/ComingSoonPage.jsx'
 
 export default function App() {
   return (
@@ -28,7 +29,9 @@ export default function App() {
         <Route path="my-journeys" element={<MyJourneys />} />
         <Route path="destinations/:slug" element={<DestinationDetailsPage />} />
         <Route path="packages" element={<PackagesPage />} />
+        <Route path="packages/:id" element={<ComingSoonPage type="Package" />} />
         <Route path="events" element={<EventsPage />} />
+        <Route path="events/:id" element={<ComingSoonPage type="Event" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

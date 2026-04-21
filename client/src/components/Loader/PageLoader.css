@@ -116,3 +116,52 @@
     transform-origin: left center;
     z-index: 50;
 }
+
+/* ===== MOBILE: Loader fixes ===== */
+@media (max-width: 768px) {
+    .global-page-loader-wrapper {
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    /* Move logo higher so arc doesn't overlap it */
+    .loader-brand-cinematic {
+        top: 32%;
+    }
+
+    /* Shrink ROAM and SQUAD text */
+    .cinematic-word {
+        font-size: 3rem;
+    }
+
+    /* Scale entire SVG arc path region down ~70% on mobile */
+    .loader-spatial-zone {
+        transform: scale(0.7);
+        transform-origin: center bottom;
+    }
+
+    /* Shrink plane icon */
+    .cinematic-plane svg {
+        top: -10px; left: -10px;
+        width: 20px; height: 20px;
+    }
+
+    /* Shrink pins */
+    .pin-icon-box {
+        width: 10px;
+        height: 10px;
+        left: -5px;
+    }
+
+    .pin-icon-box svg {
+        width: 10px;
+        height: 10px;
+    }
+
+    /* Shrink city labels */
+    .pin-city-name {
+        font-size: 0.4rem;
+        top: 10px;
+        letter-spacing: 0.1em;
+    }
+}

@@ -1,0 +1,79 @@
+425:            <div className={`planner-page-container ${step === 1 ? 'immersive-mode' : ''}`}>
+426:                <div className="max-w-7xl mx-auto">
+428:                    <div className="planner-progress-wrapper pt-12 pb-8">
+429:                        <div className="planner-progress-line">
+436:                        <div className="flex justify-between mt-4 text-[10px] font-bold tracking-[0.3em] text-white/20 uppercase">
+463:                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+481:                            <div className="space-y-6">
+491:                            <div className="mt-16 flex justify-between">
+504:                        <div key="step3" className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+506:                            <div className="lg:col-span-2 space-y-12">
+507:                                <div className="flex flex-col md:flex-row gap-4 mb-8">
+508:                                    <div className="flex-1">
+522:                                    <div className="flex-1">
+536:                                    <div className="flex-1">
+549:                                    <div className="flex-1">
+565:                                <div className="flex justify-between items-center mb-6">
+568:                                        <div className="flex gap-2 overflow-x-auto pb-2">
+586:                                <div className="space-y-16">
+588:                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
+593:                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
+598:                                        <div className="space-y-12">
+600:                                                <div className="space-y-6">
+602:                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+615:                                                                <div className="flex items-center gap-4">
+616:                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+619:                                                                    <div>
+633:                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+639:                                                <div className="space-y-6">
+641:                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+652:                                                                <div className="flex items-center gap-4">
+653:                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+656:                                                                    <div>
+670:                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+676:                                                <div className="space-y-6">
+678:                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+689:                                                                <div className="flex items-center gap-4">
+690:                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
+693:                                                                    <div>
+707:                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
+718:                            <div className="lg:col-span-1">
+719:                                <div className="bg-forest text-cream rounded-[2.5rem] p-10 shadow-2xl sticky top-28">
+722:                                    <div className="space-y-6 mb-12 min-h-[200px] max-h-[400px] overflow-y-auto pr-2">
+726:                                            <div className="space-y-6">
+728:                                                    <div key={`day-${t.day}`} className="space-y-3 pb-4 border-b border-cream/10">
+731:                                                            <div key={item.planId} className="flex items-center justify-between group">
+732:                                                                <div>
+743:                                                    <div className="space-y-3 pt-2">
+746:                                                            <div key={item.planId} className="flex items-center justify-between group">
+747:                                                                <div>
+761:                                    <div className="pt-8 border-t border-cream/10 space-y-4">
+762:                                        <div className="flex justify-between text-sm">
+766:                                        <div className="flex justify-between text-sm">
+770:                                        <div className="flex justify-between items-end pt-4">
+772:                                            <div className="text-right">
+779:                                    <div className="mt-10 flex flex-col gap-4">
+780:                                        <div className="flex gap-4">
+811:                                    <div className="mt-8 space-y-2">
+812:                                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-cream/40 px-2">
+816:                                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+836:                            <div className="w-24 h-24 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-8 text-gold">
+844:                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+866:                            <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl shadow-forest/10">
+867:                                <div className="grid grid-cols-1 md:grid-cols-2">
+868:                                    <div className="p-12 bg-forest text-cream">
+870:                                        <div className="space-y-8">
+872:                                                <div key={day.day} className="relative pl-8 border-l-2 border-gold/30 last:border-0 pb-4">
+873:                                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gold shadow-lg ring-4 ring-forest" />
+875:                                                    <div className="space-y-4">
+877:                                                            <div key={act.planId} className="flex flex-col">
+890:                                    <div className="p-12">
+894:                                                <div className="p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold">
+898:                                            <div>
+908:                                            <div>
+918:                                            <div>
+928:                                            <div>
+938:                                            <div>
+949:                                            <div>
+960:                                            <div className="pt-6 border-t border-forest/5">
+961:                                                <div className="flex justify-between items-end mb-8">

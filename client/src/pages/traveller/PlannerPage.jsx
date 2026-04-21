@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus, TreePalm } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 import SearchableSelect from '../../components/ui/SearchableSelect';
 import { generatePDF } from '../../utils/pdfExport';
+import Step1Immersive from '../../components/traveller/Step1Immersive';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
 
@@ -32,6 +33,7 @@ const PlannerPage = () => {
         hotel: '',
         food: ''
     });
+
 
     // Sync auth details
     React.useEffect(() => {
@@ -415,85 +417,36 @@ const PlannerPage = () => {
 
 
     return (
-        <div className="container mx-auto px-6 py-12 min-h-[80vh]">
-            <div className="max-w-6xl mx-auto">
-                {/* Progress Bar */}
-                <div className="flex items-center justify-between mb-16 relative">
-                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-forest/10 -z-10" />
-                    {[1, 2, 3].map(i => (
-                        <div 
-                            key={i}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                                step >= i ? 'bg-forest text-cream scale-110' : 'bg-white text-forest/30'
-                            }`}
-                        >
-                            {i}
+        <div className={`planner-page-container ${step === 1 ? 'immersive-mode' : ''}`}>
+                <div className="max-w-7xl mx-auto">
+                    {/* Minimal Progress Line */}
+                    <div className="planner-progress-wrapper pt-12 pb-8">
+                        <div className="planner-progress-line">
+                            <div 
+                                className="progress-fill transition-all duration-700 ease-in-out bg-gold h-full"
+                                style={{ width: `${(step / 3) * 100}%` }}
+                            />
                         </div>
-                    ))}
-                </div>
+                        <div className="flex justify-between mt-4 text-[10px] font-bold tracking-[0.3em] text-white/20 uppercase">
+                            <span className={step >= 1 ? 'text-white/60' : ''}>01 BASICS</span>
+                            <span className={step >= 2 ? 'text-white/60' : ''}>02 VIBE</span>
+                            <span className={step >= 3 ? 'text-white/60' : ''}>03 ITINERARY</span>
+                        </div>
+                    </div>
 
-                <AnimatePresence mode="wait">
-                    {step === 1 && (
-                        <motion.div
-                            key="step1"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5"
-                        >
-                            <h2 className="text-4xl font-display font-bold text-forest mb-2">The Basics</h2>
-                            <p className="text-forest/50 mb-10 text-lg">Tell us a bit about your upcoming adventure.</p>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                <div className="space-y-6">
-                                    <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">How many days?</label>
-                                    <div className="flex items-center gap-6">
-                                        <Calendar className="text-gold" size={32} />
-                                        <input 
-                                            type="number" 
-                                            value={config.days}
-                                            onChange={(e) => setConfig({...config, days: parseInt(e.target.value)})}
-                                            className="text-5xl font-display font-bold bg-transparent border-b-2 border-forest/10 focus:border-gold outline-none w-32"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">Who is travelling?</label>
-                                    <div className="flex flex-wrap gap-3">
-                                        {travelTypes.map(t => (
-                                            <button
-                                                key={t}
-                                                onClick={() => setConfig({...config, travelType: t})}
-                                                className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${
-                                                    config.travelType === t ? 'bg-forest text-cream' : 'bg-forest/5 text-forest/60 hover:bg-forest/10'
-                                                }`}
-                                            >
-                                                {t}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-16 flex justify-end">
-                                <button 
-                                    onClick={nextStep}
-                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    Continue <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
+                    <div className="step-content-wrapper">
+                        {step === 1 && (
+                            <Step1Immersive 
+                                config={config} 
+                                setConfig={setConfig} 
+                                onNext={nextStep} 
+                            />
+                        )}
 
                     {step === 2 && (
-                        <motion.div
+                        <div
                             key="step2"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5"
+                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5 animate-fade-in"
                         >
                             <h2 className="text-4xl font-display font-bold text-forest mb-2">Customise Your Vibe</h2>
                             <p className="text-forest/50 mb-10 text-lg">Choose the style that matches your mood.</p>
@@ -535,7 +488,7 @@ const PlannerPage = () => {
                                     Build Itinerary <ChevronRight size={20} />
                                 </button>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
 
                     {step === 3 && (
@@ -852,10 +805,9 @@ const PlannerPage = () => {
                                             <span>{Math.round(totalActivityTime / 60)}h Total</span>
                                         </div>
                                         <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                            <motion.div 
-                                                className={`h-full ${isOverScheduled ? 'bg-red-500' : 'bg-gold'}`}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${Math.min(100, (plan.activities.length / (config.days * 2)) * 100)}%` }}
+                                            <div 
+                                                className={`h-full transition-all duration-500 ${isOverScheduled ? 'bg-red-500' : 'bg-gold'}`}
+                                                style={{ width: `${Math.min(100, (plan.activities.length / (config.days * 2)) * 100)}%` }}
                                             />
                                         </div>
                                     </div>
@@ -865,11 +817,9 @@ const PlannerPage = () => {
                     )}
 
                     {step === 4 && inquiryStatus === 'success' ? (
-                        <motion.div
+                        <div
                             key="success"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="text-center py-20 bg-white rounded-[3rem] shadow-xl"
+                            className="text-center py-20 bg-white rounded-[3rem] shadow-xl animate-fade-in"
                         >
                             <div className="w-24 h-24 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-8 text-gold">
                                 <Sparkles size={48} />
@@ -893,13 +843,11 @@ const PlannerPage = () => {
                                     <Sparkles size={20} /> Download Itinerary
                                 </button>
                             </div>
-                        </motion.div>
+                        </div>
                     ) : step === 4 && (
-                        <motion.div
+                        <div
                             key="step4"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="max-w-4xl mx-auto"
+                            className="max-w-4xl mx-auto animate-fade-in"
                         >
                             <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl shadow-forest/10">
                                 <div className="grid grid-cols-1 md:grid-cols-2">
@@ -1013,9 +961,9 @@ const PlannerPage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
+                </div>
 
                 <AuthModal 
                     isOpen={showAuthModal} 
@@ -1029,8 +977,8 @@ const PlannerPage = () => {
                         }
                     }}
                 />
+                </div>
             </div>
-        </div>
     );
 };
 

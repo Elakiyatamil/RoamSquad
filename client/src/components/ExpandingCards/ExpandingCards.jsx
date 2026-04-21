@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import './ExpandingCards.css';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
@@ -27,6 +28,17 @@ const ExpandingCards = () => {
     const [isTabFading, setIsTabFading] = useState(false);
     const [isImageFading, setIsImageFading] = useState(false);
     const sectionRef = useRef(null);
+    const navigate = useNavigate();
+
+    // Mobile accordion state: which index is open (-1 = all closed)
+    const [mobileOpenIndex, setMobileOpenIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= 768);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Fetch Packages
     const { data: packages = FALLBACK_PACKAGES } = useQuery({
@@ -70,12 +82,10 @@ const ExpandingCards = () => {
                         setActiveTab(tab);
                         window.currentTabRef = tab;
                         setActivePanel(0);
+                        setMobileOpenIndex(0); 
                         setIsTabFading(false);
                     }, 300);
                 }
-                setTimeout(() => {
-                    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                }, 400);
             }
         };
 
@@ -86,12 +96,9 @@ const ExpandingCards = () => {
 
     const switchTab = (tab) => {
         if (tab === activeTab) return;
-        setIsTabFading(true);
-        setTimeout(() => {
-            setActiveTab(tab);
-            setActivePanel(0);
-            setIsTabFading(false);
-        }, 300);
+        // Updating the hash triggers handleHash via hashchange event
+        window.history.pushState(null, '', `#${tab}`);
+        window.dispatchEvent(new Event('hashchange'));
     };
 
     const switchPanel = (index) => {
@@ -111,7 +118,8 @@ const ExpandingCards = () => {
     const activeCta = activeItem?.linkText || (activeTab === 'packages' ? 'VIEW PACKAGE →' : 'JOIN EVENT →');
 
     return (
-        <section id="packages-events-section" className="expanding-cards-section" ref={sectionRef}>
+        <section id="packages" className="expanding-cards-section" ref={sectionRef}>
+            <div id="events" style={{ position: 'absolute', top: 0 }} />
             {/* Tabs Bar */}
             <div className="tabs-container">
                 <button 
@@ -130,60 +138,104 @@ const ExpandingCards = () => {
                 </button>
             </div>
 
-            {/* Layout Wrapper */}
-            <div className={`cards-wrapper ${isTabFading ? 'fading' : ''}`}>
-                
-                {/* Child 1: Main Feature Card */}
-                <div className={`main-feature-card ${isImageFading ? 'fading' : ''}`}>
-                    {activeImage && (
-                        <img src={activeImage} className="main-bg" loading="eager" alt={activeTitle} />
-                    )}
-                    <div className="main-overlay" />
-                    
-                    <div className="main-content">
-                        <span className="category-tag">{activeTab}</span>
-                        <h3 className="main-title">{activeTitle}</h3>
-                        <p className="main-description">{activeDesc}</p>
-                        <a href={activeLink} className="main-cta">
-                            {activeCta}
-                        </a>
-                    </div>
-
-                    {/* Mobile Dots */}
-                    <div className="mobile-dots">
-                        {currentData.slice(0, 5).map((_, index) => (
-                            <div 
-                                key={`dot-${index}`}
-                                className={`dot ${activePanel === index ? 'active' : ''}`}
-                                onClick={() => switchPanel(index)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Child 2: Thumbnail Filmstrip */}
-                <div className="thumbnail-filmstrip">
+            {/* ===== MOBILE: Stacked Accordion Bars ===== */}
+            {isMobile ? (
+                <div className={`mobile-accordion-stack ${isTabFading ? 'fading' : ''}`}>
                     {currentData.slice(0, 5).map((item, index) => {
-                        const thumbImage = item.coverImage || item.image || item.bannerImage;
-                        const thumbTitle = item.name || item.title;
-                        const isActiveThumb = activePanel === index;
+                        const bgImage = item.coverImage || item.image || item.bannerImage || '';
+                        const title = item.name || item.title || '';
+                        const desc = item.description || (item.daysCount ? `${item.daysCount} days` : '');
+                        const link = item.link || (activeTab === 'packages' ? `/packages/${item.id}` : `/events/${item.id}`);
+                        const cta = item.linkText || (activeTab === 'packages' ? 'VIEW PACKAGE' : 'JOIN EVENT');
+                        const isOpen = mobileOpenIndex === index;
 
                         return (
-                            <div 
-                                key={`thumb-${item.id || index}`}
-                                className={`thumb-card ${isActiveThumb ? 'active-thumb' : ''}`}
-                                onClick={() => switchPanel(index)}
+                            <div
+                                key={`mob-bar-${item.id || index}`}
+                                className={`mob-bar ${isOpen ? 'mob-bar--open' : ''}`}
+                                onClick={() => setMobileOpenIndex(isOpen ? -1 : index)}
                             >
-                                <img src={thumbImage} className="thumb-bg" loading="lazy" alt={thumbTitle}/>
-                                <div className="thumb-overlay">
-                                    <span className="thumb-text">{thumbTitle}</span>
+                                {/* Background image */}
+                                {bgImage && (
+                                    <img
+                                        src={bgImage}
+                                        className="mob-bar__bg"
+                                        loading={index === 0 ? 'eager' : 'lazy'}
+                                        alt={title}
+                                    />
+                                )}
+
+                                {/* Gradient overlay */}
+                                <div className="mob-bar__overlay" />
+
+                                {/* Collapsed label row */}
+                                <div className="mob-bar__collapsed-row">
+                                    <span className="mob-bar__name">{title}</span>
+                                    <span className={`mob-bar__toggle ${isOpen ? 'mob-bar__toggle--open' : ''}`}>+</span>
+                                </div>
+
+                                {/* Expanded content (only visible when open) */}
+                                <div className={`mob-bar__expanded-content ${isOpen ? 'mob-bar__expanded-content--visible' : ''}`}>
+                                    <span className="mob-bar__eyebrow">{activeTab === 'packages' ? 'PACKAGES' : 'EVENTS'}</span>
+                                    <h3 className="mob-bar__title">{title}</h3>
+                                    <p className="mob-bar__duration">{desc}</p>
+                                    <Link
+                                        to={link}
+                                        className="mob-bar__cta"
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        {cta}
+                                    </Link>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
+            ) : (
+                /* ===== DESKTOP: Existing layout ===== */
+                <div className={`cards-wrapper ${isTabFading ? 'fading' : ''}`}>
+                    
+                    {/* Child 1: Main Feature Card */}
+                    <div className={`main-feature-card ${isImageFading ? 'fading' : ''}`}>
+                        {activeImage && (
+                            <img src={activeImage} className="main-bg" loading="eager" alt={activeTitle} />
+                        )}
+                        <div className="main-overlay" />
+                        
+                        <div className="main-content">
+                            <span className="category-tag">{activeTab}</span>
+                            <h3 className="main-title">{activeTitle}</h3>
+                            <p className="main-description">{activeDesc}</p>
+                            <Link to={activeLink} className="main-cta">
+                                {activeCta}
+                            </Link>
+                        </div>
+                    </div>
 
-            </div>
+                    {/* Child 2: Thumbnail Filmstrip */}
+                    <div className="thumbnail-filmstrip">
+                        {currentData.slice(0, 5).map((item, index) => {
+                            const thumbImage = item.coverImage || item.image || item.bannerImage;
+                            const thumbTitle = item.name || item.title;
+                            const isActiveThumb = activePanel === index;
+
+                            return (
+                                <div 
+                                    key={`thumb-${item.id || index}`}
+                                    className={`thumb-card ${isActiveThumb ? 'active-thumb' : ''}`}
+                                    onClick={() => switchPanel(index)}
+                                >
+                                    <img src={thumbImage} className="thumb-bg" loading="lazy" alt={thumbTitle}/>
+                                    <div className="thumb-overlay">
+                                        <span className="thumb-text">{thumbTitle}</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                </div>
+            )}
         </section>
     );
 };

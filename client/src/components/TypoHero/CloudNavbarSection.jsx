@@ -15,6 +15,18 @@ export default function CloudNavbarSection() {
     { to: '/my-trips', label: 'My Trips' },
   ]
 
+  const [activeHash, setActiveHash] = useState(location.hash || '')
+  const [isPackagesVisible, setIsPackagesVisible] = useState(false)
+
+  // Track window hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      setActiveHash(window.location.hash)
+    }
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
   // Lock body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? 'hidden' : ''
@@ -26,8 +38,30 @@ export default function CloudNavbarSection() {
     setDrawerOpen(false)
   }, [location.pathname])
 
+  // IntersectionObserver for packages/events section
+  useEffect(() => {
+    if (location.pathname !== '/') return
+    const target = document.getElementById('packages')
+    if (!target) return
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        setIsPackagesVisible(entry.isIntersecting)
+      })
+    }, { threshold: 0.2 })
+    
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [location.pathname])
+
   const handleMobileNavClick = (e, n) => {
-    if (n.label === 'Planner' && location.pathname === '/') {
+    if (n.to.startsWith('/#') && location.pathname === '/') {
+      e.preventDefault()
+      setDrawerOpen(false)
+      const hashTarget = n.to.replace('/', '')
+      window.location.hash = hashTarget
+      // Browser handles smooth scroll via CSS
+    } else if (n.label === 'Planner' && location.pathname === '/') {
       e.preventDefault()
       setDrawerOpen(false)
       setTimeout(() => {
@@ -36,6 +70,22 @@ export default function CloudNavbarSection() {
     } else {
       setDrawerOpen(false)
     }
+  }
+
+  const getIsActive = (n) => {
+    if (n.to.startsWith('/#')) {
+      if (location.pathname !== '/') return false
+      const hashTarget = n.to.replace('/', '')
+      if (isPackagesVisible) {
+        if (activeHash === hashTarget) return true
+        if (!activeHash && n.label === 'Packages') return true
+      }
+      return false
+    }
+    if (n.to === '/') {
+      return location.pathname === '/' && !isPackagesVisible && !location.hash && location.pathname === '/'
+    }
+    return location.pathname === n.to
   }
 
   return (
@@ -48,7 +98,7 @@ export default function CloudNavbarSection() {
           </Link>
           <nav className="cloud-links" aria-label="Primary">
             {nav.map((n, idx) => {
-              const active = location.pathname === n.to
+              const active = getIsActive(n)
               return (
                 <React.Fragment key={n.to}>
                   <Link
@@ -56,7 +106,12 @@ export default function CloudNavbarSection() {
                     className={`cloud-link ${active ? 'is-active' : ''}`}
                     data-nav={n.label.toLowerCase()}
                     onClick={(e) => {
-                      if (n.label === 'Planner' && location.pathname === '/') {
+                      if (n.to.startsWith('/#') && location.pathname === '/') {
+                        e.preventDefault()
+                        const hashTarget = n.to.replace('/', '')
+                        window.location.hash = hashTarget
+                        document.getElementById('packages-events-section')?.scrollIntoView({ behavior: 'smooth' })
+                      } else if (n.label === 'Planner' && location.pathname === '/') {
                         e.preventDefault()
                         document.getElementById('planner-section')?.scrollIntoView({ behavior: 'smooth' })
                       }
@@ -103,7 +158,7 @@ export default function CloudNavbarSection() {
 
         <nav className="cloud-drawer-links" aria-label="Mobile navigation">
           {nav.map((n) => {
-            const active = location.pathname === n.to
+            const active = getIsActive(n)
             return (
               <Link
                 key={n.to}

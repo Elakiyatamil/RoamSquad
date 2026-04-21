@@ -9,7 +9,12 @@
   --color-ocean: #2E6F95;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   @apply bg-cream text-ink;
+  overflow-x: hidden;
 }
 
