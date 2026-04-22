@@ -21,7 +21,7 @@ const PlannerPage = () => {
     const { isAuthenticated, user } = useAuthStore();
     const [errorMessage, setErrorMessage] = useState('');
     const [config, setConfig] = useState({
-        days: 3,
+        days: 1,
         travellers: 2,
         travelType: 'Couple',
         vibe: 'Nature',

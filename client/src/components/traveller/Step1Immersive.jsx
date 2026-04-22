@@ -2,13 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 /**
- * ROAMSQUAD PLANNER V10 - CINEMATIC "CLOUD-ENTRY" TRANSITION
- * --------------------------------------------------------
- * - Forward Camera Push (Scale 1.08)
- * - UI Blur & Depth Shift (Blur 6px, Opacity 0.7)
- * - Intensified 3D Snow Physics
- * - Volumetric Cloud Sweep (Soft White/Blue)
- * - Continuous Motion Flow
+ * ROAMSQUAD PLANNER V10.1 - REFINED RESPONSIVE & SWEEP TRANSITION
  */
 
 const SwirlUnderline = ({ delay = 0 }) => (
@@ -41,7 +35,6 @@ const SwirlUnderline = ({ delay = 0 }) => (
 
 const SnowEngine = ({ isTransitioning }) => {
   const canvasRef = useRef(null);
-  const density = isTransitioning ? 2.5 : 1;
   const speedMult = isTransitioning ? 3 : 1;
 
   useEffect(() => {
@@ -55,22 +48,20 @@ const SnowEngine = ({ isTransitioning }) => {
       x: Math.random() * W,
       y: Math.random() * H,
       r: Math.random() * 2 + 0.3,
-      sy: [0.4, 0.8, 1.6][i % 3], // base speed y
-      sx: (0.2 + Math.random() * 0.3), // base speed x
+      sy: [0.4, 0.8, 1.6][i % 3], 
+      sx: (0.2 + Math.random() * 0.3), 
       opacity: [0.2, 0.4, 0.7][i % 3],
       blur: [2, 0.5, 0][i % 3],
-      depth: (i % 3) // 0: Far, 1: Mid, 2: Near
+      depth: (i % 3)
     }));
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
       particles.forEach(p => {
-        // Adjust speed based on depth and transitioning state
         const currentSpeedY = p.sy * (p.depth === 2 ? speedMult * 1.5 : speedMult);
         const currentSpeedX = p.sx * speedMult;
         
         ctx.beginPath();
-        // Foreground particles slightly larger and brighter during transition
         const currentR = isTransitioning && p.depth === 2 ? p.r * 1.5 : p.r;
         const currentOpacity = isTransitioning && p.depth === 2 ? Math.min(1, p.opacity * 1.5) : p.opacity;
 
@@ -106,11 +97,12 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
   const smoothRotation = useSpring(rotation, { damping: 30, stiffness: 100 });
   
   const currentDay = useTransform(smoothRotation, (r) => {
-    const val = Math.round((((r % 360) + 360) % 360) / 360 * 50);
-    return Math.max(0, Math.min(50, val));
+    let normalizedR = ((r % 360) + 360) % 360;
+    const val = Math.floor((normalizedR / 360) * 50) + 1;
+    return Math.max(1, Math.min(50, val));
   });
 
-  useEffect(() => { rotation.set((value / 50) * 360); }, []);
+  useEffect(() => { rotation.set(((value - 1) / 50) * 360); }, []);
 
   useEffect(() => {
     const unsub = currentDay.on("change", (v) => { if (v !== value) onChange(v); });
@@ -121,27 +113,33 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
     <motion.div 
       animate={{ 
         scale: isTransitioning ? 0.9 : 1,
-        opacity: isTransitioning ? 0.3 : 1,
-        filter: isTransitioning ? 'blur(6px)' : 'blur(0px)'
+        opacity: isTransitioning ? 0.3 : 1
       }}
-      className="relative w-80 h-80 flex items-center justify-center"
+      className="relative w-[70vw] max-w-[320px] aspect-square flex items-center justify-center my-8 md:my-0"
     >
-      <div className="absolute inset-0 rounded-full bg-orange-500/5 blur-[50px] pointer-events-none" />
+      <div className="absolute inset-0 rounded-full bg-orange-500/20 shadow-[0_0_40px_rgba(255,255,255,0.15)] blur-[40px] pointer-events-none" />
 
       <motion.div 
-        className="relative w-72 h-72 rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing z-20"
+        className="relative w-full h-full rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing z-20"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0}
         onDrag={(e, info) => { rotation.set(rotation.get() + info.delta.x * 0.5); }}
       >
-        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4" />
+        <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.4" />
+          <circle cx="50" cy="50" r="48" fill="url(#inner-glow)" pointerEvents="none" />
+          <defs>
+            <radialGradient id="inner-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="80%" stopColor="transparent" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+            </radialGradient>
+          </defs>
           {Array.from({ length: 50 }).map((_, i) => (
             <line 
               key={i}
               x1="50" y1="2" x2="50" y2={i % 5 === 0 ? "6" : "4"}
-              stroke={i % 5 === 0 ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.4)"}
+              stroke={i % 5 === 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.4)"}
               strokeWidth="0.5"
               transform={`rotate(${(i / 50) * 360}, 50, 50)`}
             />
@@ -149,12 +147,12 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
         </svg>
 
         <motion.div 
-          className="absolute w-0.5 h-full flex flex-col items-center pointer-events-none"
+          className="absolute w-1 h-[96%] flex flex-col items-center pointer-events-none"
           style={{ rotate: smoothRotation }}
         >
-           <div className="w-[2px] h-[48%] flex flex-col items-center">
-              <div className="w-full h-5 bg-[#E85D04] rounded-t-full shadow-[0_0_12px_rgba(232,93,4,0.8)]" />
-              <div className="w-full flex-grow bg-white/40" />
+           <div className="w-[3px] h-[50%] flex flex-col items-center">
+              <div className="w-full h-6 bg-[#E85D04] rounded-t-full shadow-[0_0_15px_rgba(255,149,0,1)]" />
+              <div className="w-full flex-grow bg-white/90 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
            </div>
            <div className="w-[1.5px] h-[48%] bg-white/10 mt-auto" />
         </motion.div>
@@ -166,15 +164,15 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.2 }}
-              className="text-8xl font-serif italic drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              className="font-serif italic drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] text-[#FFFFFF]"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(64px, 15vw, 128px)" }}
             >
               {value}
             </motion.span>
           </AnimatePresence>
-          <span className="text-xs tracking-[0.4em] uppercase opacity-40 -mt-2">Days</span>
+          <span className="text-[10px] md:text-xs tracking-[0.4em] uppercase opacity-60 -mt-2 md:-mt-4">Days</span>
         </div>
-        <div className="absolute inset-8 rounded-full border border-white/5 backdrop-blur-[2px] pointer-events-none z-10" />
+        <div className="absolute inset-4 sm:inset-8 rounded-full border border-white/10 backdrop-blur-[2px] pointer-events-none z-10 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]" />
       </motion.div>
     </motion.div>
   );
@@ -182,7 +180,6 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
 
 const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
   const options = ["FRIENDS", "COUPLE", "FAMILY", "SOLO", "STRANGERS"];
-  const containerRef = useRef(null);
 
   return (
     <motion.div 
@@ -190,79 +187,60 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
         opacity: isTransitioning ? 0 : 1,
         y: isTransitioning ? 20 : 0
       }}
-      className="w-full flex flex-col items-center space-y-6"
+      className="w-full flex flex-col items-center"
     >
       <div 
-        ref={containerRef}
-        className="flex items-center gap-16 md:gap-24 overflow-x-auto hide-scrollbar snap-x snap-mandatory px-[42%] w-full transition-all duration-700"
+        className="flex items-center space-x-4 md:space-x-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory w-full max-w-full px-[10vw] pb-4"
+        style={{ scrollBehavior: 'smooth' }}
       >
-        {options.map((opt) => (
-          <motion.div
-            key={opt}
-            onClick={() => onSelect(opt)}
-            className="flex-shrink-0 cursor-pointer snap-center py-4"
-            animate={{
-              scale: selected === opt ? 1.15 : 0.7,
-              opacity: selected === opt ? 1 : 0.3,
-              filter: selected === opt ? 'drop-shadow(0 0 15px rgba(255,255,255,0.4))' : 'none'
-            }}
-          >
-            <span 
-              className="text-4xl md:text-7xl font-bold tracking-tighter text-white"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
-              {opt}
-            </span>
-          </motion.div>
-        ))}
+        {options.map((opt) => {
+           const isSelected = selected === opt;
+           return (
+             <motion.div
+               key={opt}
+               onClick={() => onSelect(opt)}
+               className="flex-shrink-0 cursor-pointer snap-center flex justify-center items-center py-2 min-w-[120px] sm:min-w-[160px] relative"
+               animate={{
+                 scale: isSelected ? 1.15 : 1,
+                 opacity: isSelected ? 1 : 0.4,
+               }}
+               transition={{ type: "spring", stiffness: 300, damping: 25 }}
+             >
+               <span 
+                 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tighter text-white transition-all"
+                 style={{ 
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    textShadow: isSelected ? '0 0 20px rgba(255,255,255,0.5)' : 'none'
+                 }}
+               >
+                 {opt}
+               </span>
+               {isSelected && (
+                 <motion.div
+                   layoutId="activeUnderline"
+                   className="absolute -bottom-1 left-1/4 right-1/4 h-[2px] bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] rounded-full"
+                 />
+               )}
+             </motion.div>
+           )
+        })}
       </div>
     </motion.div>
   );
 };
 
-const VolumetricClouds = ({ active }) => {
+const EnergySweep = ({ active }) => {
   return (
     <AnimatePresence>
       {active && (
         <motion.div 
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: '0%', opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 z-[100] flex flex-col items-center justify-center pointer-events-none overflow-hidden"
+          initial={{ left: "-20vw" }}
+          animate={{ left: "120vw" }}
+          transition={{ duration: 0.8, ease: "easeInOut", delay: 0.1 }}
+          className="fixed top-0 bottom-0 w-[4px] bg-white shadow-[0_0_20px_4px_rgba(200,220,255,0.8)] z-[100] pointer-events-none blur-[2px]"
+          style={{ transform: "skewX(-15deg)" }}
         >
-            {/* VOLUMETRIC GRADIENT BASE */}
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-blue-50/40 to-transparent blur-3xl opacity-90" />
-            
-            {/* INDIVIDUAL SOFT CLOUD NODES */}
-            {Array.from({ length: 15 }).map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ 
-                  scale: [1, 2.8],
-                  opacity: [0, 0.7, 0],
-                  y: [-100, -800],
-                  x: [(Math.random() - 0.5) * 400, (Math.random() - 0.5) * 800]
-                }}
-                transition={{ duration: 1.4, delay: i * 0.04, ease: "easeOut" }}
-                className="absolute bg-white/60 rounded-full blur-[140px]"
-                style={{ 
-                  width: 500 + i * 100,
-                  height: 400 + i * 100,
-                  left: `${Math.random() * 100}%`,
-                  top: `100%`,
-                }}
-              />
-            ))}
-
-            {/* WHITEOUT HOLDER */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.4 }}
-              className="absolute inset-0 bg-white/90 backdrop-blur-3xl"
-            />
+           <div className="absolute inset-0 bg-blue-100/50 w-[12px] blur-[8px] -ml-[4px]" />
         </motion.div>
       )}
     </AnimatePresence>
@@ -274,12 +252,7 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
 
   const handleContinue = () => {
     setIsTransitioning(true);
-    // Sequence timing
-    // 0ms: Scale + Blur Start
-    // 0-800ms: Snow intensifying + Fog Rising
-    // 1000ms: Whiteout Hold
-    // 1400ms: Transition to next page
-    setTimeout(() => onNext(), 1500);
+    setTimeout(() => onNext(), 800);
   };
 
   return (
@@ -287,11 +260,11 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
       {/* 1. MOUNTAIN BACKGROUND (FORWARD PUSH) */}
       <motion.div 
         animate={{ 
-            scale: isTransitioning ? 1.08 : 1,
-            opacity: isTransitioning ? 0 : 1,
-            y: isTransitioning ? -20 : 0
+            scale: isTransitioning ? 1.05 : 1,
+            opacity: 1,
+            y: 0
         }}
-        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
         className="absolute inset-0 z-0 bg-cover bg-center"
         style={{ 
           backgroundImage: `url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80')`,
@@ -315,38 +288,38 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
       <div className="absolute inset-0 z-[6] bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
       {/* 4. CONTENT LAYER */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-between p-12 md:p-16">
-        
-        {/* LEFT-ALIGNED QUESTION (BLUR ON TRANSITION) */}
+      <motion.div 
+         animate={{ opacity: isTransitioning ? [1, 0.8, 0] : 1 }}
+         transition={{ duration: 0.8, times: [0, 0.4, 1] }}
+         className="relative z-10 w-full h-[100dvh] flex flex-col items-center justify-between p-6 md:p-12 lg:p-16"
+      >
+        {/* LEFT-ALIGNED QUESTION */}
         <motion.div 
-           animate={{ 
-             opacity: isTransitioning ? 0.6 : 0.9,
-             filter: isTransitioning ? 'blur(6px)' : 'blur(0px)',
-             x: isTransitioning ? -20 : 0
-           }}
            className="w-full max-w-7xl flex justify-start"
         >
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-4 md:space-y-6 pt-4 md:pt-0">
             <h2 
-              className="text-white font-serif italic text-5xl md:text-7xl text-left leading-[1.05]"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+              className="text-white font-serif italic text-left leading-[1.05]"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: "clamp(24px, 5vw, 48px)" }}
             >
               How many <span className="relative inline-block">days<SwirlUnderline delay={0.5} /></span> shall <br/> 
               your <span className="relative inline-block">story<SwirlUnderline delay={1.2} /></span> span?
             </h2>
-            <div className="w-24 h-[1px] bg-white/20" />
+            <div className="w-16 md:w-24 h-[1px] bg-white/20" />
           </div>
         </motion.div>
 
         {/* CENTER COMPASS */}
-        <MinimalCompass 
-            value={config.days || 3} 
-            onChange={(d) => setConfig(prev => ({ ...prev, days: d }))} 
-            isTransitioning={isTransitioning}
-        />
+        <div className="flex-grow flex items-center justify-center w-full min-h-[300px]">
+          <MinimalCompass 
+              value={config.days || 1} 
+              onChange={(d) => setConfig(prev => ({ ...prev, days: d }))} 
+              isTransitioning={isTransitioning}
+          />
+        </div>
 
         {/* BOTTOM SELECTION & ARROW CTA */}
-        <div className="w-full flex flex-col items-center space-y-12 pb-10">
+        <div className="w-full flex flex-col items-center space-y-6 md:space-y-12 pb-24 sm:pb-16 md:pb-10 relative">
           <TypographyScroller 
             selected={config.travelType}
             onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
@@ -356,7 +329,7 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
           {/* ASYMMETRIC ARROW PIVOT */}
           <motion.div 
              animate={{ opacity: isTransitioning ? 0 : 1, y: isTransitioning ? 20 : 0 }}
-             className="flex flex-col items-center translate-y-6 translate-x-4"
+             className="flex flex-col items-center md:absolute md:right-12 md:bottom-0 translate-y-[-24px] sm:translate-y-[-10px] md:translate-y-0"
           >
             <motion.button
               whileHover={{ x: 5, color: '#FF9500' }}
@@ -364,15 +337,15 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
               onClick={handleContinue}
               className="group flex flex-col items-center justify-center text-white/50 transition-colors"
             >
-               <span className="text-5xl md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-xl">→</span>
-               <span className="text-[10px] uppercase tracking-[0.6em] opacity-40 mt-2 font-bold group-hover:opacity-100">Roam</span>
+               <span className="text-4xl md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">→</span>
+               <span className="text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
             </motion.button>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* CLOUD FOG TRANSITION (VOLUMETRIC SWEEP) */}
-      <VolumetricClouds active={isTransitioning} />
+      {/* ENERGY SWEEP TRANSITION */}
+      <EnergySweep active={isTransitioning} />
 
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
