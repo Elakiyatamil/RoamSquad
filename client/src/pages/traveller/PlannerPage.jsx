@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
 
-import { Calendar, Users, Briefcase, Zap, Coffee, Sparkles, ChevronRight, MapPin, Trash2, Plus, TreePalm } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
-import SearchableSelect from '../../components/ui/SearchableSelect';
 import { generatePDF } from '../../utils/pdfExport';
 import { motion, AnimatePresence } from 'framer-motion';
 import Step1Immersive from '../../components/traveller/Step1Immersive';
 import Step2Vibe from '../../components/traveller/Step2Vibe';
+import Step3Itinerary from '../../components/traveller/Step3Itinerary';
+import Step4Preview from '../../components/traveller/Step4Preview';
+import CurtainTransition from '../../components/traveller/CurtainTransition';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
 
 const PlannerPage = () => {
     const [step, setStep] = useState(1);
+    const [transitioning, setTransitioning] = useState(false);
+    const [curtainPhase, setCurtainPhase] = useState('hidden'); // 'hidden'|'down'|'up'
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [inquiryStatus, setInquiryStatus] = useState(null);
     const [submittedData, setSubmittedData] = useState(null);
@@ -55,11 +59,9 @@ const PlannerPage = () => {
 
     const [pendingSubmit, setPendingSubmit] = useState(false);
 
-    const [selectedCountry, setSelectedCountry] = useState("");
-    const [selectedState, setSelectedState] = useState("");
-    const [selectedDistrict, setSelectedDistrict] = useState("");
-    const [selectedDestinationId, setSelectedDestinationId] = useState("");
-    const [selectedDayBuilder, setSelectedDayBuilder] = useState(1);
+    const [daySelectedDestinations, setDaySelectedDestinations] = useState({}); // { 1: 'id1', 2: 'id2' }
+    const [selectedDay, setSelectedDay] = useState(1);
+    const selectedDestinationId = daySelectedDestinations[selectedDay] || "";
 
     const [activities, setActivities] = useState([]);
     const [food, setFood] = useState([]);
@@ -140,22 +142,27 @@ const PlannerPage = () => {
                 setFood([]);
                 setStays([]);
             });
-    }, [selectedDestinationId]);
+    }, [selectedDestinationId, selectedDay]);
 
 
-
-    const travelTypes = ['Solo', 'Couple', 'Family', 'Friends', 'Squad', 'Girls Trip'];
-    const vibes = [
-        { name: 'Luxury', icon: Sparkles, desc: 'Premium stays & private transfers' },
-        { name: 'Comfort', icon: Coffee, desc: 'Boutique hotels & comfort' },
-        { name: 'Budget', icon: Zap, desc: 'Quality stays on a budget' },
-        { name: 'Adventure', icon: MapPin, desc: 'Thrilling activities & offbeat trails' },
-        { name: 'Nature', icon: TreePalm, desc: 'Scenic landscapes & tranquility' },
-        { name: 'Relaxation', icon: Coffee, desc: 'Slow travel & wellness' }
-    ];
 
     const nextStep = () => setStep(s => s + 1);
     const prevStep = () => setStep(s => s - 1);
+
+    // Cinematic curtain transition Step 2 → Step 3
+    const triggerCinematicNext = () => {
+        if (transitioning) return;
+        setTransitioning(true);
+        setCurtainPhase('down');
+        setTimeout(() => {
+            setStep(3);
+            setCurtainPhase('up');
+        }, 500);
+        setTimeout(() => {
+            setCurtainPhase('hidden');
+            setTransitioning(false);
+        }, 900);
+    };
 
     // 🔴 STEP 6 — REAL-TIME BUDGET CALCULATION
     const calculateBudget = (currentPlan) => {
@@ -270,6 +277,19 @@ const PlannerPage = () => {
                 return;
             }
 
+            const vibe = Array.isArray(config.vibes) ? config.vibes.join(', ') : (config.vibe || '');
+            
+            // Prepare structured selectedPlan for backend
+            const selectedPlan = {};
+            for (let i = 1; i <= config.days; i++) {
+                selectedPlan[`day${i}`] = {
+                    destinationId: daySelectedDestinations[i] || null,
+                    activityId: plan.activities.find(a => a.day === i)?.id || null,
+                    foodId: plan.food.find(f => f.day === i)?.id || null,
+                    stayId: plan.stays.find(s => s.day === i)?.id || null
+                };
+            }
+
             const payload = {
                 userId: user?.id,
                 name,
@@ -283,17 +303,18 @@ const PlannerPage = () => {
                     days: config.days,
                     people: config.travellers,
                     travelType: config.travelType,
-                    vibe: config.vibe,
+                    vibe: vibe,
                     places: plan.activities,
                     food: selectedFood,
                     stay: selectedStay,
-                    timeline
+                    timeline,
+                    selectedPlan // Added for backend sync
                 },
                 itinerarySnapshot: {
-                    days: config.days,
-                    people: config.travellers,
+                    days: Number(config.days),
+                    people: Number(config.travellers),
                     travelType: config.travelType,
-                    vibe: config.vibe,
+                    vibe: vibe,
                     places: plan.activities,
                     timeline
                 },
@@ -304,8 +325,8 @@ const PlannerPage = () => {
                     ? { count: selectedFood.length, items: selectedFood.map(f => f.name) }
                     : config.food ? { name: config.food } : null,
                 totalBudget: budget,
-                tripDate: new Date(`${config.startDate}T00:00:00`).toISOString(),
-                startDate: new Date(`${config.startDate}T00:00:00`).toISOString(),
+                tripDate: config.startDate ? new Date(`${config.startDate}T00:00:00`).toISOString() : new Date().toISOString(),
+                startDate: config.startDate ? new Date(`${config.startDate}T00:00:00`).toISOString() : null,
                 days: Number(config.days),
                 people: Number(config.travellers)
             };
@@ -366,7 +387,7 @@ const PlannerPage = () => {
                     ...plan,
                     days: config.days,
                     travelType: config.travelType,
-                    vibe: config.vibe,
+                    vibes: config.vibes,
                     user: {
                         name: user?.name || config.userName,
                         phone: config.userPhone
@@ -406,13 +427,18 @@ const PlannerPage = () => {
         const timeline = [];
         for (let i = 1; i <= config.days; i++) {
             const dayActs = plan.activities.filter(a => a.day === i);
+            const dayFood = plan.food.filter(f => f.day === i);
+            const dayStays = plan.stays.filter(s => s.day === i);
             const destinationsInDay = [...new Set(dayActs.map(a => a.destinationName))];
             
             timeline.push({
                 day: i,
                 activities: dayActs,
+                food: dayFood,
+                stays: dayStays,
+                destinationId: daySelectedDestinations[i] || null,
                 travelNote: destinationsInDay.length > 1 ? `Transfer between ${destinationsInDay.join(' & ')}` : null,
-                isOverloaded: dayActs.length > 5 // Adjust limits if needed
+                isOverloaded: dayActs.length > 5 
             });
         }
         return timeline;
@@ -423,24 +449,95 @@ const PlannerPage = () => {
 
     return (
         <div className={`planner-page-container ${step === 1 ? 'immersive-mode' : ''}`}>
-                <div className="max-w-7xl mx-auto">
-                    {/* Minimal Progress Line */}
-                    {/* Progress Bar (Top of Planner) */}
-                    <div className="planner-progress-wrapper pt-12 pb-8">
-                        <div className="planner-progress-line bg-white/10 h-[2px] relative">
-                            <motion.div 
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(step / 3) * 100}%` }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="progress-fill bg-[#16a34a] h-full"
-                            />
-                        </div>
-                        <div className="flex justify-between mt-4 text-[12px] font-bold tracking-[0.18em] text-white/20 uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                            <span className={step >= 1 ? 'text-[#16a34a]' : ''}>01 BASICS</span>
-                            <span className={step >= 2 ? 'text-[#16a34a]' : ''}>02 VIBE</span>
-                            <span className={step >= 3 ? 'text-[#16a34a]' : ''}>03 ITINERARY</span>
+            {/* ── CINEMATIC CURTAIN OVERLAY ── */}
+            <CurtainTransition curtainPhase={curtainPhase} />
+
+            <div>
+                    {/* ── PROGRESS BAR ── */}
+                    {step >= 2 && step <= 3 && (
+                    <div
+                        style={{
+                            position: step >= 3 ? 'sticky' : 'relative',
+                            top: 0,
+                            zIndex: 50,
+                            background: step >= 3 ? 'rgba(255,255,255,0.92)' : 'transparent',
+                            backdropFilter: step >= 3 ? 'blur(20px)' : 'none',
+                            borderBottom: step >= 3 ? '1px solid rgba(0,0,0,0.06)' : 'none',
+                            padding: step >= 3 ? '16px 48px' : '48px 0 32px',
+                        }}
+                    >
+                        {/* Step labels row */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                            {[{ num: '01', label: 'BASICS' }, { num: '02', label: 'VIBE' }, { num: '03', label: 'ITINERARY' }].map((s, i) => {
+                                const stepNum = i + 1;
+                                const isActive = step === stepNum;
+                                const isCompleted = step > stepNum;
+                                const isInactive = step < stepNum;
+                                return (
+                                    <React.Fragment key={s.num}>
+                                        <div
+                                            onClick={() => { if (isCompleted) setStep(stepNum); }}
+                                            style={{
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                                                cursor: isCompleted ? 'pointer' : 'default',
+                                                opacity: isInactive ? 0.25 : 1,
+                                            }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                {isCompleted && (
+                                                    <span style={{ color: '#0f4a23', fontSize: 12 }}>✓</span>
+                                                )}
+                                                <span style={{
+                                                    fontFamily: "'Barlow Condensed', sans-serif",
+                                                    fontWeight: isActive ? 700 : 800,
+                                                    fontSize: 18,
+                                                    color: isInactive
+                                                        ? (step <= 1 ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)')
+                                                        : '#0f4a23',
+                                                }}>
+                                                    {s.num}
+                                                </span>
+                                            </div>
+                                            <div style={{ position: 'relative' }}>
+                                                <span style={{
+                                                    fontFamily: "'Barlow Condensed', sans-serif",
+                                                    fontWeight: 400, fontSize: 12,
+                                                    letterSpacing: '0.15em',
+                                                    color: isInactive
+                                                        ? (step <= 1 ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)')
+                                                        : '#0f4a23',
+                                                }}>
+                                                    {s.label}
+                                                </span>
+                                                {isActive && (
+                                                    <motion.div
+                                                        layoutId="step-underline"
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: '100%' }}
+                                                        transition={{ duration: 0.4 }}
+                                                        style={{
+                                                            position: 'absolute', bottom: -3, left: 0,
+                                                            height: 2, background: '#0f4a23', borderRadius: 1,
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                        {i < 2 && (
+                                            <div style={{ flex: 1, margin: '0 16px', height: 1, background: 'rgba(0,0,0,0.1)', position: 'relative', top: -4 }}>
+                                                <motion.div
+                                                    animate={{ width: step > stepNum ? '100%' : '0%' }}
+                                                    transition={{ duration: 0.6 }}
+                                                    style={{ height: '100%', background: '#0f4a23', position: 'absolute', left: 0 }}
+                                                />
+                                            </div>
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })}
                         </div>
                     </div>
+                    )}
 
                     <div className="step-content-wrapper relative h-full w-full">
                         <AnimatePresence mode="wait">
@@ -458,7 +555,7 @@ const PlannerPage = () => {
                                     key="step2"
                                     config={config} 
                                     setConfig={setConfig} 
-                                    onNext={nextStep} 
+                                    onNext={triggerCinematicNext}
                                     onBack={prevStep}
                                 />
                             )}
@@ -466,477 +563,107 @@ const PlannerPage = () => {
                     </div>
 
 
-                    {step === 3 && (
-                        <div key="step3" className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                            {/* Discovery Panel */}
-                            <div className="lg:col-span-2 space-y-12">
-                                <div className="flex flex-col md:flex-row gap-4 mb-8">
-                                    <div className="flex-1">
-                                        <SearchableSelect
-                                            label="Country"
-                                            placeholder="Select Country"
-                                            value={selectedCountry}
-                                            options={(countries || []).map(c => ({ id: c.id, label: c.name }))}
-                                            onChange={(val) => {
-                                                setSelectedCountry(val);
-                                                setSelectedState('');
-                                                setSelectedDistrict('');
-                                                setSelectedDestinationId('');
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <SearchableSelect
-                                            label="State"
-                                            placeholder="Select State"
-                                            disabled={!selectedCountry}
-                                            value={selectedState}
-                                            options={(states || []).map(s => ({ id: s.id, label: s.name }))}
-                                            onChange={(val) => {
-                                                setSelectedState(val);
-                                                setSelectedDistrict('');
-                                                setSelectedDestinationId('');
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <SearchableSelect
-                                            label="District"
-                                            placeholder="Select District"
-                                            disabled={!selectedState}
-                                            value={selectedDistrict}
-                                            options={(districts || []).map(d => ({ id: d.id, label: d.name }))}
-                                            onChange={(val) => {
-                                                setSelectedDistrict(val);
-                                                setSelectedDestinationId("");
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <SearchableSelect
-                                            label="Destination"
-                                            placeholder="Select Destination"
-                                            disabled={!selectedDistrict}
-                                            value={selectedDestinationId}
-                                            options={(destinations || []).map(d => ({ id: d.id, label: d.name }))}
-                                            emptyMessage="No destinations available"
-                                            onChange={(val) => {
-                                                setSelectedDestinationId(val);
-                                            }}
-                                        />
-                                    </div>
-                                </div>
+                        <Step3Itinerary
+                            key="step3"
+                            config={config}
+                            plan={plan}
+                            setPlan={setPlan}
+                            budget={budget}
+                            setBudget={setBudget}
+                            timeline={timeline}
+                            activities={activities}
+                            food={food}
+                            stays={stays}
+                            countries={countries}
+                            states={states}
+                            districts={districts}
+                            destinations={destinations}
+                            selectedCountry={selectedCountry}
+                            selectedState={selectedState}
+                            selectedDistrict={selectedDistrict}
+                            selectedDestinationId={selectedDestinationId}
+                            daySelectedDestinations={daySelectedDestinations}
+                            selectedDay={selectedDay}
+                            setSelectedDay={setSelectedDay}
+                            onCountryChange={(val) => { setSelectedCountry(val); setSelectedState(''); setSelectedDistrict(''); setDaySelectedDestinations({}); }}
+                            onStateChange={(val) => { setSelectedState(val); setSelectedDistrict(''); setDaySelectedDestinations({}); }}
+                            onDistrictChange={(val) => { setSelectedDistrict(val); setDaySelectedDestinations({}); }}
+                            onDestinationChange={(val) => {
+                                setDaySelectedDestinations(prev => ({
+                                    ...prev,
+                                    [selectedDay]: val
+                                }));
+                            }}
+                            totalActivityTime={totalActivityTime}
+                            isOverScheduled={isOverScheduled}
+                            onWishlist={handleAddToWishlist}
+                            onReview={() => {
+                                if (isOverScheduled) {
+                                    alert('Your itinerary is over-scheduled. Please remove some activities or increase trip days.');
+                                    return;
+                                }
+                                nextStep();
+                            }}
+                        />
 
 
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-4xl font-display font-bold text-forest">Curated Experiences</h2>
-                                    {selectedDestinationId && (
-                                        <div className="flex gap-2 overflow-x-auto pb-2">
-                                            {(Array.isArray(Array.from({ length: config.days })) ? Array.from({ length: config.days }) : []).map((_, i) => (
-                                                <button 
-                                                    key={i} 
-                                                    onClick={() => setSelectedDayBuilder(i + 1)}
-                                                    className={`px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap transition-colors ${
-                                                        selectedDayBuilder === i + 1 
-                                                        ? 'bg-forest text-cream shadow-md' 
-                                                        : 'bg-white border text-forest hover:bg-forest/5'
-                                                    }`}
-                                                >
-                                                    Day {i + 1}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                <div className="space-y-16">
-                                    {!selectedDestinationId ? (
-                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
-                                            <MapPin size={48} className="mx-auto text-forest/20 mb-4" />
-                                            <p className="text-xl font-bold text-forest/40">Select a destination to see experiences.</p>
-                                        </div>
-                                    ) : activities.length === 0 && food.length === 0 && stays.length === 0 ? (
-                                        <div className="py-20 text-center bg-forest/5 rounded-[2rem] border-2 border-dashed border-forest/10">
-                                            <Sparkles size={48} className="mx-auto text-forest/20 mb-4" />
-                                            <p className="text-xl font-bold text-forest/40">No activities available — Add from admin</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-12">
-                                            {activities.length > 0 ? (
-                                                <div className="space-y-6">
-                                                    <h3 className="text-2xl font-display font-bold text-forest">Activities</h3>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {(Array.isArray(activities) ? activities : []).map(act => {
-                                                            const isSelectedForDay = plan.activities.find(a => a.planId === `${selectedDestinationId}-${act.id}-day${selectedDayBuilder}`);
-                                                            return (
-                                                            <button
-                                                                key={act.id}
-                                                                onClick={() => addToPlan('activity', act, selectedDayBuilder)}
-                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
-                                                                    isSelectedForDay
-                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
-                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
-                                                                }`}
-                                                            >
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
-                                                                        {act.icon || '📍'}
-                                                                    </div>
-                                                                    <div>
-                                                                        <h4 className="font-bold leading-tight text-forest">{act.name}</h4>
-                                                                        <span className="text-xs text-forest/60">₹{act.price || 0} • {act.duration || 'N/A'}</span>
-                                                                    </div>
-                                                                </div>
-                                                                {isSelectedForDay
-                                                                    ? <Trash2 size={16} className="text-cream" /> 
-                                                                    : <Plus size={16} className="text-gold" />
-                                                                }
-                                                            </button>
-                                                        )})}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
-                                                    <p className="text-lg font-bold text-forest/40">No activities available</p>
-                                                </div>
-                                            )}
-
-                                            {food.length > 0 ? (
-                                                <div className="space-y-6">
-                                                    <h3 className="text-2xl font-display font-bold text-forest">Food Options</h3>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {(Array.isArray(food) ? food : []).map(f => (
-                                                            <button
-                                                                key={f.id}
-                                                                onClick={() => addToPlan('food', f)}
-                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
-                                                                    plan.food.find(a => a.planId === `${selectedDestinationId}-${f.id}`)
-                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
-                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
-                                                                }`}
-                                                            >
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
-                                                                        {f.icon || '🍴'}
-                                                                    </div>
-                                                                    <div>
-                                                                        <h4 className="font-bold leading-tight text-forest">{f.name}</h4>
-                                                                        <span className="text-xs text-forest/60">₹{f.price || 0} • {f.type}</span>
-                                                                    </div>
-                                                                </div>
-                                                                {plan.food.find(a => a.planId === `${selectedDestinationId}-${f.id}`) 
-                                                                    ? <Trash2 size={16} className="text-cream" /> 
-                                                                    : <Plus size={16} className="text-gold" />
-                                                                }
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
-                                                    <p className="text-lg font-bold text-forest/40">No food options available</p>
-                                                </div>
-                                            )}
-
-                                            {stays.length > 0 ? (
-                                                <div className="space-y-6">
-                                                    <h3 className="text-2xl font-display font-bold text-forest">Accommodations</h3>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        {(Array.isArray(stays) ? stays : []).map(s => (
-                                                            <button
-                                                                key={s.id}
-                                                                onClick={() => addToPlan('stay', s)}
-                                                                className={`p-6 rounded-2xl flex items-center justify-between text-left transition-all ${
-                                                                    plan.stays.find(a => a.planId === `${selectedDestinationId}-${s.id}`)
-                                                                    ? 'bg-forest text-cream shadow-xl shadow-forest/20'
-                                                                    : 'bg-white border-2 border-forest/5 hover:border-forest/20'
-                                                                }`}
-                                                            >
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center text-xl">
-                                                                        {s.tier.charAt(0)}
-                                                                    </div>
-                                                                    <div>
-                                                                        <h4 className="font-bold leading-tight text-forest">{s.tier} Stay</h4>
-                                                                        <span className="text-xs text-forest/60">₹{s.price || 0} / night</span>
-                                                                    </div>
-                                                                </div>
-                                                                {plan.stays.find(a => a.planId === `${selectedDestinationId}-${s.id}`) 
-                                                                    ? <Trash2 size={16} className="text-cream" /> 
-                                                                    : <Plus size={16} className="text-gold" />
-                                                                }
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="py-10 text-center bg-forest/5 rounded-2xl border-2 border-dashed border-forest/10">
-                                                    <p className="text-lg font-bold text-forest/40">No stays available</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                            </div>
-
-                            {/* Trip Plan Summary (Fixed Sidebar-like) */}
-                            <div className="lg:col-span-1">
-                                <div className="bg-forest text-cream rounded-[2.5rem] p-10 shadow-2xl sticky top-28">
-                                    <h3 className="text-3xl font-display font-bold mb-8">Trip Plan</h3>
-                                    
-                                    <div className="space-y-6 mb-12 min-h-[200px] max-h-[400px] overflow-y-auto pr-2">
-                                        {timeline.filter(t => t.activities.length > 0).length === 0 && plan.stays.length === 0 && plan.food.length === 0 ? (
-                                            <p className="text-cream/30 italic">No items added to your trip yet...</p>
-                                        ) : (
-                                            <div className="space-y-6">
-                                                {(Array.isArray(timeline) ? timeline : []).map(t => t.activities.length > 0 && (
-                                                    <div key={`day-${t.day}`} className="space-y-3 pb-4 border-b border-cream/10">
-                                                        <h4 className="text-gold font-bold text-sm tracking-widest uppercase">Day {t.day}</h4>
-                                                        {t.activities.map(item => (
-                                                            <div key={item.planId} className="flex items-center justify-between group">
-                                                                <div>
-                                                                    <p className="font-bold text-sm leading-tight">{item.name}</p>
-                                                                    <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.destinationName}</p>
-                                                                </div>
-                                                                <p className="font-bold text-gold opacity-80">₹{item.price}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ))}
-                                                {/* Global Items (Stays & Food) */}
-                                                {(plan.stays.length > 0 || plan.food.length > 0) && (
-                                                    <div className="space-y-3 pt-2">
-                                                        <h4 className="text-white/40 font-bold text-xs tracking-widest uppercase">General Options</h4>
-                                                        {[...plan.stays, ...plan.food].map(item => (
-                                                            <div key={item.planId} className="flex items-center justify-between group">
-                                                                <div>
-                                                                    <p className="font-bold text-sm leading-tight">{item.name || item.tier + ' Stay'}</p>
-                                                                    <p className="text-[10px] text-cream/40 uppercase tracking-widest">{item.type || 'Stay'}</p>
-                                                                </div>
-                                                                <p className="font-bold text-gold opacity-80">₹{item.price}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-
-                                    <div className="pt-8 border-t border-cream/10 space-y-4">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-cream/40">Duration</span>
-                                            <span className="font-bold">{config.days} Days</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-cream/40">Travellers</span>
-                                            <span className="font-bold">{config.travellers} {config.travelType}</span>
-                                        </div>
-                                        <div className="flex justify-between items-end pt-4">
-                                            <span className="text-cream/40 text-sm">Est. Budget</span>
-                                            <div className="text-right">
-                                                <p className="text-3xl font-display font-bold text-gold">₹{budget.toLocaleString()}</p>
-                                                <p className="text-[10px] text-cream/40">Excluding Stays & Flights</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-10 flex flex-col gap-4">
-                                        <div className="flex gap-4">
-                                            <button 
-                                                disabled={plan.activities.length === 0}
-                                                onClick={handleAddToWishlist}
-                                                className="w-1/3 py-5 bg-white border-2 border-forest text-forest hover:bg-forest/5 rounded-full font-bold transition-colors disabled:opacity-30 disabled:border-transparent flex items-center justify-center gap-2"
-                                            >
-                                                <Sparkles size={16} /> Wishlist
-                                            </button>
-                                            <button 
-                                                disabled={plan.activities.length === 0}
-                                                onClick={() => {
-                                                    if (isOverScheduled) {
-                                                        alert("Your itinerary is over-scheduled. Please remove some activities or increase trip days.");
-                                                        return;
-                                                    }
-                                                    nextStep();
-                                                }}
-                                                className="w-2/3 py-5 bg-gold text-ink rounded-full font-bold hover:scale-102 transition-transform disabled:opacity-30 disabled:hover:scale-100"
-                                            >
-                                                Review Inquiry
-                                            </button>
-                                        </div>
-                                        {/* Row with Wishlist and Review buttons moved back to normal layout */}
-                                    </div>
-                                    
-                                    {isOverScheduled && (
-                                        <p className="mt-4 text-center text-xs text-red-500 font-bold animate-pulse">
-                                            ⚠️ Warning: Activities exceed trip duration!
-                                        </p>
-                                    )}
-
-                                    <div className="mt-8 space-y-2">
-                                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-cream/40 px-2">
-                                            <span>Est. Activity Time</span>
-                                            <span>{Math.round(totalActivityTime / 60)}h Total</span>
-                                        </div>
-                                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                            <div 
-                                                className={`h-full transition-all duration-500 ${isOverScheduled ? 'bg-red-500' : 'bg-gold'}`}
-                                                style={{ width: `${Math.min(100, (plan.activities.length / (config.days * 2)) * 100)}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     {step === 4 && inquiryStatus === 'success' ? (
                         <div
                             key="success"
-                            className="text-center py-20 bg-white rounded-[3rem] shadow-xl animate-fade-in"
+                            className="w-full min-h-screen bg-[#F7F3EC] flex items-center justify-center p-8 animate-fade-in"
                         >
-                            <div className="w-24 h-24 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-8 text-gold">
-                                <Sparkles size={48} />
-                            </div>
-                            <h2 className="text-4xl font-display font-bold text-forest mb-4">Inquiry Received!</h2>
-                            <p className="text-forest/50 text-xl max-w-lg mx-auto mb-10">
-                                Our Roam Squad experts are already reviewing your handcrafted {config.days}-day journey. 
-                                We'll get back to you within 24 hours.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button 
-                                    onClick={() => window.location.href = '/'}
-                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold"
-                                >
-                                    Back to Discovery
-                                </button>
-                                <button 
-                                    onClick={() => generatePDF(submittedData)}
-                                    className="px-10 py-4 bg-gold text-forest rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    <Sparkles size={20} /> Download Itinerary
-                                </button>
-                            </div>
-                        </div>
-                    ) : step === 4 && (
-                        <div
-                            key="step4"
-                            className="max-w-4xl mx-auto animate-fade-in"
-                        >
-                            <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl shadow-forest/10">
-                                <div className="grid grid-cols-1 md:grid-cols-2">
-                                    <div className="p-12 bg-forest text-cream">
-                                        <h2 className="text-3xl font-display font-bold mb-8">Itinerary Timeline</h2>
-                                        <div className="space-y-8">
-                                            {timeline.map((day) => (
-                                                <div key={day.day} className="relative pl-8 border-l-2 border-gold/30 last:border-0 pb-4">
-                                                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gold shadow-lg ring-4 ring-forest" />
-                                                    <h4 className="font-bold text-gold uppercase tracking-widest text-xs mb-4">Day {day.day}</h4>
-                                                    <div className="space-y-4">
-                                                        {day.activities.length > 0 ? day.activities.map(act => (
-                                                            <div key={act.planId} className="flex flex-col">
-                                                                <span className="font-bold">{act.name}</span>
-                                                                <span className="text-xs text-cream/40 uppercase tracking-widest">{act.destinationName}</span>
-                                                            </div>
-                                                        )) : (
-                                                            <span className="text-cream/20 italic text-sm">Transfer & Exploration</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
+                            <div className="max-w-4xl w-full bg-white rounded-[2rem] p-16 text-center shadow-2xl relative overflow-hidden">
+                                {/* Decorative elements */}
+                                <div className="absolute top-0 left-0 w-full h-2 bg-[#1B3A6B]/10" />
+                                <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#1B3A6B]/5 rounded-full blur-3xl" />
+                                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#E8A838]/5 rounded-full blur-3xl" />
 
-                                    <div className="p-12">
-                                        <h2 className="text-3xl font-display font-bold text-forest mb-6">Final Details</h2>
-                                        <form onSubmit={submitInquiry} className="space-y-6">
-                                            {errorMessage && (
-                                                <div className="p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold">
-                                                    {errorMessage}
-                                                </div>
-                                            )}
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Your Name</label>
-                                                <input 
-                                                    required
-                                                    type="text" 
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.userName}
-                                                    onChange={e => setConfig({...config, userName: e.target.value})}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Email Address</label>
-                                                <input 
-                                                    required
-                                                    type="email" 
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.userEmail}
-                                                    onChange={e => setConfig({...config, userEmail: e.target.value})}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Phone Number</label>
-                                                <input 
-                                                    required
-                                                    type="tel" 
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.userPhone}
-                                                    onChange={e => setConfig({...config, userPhone: e.target.value})}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Start Date</label>
-                                                <input
-                                                    required
-                                                    type="date"
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.startDate}
-                                                    onChange={e => setConfig({ ...config, startDate: e.target.value })}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Hotel (Required)</label>
-                                                <input
-                                                    required
-                                                    type="text"
-                                                    placeholder="Example: Mid-range tier / Hotel name"
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.hotel}
-                                                    onChange={e => setConfig({ ...config, hotel: e.target.value })}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-bold text-forest/40 uppercase mb-2">Food (Optional)</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Example: Vegetarian / Local cuisine preference"
-                                                    className="w-full p-4 bg-forest/5 rounded-xl border-2 border-transparent focus:border-gold outline-none"
-                                                    value={config.food}
-                                                    onChange={e => setConfig({ ...config, food: e.target.value })}
-                                                />
-                                            </div>
+                                <div className="w-24 h-24 bg-[#1B3A6B]/10 rounded-full flex items-center justify-center mx-auto mb-10 text-[#1B3A6B]">
+                                    <Sparkles size={48} className="animate-pulse" />
+                                </div>
 
-                                            <div className="pt-6 border-t border-forest/5">
-                                                <div className="flex justify-between items-end mb-8">
-                                                    <span className="text-forest/40 text-sm italic">Est. Total Budget</span>
-                                                    <span className="text-4xl font-display font-bold text-forest">₹{budget.toLocaleString()}</span>
-                                                </div>
-                                                <button 
-                                                    type="submit"
-                                                    disabled={isSubmitting}
-                                                    className="w-full py-5 bg-forest text-cream rounded-full font-bold hover:scale-102 transition-transform shadow-xl shadow-forest/20 disabled:opacity-50"
-                                                >
-                                                    {isSubmitting ? 'Sending...' : 'Confirm Inquiry'}
-                                                </button>
-                                                <button type="button" onClick={prevStep} className="w-full py-4 text-forest/40 text-sm font-bold">Edit Plan</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                <h2 className="text-5xl font-display font-bold text-[#1B3A6B] mb-6 tracking-tight">Your Story Begins!</h2>
+                                <p className="text-[#7A7068] text-xl max-w-xl mx-auto mb-12 font-serif italic">
+                                    Our Roam Squad experts are already reviewing your handcrafted journey. 
+                                    Expect a personalized touch within the next 24 hours.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                                    <button 
+                                        onClick={() => window.location.href = '/'}
+                                        className="px-12 py-5 bg-[#1B3A6B] text-white rounded-full font-bold text-lg hover:scale-105 transition-all shadow-xl shadow-[#1B3A6B]/20"
+                                    >
+                                        Return to Home
+                                    </button>
+                                    <button 
+                                        onClick={() => generatePDF(submittedData)}
+                                        className="px-12 py-5 bg-white border-2 border-[#1B3A6B]/10 text-[#1B3A6B] rounded-full font-bold text-lg flex items-center gap-3 hover:bg-[#1B3A6B]/5 transition-all"
+                                    >
+                                        <Sparkles size={20} className="text-[#E8A838]" /> 
+                                        Download Itinerary PDF
+                                    </button>
+                                </div>
+                                
+                                <div className="mt-12 pt-12 border-t border-[#1B3A6B]/5">
+                                    <p className="text-[#1B3A6B]/30 text-sm font-bold tracking-widest uppercase">Love from the Roam Squad</p>
                                 </div>
                             </div>
                         </div>
+                    ) : step === 4 && (
+                        <Step4Preview
+                            key="step4"
+                            config={config}
+                            setConfig={setConfig}
+                            timeline={timeline}
+                            plan={plan}
+                            budget={budget}
+                            isSubmitting={isSubmitting}
+                            submitInquiry={submitInquiry}
+                            errorMessage={errorMessage}
+                            prevStep={prevStep}
+                            destinations={destinations}
+                        />
                     )}
                 </div>
 

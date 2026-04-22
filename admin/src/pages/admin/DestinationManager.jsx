@@ -478,54 +478,99 @@ const DestinationForm = ({ destination, onClose }) => {
                                     >
                                         <X size={16} />
                                     </button>
-                                    <div className="flex gap-4">
-                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
-                                            <input 
-                                                value={act.icon || "🏕️"}
-                                                onChange={(e) => updateItem('activities', i, { ...act, icon: e.target.value })}
-                                                className="w-full text-center bg-transparent border-none outline-none"
-                                            />
-                                        </div>
-                                        <div className="flex-1 space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Name</label>
-                                            <input 
-                                                value={act.name || ""}
-                                                onChange={(e) => updateItem('activities', i, { ...act, name: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                                placeholder="Activity Name"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration</label>
-                                            <input 
-                                                value={act.duration || ""}
-                                                onChange={(e) => updateItem('activities', i, { ...act, duration: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
-                                                placeholder="e.g. 2 Hours"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹)</label>
-                                            <input 
-                                                type="number"
-                                                value={act.price || 0}
-                                                onChange={(e) => updateItem('activities', i, { ...act, price: parseFloat(e.target.value) || 0 })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                            />
+                                    
+                                    <div className="flex gap-6">
+                                        {/* Image Upload for Activity */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Image</label>
+                                            <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
+                                                {act.imageUrl ? (
+                                                    <img src={act.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
+                                                        <ImageIcon size={20} />
+                                                        <span className="text-[8px] font-bold">ADD IMAGE</span>
+                                                    </div>
+                                                )}
+                                                <input 
+                                                    type="file" 
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (!file) return;
+                                                        const uploadData = new FormData();
+                                                        uploadData.append('image', file);
+                                                        try {
+                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            updateItem('activities', i, { ...act, imageUrl: res.data.data.url });
+                                                        } catch (err) { alert('Upload failed'); }
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
 
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
-                                        <textarea 
-                                            rows={2}
-                                            value={act.description || ""}
-                                            onChange={(e) => updateItem('activities', i, { ...act, description: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
-                                            placeholder="What makes this experience special?"
-                                        />
+                                        <div className="flex-1 space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={act.isFeatured || false}
+                                                    onChange={(e) => updateItem('activities', i, { ...act, isFeatured: e.target.checked })}
+                                                    className="w-4 h-4 accent-red cursor-pointer"
+                                                    id={`featured-act-${i}`}
+                                                />
+                                                <label htmlFor={`featured-act-${i}`} className="text-xs font-bold text-ink/60 cursor-pointer uppercase tracking-wider">Mark as Featured Experience</label>
+                                            </div>
+
+                                            <div className="flex gap-4">
+                                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
+                                                    <input 
+                                                        value={act.icon || "🏕️"}
+                                                        onChange={(e) => updateItem('activities', i, { ...act, icon: e.target.value })}
+                                                        className="w-full text-center bg-transparent border-none outline-none"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Name</label>
+                                                    <input 
+                                                        value={act.name || ""}
+                                                        onChange={(e) => updateItem('activities', i, { ...act, name: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                        placeholder="Activity Name"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Duration</label>
+                                                    <input 
+                                                        value={act.duration || ""}
+                                                        onChange={(e) => updateItem('activities', i, { ...act, duration: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                                        placeholder="e.g. 2 Hours"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹)</label>
+                                                    <input 
+                                                        type="number"
+                                                        value={act.price || 0}
+                                                        onChange={(e) => updateItem('activities', i, { ...act, price: parseFloat(e.target.value) || 0 })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
+                                                <textarea 
+                                                    value={act.description || ""}
+                                                    onChange={(e) => updateItem('activities', i, { ...act, description: e.target.value })}
+                                                    className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                                    placeholder="What makes this experience special?"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -539,7 +584,6 @@ const DestinationForm = ({ destination, onClose }) => {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Local Cuisine & Food Options</p>
                             <button 
                                 onClick={() => addItem('foodOptions', { name: '', description: '', price: 0, type: 'Local Special', icon: '🍲', isActive: true })}
-
                                 className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
                             >
                                 <Plus size={14} /> Add Food
@@ -559,61 +603,105 @@ const DestinationForm = ({ destination, onClose }) => {
                                     >
                                         <X size={16} />
                                     </button>
-                                    <div className="flex gap-4">
-                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
-                                            <input 
-                                                value={food.icon || "🍲"}
-                                                onChange={(e) => updateItem('foodOptions', i, { ...food, icon: e.target.value })}
-                                                className="w-full text-center bg-transparent border-none outline-none"
-                                            />
-                                        </div>
-                                        <div className="flex-1 space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Food / Dish Name</label>
-                                            <input 
-                                                value={food.name || ""}
-                                                onChange={(e) => updateItem('foodOptions', i, { ...food, name: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                                placeholder="e.g. Pandi Curry"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Meal Type</label>
-                                            <select 
-                                                value={food.type || "Local Special"}
-                                                onChange={(e) => updateItem('foodOptions', i, { ...food, type: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
-                                            >
-                                                <option>Breakfast</option>
-                                                <option>Lunch</option>
-                                                <option>Dinner</option>
-                                                <option>Snack</option>
-                                                <option>Local Special</option>
-                                            </select>
+                                    
+                                    <div className="flex gap-6">
+                                        {/* Image Upload for Food */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Food Image</label>
+                                            <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
+                                                {food.imageUrl ? (
+                                                    <img src={food.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
+                                                        <ImageIcon size={20} />
+                                                        <span className="text-[8px] font-bold">ADD IMAGE</span>
+                                                    </div>
+                                                )}
+                                                <input 
+                                                    type="file" 
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (!file) return;
+                                                        const uploadData = new FormData();
+                                                        uploadData.append('image', file);
+                                                        try {
+                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            updateItem('foodOptions', i, { ...food, imageUrl: res.data.data.url });
+                                                        } catch (err) { alert('Upload failed'); }
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Avg Price (₹)</label>
-                                            <input 
-                                                type="number"
-                                                value={food.price || 0}
-                                                onChange={(e) => updateItem('foodOptions', i, { ...food, price: parseFloat(e.target.value) })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                            />
+                                        <div className="flex-1 space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={food.isFeatured || false}
+                                                    onChange={(e) => updateItem('foodOptions', i, { ...food, isFeatured: e.target.checked })}
+                                                    className="w-4 h-4 accent-red cursor-pointer"
+                                                    id={`featured-food-${i}`}
+                                                />
+                                                <label htmlFor={`featured-food-${i}`} className="text-xs font-bold text-ink/60 cursor-pointer uppercase tracking-wider">Mark as Featured Food</label>
+                                            </div>
+
+                                            <div className="flex gap-4">
+                                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl border border-ink/5">
+                                                    <input 
+                                                        value={food.icon || "🍲"}
+                                                        onChange={(e) => updateItem('foodOptions', i, { ...food, icon: e.target.value })}
+                                                        className="w-full text-center bg-transparent border-none outline-none"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Food / Dish Name</label>
+                                                    <input 
+                                                        value={food.name || ""}
+                                                        onChange={(e) => updateItem('foodOptions', i, { ...food, name: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                        placeholder="e.g. Pandi Curry"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Meal Type</label>
+                                                    <select 
+                                                        value={food.type || "Local Special"}
+                                                        onChange={(e) => updateItem('foodOptions', i, { ...food, type: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                                    >
+                                                        <option>Breakfast</option>
+                                                        <option>Lunch</option>
+                                                        <option>Dinner</option>
+                                                        <option>Snack</option>
+                                                        <option>Local Special</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Avg Price (₹)</label>
+                                                    <input 
+                                                        type="number"
+                                                        value={food.price || 0}
+                                                        onChange={(e) => updateItem('foodOptions', i, { ...food, price: parseFloat(e.target.value) })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
+                                                <textarea 
+                                                    rows={2}
+                                                    value={food.description || ""}
+                                                    onChange={(e) => updateItem('foodOptions', i, { ...food, description: e.target.value })}
+                                                    className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                                    placeholder="Tastes like..."
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Short Description</label>
-                                        <textarea 
-                                            rows={2}
-                                            value={food.description || ""}
-                                            onChange={(e) => updateItem('foodOptions', i, { ...food, description: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
-                                            placeholder="Tastes like..."
-                                        />
-                                    </div>
-
                                 </div>
                             ))}
                         </div>
@@ -626,13 +714,10 @@ const DestinationForm = ({ destination, onClose }) => {
                             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stay Tiers</p>
                             <button 
                                 onClick={() => addItem('accommodation', { tier: 'Budget', stars: 3, price: 0, description: '', hotelNameInternal: '', includes: [] })}
-
                                 className="text-[10px] font-bold uppercase tracking-widest text-red flex items-center gap-1 hover:underline"
                             >
-
                                 <Plus size={14} /> Add Tier
                             </button>
-
                         </div>
 
                         <div className="space-y-6">
@@ -648,71 +733,115 @@ const DestinationForm = ({ destination, onClose }) => {
                                     >
                                         <X size={16} />
                                     </button>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Tier</label>
-                                            <select 
-                                                value={acc.tier}
-                                                onChange={(e) => updateItem('accommodation', i, { ...acc, tier: e.target.value })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                            >
-                                                <option>Budget</option>
-                                                <option>Comfort</option>
-                                                <option>Luxury</option>
-                                            </select>
+
+                                    <div className="flex gap-6">
+                                        {/* Image Upload for Accommodation */}
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stay Image</label>
+                                            <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
+                                                {acc.imageUrl ? (
+                                                    <img src={acc.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
+                                                        <ImageIcon size={20} />
+                                                        <span className="text-[8px] font-bold">ADD IMAGE</span>
+                                                    </div>
+                                                )}
+                                                <input 
+                                                    type="file" 
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (!file) return;
+                                                        const uploadData = new FormData();
+                                                        uploadData.append('image', file);
+                                                        try {
+                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            updateItem('accommodation', i, { ...acc, imageUrl: res.data.data.url });
+                                                        } catch (err) { alert('Upload failed'); }
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stars</label>
-                                            <select 
-                                                value={acc.stars || 3}
-                                                onChange={(e) => updateItem('accommodation', i, { ...acc, stars: parseInt(e.target.value) })}
-                                                className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                            >
 
-                                                {[1, 2, 3, 4, 5].map(s => <option key={s} value={s}>{s} Stars</option>)}
-                                            </select>
+                                        <div className="flex-1 space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={acc.isFeatured || false}
+                                                    onChange={(e) => updateItem('accommodation', i, { ...acc, isFeatured: e.target.checked })}
+                                                    className="w-4 h-4 accent-red cursor-pointer"
+                                                    id={`featured-acc-${i}`}
+                                                />
+                                                <label htmlFor={`featured-acc-${i}`} className="text-xs font-bold text-ink/60 cursor-pointer uppercase tracking-wider">Mark as Featured Stay</label>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Tier</label>
+                                                    <select 
+                                                        value={acc.tier}
+                                                        onChange={(e) => updateItem('accommodation', i, { ...acc, tier: e.target.value })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                    >
+                                                        <option>Budget</option>
+                                                        <option>Comfort</option>
+                                                        <option>Luxury</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stars</label>
+                                                    <select 
+                                                        value={acc.stars || 3}
+                                                        onChange={(e) => updateItem('accommodation', i, { ...acc, stars: parseInt(e.target.value) })}
+                                                        className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                    >
+                                                        {[1, 2, 3, 4, 5].map(s => <option key={s} value={s}>{s} Stars</option>)}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price / Night (₹)</label>
+                                                <input 
+                                                    type="number"
+                                                    value={acc.price || 0}
+                                                    onChange={(e) => updateItem('accommodation', i, { ...acc, price: parseFloat(e.target.value) || 0 })}
+                                                    className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                />
+                                            </div>
+
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
+                                                <textarea 
+                                                    rows={2}
+                                                    value={acc.description || ""}
+                                                    onChange={(e) => updateItem('accommodation', i, { ...acc, description: e.target.value })}
+                                                    className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
+                                                    placeholder="e.g. Eco-friendly riverside camping..."
+                                                />
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Hotel Name (Private)</label>
+                                                <input 
+                                                    value={acc.hotelNameInternal || ""}
+                                                    onChange={(e) => updateItem('accommodation', i, { ...acc, hotelNameInternal: e.target.value })}
+                                                    className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
+                                                    placeholder="Internal reference name"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Inclusions (comma separated)</label>
+                                                <input 
+                                                    value={(acc.includes || []).join(', ')}
+                                                    onChange={(e) => updateItem('accommodation', i, { ...acc, includes: e.target.value.split(',').map(s => s.trim()) })}
+                                                    className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
+                                                    placeholder="WiFi, Pool, Breakfast"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price / Night (₹)</label>
-                                        <input 
-                                            type="number"
-                                            value={acc.price || 0}
-                                            onChange={(e) => updateItem('accommodation', i, { ...acc, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                        />
-                                    </div>
-
-
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Description</label>
-                                        <textarea 
-                                            rows={2}
-                                            value={acc.description || ""}
-                                            onChange={(e) => updateItem('accommodation', i, { ...acc, description: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white rounded-xl border-none outline-none text-sm font-medium resize-none"
-                                            placeholder="e.g. Eco-friendly riverside camping..."
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Hotel Name (Private)</label>
-                                        <input 
-                                            value={acc.hotelNameInternal || ""}
-                                            onChange={(e) => updateItem('accommodation', i, { ...acc, hotelNameInternal: e.target.value })}
-                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-bold"
-                                            placeholder="Internal reference name"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Inclusions (comma separated)</label>
-                                        <input 
-                                            value={(acc.includes || []).join(', ')}
-                                            onChange={(e) => updateItem('accommodation', i, { ...acc, includes: e.target.value.split(',').map(s => s.trim()) })}
-                                            className="w-full px-3 py-2 bg-white rounded-lg border-none outline-none text-sm font-medium"
-                                            placeholder="WiFi, Pool, Breakfast"
-                                        />
                                     </div>
                                 </div>
                             ))}
@@ -820,14 +949,25 @@ const DestinationForm = ({ destination, onClose }) => {
                             
                             try {
                                 const endpointMapping = {
-                                    'Travel Details': { path: 'travel-options', type: 'travelOptions' },
-                                    'Experiences': { path: 'activities', type: 'activities' },
-                                    'Food': { path: 'food', type: 'foodOptions' },
-                                    'Accommodation': { path: 'accommodation', type: 'accommodation' }
+                                    'Travel Details': { path: 'travel-options', type: 'travelOptions', needsImage: false },
+                                    'Experiences': { path: 'activities', type: 'activities', needsImage: true },
+                                    'Food': { path: 'food', type: 'foodOptions', needsImage: true },
+                                    'Accommodation': { path: 'accommodation', type: 'accommodation', needsImage: true }
                                 };
                                 
-                                const { path, type } = endpointMapping[activeTab];
+                                const { path, type, needsImage } = endpointMapping[activeTab];
                                 const items = Array.isArray(formData[type]) ? formData[type] : [];
+
+                                // Validation: No item can be saved without image
+                                if (needsImage) {
+                                    const missingImage = items.find(item => !item.imageUrl);
+                                    if (missingImage) {
+                                        alert(`Cannot save ${activeTab}: Every item must have an image.`);
+                                        btn.innerText = originalText;
+                                        btn.disabled = false;
+                                        return;
+                                    }
+                                }
 
                                 const results = await Promise.all(items.map(item => {
                                     if (item.id) {

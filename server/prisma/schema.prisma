@@ -73,6 +73,8 @@ model Activity {
   description   String
   icon          String?
   images        String[]
+  imageUrl      String?
+  isFeatured    Boolean     @default(false)
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
 
@@ -91,6 +93,8 @@ model FoodOption {
   mealType      String?
 
   dietaryTags   String[]
+  imageUrl      String?
+  isFeatured    Boolean     @default(false)
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
 
@@ -108,6 +112,7 @@ model Accommodation {
   stars             Int?
   includes          String[]
   imageUrl          String?
+  isFeatured        Boolean     @default(false)
   isActive          Boolean     @default(true)
 
 

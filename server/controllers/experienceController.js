@@ -34,6 +34,8 @@ const createActivity = async (req, res) => {
                 description: description || "",
                 destinationId,
                 isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+                isFeatured: req.body.isFeatured || false,
+                imageUrl: req.body.imageUrl || (req.body.images && req.body.images[0]) || "",
                 icon: req.body.icon || '📍',
                 sortOrder: req.body.sortOrder || 0
             }
@@ -127,6 +129,8 @@ const createFoodOption = async (req, res) => {
                 mealType: req.body.mealType || type || 'LUNCH',
                 dietaryTags: req.body.dietaryTags || [],
                 isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+                isFeatured: req.body.isFeatured || false,
+                imageUrl: req.body.imageUrl || "",
                 icon: req.body.icon || req.body.emoji || '🍴',
                 sortOrder: req.body.sortOrder || 0
             }
@@ -221,6 +225,7 @@ const createAccommodation = async (req, res) => {
                 stars: req.body.stars ? Number(req.body.stars) : 3,
                 includes: req.body.includes || [],
                 imageUrl: req.body.imageUrl || "",
+                isFeatured: req.body.isFeatured || false,
                 isActive: req.body.isActive !== undefined ? req.body.isActive : true
             }
         });
