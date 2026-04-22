@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 /**
- * ROAMSQUAD PLANNER V10.1 - REFINED RESPONSIVE & SWEEP TRANSITION
+ * ROAMSQUAD PLANNER V10.3 - PRECISION RADIAL DIAL
  */
 
 const SwirlUnderline = ({ delay = 0 }) => (
@@ -93,87 +93,155 @@ const SnowEngine = ({ isTransitioning }) => {
 };
 
 const MinimalCompass = ({ value, onChange, isTransitioning }) => {
-  const rotation = useMotionValue(0);
-  const smoothRotation = useSpring(rotation, { damping: 30, stiffness: 100 });
+  const containerRef = useRef(null);
+  const minDays = 1;
+  const maxDays = 60;
   
-  const currentDay = useTransform(smoothRotation, (r) => {
-    let normalizedR = ((r % 360) + 360) % 360;
-    const val = Math.floor((normalizedR / 360) * 50) + 1;
-    return Math.max(1, Math.min(50, val));
-  });
+  // Calculate initial angle based on value
+  const initialAngle = ((value - minDays) / (maxDays - minDays)) * 360;
+  const rotation = useMotionValue(initialAngle);
+  
+  // Needle with smooth spring physics
+  const springRotation = useSpring(rotation, { damping: 25, stiffness: 150 });
 
-  useEffect(() => { rotation.set(((value - 1) / 50) * 360); }, []);
+  const handleInteraction = (e) => {
+    if (!containerRef.current || isTransitioning) return;
+    
+    // Get client coordinates for both touch and mouse
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    
+    if (clientX === undefined || clientY === undefined) return;
 
+    const rect = containerRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Calculate angle in radians, then convert to degrees
+    // Adjusted so 0 degrees is at the top (negative-y axis)
+    let angleRad = Math.atan2(clientY - centerY, clientX - centerX);
+    let angleDeg = (angleRad * 180) / Math.PI + 90;
+    
+    // Normalize to 0-360 range
+    if (angleDeg < 0) angleDeg += 360;
+    
+    // Calculate value based on angle
+    const newVal = Math.round(minDays + (angleDeg / 360) * (maxDays - minDays));
+    const clampedVal = Math.min(maxDays, Math.max(minDays, newVal));
+    
+    // Update rotation and internal state
+    if (clampedVal !== value) {
+      onChange(clampedVal);
+    }
+    
+    // For manual rotation update, we use requestAnimationFrame to sync with browser
+    requestAnimationFrame(() => {
+      const targetRotation = ((clampedVal - minDays) / (maxDays - minDays)) * 360;
+      rotation.set(targetRotation);
+    });
+  };
+
+  const handlePointerDown = (e) => {
+    handleInteraction(e);
+    const onPointerMove = (moveEvent) => handleInteraction(moveEvent);
+    const onPointerUp = () => {
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('mouseup', onPointerUp);
+      window.removeEventListener('touchmove', onPointerMove);
+      window.removeEventListener('touchend', onPointerUp);
+    };
+    
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+  };
+
+  // Sync rotation when value changes externally
   useEffect(() => {
-    const unsub = currentDay.on("change", (v) => { if (v !== value) onChange(v); });
-    return () => unsub();
-  }, [currentDay, value, onChange]);
+    const targetRotation = ((value - minDays) / (maxDays - minDays)) * 360;
+    rotation.set(targetRotation);
+  }, [value]);
 
   return (
     <motion.div 
+      ref={containerRef}
       animate={{ 
         scale: isTransitioning ? 0.9 : 1,
         opacity: isTransitioning ? 0.3 : 1
       }}
-      className="relative w-[70vw] max-w-[320px] aspect-square flex items-center justify-center my-8 md:my-0"
+      onPointerDown={handlePointerDown}
+      className="relative w-[clamp(220px,30vw,380px)] aspect-square flex items-center justify-center my-8 md:my-0 select-none touch-none"
+      style={{ touchAction: 'none' }}
     >
-      <div className="absolute inset-0 rounded-full bg-orange-500/20 shadow-[0_0_40px_rgba(255,255,255,0.15)] blur-[40px] pointer-events-none" />
+      {/* GLOWING AMBIENT RING */}
+      <div className="absolute inset-0 rounded-full bg-orange-500/10 shadow-[0_0_60px_rgba(255,255,255,0.1)] blur-[40px] pointer-events-none" />
 
-      <motion.div 
-        className="relative w-full h-full rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing z-20"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0}
-        onDrag={(e, info) => { rotation.set(rotation.get() + info.delta.x * 0.5); }}
-      >
+      {/* DIAL BASE */}
+      <div className="relative w-full h-full rounded-full flex items-center justify-center cursor-pointer z-20">
         <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.4" />
-          <circle cx="50" cy="50" r="48" fill="url(#inner-glow)" pointerEvents="none" />
+          {/* Main Ring - High Contrast */}
+          <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.5" />
+          
           <defs>
             <radialGradient id="inner-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="80%" stopColor="transparent" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+              <stop offset="85%" stopColor="transparent" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0.2)" />
             </radialGradient>
           </defs>
-          {Array.from({ length: 50 }).map((_, i) => (
-            <line 
-              key={i}
-              x1="50" y1="2" x2="50" y2={i % 5 === 0 ? "6" : "4"}
-              stroke={i % 5 === 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.4)"}
-              strokeWidth="0.5"
-              transform={`rotate(${(i / 50) * 360}, 50, 50)`}
-            />
-          ))}
+          <circle cx="50" cy="50" r="48" fill="url(#inner-glow)" />
+
+          {/* Precision Ticks (60 days) */}
+          {Array.from({ length: 60 }).map((_, i) => {
+            const isMajor = (i + 1) % 5 === 0 || i === 0;
+            return (
+              <line 
+                key={i}
+                x1="50" y1="2" x2="50" y2={isMajor ? "7" : "4"}
+                stroke={isMajor ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)"}
+                strokeWidth={isMajor ? "0.6" : "0.3"}
+                transform={`rotate(${(i / 60) * 360}, 50, 50)`}
+              />
+            );
+          })}
         </svg>
 
+        {/* ROTATING NEEDLE */}
         <motion.div 
           className="absolute w-1 h-[96%] flex flex-col items-center pointer-events-none"
-          style={{ rotate: smoothRotation }}
+          style={{ rotate: springRotation }}
         >
            <div className="w-[3px] h-[50%] flex flex-col items-center">
-              <div className="w-full h-6 bg-[#E85D04] rounded-t-full shadow-[0_0_15px_rgba(255,149,0,1)]" />
-              <div className="w-full flex-grow bg-white/90 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+              <div className="w-full h-6 bg-[#E85D04] rounded-t-full shadow-[0_0_20px_rgba(255,149,0,1)]" />
+              <div className="w-full flex-grow bg-white/95 shadow-[0_0_15px_rgba(255,255,255,0.9)]" />
            </div>
            <div className="w-[1.5px] h-[48%] bg-white/10 mt-auto" />
         </motion.div>
 
+        {/* CENTER VALUE DISPLAY */}
         <div className="flex flex-col items-center justify-center text-white pointer-events-none select-none z-30">
           <AnimatePresence mode="wait">
             <motion.span 
               key={value}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.86 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              className="font-serif italic drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] text-[#FFFFFF]"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(64px, 15vw, 128px)" }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              className="font-serif italic drop-shadow-[0_0_30px_rgba(255,255,255,0.7)] text-[#FFFFFF]"
+              style={{ 
+                fontFamily: "'Cormorant Garamond', serif", 
+                fontSize: "clamp(80px, 12vw, 140px)",
+                fontWeight: 600
+              }}
             >
               {value}
             </motion.span>
           </AnimatePresence>
-          <span className="text-[10px] md:text-xs tracking-[0.4em] uppercase opacity-60 -mt-2 md:-mt-4">Days</span>
+          <span className="text-[12px] md:text-sm tracking-[0.5em] font-bold uppercase opacity-80 -mt-2 md:-mt-6 text-gold">Days</span>
         </div>
-        <div className="absolute inset-4 sm:inset-8 rounded-full border border-white/10 backdrop-blur-[2px] pointer-events-none z-10 shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]" />
-      </motion.div>
+        
+        {/* INNER DECORATIVE RING */}
+        <div className="absolute inset-6 sm:inset-10 rounded-full border border-white/15 backdrop-blur-[3px] pointer-events-none z-10 shadow-[inset_0_0_25px_rgba(255,255,255,0.08)]" />
+      </div>
     </motion.div>
   );
 };
@@ -187,10 +255,10 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
         opacity: isTransitioning ? 0 : 1,
         y: isTransitioning ? 20 : 0
       }}
-      className="w-full flex flex-col items-center"
+      className="w-full"
     >
       <div 
-        className="flex items-center space-x-4 md:space-x-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory w-full max-w-full px-[10vw] pb-4"
+        className="flex items-center gap-[16px] md:gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory px-[16px] md:px-[10vw]"
         style={{ scrollBehavior: 'smooth' }}
       >
         {options.map((opt) => {
@@ -199,15 +267,15 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
              <motion.div
                key={opt}
                onClick={() => onSelect(opt)}
-               className="flex-shrink-0 cursor-pointer snap-center flex justify-center items-center py-2 min-w-[120px] sm:min-w-[160px] relative"
+               className="flex-shrink-0 cursor-pointer snap-center flex justify-center items-center py-2 min-w-[120px] md:min-w-[160px] relative"
                animate={{
-                 scale: isSelected ? 1.15 : 1,
-                 opacity: isSelected ? 1 : 0.4,
+                 scale: isSelected ? 1.2 : 1,
+                 opacity: isSelected ? 1 : 0.5,
                }}
                transition={{ type: "spring", stiffness: 300, damping: 25 }}
              >
                <span 
-                 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tighter text-white transition-all"
+                 className="text-[28px] md:text-6xl font-bold tracking-tighter text-white transition-all text-center"
                  style={{ 
                     fontFamily: "'Barlow Condensed', sans-serif",
                     textShadow: isSelected ? '0 0 20px rgba(255,255,255,0.5)' : 'none'
@@ -237,7 +305,7 @@ const EnergySweep = ({ active }) => {
           initial={{ left: "-20vw" }}
           animate={{ left: "120vw" }}
           transition={{ duration: 0.8, ease: "easeInOut", delay: 0.1 }}
-          className="fixed top-0 bottom-0 w-[4px] bg-white shadow-[0_0_20px_4px_rgba(200,220,255,0.8)] z-[100] pointer-events-none blur-[2px]"
+          className="fixed top-0 bottom-0 w-[4px] bg-white shadow-[0_0_20px_4px_rgba(200,220,255,0.8)] z-[100] blur-[2px] pointer-events-none"
           style={{ transform: "skewX(-15deg)" }}
         >
            <div className="absolute inset-0 bg-blue-100/50 w-[12px] blur-[8px] -ml-[4px]" />
@@ -256,7 +324,12 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
   };
 
   return (
-    <div className="fixed inset-0 w-full h-full overflow-hidden bg-black flex flex-col items-center">
+    <motion.div 
+      initial={{ x: 0, opacity: 1 }}
+      exit={{ x: '-100%', opacity: 0 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 w-full h-full overflow-hidden bg-black flex flex-col items-center"
+    >
       {/* 1. MOUNTAIN BACKGROUND (FORWARD PUSH) */}
       <motion.div 
         animate={{ 
@@ -285,32 +358,30 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
 
       {/* 3. ATMOSPHERIC ELEMENTS (DYNAMIC SNOW) */}
       <SnowEngine isTransitioning={isTransitioning} />
-      <div className="absolute inset-0 z-[6] bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 z-[6] bg-gradient-to-t from-black/40 md:from-black/60 via-transparent to-transparent pointer-events-none" />
 
       {/* 4. CONTENT LAYER */}
       <motion.div 
          animate={{ opacity: isTransitioning ? [1, 0.8, 0] : 1 }}
          transition={{ duration: 0.8, times: [0, 0.4, 1] }}
-         className="relative z-10 w-full h-[100dvh] flex flex-col items-center justify-between p-6 md:p-12 lg:p-16"
+         className="relative z-10 w-full h-[100dvh] flex flex-col md:p-12 lg:p-16"
       >
-        {/* LEFT-ALIGNED QUESTION */}
-        <motion.div 
-           className="w-full max-w-7xl flex justify-start"
-        >
-          <div className="flex flex-col space-y-4 md:space-y-6 pt-4 md:pt-0">
+        {/* TOP SECTION (20% height on mobile) */}
+        <div className="w-full flex h-[20vh] md:h-auto items-end md:items-start pt-[60px] md:pt-0 pl-[16px] md:pl-0">
+          <div className="flex flex-col space-y-4 max-w-[85%] md:max-w-7xl">
             <h2 
-              className="text-white font-serif italic text-left leading-[1.05]"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: "clamp(24px, 5vw, 48px)" }}
+              className="text-white font-serif italic text-left text-[clamp(22px,5vw,32px)] md:text-[clamp(24px,5vw,48px)] leading-[1.3] md:leading-[1.05]"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
             >
-              How many <span className="relative inline-block">days<SwirlUnderline delay={0.5} /></span> shall <br/> 
-              your <span className="relative inline-block">story<SwirlUnderline delay={1.2} /></span> span?
+              How many <span className="relative inline-block">days<SwirlUnderline delay={0.5} /></span> shall <br className="md:hidden"/>
+              <span className="hidden md:inline">&nbsp;</span>your <span className="relative inline-block">story<SwirlUnderline delay={1.2} /></span> span?
             </h2>
             <div className="w-16 md:w-24 h-[1px] bg-white/20" />
           </div>
-        </motion.div>
+        </div>
 
-        {/* CENTER COMPASS */}
-        <div className="flex-grow flex items-center justify-center w-full min-h-[300px]">
+        {/* CENTER COMPASS (55% height on mobile) */}
+        <div className="h-[55vh] md:flex-grow w-full flex items-center justify-center">
           <MinimalCompass 
               value={config.days || 1} 
               onChange={(d) => setConfig(prev => ({ ...prev, days: d }))} 
@@ -318,8 +389,8 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
           />
         </div>
 
-        {/* BOTTOM SELECTION & ARROW CTA */}
-        <div className="w-full flex flex-col items-center space-y-6 md:space-y-12 pb-24 sm:pb-16 md:pb-10 relative">
+        {/* BOTTOM SELECTION & ARROW CTA (25% height on mobile) */}
+        <div className="h-[25vh] md:h-auto w-full flex flex-col justify-center relative">
           <TypographyScroller 
             selected={config.travelType}
             onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
@@ -329,7 +400,7 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
           {/* ASYMMETRIC ARROW PIVOT */}
           <motion.div 
              animate={{ opacity: isTransitioning ? 0 : 1, y: isTransitioning ? 20 : 0 }}
-             className="flex flex-col items-center md:absolute md:right-12 md:bottom-0 translate-y-[-24px] sm:translate-y-[-10px] md:translate-y-0"
+             className="fixed bottom-[20px] right-[20px] md:absolute md:right-12 md:bottom-0 translate-y-0 z-[60] flex flex-col items-center"
           >
             <motion.button
               whileHover={{ x: 5, color: '#FF9500' }}
@@ -337,8 +408,8 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
               onClick={handleContinue}
               className="group flex flex-col items-center justify-center text-white/50 transition-colors"
             >
-               <span className="text-4xl md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">→</span>
-               <span className="text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
+               <span className="text-[40px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[40px] md:h-auto">→</span>
+               <span className="hidden md:block text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
             </motion.button>
           </motion.div>
         </div>
@@ -351,7 +422,7 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-    </div>
+    </motion.div>
   );
 };
 

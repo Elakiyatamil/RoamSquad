@@ -8,7 +8,9 @@ import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 import SearchableSelect from '../../components/ui/SearchableSelect';
 import { generatePDF } from '../../utils/pdfExport';
+import { motion, AnimatePresence } from 'framer-motion';
 import Step1Immersive from '../../components/traveller/Step1Immersive';
+import Step2Vibe from '../../components/traveller/Step2Vibe';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/public`;
 
@@ -24,14 +26,17 @@ const PlannerPage = () => {
         days: 1,
         travellers: 2,
         travelType: 'Couple',
-        vibe: 'Nature',
+        vibes: [],
         experienceType: 'Mid-range',
         userName: '',
         userEmail: '',
         userPhone: '',
         startDate: '',
         hotel: '',
-        food: ''
+        food: '',
+        children: [{ age: '', name: '' }],
+        generalExpectations: '',
+        kidsExpectations: ''
     });
 
 
@@ -420,76 +425,46 @@ const PlannerPage = () => {
         <div className={`planner-page-container ${step === 1 ? 'immersive-mode' : ''}`}>
                 <div className="max-w-7xl mx-auto">
                     {/* Minimal Progress Line */}
+                    {/* Progress Bar (Top of Planner) */}
                     <div className="planner-progress-wrapper pt-12 pb-8">
-                        <div className="planner-progress-line">
-                            <div 
-                                className="progress-fill transition-all duration-700 ease-in-out bg-gold h-full"
-                                style={{ width: `${(step / 3) * 100}%` }}
+                        <div className="planner-progress-line bg-white/10 h-[2px] relative">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(step / 3) * 100}%` }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="progress-fill bg-[#16a34a] h-full"
                             />
                         </div>
-                        <div className="flex justify-between mt-4 text-[10px] font-bold tracking-[0.3em] text-white/20 uppercase">
-                            <span className={step >= 1 ? 'text-white/60' : ''}>01 BASICS</span>
-                            <span className={step >= 2 ? 'text-white/60' : ''}>02 VIBE</span>
-                            <span className={step >= 3 ? 'text-white/60' : ''}>03 ITINERARY</span>
+                        <div className="flex justify-between mt-4 text-[12px] font-bold tracking-[0.18em] text-white/20 uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                            <span className={step >= 1 ? 'text-[#16a34a]' : ''}>01 BASICS</span>
+                            <span className={step >= 2 ? 'text-[#16a34a]' : ''}>02 VIBE</span>
+                            <span className={step >= 3 ? 'text-[#16a34a]' : ''}>03 ITINERARY</span>
                         </div>
                     </div>
 
-                    <div className="step-content-wrapper">
-                        {step === 1 && (
-                            <Step1Immersive 
-                                config={config} 
-                                setConfig={setConfig} 
-                                onNext={nextStep} 
-                            />
-                        )}
-
-                    {step === 2 && (
-                        <div
-                            key="step2"
-                            className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-forest/5 animate-fade-in"
-                        >
-                            <h2 className="text-4xl font-display font-bold text-forest mb-2">Customise Your Vibe</h2>
-                            <p className="text-forest/50 mb-10 text-lg">Choose the style that matches your mood.</p>
-
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-                                {vibes.map(v => (
-                                    <button
-                                        key={v.name}
-                                        onClick={() => setConfig({...config, vibe: v.name})}
-                                        className={`p-6 rounded-[2rem] border-2 text-left transition-all ${
-                                            config.vibe === v.name 
-                                            ? 'border-gold bg-gold/5 ring-4 ring-gold/10' 
-                                            : 'border-forest/5 hover:border-forest/20'
-                                        }`}
-                                    >
-                                        <v.icon size={24} className="text-gold mb-4" />
-                                        <h3 className="text-lg font-bold text-forest mb-1">{v.name}</h3>
-                                        <p className="text-forest/40 text-[10px] leading-tight uppercase tracking-widest">{v.desc}</p>
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="space-y-6">
-                                <label className="block text-sm font-bold text-forest/40 uppercase tracking-widest">Share your idea of the perfect vibe</label>
-                                <textarea 
-                                    placeholder="Ex: Relaxation, hidden waterfalls, local street food trails..."
-                                    className="w-full p-6 bg-forest/5 rounded-2xl border-2 border-transparent focus:border-gold outline-none text-lg min-h-[120px]"
-                                    value={config.vibe}
-                                    onChange={(e) => setConfig({...config, vibe: e.target.value})}
+                    <div className="step-content-wrapper relative h-full w-full">
+                        <AnimatePresence mode="wait">
+                            {step === 1 && (
+                                <Step1Immersive 
+                                    key="step1"
+                                    config={config} 
+                                    setConfig={setConfig} 
+                                    onNext={nextStep} 
                                 />
-                            </div>
+                            )}
 
-                            <div className="mt-16 flex justify-between">
-                                <button onClick={prevStep} className="px-10 py-4 text-forest font-bold">Back</button>
-                                <button 
-                                    onClick={nextStep}
-                                    className="px-10 py-4 bg-forest text-cream rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
-                                >
-                                    Build Itinerary <ChevronRight size={20} />
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                            {step === 2 && (
+                                <Step2Vibe 
+                                    key="step2"
+                                    config={config} 
+                                    setConfig={setConfig} 
+                                    onNext={nextStep} 
+                                    onBack={prevStep}
+                                />
+                            )}
+                        </AnimatePresence>
+                    </div>
+
 
                     {step === 3 && (
                         <div key="step3" className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -977,9 +952,54 @@ const PlannerPage = () => {
                         }
                     }}
                 />
-                </div>
+                <ChapterSweep active={step === 2} />
+
+                <style jsx global>{`
+                  .hide-scrollbar::-webkit-scrollbar { display: none; }
+                  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                `}</style>
             </div>
     );
 };
 
 export default PlannerPage;
+
+const ChapterSweep = ({ active }) => {
+    return (
+        <AnimatePresence>
+            {active && (
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[200] pointer-events-none flex items-center"
+                >
+                    <svg width="100%" height="100%" viewBox="0 0 1440 800" preserveAspectRatio="none">
+                        <motion.path 
+                            d="M-100,400 L1540,400"
+                            stroke="white"
+                            strokeWidth="4"
+                            strokeOpacity="0.6"
+                            initial={{ pathLength: 0, x: -100 }}
+                            animate={{ pathLength: 1, x: 0 }}
+                            exit={{ x: 100, opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                        />
+                        {/* Glow effect for the sweep line */}
+                        <motion.path 
+                            d="M-100,400 L1540,400"
+                            stroke="white"
+                            strokeWidth="20"
+                            strokeOpacity="0.2"
+                            className="blur-xl"
+                            initial={{ pathLength: 0, x: -100 }}
+                            animate={{ pathLength: 1, x: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                        />
+                    </svg>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+};
