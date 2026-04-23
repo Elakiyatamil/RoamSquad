@@ -460,18 +460,14 @@ const PlannerPage = () => {
                     {/* ── PROGRESS BAR ── */}
                     {step >= 2 && step <= 3 && (
                     <div
-                        style={{
-                            position: step >= 3 ? 'sticky' : 'relative',
-                            top: 0,
-                            zIndex: 50,
-                            background: step >= 3 ? 'rgba(255,255,255,0.92)' : 'transparent',
-                            backdropFilter: step >= 3 ? 'blur(20px)' : 'none',
-                            borderBottom: step >= 3 ? '1px solid rgba(0,0,0,0.06)' : 'none',
-                            padding: step >= 3 ? '16px 48px' : '48px 0 32px',
-                        }}
+                        className={`w-full transition-all duration-300 ${
+                            step >= 3 
+                                ? 'sticky top-[56px] md:top-[72px] z-[99] bg-white/92 backdrop-blur-[20px] border-b border-black/5 py-3 px-2 sm:px-12 md:top-0' 
+                                : 'relative pt-8 pb-4 px-2 sm:px-0 md:pt-12 md:pb-8'
+                        }`}
                     >
                         {/* Step labels row */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                        <div className="flex items-center w-full max-w-4xl mx-auto">
                             {[{ num: '01', label: 'BASICS' }, { num: '02', label: 'VIBE' }, { num: '03', label: 'ITINERARY' }].map((s, i) => {
                                 const stepNum = i + 1;
                                 const isActive = step === stepNum;
@@ -486,6 +482,7 @@ const PlannerPage = () => {
                                                 cursor: isCompleted ? 'pointer' : 'default',
                                                 opacity: isInactive ? 0.25 : 1,
                                             }}
+                                            className="shrink-0 px-2 sm:px-4"
                                         >
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                                 {isCompleted && (
@@ -502,10 +499,10 @@ const PlannerPage = () => {
                                                     {s.num}
                                                 </span>
                                             </div>
-                                            <div style={{ position: 'relative' }}>
-                                                <span style={{
+                                            <div style={{ position: 'relative' }} className="hidden xs:block sm:block">
+                                                <span className="text-[10px] sm:text-xs" style={{
                                                     fontFamily: "'Barlow Condensed', sans-serif",
-                                                    fontWeight: 400, fontSize: 12,
+                                                    fontWeight: 400,
                                                     letterSpacing: '0.15em',
                                                     color: isInactive
                                                         ? (step <= 1 ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)')
@@ -528,7 +525,7 @@ const PlannerPage = () => {
                                             </div>
                                         </div>
                                         {i < 2 && (
-                                            <div style={{ flex: 1, margin: '0 16px', height: 1, background: 'rgba(0,0,0,0.1)', position: 'relative', top: -4 }}>
+                                            <div className="flex-1 mx-1 sm:mx-4 h-[1px] bg-black/10 relative -top-1 sm:-top-[2px]">
                                                 <motion.div
                                                     animate={{ width: step > stepNum ? '100%' : '0%' }}
                                                     transition={{ duration: 0.6 }}
@@ -736,7 +733,6 @@ const PlannerPage = () => {
                         }
                     }}
                 />
-                <ChapterSweep active={step === 2} />
 
                 <style jsx global>{`
                   .hide-scrollbar::-webkit-scrollbar { display: none; }

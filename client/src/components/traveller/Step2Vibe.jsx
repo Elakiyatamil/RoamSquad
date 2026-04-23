@@ -327,13 +327,13 @@ const Step2Vibe = ({ config, setConfig, onNext, onBack }) => {
           MY VIBE IS...
         </div>
 
-        <div className="flex flex-wrap justify-center gap-8 md:gap-12 flex-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap justify-center gap-6 sm:gap-8 md:gap-12 flex-1 w-full max-w-full place-items-center">
           {VIBES.map((v, idx) => {
             const active = selectedVibes.includes(v.id);
             return (
               <motion.div 
                 key={v.id} 
-                className="flex flex-col items-center group cursor-pointer" 
+                className="flex flex-col items-center group cursor-pointer w-full" 
                 onClick={() => handleVibeToggle(v.id)}
                 initial={{ opacity: 0, scale: 0.6, y: 20 }}
                 animate={vibeSectionVisible ? { opacity: 1, scale: 1, y: 0 } : {}}
@@ -345,12 +345,12 @@ const Step2Vibe = ({ config, setConfig, onNext, onBack }) => {
                 title={`Select ${v.name} vibe`}
               >
                 <div 
-                   className={`relative w-[90px] h-[90px] rounded-full flex items-center justify-center transition-all duration-300 ${
+                   className={`relative w-[72px] h-[72px] sm:w-[90px] sm:h-[90px] rounded-full flex items-center justify-center transition-all duration-300 ${
                     active 
                     ? 'scale-[1.08] shadow-[0_0_24px_rgba(84,112,58,0.5),0_0_0_2px_rgba(84,112,58,0.7)] bg-gradient-to-br from-[#314022] to-[#54703a]' 
                     : 'bg-[#314022] group-hover:scale-[1.08] group-hover:shadow-[0_0_20px_rgba(84,112,58,0.3)]'
                   }`}
-                  style={{ transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)" }}
+                  style={{ transitionTimingFunction: "cubic-bezier(0.34,1.56,0.64,1)", aspectRatio: '1/1' }}
                 >
                   <motion.div 
                     animate={active ? { scale: [1, 1.05, 1] } : { scale: 1 }}
@@ -362,10 +362,10 @@ const Step2Vibe = ({ config, setConfig, onNext, onBack }) => {
                   </motion.div>
                   {active && <SparkCanvas trigger={sparkTrigger} />}
                 </div>
-                <div className="flex flex-col items-center mt-2">
+                <div className="flex flex-col items-center mt-2 px-1 max-w-[120px]">
                   <span 
-                    className={`uppercase font-bold tracking-[0.15em] transition-colors duration-300 ${active ? 'text-[#54703a]' : 'text-[#314022]'}`}
-                    style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '12px', fontWeight: 800 }}
+                    className={`uppercase font-bold tracking-[0.05em] sm:tracking-[0.15em] transition-colors duration-300 text-center ${active ? 'text-[#54703a]' : 'text-[#314022]'}`}
+                    style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '11px', fontWeight: 800, wordWrap: 'break-word' }}
                   >
                     {v.name}
                   </span>

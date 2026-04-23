@@ -15,17 +15,20 @@ export default function TravellerLayout() {
   return (
     <div className="min-h-screen bg-cream text-ink">
       {location.pathname !== '/' && (
-      <header className="sticky top-0 z-50 bg-transparent backdrop-blur border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-bold tracking-tight">
+      <header className="sticky top-0 z-[100] bg-transparent backdrop-blur border-b border-white/5 h-[56px] md:h-auto flex items-center">
+        <div className="w-full max-w-6xl mx-auto px-4 md:px-6 flex items-center justify-between">
+          <Link to="/" className="font-bold tracking-tight shrink-0 mr-4">
             RoamSquad
           </Link>
-          <nav className="flex gap-2">
+          <nav 
+            className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide w-full md:w-auto"
+            style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {nav.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
-                className={`px-3 py-1.5 rounded-full text-sm font-semibold transition ${
+                className={`px-3 py-1.5 rounded-full text-sm font-semibold transition shrink-0 ${
                   location.pathname === n.to ? 'bg-ink text-cream' : 'text-ink/70 hover:text-ink hover:bg-ink/5'
                 }`}
               >

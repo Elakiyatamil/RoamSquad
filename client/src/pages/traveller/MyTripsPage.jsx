@@ -50,7 +50,7 @@ const MyTripsPage = () => {
             {/* ── CINEMATIC HERO HEADER ── */}
             <header className="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
                 <img 
-                    src="https://images.unsplash.com/photo-1494783367193-149034c05e8f?w=2560&q=100&auto=format" 
+                    src="https://images.unsplash.com/photo-1471922694854-ff1b63b20054?w=2560&q=100&auto=format" 
                     alt="Journeys Background"
                     className="absolute inset-0 w-full h-full object-cover scale-105"
                     style={{ animation: "pan-slow 25s ease-in-out infinite alternate" }}

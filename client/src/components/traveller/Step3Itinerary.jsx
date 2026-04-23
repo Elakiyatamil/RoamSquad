@@ -800,19 +800,21 @@ const SplitHeroPanels = () => {
       height: '100vh', 
       minHeight: '600px', 
       overflow: 'hidden',
-      position: 'relative'
+      position: 'relative',
+      maxWidth: '100vw'
     }}>
       {panels.map((p, i) => (
         <div
           key={i}
           className="hero-panel"
           style={{
-            flex: 1,
+            flex: 'none',
+            width: '33.333%',
             position: 'relative',
             height: '100%',
             overflow: 'hidden',
             cursor: 'pointer',
-            transition: 'flex 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transition: 'all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
             zIndex: p.center ? 2 : 1,
           }}
         >
@@ -826,27 +828,28 @@ const SplitHeroPanels = () => {
           
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%)',
           }} />
 
-          <div style={{
-            position: 'absolute', inset: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '0 20px', textAlign: 'center'
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 'clamp(9px, 2.5vw, 13px)',
+            color: 'white',
+            letterSpacing: '0.1em',
+            textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+            margin: 0,
+            pointerEvents: 'none',
+            position: 'absolute',
+            bottom: '12px',
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            padding: '0 4px',
+            wordWrap: 'break-word'
           }}>
-            <h2 style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 'clamp(48px, 6vw, 80px)',
-              color: 'white',
-              letterSpacing: '-0.01em',
-              textShadow: '0 4px 24px rgba(0,0,0,0.6)',
-              margin: 0,
-              pointerEvents: 'none'
-            }}>
-              {p.label}
-            </h2>
-          </div>
+            {p.label}
+          </h2>
         </div>
       ))}
 
@@ -1107,11 +1110,13 @@ const DestinationSelectorBar = ({
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
       borderRadius: 20,
-      padding: '24px 40px',
+      padding: '16px',
       border: '1px solid rgba(255,255,255,0.1)',
       display: 'flex',
-      gap: 32,
+      gap: 16,
       flexWrap: 'wrap',
+      width: '100%',
+      boxSizing: 'border-box'
     }}>
       {[
         { label: 'COUNTRY', value: selectedCountry, opts: (countries || []).map(c => ({ id: c.id, label: c.name })), onChange: onCountryChange },

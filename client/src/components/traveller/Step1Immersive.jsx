@@ -258,8 +258,7 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
       className="w-full"
     >
       <div 
-        className="flex items-center gap-[16px] md:gap-8 overflow-x-auto hide-scrollbar snap-x snap-mandatory px-[16px] md:px-[10vw]"
-        style={{ scrollBehavior: 'smooth' }}
+        className="flex flex-row flex-wrap justify-center items-center gap-[12px] md:gap-8 px-[16px] md:px-[10vw]"
       >
         {options.map((opt) => {
            const isSelected = selected === opt;
@@ -267,15 +266,15 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
              <motion.div
                key={opt}
                onClick={() => onSelect(opt)}
-               className="flex-shrink-0 cursor-pointer snap-center flex justify-center items-center py-2 min-w-[120px] md:min-w-[160px] relative"
+               className="flex-shrink-0 cursor-pointer flex justify-center items-center py-2 relative"
                animate={{
-                 scale: isSelected ? 1.2 : 1,
+                 scale: isSelected ? 1.1 : 1,
                  opacity: isSelected ? 1 : 0.5,
                }}
                transition={{ type: "spring", stiffness: 300, damping: 25 }}
              >
                <span 
-                 className="text-[28px] md:text-6xl font-bold tracking-tighter text-white transition-all text-center"
+                 className="text-[clamp(12px,3.5vw,15px)] md:text-6xl font-bold tracking-tighter text-white transition-all text-center"
                  style={{ 
                     fontFamily: "'Barlow Condensed', sans-serif",
                     textShadow: isSelected ? '0 0 20px rgba(255,255,255,0.5)' : 'none'
@@ -367,16 +366,16 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
          className="relative z-10 w-full h-[100dvh] flex flex-col md:p-12 lg:p-16"
       >
         {/* TOP SECTION (20% height on mobile) */}
-        <div className="w-full flex h-[20vh] md:h-auto items-end md:items-start pt-[60px] md:pt-0 pl-[16px] md:pl-0">
-          <div className="flex flex-col space-y-4 max-w-[85%] md:max-w-7xl">
+        <div className="w-full flex h-[20vh] md:h-auto items-end md:items-start pt-[60px] md:pt-0 justify-center md:justify-start">
+          <div className="flex flex-col space-y-4 w-full md:max-w-7xl items-center md:items-start">
             <h2 
-              className="text-white font-serif italic text-left text-[clamp(22px,5vw,32px)] md:text-[clamp(24px,5vw,48px)] leading-[1.3] md:leading-[1.05]"
+              className="text-white font-serif italic text-center md:text-left text-[clamp(22px,5vw,32px)] md:text-[clamp(24px,5vw,48px)] leading-[1.3] md:leading-[1.05] max-w-[80%] md:max-w-full mx-auto md:mx-0"
               style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
             >
               How many <span className="relative inline-block">days<SwirlUnderline delay={0.5} /></span> shall <br className="md:hidden"/>
               <span className="hidden md:inline">&nbsp;</span>your <span className="relative inline-block">story<SwirlUnderline delay={1.2} /></span> span?
             </h2>
-            <div className="w-16 md:w-24 h-[1px] bg-white/20" />
+            <div className="w-16 md:w-24 h-[1px] bg-white/20 hidden md:block" />
           </div>
         </div>
 
@@ -390,7 +389,7 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
         </div>
 
         {/* BOTTOM SELECTION & ARROW CTA (25% height on mobile) */}
-        <div className="h-[25vh] md:h-auto w-full flex flex-col justify-center relative">
+        <div className="h-[25vh] md:h-auto w-full flex flex-col justify-center relative pb-8 md:pb-0">
           <TypographyScroller 
             selected={config.travelType}
             onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
@@ -406,9 +405,9 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
               whileHover={{ x: 5, color: '#FF9500' }}
               whileTap={{ scale: 0.9 }}
               onClick={handleContinue}
-              className="group flex flex-col items-center justify-center text-white/50 transition-colors"
+              className="group flex flex-col items-center justify-center text-white/50 transition-colors bg-black/40 md:bg-transparent rounded-full md:rounded-none w-12 h-12 md:w-auto md:h-auto backdrop-blur-sm md:backdrop-blur-none border border-white/10 md:border-transparent"
             >
-               <span className="text-[40px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[40px] md:h-auto">→</span>
+               <span className="text-[28px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[28px] md:h-auto">→</span>
                <span className="hidden md:block text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
             </motion.button>
           </motion.div>
