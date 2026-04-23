@@ -252,7 +252,7 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
 };
 
 const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
-  const options = ["FRIENDS", "COUPLE", "FAMILY", "SOLO", "STRANGERS"];
+  const options = ["FRIENDS", "COUPLE", "FAMILY", "SOLO", "STRANGERS", "GIRLS TRIP"];
 
   return (
     <motion.div 
@@ -395,6 +395,16 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
 
         {/* BOTTOM SELECTION & ARROW CTA (25% height on mobile) */}
         <div className="h-[25vh] md:h-auto w-full flex flex-col justify-center relative pb-8 md:pb-0">
+          {/* NEW SECTION HEADING */}
+          <div className="w-full flex justify-center mb-4 md:mb-8">
+            <h2 
+              className="text-white font-serif italic text-center text-[clamp(20px,4vw,28px)] md:text-[clamp(24px,4vw,36px)] leading-tight opacity-90"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+            >
+              How about your <span className="relative inline-block">crew?<SwirlUnderline delay={1.8} /></span>
+            </h2>
+          </div>
+
           <TypographyScroller 
             selected={config.travelType}
             onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
@@ -410,10 +420,10 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
               whileHover={{ x: 5, color: '#FF9500' }}
               whileTap={{ scale: 0.9 }}
               onClick={handleContinue}
-              className="group flex flex-col items-center justify-center text-white md:text-white/50 transition-colors bg-[#1a3c2b] md:bg-transparent rounded-full md:rounded-none w-14 h-14 md:w-auto md:h-auto shadow-lg md:shadow-none border border-white/20 md:border-transparent"
+              className="group flex flex-col items-center justify-center text-white transition-colors bg-[#1a3c2b] md:bg-transparent rounded-full md:rounded-none w-14 h-14 md:w-auto md:h-auto shadow-lg md:shadow-none border border-white/20 md:border-transparent"
             >
                <span className="text-[32px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[32px] md:h-auto">→</span>
-               <span className="hidden md:block text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
+               <span className="hidden md:block text-[10px] uppercase tracking-[0.6em] opacity-80 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
             </motion.button>
           </motion.div>
         </div>
