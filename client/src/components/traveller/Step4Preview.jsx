@@ -100,7 +100,7 @@ const Step4Preview = ({
     const activeDestination = destinations?.find(d => d.id === config.destinationId) || destinations?.[0];
     const destinationNameRaw = config.destinationName || activeDestination?.name || "Your Journey";
     const destinationName = destinationNameRaw.toUpperCase();
-    const heroImage = activeDestination?.coverImage || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&h=1080&fit=crop&auto=format"; 
+    const heroImage = activeDestination?.coverImage || activeDestination?.heroImage || activeDestination?.images?.[0] || "https://placehold.co/1920x1080/000000/333333?text=Destination+Hero";
 
     return (
         <div style={{ background: PALETTE.cream, minHeight: '100vh', overflowX: 'hidden' }}>
@@ -118,7 +118,7 @@ const Step4Preview = ({
                     src={heroImage} 
                     alt={destinationName}
                     className="w-full h-full object-cover"
-                    onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&h=900&fit=crop"; }}
+                    onError={(e) => { e.target.src = "https://placehold.co/1600x900/000000/333333?text=No+Image"; }}
                 />
                 
                 {/* Overlay Gradient */}
@@ -242,11 +242,8 @@ const Step4Preview = ({
                         
                         // PRIORITY IMAGE SELECTION
                         const dayPhoto = 
-                            activity?.imageUrl || activity?.image || 
-                            stay?.imageUrl || stay?.image || 
-                            food?.imageUrl || food?.image || 
-                            destination?.heroImage || destination?.image || 
-                            "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80";
+                            destination?.coverImage || destination?.heroImage || destination?.images?.[0] || 
+                            "https://placehold.co/600x400/f8f9fa/a0aec0?text=No+Image";
                         
                         const rotation = [-2.5, 1.8, -1.2, 2.8, -3.1, 1.5][idx % 6];
                         const cardTilt = idx % 2 === 0 ? -1 : 1;
@@ -287,14 +284,14 @@ const Step4Preview = ({
                                         borderRadius: '999px', color: PALETTE.oceanBlue, fontSize: 13, fontWeight: 800,
                                         marginBottom: 24, alignItems: 'center', gap: 8, border: `1px solid ${PALETTE.oceanBlue}20`
                                     }}>
-                                        <span>📍 {activity.destinationName || 'Secret Location'}</span>
+                                        <span>📍 {destination?.name || day.activities?.[0]?.destinationName || 'Secret Location'}</span>
                                     </div>
 
                                     <h3 style={{
                                         fontFamily: "'Caveat', cursive", fontSize: 34, color: PALETTE.oceanBlue,
                                         margin: '0 0 16px', fontWeight: 800, lineHeight: 1.2
                                     }}>
-                                        {activity.name || 'Exploration Day'}
+                                        {day.activities?.length > 0 ? day.activities.map(a => a.name).join(' & ') : 'Exploration Day'}
                                     </h3>
 
                                     {/* Dynamic Itinerary Content: Hotel, Activity & Food */}
@@ -304,9 +301,9 @@ const Step4Preview = ({
                                         paddingTop: 16,
                                         display: 'flex', flexDirection: 'column', gap: 6
                                     }}>
-                                        <p style={{ margin: 0 }}>Hotel: {day.stays?.[0]?.name || 'Not selected'}</p>
-                                        <p style={{ margin: 0 }}>Activity: {day.activities?.[0]?.name || 'Not selected'}</p>
-                                        <p style={{ margin: 0 }}>Food: {day.food?.[0]?.name || 'Not selected'}</p>
+                                        <p style={{ margin: 0 }}>Hotel: {day.stays?.length > 0 ? day.stays.map(s => s.name).join(', ') : 'Not selected'}</p>
+                                        <p style={{ margin: 0 }}>Activity: {day.activities?.length > 0 ? day.activities.map(a => a.name).join(', ') : 'Not selected'}</p>
+                                        <p style={{ margin: 0 }}>Food: {day.food?.length > 0 ? day.food.map(f => f.name).join(', ') : 'Not selected'}</p>
                                     </div>
                                 </div>
 
@@ -329,14 +326,14 @@ const Step4Preview = ({
                                                 alt={activity?.name || destination?.name}
                                                 className="w-full h-full object-cover"
                                                 loading="lazy"
-                                                onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=300&fit=crop"; }}
+                                                onError={(e) => { e.target.src = "https://placehold.co/400x300/f8f9fa/a0aec0?text=No+Image"; }}
                                             />
                                         </div>
                                         <div style={{
                                             fontFamily: "'Caveat', cursive", fontSize: 18, color: PALETTE.warmGray,
                                             textAlign: 'center', marginTop: 12, opacity: 0.6
                                         }}>
-                                            {activity?.name ? `Exploring ${activity.name}` : destination?.name || "The Adventure"}
+                                            {destination?.name ? `Exploring ${destination.name}` : "The Adventure"}
                                         </div>
                                     </div>
                                 </div>
@@ -371,7 +368,7 @@ const Step4Preview = ({
                             }}>
                                 <div style={{ height: 200, position: 'relative' }}>
                                     <img 
-                                        src={item.imageUrl || item.image || "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600"} 
+                                        src={item.imageUrl || item.image || item.images?.[0] || "https://placehold.co/600x400/f8f9fa/a0aec0?text=No+Image"} 
                                         alt={item.name}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />

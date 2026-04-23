@@ -81,10 +81,10 @@ export default function PageLoader() {
       {isLoading && (
         <motion.div 
           className="global-page-loader-wrapper"
-          initial={{ clipPath: "inset(0 0 0% 0)" }}
+          initial={{ y: 0 }}
           exit={{ 
-              clipPath: "inset(0 0 100% 0)", 
-              transition: { duration: 0.5, ease: [0.76, 0, 0.24, 1] } 
+              y: "-100%", 
+              transition: { duration: 0.6, ease: [0.76, 0, 0.24, 1] } 
           }}
         >
           <div className="loader-content-layer">

@@ -10,7 +10,6 @@ import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSec
 import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
 import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
 import SocialProofSection from '../../components/SocialProof/SocialProofSection';
-import BentoDiscoveryGrid from '../../components/BentoDiscovery/BentoDiscoveryGrid';
 import './CosmosLayout.css';
 
 const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
@@ -57,9 +56,6 @@ const DiscoveryPage = () => {
             <TypographicHeroSection />
             <PlannerPortalSection />
             <CloudNavbarSection />
-
-            {/* Senior Dev Standard: Fluid Bento Grid */}
-            <BentoDiscoveryGrid destinations={destinations} />
 
             <ExpandingCards />
             <SocialProofSection />

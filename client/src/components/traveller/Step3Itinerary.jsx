@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Trash2, MapPin, Sparkles, ChevronUp, ChevronDown, Heart, Send, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─────────────────────────────────────────────
    ASSET LOOKUP — Preferred production images
@@ -14,13 +15,14 @@ const DESTINATION_IMAGES = {
   'ICELAND': '/assets/destinations/iceland.png',
 };
 
-// Fallback images for categories (Unsplash IDs from user request)
+// Fallback images for categories when admin has not provided an image
+const NO_IMAGE = 'https://placehold.co/600x400/f8f9fa/a0aec0?text=Image+Needed';
 const CATEGORY_FALLBACKS = {
-  activities: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
-  food: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
-  hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-  hiking: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80',
-  castle: 'https://images.unsplash.com/photo-1549144511-f099e773c147?w=800&q=80',
+  activities: NO_IMAGE,
+  food: NO_IMAGE,
+  hotel: NO_IMAGE,
+  hiking: NO_IMAGE,
+  castle: NO_IMAGE,
 };
 
 /* ─────────────────────────────────────────────
@@ -211,7 +213,7 @@ const ExperienceCard = ({ item, isAdded, onToggle, type }) => {
         border: '1px solid rgba(0,0,0,0.03)'
       }}>
         <ImageWithShimmer 
-          src={item.imageUrl || CATEGORY_FALLBACKS.activities} 
+          src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
           alt={displayName} 
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
         />
@@ -328,7 +330,7 @@ const FanCarousel = ({ items, isAddedFn, onToggleFn, type }) => {
                 display: 'flex', flexDirection: 'column'
               }}>
                 <img 
-                  src={item.imageUrl || CATEGORY_FALLBACKS.activities} 
+                  src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
                   style={{ height: '60%', width: '100%', objectFit: 'cover' }} 
                   alt={item.name}
                 />
@@ -475,7 +477,7 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
         
         <div style={{ flex: 1.2, position: 'relative' }}>
           <img 
-            src={featured.imageUrl || heroImage || CATEGORY_FALLBACKS[type]} 
+            src={featured.imageUrl || featured.images?.[0] || heroImage || CATEGORY_FALLBACKS[type]} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             alt="Category Hero"
           />
@@ -486,7 +488,7 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
             overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.15)', zIndex: 2
           }}>
             <img 
-              src={featured.imageUrl || CATEGORY_FALLBACKS[type]} 
+              src={featured.imageUrl || featured.images?.[0] || CATEGORY_FALLBACKS[type]} 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
               alt="Detail"
             />
@@ -585,7 +587,7 @@ const TripPlanPanel = ({ plan, config, budget, timeline, onWishlist, onReview })
                     }}
                   >
                     <img 
-                      src={item.imageUrl || CATEGORY_FALLBACKS.activities} 
+                      src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS.activities} 
                       alt="" 
                       style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} 
                     />
@@ -774,18 +776,18 @@ const MobileBottomSheet = ({ plan, config, budget, timeline, totalActivityTime, 
 const SplitHeroPanels = () => {
   const panels = [
     {
-      url: 'https://images.unsplash.com/photo-1682687982501-1e58ab814714?w=1200&q=90',
+      url: 'https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?auto=format&fit=crop&w=2560&q=100', // Ocean / Goa style
       label: 'ADVENTURE',
       pos: 'center center',
     },
     {
-      url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=90',
+      url: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?auto=format&fit=crop&w=2560&q=100', // Desert / Sahara style
       label: 'DISCOVER',
       center: true,
-      pos: 'center 30%',
+      pos: 'center center',
     },
     {
-      url: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=90',
+      url: 'https://images.unsplash.com/photo-1476611317561-60117649dd94?auto=format&fit=crop&w=2560&q=100', // Forest / Switzerland style
       label: 'CULTURE',
       pos: 'center 40%',
     },
@@ -859,7 +861,7 @@ const SplitHeroPanels = () => {
 /* ─────────────────────────────────────────────
    DESTINATION HERO (after selection)
 ────────────────────────────────────────────── */
-const DestinationHero = ({ destinationName, countryName, stateName, config }) => {
+const DestinationHero = ({ destinationName, countryName, stateName, config, heroImage }) => {
   const { displayed, showCursor, blurAmount } = useTypewriter(destinationName?.toUpperCase(), 60);
   const [subVisible, setSubVisible] = useState(false);
 
@@ -872,7 +874,7 @@ const DestinationHero = ({ destinationName, countryName, stateName, config }) =>
 
   const searchKey = destinationName?.toUpperCase() || '';
   const lookupUrl = DESTINATION_IMAGES[searchKey] || Object.keys(DESTINATION_IMAGES).find(k => searchKey.includes(k)) && DESTINATION_IMAGES[Object.keys(DESTINATION_IMAGES).find(k => searchKey.includes(k))];
-  const heroUrl = lookupUrl || `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=90&auto=format`;
+  const heroUrl = heroImage || lookupUrl || NO_IMAGE;
 
   return (
     <div style={{
@@ -1214,7 +1216,7 @@ const ScrapbookDestinationSelector = ({ destinations, selectedId, onSelect }) =>
                   borderRadius: 2, overflow: 'hidden' 
                 }}>
                   <ImageWithShimmer 
-                    src={dest.heroImage || DESTINATION_IMAGES[dest.name?.toUpperCase()] || CATEGORY_FALLBACKS.activities} 
+                    src={dest.heroImage || dest.coverImage || dest.images?.[0] || DESTINATION_IMAGES[dest.name?.toUpperCase()] || NO_IMAGE} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
@@ -1343,9 +1345,27 @@ const Step3Itinerary = ({
             countryName={selectedCountryName}
             stateName={selectedStateName}
             config={config}
+            heroImage={destinations?.find(d => d.id === selectedDestinationId)?.coverImage || destinations?.find(d => d.id === selectedDestinationId)?.images?.[0]}
           />
         )}
 
+      </div>
+
+      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 60px' }}>
+        <DestinationSelectorBar
+          countries={countries}
+          states={states}
+          districts={districts}
+          destinations={destinations}
+          selectedCountry={selectedCountry}
+          selectedState={selectedState}
+          selectedDistrict={selectedDistrict}
+          selectedDestinationId={selectedDestinationId}
+          onCountryChange={onCountryChange}
+          onStateChange={onStateChange}
+          onDistrictChange={onDistrictChange}
+          onDestinationChange={onDestinationChange}
+        />
       </div>
 
       {/* ── MAIN CONTENT ── */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Sparkles } from 'lucide-react';
+import { Download, ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -58,6 +58,10 @@ const PlannerPage = () => {
 
 
     const [pendingSubmit, setPendingSubmit] = useState(false);
+
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
 
     const [daySelectedDestinations, setDaySelectedDestinations] = useState({}); // { 1: 'id1', 2: 'id2' }
     const [selectedDay, setSelectedDay] = useState(1);
@@ -563,6 +567,7 @@ const PlannerPage = () => {
                     </div>
 
 
+                    {step === 3 && (
                         <Step3Itinerary
                             key="step3"
                             config={config}
@@ -605,49 +610,101 @@ const PlannerPage = () => {
                                 nextStep();
                             }}
                         />
+                    )}
 
 
 
                     {step === 4 && inquiryStatus === 'success' ? (
                         <div
                             key="success"
-                            className="w-full min-h-screen bg-[#F7F3EC] flex items-center justify-center p-8 animate-fade-in"
+                            className="w-full min-h-screen relative flex items-center justify-center overflow-hidden animate-fade-in"
                         >
-                            <div className="max-w-4xl w-full bg-white rounded-[2rem] p-16 text-center shadow-2xl relative overflow-hidden">
-                                {/* Decorative elements */}
-                                <div className="absolute top-0 left-0 w-full h-2 bg-[#1B3A6B]/10" />
-                                <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#1B3A6B]/5 rounded-full blur-3xl" />
-                                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#E8A838]/5 rounded-full blur-3xl" />
+                            {/* Background Image & Gradient */}
+                            <img 
+                                src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=90&auto=format" 
+                                alt="Success Background"
+                                className="absolute inset-0 w-full h-full object-cover scale-105"
+                                style={{
+                                    animation: "pan-slow 20s ease-in-out infinite alternate"
+                                }}
+                            />
+                            {/* Colorful vibrant overlay similar to the reference illustration */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A6B]/80 via-[#2A5298]/60 to-[#1B3A6B]/90 mix-blend-multiply" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1128] via-transparent to-transparent opacity-80" />
 
-                                <div className="w-24 h-24 bg-[#1B3A6B]/10 rounded-full flex items-center justify-center mx-auto mb-10 text-[#1B3A6B]">
-                                    <Sparkles size={48} className="animate-pulse" />
-                                </div>
+                            {/* Optional CSS for keyframes */}
+                            <style>{`
+                                @keyframes pan-slow {
+                                    0% { transform: scale(1.05) translate(0, 0); }
+                                    100% { transform: scale(1.1) translate(-2%, 2%); }
+                                }
+                            `}</style>
 
-                                <h2 className="text-5xl font-display font-bold text-[#1B3A6B] mb-6 tracking-tight">Your Story Begins!</h2>
-                                <p className="text-[#7A7068] text-xl max-w-xl mx-auto mb-12 font-serif italic">
-                                    Our Roam Squad experts are already reviewing your handcrafted journey. 
-                                    Expect a personalized touch within the next 24 hours.
-                                </p>
+                            {/* Content */}
+                            <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto mt-[-5vh]">
+                                
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                >
+                                    <h1 style={{
+                                        fontFamily: "'Inter', 'Barlow Condensed', sans-serif",
+                                        fontWeight: 800,
+                                        fontSize: "clamp(60px, 12vw, 150px)",
+                                        color: "white",
+                                        letterSpacing: "-0.03em",
+                                        lineHeight: 1,
+                                        marginBottom: "16px",
+                                        textShadow: "0 20px 50px rgba(0,0,0,0.4)"
+                                    }}>
+                                        Origin.
+                                    </h1>
+                                </motion.div>
 
-                                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                                    <button 
-                                        onClick={() => window.location.href = '/'}
-                                        className="px-12 py-5 bg-[#1B3A6B] text-white rounded-full font-bold text-lg hover:scale-105 transition-all shadow-xl shadow-[#1B3A6B]/20"
-                                    >
-                                        Return to Home
-                                    </button>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                >
+                                    <p style={{
+                                        fontFamily: "monospace",
+                                        fontSize: "clamp(16px, 2.5vw, 24px)",
+                                        color: "rgba(255,255,255,0.9)",
+                                        letterSpacing: "1px",
+                                        fontWeight: 400,
+                                        maxWidth: "600px",
+                                        marginBottom: "60px",
+                                        lineHeight: 1.6,
+                                        textShadow: "0 4px 10px rgba(0,0,0,0.5)"
+                                    }}>
+                                        Redefining the bespoke travel experience.<br/>
+                                        <span className="opacity-70 text-sm mt-2 block font-sans">Our experts are reviewing your handcrafted journey.</span>
+                                    </p>
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                    className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                                >
                                     <button 
                                         onClick={() => generatePDF(submittedData)}
-                                        className="px-12 py-5 bg-white border-2 border-[#1B3A6B]/10 text-[#1B3A6B] rounded-full font-bold text-lg flex items-center gap-3 hover:bg-[#1B3A6B]/5 transition-all"
+                                        className="group relative px-8 py-4 bg-gradient-to-r from-[#E8A838] to-[#C4724A] text-white rounded-full font-semibold text-lg overflow-hidden transition-transform hover:scale-105 shadow-2xl shadow-[#E8A838]/30 flex items-center gap-3 border border-white/20"
                                     >
-                                        <Sparkles size={20} className="text-[#E8A838]" /> 
-                                        Download Itinerary PDF
+                                        <span>Download Itinerary</span>
+                                        <Download size={20} className="group-hover:-translate-y-1 group-hover:scale-110 transition-all duration-300" />
                                     </button>
-                                </div>
-                                
-                                <div className="mt-12 pt-12 border-t border-[#1B3A6B]/5">
-                                    <p className="text-[#1B3A6B]/30 text-sm font-bold tracking-widest uppercase">Love from the Roam Squad</p>
-                                </div>
+
+                                    <button 
+                                        onClick={() => window.location.href = '/'}
+                                        className="group px-8 py-4 bg-white/5 border border-white/30 text-white rounded-full font-semibold text-lg hover:bg-white/15 transition-all backdrop-blur-md flex items-center gap-3 shadow-xl shadow-black/10"
+                                    >
+                                        <span>Return Home</span>
+                                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
+                                    </button>
+                                </motion.div>
                             </div>
                         </div>
                     ) : step === 4 && (

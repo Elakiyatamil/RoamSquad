@@ -17,14 +17,7 @@ const BentoDiscoveryGrid = ({ destinations = [] }) => {
         : Array(6).fill({ id: 'skele', name: 'Loading...', country: 'World' });
 
     return (
-        <section className="bento-grid-container" aria-labelledby="bento-title">
-            <header className="bento-header">
-                <span className="bento-eyebrow">Curated Frontiers</span>
-                <h2 id="bento-title" className="bento-title">
-                    Discover destinations that define new standards of travel.
-                </h2>
-            </header>
-
+        <section className="bento-grid-container">
             <div className="bento-grid">
                 {displayItems.map((item, index) => {
                     // Logic to assign featured/tall classes for a balanced bento look
