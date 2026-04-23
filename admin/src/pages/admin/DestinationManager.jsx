@@ -45,6 +45,7 @@ const DestinationForm = ({ destination, onClose }) => {
         active: true,
         images: [],
         activities: [],
+        foodOptions: [],
         accommodation: [],
         travelOptions: []
     });
@@ -65,6 +66,7 @@ const DestinationForm = ({ destination, onClose }) => {
             setFormData({
                 ...fullDestination,
                 activities: fullDestination.activities || [],
+                foodOptions: fullDestination.foodOptions || [],
                 accommodation: fullDestination.accommodation || [],
                 travelOptions: fullDestination.travelOptions || []
             });
@@ -141,7 +143,7 @@ const DestinationForm = ({ destination, onClose }) => {
             alert('Please select a District first.');
             return;
         }
-        if (!formData.name || !formData.category || !formData.rating) {
+        if (!formData.name?.trim() || !formData.category || formData.rating === '') {
             alert('Name, Category, and Rating are required.');
             return;
         }
@@ -162,12 +164,12 @@ const DestinationForm = ({ destination, onClose }) => {
 
     // Local Mutation for nested items
     const addItem = (type, item) => {
-        setFormData(prev => ({ ...prev, [type]: [...prev[type], item] }));
+        setFormData(prev => ({ ...prev, [type]: [...(prev[type] || []), item] }));
     };
 
     const updateItem = (type, index, item) => {
         setFormData(prev => {
-            const newList = [...prev[type]];
+            const newList = [...(prev[type] || [])];
             newList[index] = item;
             return { ...prev, [type]: newList };
         });
@@ -176,7 +178,7 @@ const DestinationForm = ({ destination, onClose }) => {
     const removeItem = (type, index) => {
         setFormData(prev => ({
             ...prev,
-            [type]: prev[type].filter((_, i) => i !== index)
+            [type]: (prev[type] || []).filter((_, i) => i !== index)
         }));
     };
 
@@ -949,23 +951,39 @@ const DestinationForm = ({ destination, onClose }) => {
                             
                             try {
                                 const endpointMapping = {
-                                    'Travel Details': { path: 'travel-options', type: 'travelOptions', needsImage: false },
-                                    'Experiences': { path: 'activities', type: 'activities', needsImage: true },
-                                    'Food': { path: 'food', type: 'foodOptions', needsImage: true },
-                                    'Accommodation': { path: 'accommodation', type: 'accommodation', needsImage: true }
+                                    'travel details': { path: 'travel-options', type: 'travelOptions', needsImage: false },
+                                    'experiences': { path: 'activities', type: 'activities', needsImage: true },
+                                    'food': { path: 'food', type: 'foodOptions', needsImage: true },
+                                    'accommodation': { path: 'accommodation', type: 'accommodation', needsImage: true },
+                                    'images': { path: 'images_only', type: 'images', needsImage: false }
                                 };
                                 
-                                const { path, type, needsImage } = endpointMapping[activeTab];
+                                const normalizedTab = activeTab.toLowerCase();
+                                
+                                if (normalizedTab === 'images') {
+                                    handleSaveBasicInfo(false);
+                                    return;
+                                }
+
+                                if (!endpointMapping[normalizedTab]) {
+                                    console.warn('Unknown tab:', activeTab);
+                                    btn.innerText = originalText;
+                                    btn.disabled = false;
+                                    return;
+                                }
+
+                                const { path, type, needsImage } = endpointMapping[normalizedTab];
                                 const items = Array.isArray(formData[type]) ? formData[type] : [];
 
                                 // Validation: No item can be saved without image
                                 if (needsImage) {
                                     const missingImage = items.find(item => !item.imageUrl);
                                     if (missingImage) {
-                                        alert(`Cannot save ${activeTab}: Every item must have an image.`);
-                                        btn.innerText = originalText;
-                                        btn.disabled = false;
-                                        return;
+                                        if (!window.confirm(`Some ${activeTab} items are missing images. They might not look great on the frontend. Save anyway?`)) {
+                                            btn.innerText = originalText;
+                                            btn.disabled = false;
+                                            return;
+                                        }
                                     }
                                 }
 

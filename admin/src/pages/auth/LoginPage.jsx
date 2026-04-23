@@ -21,8 +21,11 @@ const LoginPage = () => {
 
     // Auto-redirect if already logged in
     useEffect(() => {
-        if (hydrated && isAuthenticated) navigate('/admin', { replace: true });
-    }, [isAuthenticated, hydrated, navigate]);
+        // console.log("🔐 Auth State:", { hydrated, isAuthenticated, loading });
+        if (hydrated && isAuthenticated) {
+            navigate('/admin', { replace: true });
+        }
+    }, [isAuthenticated, hydrated]);
 
     // Pre-fill if Remember Me was set
     useEffect(() => {
@@ -39,6 +42,11 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("🚀 Attempting Login:", { email, passwordLength: password.length });
+        if (!email || !password) {
+            setError('Please enter both email and password.');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
@@ -214,10 +222,9 @@ const LoginPage = () => {
                         {/* Submit */}
                         <motion.button
                             type="submit"
-                            disabled={loading}
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full py-4 bg-ink text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-ink/10 hover:bg-ink/90 disabled:opacity-60 transition-all mt-2"
+                            className="w-full py-4 bg-ink text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-ink/10 hover:bg-ink/90 transition-all mt-2"
                         >
                             {loading ? (
                                 <Loader2 className="animate-spin" size={20} />

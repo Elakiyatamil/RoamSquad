@@ -302,3 +302,15 @@ model EventInterest {
   phone      String?
   createdAt  DateTime @default(now())
 }
+model SquadLove {
+  id        String   @id @default(uuid())
+  type      String   // "IMAGE" or "VIDEO"
+  url       String
+  caption   String?
+  name      String?
+  location  String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+

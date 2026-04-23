@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+const path = require('path');
 require('dotenv').config();
 
 const { init: initSockets } = require('./sockets');
@@ -17,6 +18,7 @@ const userTripRoutes = require('./routes/userTrips');
 const wishlistRoutes = require('./routes/wishlist');
 const inquiryRoutes = require('./routes/inquiry');
 const interestRoutes = require('./routes/interests');
+const squadLoveRoutes = require('./routes/squadLove');
 const experienceController = require('./controllers/experienceController');
 const { verifyJWT, isAdmin } = require('./middleware/auth');
 const { getAuditLogs } = require('./controllers/auditController');
@@ -51,6 +53,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // #region agent log
 // Debug-only endpoint for this session (no secrets).
@@ -79,6 +82,7 @@ app.use('/api/public', publicRoutes);
 app.use('/api/user', userTripRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/inquiry', inquiryRoutes);
+app.use('/api/squad-love', squadLoveRoutes);
 app.get('/public/destinations/:id/accommodation', experienceController.getAccommodationPublic);
 
 // Admin-Specific Routers (Mounted on specific sub-paths first)

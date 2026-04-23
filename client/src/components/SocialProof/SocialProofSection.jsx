@@ -37,13 +37,25 @@ const SocialProofSection = () => {
     useEffect(() => {
         const fetchSquad = async () => {
             try {
-                // TODO: connect to backend
-                const response = await fetch('/api/squad-stories');
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                const response = await fetch(`${apiUrl}/squad-love`);
                 if (!response.ok) throw new Error('API Error');
-                const data = await response.json();
-                setSquadData(data);
+                const result = await response.json();
+                
+                // Map backend data to frontend format
+                const mappedData = result.data.map(item => ({
+                    id: item.id,
+                    type: item.type.toLowerCase(),
+                    src: item.url,
+                    name: item.name || 'Community Member',
+                    location: item.location || 'Roaming the World',
+                    quote: item.caption || 'Unforgettable experience with Roam Squad!',
+                    height: `${380 + Math.floor(Math.random() * 100)}px` // Random height for masonry effect
+                }));
+
+                setSquadData(mappedData.length > 0 ? mappedData : SQUAD_MOMENTS_FALLBACK);
             } catch (error) {
-                // Silently fallback to hardcoded list on error
+                console.error('Social Proof Fetch Error:', error);
                 setSquadData(SQUAD_MOMENTS_FALLBACK);
             } finally {
                 setLoading(false);
@@ -51,6 +63,7 @@ const SocialProofSection = () => {
         };
         fetchSquad();
     }, []);
+
 
     // 3D Carousel transform logic
     useEffect(() => {
