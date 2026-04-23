@@ -126,8 +126,13 @@ const MinimalCompass = ({ value, onChange, isTransitioning }) => {
     if (angleDeg < 0) angleDeg += 360;
     
     // Calculate value based on angle
-    const newVal = Math.round(minDays + (angleDeg / 360) * (maxDays - minDays));
-    const clampedVal = Math.min(maxDays, Math.max(minDays, newVal));
+    let newVal = Math.round(minDays + (angleDeg / 360) * (maxDays - minDays));
+    
+    // BUFFER FIX: Make '1 day' easier to hit on mobile (first 6 degrees = 1 day)
+    if (angleDeg < 6) newVal = minDays;
+    
+    // STRICT MINIMUM FIX: Ensure mobile touch points don't clamp to 2
+    const clampedVal = Math.max(minDays, Math.min(maxDays, newVal));
     
     // Update rotation and internal state
     if (clampedVal !== value) {
@@ -405,9 +410,9 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
               whileHover={{ x: 5, color: '#FF9500' }}
               whileTap={{ scale: 0.9 }}
               onClick={handleContinue}
-              className="group flex flex-col items-center justify-center text-white/50 transition-colors bg-black/40 md:bg-transparent rounded-full md:rounded-none w-12 h-12 md:w-auto md:h-auto backdrop-blur-sm md:backdrop-blur-none border border-white/10 md:border-transparent"
+              className="group flex flex-col items-center justify-center text-white md:text-white/50 transition-colors bg-[#1a3c2b] md:bg-transparent rounded-full md:rounded-none w-14 h-14 md:w-auto md:h-auto shadow-lg md:shadow-none border border-white/20 md:border-transparent"
             >
-               <span className="text-[28px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[28px] md:h-auto">→</span>
+               <span className="text-[32px] md:text-7xl font-thin scale-x-150 tracking-[-0.2em] transform transition-all group-hover:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] leading-none flex items-center justify-center h-[32px] md:h-auto">→</span>
                <span className="hidden md:block text-[10px] uppercase tracking-[0.6em] opacity-40 mt-1 md:mt-2 font-bold group-hover:opacity-100">Roam</span>
             </motion.button>
           </motion.div>

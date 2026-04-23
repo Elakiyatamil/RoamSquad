@@ -220,14 +220,15 @@ const ExperienceCard = ({ item, isAdded, onToggle, type }) => {
       </div>
 
       {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, paddingRight: 8 }}>
         <div style={{ 
           fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, 
-          color: '#1a1a1a', letterSpacing: '0.02em' 
+          color: '#1a1a1a', letterSpacing: '0.02em',
+          marginBottom: 8
         }}>
           {displayName}
         </div>
-        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: '#0f4a23', fontWeight: 700 }}>
+        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: '#0f4a23', fontWeight: 700, marginBottom: 4 }}>
           ₹{displayPrice.toLocaleString()}
         </div>
         {displayDuration && (
@@ -238,20 +239,21 @@ const ExperienceCard = ({ item, isAdded, onToggle, type }) => {
       </div>
 
       {/* Action */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', height: 34, display: 'flex', alignItems: 'center' }}>
         <ParticleBurst trigger={particleTrigger} />
         <button
           onClick={handleClick}
           style={{
-            width: 34, height: 34, borderRadius: 10,
+            width: 38, height: 38, borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: isAdded ? 'none' : '1.5px solid rgba(15,74,35,0.15)',
             background: isAdded ? '#0f4a23' : 'transparent',
             color: isAdded ? 'white' : '#0f4a23',
-            cursor: 'pointer', transition: 'all 0.2s ease'
+            cursor: 'pointer', transition: 'all 0.2s ease',
+            alignSelf: 'center'
           }}
         >
-          {isAdded ? <Trash2 size={16} /> : <Plus size={18} />}
+          {isAdded ? <Trash2 size={16} /> : <Plus size={20} />}
         </button>
       </div>
 
@@ -438,11 +440,12 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
       <SectionHeader title={title} />
       
       {/* Category Hero Banner */}
-      <div style={{
-        display: 'flex', height: 400, background: '#f8f9fa', borderRadius: 32,
-        overflow: 'hidden', marginBottom: 40, border: '1px solid rgba(0,0,0,0.05)'
+      <div className="category-hero-banner" style={{
+        display: 'flex', background: '#f8f9fa', borderRadius: 32,
+        overflow: 'hidden', marginBottom: 40, border: '1px solid rgba(0,0,0,0.05)',
+        position: 'relative'
       }}>
-        <div style={{ flex: 1, padding: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className="category-hero-text" style={{ flex: 1, padding: '40px 60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', zIndex: 10 }}>
           <div style={{ 
             fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, 
             letterSpacing: '0.2em', color: 'rgba(0,0,0,0.4)', marginBottom: 16 
@@ -450,13 +453,13 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
             FEATURED {type.toUpperCase()}
           </div>
           <h4 style={{ 
-            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 42, 
+            fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 32, 
             color: '#1a1a1a', margin: '0 0 16px', lineHeight: 1.1 
           }}>
             {featured.name}
           </h4>
           <p style={{ 
-            fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: 'rgba(0,0,0,0.6)', 
+            fontFamily: "'Cormorant Garamond', serif", fontSize: 18, color: 'rgba(0,0,0,0.6)', 
             marginBottom: 32, maxWidth: 400 
           }}>
             Experience the finest {type} curated by our squad for your unique journey.
@@ -475,17 +478,17 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
           </button>
         </div>
         
-        <div style={{ flex: 1.2, position: 'relative' }}>
+        <div className="category-hero-image-container" style={{ flex: 1.2, position: 'relative', minHeight: 300 }}>
           <img 
             src={featured.imageUrl || featured.images?.[0] || heroImage || CATEGORY_FALLBACKS[type]} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             alt="Category Hero"
           />
-          {/* Floating Circle Image (Inspired by Image 6) */}
-          <div style={{
-            position: 'absolute', left: -80, top: '50%', transform: 'translateY(-50%)',
-            width: 200, height: 200, borderRadius: '50%', border: '8px solid white',
-            overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.15)', zIndex: 2
+          {/* Floating Circle Image — Refined positioning to avoid overlap */}
+          <div className="floating-circle-img" style={{
+            position: 'absolute', left: -60, top: '50%', transform: 'translateY(-50%)',
+            width: 140, height: 140, borderRadius: '50%', border: '6px solid white',
+            overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.15)', zIndex: 12
           }}>
             <img 
               src={featured.imageUrl || featured.images?.[0] || CATEGORY_FALLBACKS[type]} 
@@ -823,12 +826,16 @@ const SplitHeroPanels = () => {
             backgroundImage: `url('${p.url}')`,
             backgroundSize: 'cover',
             backgroundPosition: p.pos,
-            transition: 'transform 0.8s ease'
+            transition: 'transform 0.8s ease',
+            filter: 'none',
+            opacity: 1
           }} className="hero-img" />
           
           <div style={{
             position: 'absolute', inset: 0,
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%)',
+            filter: 'none',
+            opacity: 1
           }} />
 
           <h2 style={{
@@ -1531,6 +1538,11 @@ const Step3Itinerary = ({
           .step3-grid { grid-template-columns: 1fr !important; padding: 60px 20px 160px !important; }
           .step3-sidebar { display: none !important; }
           .step3-mobile-sheet { display: block !important; }
+          .category-hero-banner { flex-direction: column !important; height: auto !important; }
+          .category-hero-text { padding: 32px 24px !important; }
+          .category-hero-image-container { height: 250px !important; }
+          .floating-circle-img { width: 100px !important; height: 100px !important; left: 20px !important; top: -50px !important; transform: none !important; }
+          .exp-card { padding: 20px 24px !important; gap: 20px !important; }
         }
       `}} />
     </div>

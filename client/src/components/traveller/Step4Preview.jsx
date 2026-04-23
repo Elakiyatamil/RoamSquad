@@ -109,11 +109,12 @@ const Step4Preview = ({
             {/* ── SECTION 1: CINEMATIC REAL-IMAGE HERO ── */}
             <header style={{
                 height: '100vh',
+                maxHeight: '100vh',
                 width: '100%',
                 position: 'relative',
                 overflow: 'hidden',
                 background: `#000`
-            }}>
+            }} className="preview-hero">
                 <img 
                     src={heroImage} 
                     alt={destinationName}
@@ -131,6 +132,7 @@ const Step4Preview = ({
                 <svg 
                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}
                     viewBox="0 0 1440 800"
+                    className="hidden md:block"
                 >
                     <path 
                         d="M -100 200 Q 400 500 1540 100" 
@@ -149,9 +151,9 @@ const Step4Preview = ({
 
                 {/* Content (Left Aligned, Centered Vertically) */}
                 <div style={{
-                    position: 'absolute', top: '50%', left: '8%', transform: 'translateY(-50%)',
+                    position: 'absolute', top: '45%', left: '8%', transform: 'translateY(-50%)',
                     zIndex: 10, maxWidth: '850px', textAlign: 'left'
-                }}>
+                }} className="hero-content">
                     <p style={{
                         fontFamily: "'Barlow Condensed', sans-serif",
                         fontWeight: 700, fontSize: 14, letterSpacing: '4px',
@@ -161,7 +163,7 @@ const Step4Preview = ({
                     
                     <h1 style={{
                         fontFamily: "'Barlow Condensed', sans-serif",
-                        fontWeight: 900, fontSize: 'clamp(56px, 10vw, 110px)',
+                        fontWeight: 900, fontSize: 'clamp(42px, 10vw, 110px)',
                         color: 'white', textTransform: 'uppercase', 
                         lineHeight: 0.85, margin: '0 0 24px',
                         textShadow: '0 10px 30px rgba(0,0,0,0.3)'
@@ -171,7 +173,7 @@ const Step4Preview = ({
 
                     <p style={{
                         fontFamily: "'Cormorant Garamond', serif",
-                        fontSize: 28, color: 'rgba(255,255,255,0.95)',
+                        fontSize: 'clamp(20px, 4vw, 28px)', color: 'rgba(255,255,255,0.95)',
                         fontStyle: 'italic', marginBottom: 0
                     }}>
                         {config.days} Days · ₹{budget.toLocaleString()} Est.
@@ -181,12 +183,14 @@ const Step4Preview = ({
                 {/* Bottom Feature Row Icons */}
                 <div style={{
                     position: 'absolute', bottom: '10%', left: '50%', transform: 'translateX(-50%)',
-                    zIndex: 15, display: 'flex', gap: 32, alignItems: 'center',
+                    zIndex: 15, display: 'flex', gap: 'clamp(12px, 4vw, 32px)', alignItems: 'center',
                     background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)',
-                    padding: '20px 48px', borderRadius: '100px',
+                    padding: '16px 24px', borderRadius: '100px',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.2)'
-                }}>
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+                    width: 'max-content',
+                    maxWidth: '90vw'
+                }} className="hero-features">
                     {[
                         { icon: Plane, label: 'Travel' },
                         { icon: Bed, label: 'Accommodation' },
@@ -194,9 +198,9 @@ const Step4Preview = ({
                         { icon: Camera, label: 'Sightseeing' },
                         { icon: Utensils, label: 'Meals' }
                     ].map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                            <item.icon size={20} color="white" strokeWidth={1.5} />
-                            <span style={{ color: 'white', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.7 }}>
+                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                            <item.icon size={16} color="white" strokeWidth={1.5} />
+                            <span style={{ color: 'white', fontSize: 8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.7 }}>
                                 {item.label}
                             </span>
                         </div>
@@ -209,6 +213,14 @@ const Step4Preview = ({
                     background: `linear-gradient(to bottom, transparent, ${PALETTE.cream})`,
                     zIndex: 20
                 }} />
+
+                <style dangerouslySetInnerHTML={{ __html: `
+                    @media (max-width: 768px) {
+                        .preview-hero { height: 45vh !important; max-height: 45vh !important; }
+                        .hero-content { top: 40% !important; left: 20px !important; right: 20px !important; }
+                        .hero-features { bottom: 15px !important; padding: 10px 20px !important; }
+                    }
+                `}} />
             </header>
 
             {/* ── SECTION 2: SCRAPBOOK ITINERARY ── */}
