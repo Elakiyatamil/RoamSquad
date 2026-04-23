@@ -800,8 +800,8 @@ const SplitHeroPanels = () => {
     <div style={{ 
       display: 'flex', 
       width: '100%', 
-      height: '100vh', 
-      minHeight: '600px', 
+      height: '60vh', 
+      minHeight: '400px', 
       overflow: 'hidden',
       position: 'relative',
       maxWidth: '100vw'
@@ -888,7 +888,7 @@ const DestinationHero = ({ destinationName, countryName, stateName, config, hero
 
   return (
     <div style={{
-      position: 'relative', width: '100%', height: '100vh', minHeight: 600, overflow: 'hidden',
+      position: 'relative', width: '100%', height: '60vh', minHeight: 400, overflow: 'hidden',
       marginBottom: -80,
     }}>
       {/* Background */}
@@ -1348,7 +1348,7 @@ const Step3Itinerary = ({
   return (
     <div style={{ width: '100%', minHeight: '100vh', background: 'white' }}>
       {/* ── HERO SECTION ── */}
-      <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+      <div style={{ position: 'relative', width: '100%', height: '60vh' }}>
         {!selectedDestinationId ? (
           <SplitHeroPanels />
         ) : (
