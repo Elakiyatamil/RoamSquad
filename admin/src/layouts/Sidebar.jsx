@@ -16,7 +16,8 @@ import {
     Inbox,
     Globe,
     CalendarDays,
-    Heart
+    Heart,
+    Image as ImageIcon
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
@@ -38,6 +39,7 @@ const Sidebar = () => {
         { title: 'Events', icon: CalendarDays, path: '/admin/events' },
         { title: 'Inquiries', icon: Inbox, path: '/admin/inquiries' },
         { title: 'Squad Love', icon: Heart, path: '/admin/squad-love' },
+        { title: 'Image Pipeline', icon: ImageIcon, path: '/admin/images' },
         { title: 'Requests', icon: ClipboardList, path: '/admin/requests' },
         { title: 'Activity Log', icon: ShieldCheck, path: '/admin/activity-log' },
     ];

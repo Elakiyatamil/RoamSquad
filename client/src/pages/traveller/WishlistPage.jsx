@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
 
-const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
+const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
 const WishlistPage = () => {
     const [wishlist, setWishlist] = useState([]);

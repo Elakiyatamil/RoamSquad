@@ -12,7 +12,7 @@ import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
 import SocialProofSection from '../../components/SocialProof/SocialProofSection';
 import './CosmosLayout.css';
 
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/public`;
+const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/public`;
 
 const DiscoveryPage = () => {
     const { data: destinations = [], isLoading } = useQuery({

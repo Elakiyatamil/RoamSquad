@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import './ExpandingCards.css';
 
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
+const API_BASE = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
 const FALLBACK_PACKAGES = [
     { id: 'p1', name: 'Himalayan Escape', tag: 'PACKAGES', description: '8 days · Leh, Spiti & Manali', coverImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800', link: '/packages/himalayan-escape', linkText: 'VIEW PACKAGE →' },

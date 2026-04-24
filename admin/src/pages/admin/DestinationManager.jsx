@@ -24,6 +24,13 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
+const getImgUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const base = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
+    return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 const DestinationForm = ({ destination, onClose }) => {
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('Basic Info');
@@ -65,9 +72,10 @@ const DestinationForm = ({ destination, onClose }) => {
         if (fullDestination) {
             setFormData({
                 ...fullDestination,
+                images: fullDestination.images || [],
                 activities: fullDestination.activities || [],
                 foodOptions: fullDestination.foodOptions || [],
-                accommodation: fullDestination.accommodation || [],
+                accommodation: fullDestination.accommodations || [],
                 travelOptions: fullDestination.travelOptions || []
             });
             setSelectedCountry(fullDestination.district?.state?.countryId || '');
@@ -151,6 +159,7 @@ const DestinationForm = ({ destination, onClose }) => {
         const slugToSave = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         const coverImage = formData.coverImage || (formData.images && formData.images.length > 0 ? formData.images[0] : null);
 
+        console.log("💾 Saving Basic Info:", { ...formData, coverImage, rating: formData.rating });
         basicInfoMutation.mutate({
             ...formData,
             status: publishNow ? 'ACTIVE' : (formData.status || 'DRAFT'),
@@ -487,7 +496,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Activity Image</label>
                                             <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
                                                 {act.imageUrl ? (
-                                                    <img src={act.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                    <img src={getImgUrl(act.imageUrl)} className="w-full h-full object-cover" alt="" />
                                                 ) : (
                                                     <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
                                                         <ImageIcon size={20} />
@@ -612,7 +621,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Food Image</label>
                                             <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
                                                 {food.imageUrl ? (
-                                                    <img src={food.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                    <img src={getImgUrl(food.imageUrl)} className="w-full h-full object-cover" alt="" />
                                                 ) : (
                                                     <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
                                                         <ImageIcon size={20} />
@@ -742,7 +751,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Stay Image</label>
                                             <div className="w-24 h-24 bg-white rounded-2xl border border-ink/5 overflow-hidden group cursor-pointer relative">
                                                 {acc.imageUrl ? (
-                                                    <img src={acc.imageUrl} className="w-full h-full object-cover" alt="" />
+                                                    <img src={getImgUrl(acc.imageUrl)} className="w-full h-full object-cover" alt="" />
                                                 ) : (
                                                     <div className="w-full h-full flex flex-col items-center justify-center text-ink/20">
                                                         <ImageIcon size={20} />
@@ -893,7 +902,7 @@ const DestinationForm = ({ destination, onClose }) => {
                         <div className="grid grid-cols-2 gap-4">
                             {(formData.images || []).map((img, i) => (
                                 <div key={i} className="aspect-square bg-ink/5 rounded-2xl relative group overflow-hidden">
-                                    <img src={img} className="w-full h-full object-cover" alt="" />
+                                    <img src={getImgUrl(img)} className="w-full h-full object-cover" alt="" />
                                     <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                         <button 
                                             onClick={() => {
@@ -1158,7 +1167,7 @@ const DestinationManager = () => {
                                         <td className="px-6 py-4">
                                             <div className="w-12 h-12 bg-ink/5 rounded-xl overflow-hidden shadow-sm">
                                                 {dest.coverImage ? (
-                                                    <img src={dest.coverImage} className="w-full h-full object-cover" alt="" />
+                                                    <img src={getImgUrl(dest.coverImage)} className="w-full h-full object-cover" alt="" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-ink/10"><ImageIcon size={20} /></div>
                                                 )}

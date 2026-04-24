@@ -17,7 +17,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
         setLoading(true);
         setError('');
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api${endpoint}`, formData);
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api${endpoint}`, formData);
             const { user, token } = res.data.data;
             login(user, token);
             
@@ -25,7 +25,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
             const localWishlist = JSON.parse(localStorage.getItem('roam_wishlist') || '[]');
             if (localWishlist.length > 0) {
                 try {
-                    await axios.post(`${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')}/api/wishlist/sync`, 
+                    await axios.post(`${import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005')}/api/wishlist/sync`, 
                         { items: localWishlist.map(item => ({ entityType: item.type || 'Destination', entityId: item.id })) },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );

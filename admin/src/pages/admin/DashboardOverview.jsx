@@ -165,13 +165,23 @@ const DashboardOverview = () => {
         }
     });
 
-    const { data: recentRequests = [] } = useQuery({
+    const { data: requests = [] } = useQuery({
         queryKey: ['requests'],
         queryFn: async () => {
             const res = await apiClient.get('/requests');
             return res.data.data || [];
         }
     });
+
+    const { data: inquiries = [] } = useQuery({
+        queryKey: ['inquiries'],
+        queryFn: async () => {
+            const res = await apiClient.get('/inquiry');
+            return res.data.data || [];
+        }
+    });
+
+    const recentRequests = [...requests, ...inquiries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     const areaData = [
         { name: 'Jan', bookings: 0, confirmed: 0 },
@@ -279,19 +289,20 @@ const DashboardOverview = () => {
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: i * 0.06 }}
+                                onClick={() => navigate(req.userName ? '/admin/requests' : '/admin/inquiries')}
                                 className="flex items-center gap-4 p-4 rounded-xl hover:bg-ink/5 transition-all cursor-pointer"
                             >
-                                <div className={`w-3 h-3 rounded-full shrink-0 ${statusColors[req.status] || 'bg-ink/20'} ring-4 ring-white shadow-sm`} />
+                                <div className={`w-3 h-3 rounded-full shrink-0 ${statusColors[req.status] || 'bg-gold'} ring-4 ring-white shadow-sm`} />
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-ink truncate text-sm">{req.userName}</p>
-                                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-[0.15em] mt-0.5">{req.userEmail}</p>
+                                    <p className="font-bold text-ink truncate text-sm">{req.name || req.userName}</p>
+                                    <p className="text-[10px] text-ink/40 font-bold uppercase tracking-[0.15em] mt-0.5">{req.email || req.userEmail}</p>
                                 </div>
                                 <div className="flex items-center gap-6">
                                     <div className="text-right">
-                                        <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest mb-0.5">{req.duration} Days</p>
+                                        <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest mb-0.5">{req.days || req.duration || '-'} Days</p>
                                         <p className="text-[10px] text-ink/20 font-medium">Trip Duration</p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColors[req.status]?.replace('bg-', 'bg-') || ''} bg-opacity-10 text-ink/70 border border-current border-opacity-10`}>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColors[req.status]?.replace('bg-', 'bg-') || 'bg-gold'} bg-opacity-10 text-ink/70 border border-current border-opacity-10`}>
                                         {req.status}
                                     </span>
                                 </div>

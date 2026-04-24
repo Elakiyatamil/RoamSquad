@@ -100,7 +100,7 @@ const Step4Preview = ({
     const activeDestination = destinations?.find(d => d.id === config.destinationId) || destinations?.[0];
     const destinationNameRaw = config.destinationName || activeDestination?.name || "Your Journey";
     const destinationName = destinationNameRaw.toUpperCase();
-    const heroImage = activeDestination?.coverImage || activeDestination?.heroImage || activeDestination?.images?.[0] || "https://placehold.co/1920x1080/000000/333333?text=Destination+Hero";
+    const heroImage = activeDestination?.image_url || activeDestination?.coverImage || activeDestination?.heroImage || activeDestination?.images?.[0] || "https://placehold.co/1920x1080/000000/333333?text=Destination+Hero";
 
     return (
         <div style={{ background: PALETTE.cream, minHeight: '100vh', overflowX: 'hidden' }}>
@@ -254,7 +254,7 @@ const Step4Preview = ({
                         
                         // PRIORITY IMAGE SELECTION
                         const dayPhoto = 
-                            destination?.coverImage || destination?.heroImage || destination?.images?.[0] || 
+                            destination?.image_url || destination?.coverImage || destination?.heroImage || destination?.images?.[0] || 
                             "https://placehold.co/600x400/f8f9fa/a0aec0?text=No+Image";
                         
                         const rotation = [-2.5, 1.8, -1.2, 2.8, -3.1, 1.5][idx % 6];
@@ -380,7 +380,7 @@ const Step4Preview = ({
                             }}>
                                 <div style={{ height: 200, position: 'relative' }}>
                                     <img 
-                                        src={item.imageUrl || item.image || item.images?.[0] || "https://placehold.co/600x400/f8f9fa/a0aec0?text=No+Image"} 
+                                        src={item.image_url || item.imageUrl || item.image || item.images?.[0] || "https://placehold.co/600x400/f8f9fa/a0aec0?text=No+Image"} 
                                         alt={item.name}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />

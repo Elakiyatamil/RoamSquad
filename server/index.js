@@ -111,17 +111,25 @@ app.get('/health', (req, res) => {
 app.get('/api/stats', verifyJWT, isAdmin, async (req, res) => {
     try {
         const prisma = require('./utils/prisma');
-        const [countries, destinations, activities, pendingRequests, confirmedRequests] = await Promise.all([
+        const [countries, destinations, activities, pendingRequests, confirmedRequests, totalInquiries] = await Promise.all([
             prisma.country.count(),
             prisma.destination.count(),
             prisma.activity.count(),
             prisma.itineraryRequest.count({ where: { status: 'New Inquiry' } }),
             prisma.itineraryRequest.count({ where: { status: 'Journey Confirmed' } }),
+            prisma.inquiry.count()
         ]);
         console.log(`[GET /api/stats] Calculated dashboard stats`);
         res.status(200).json({ 
             success: true, 
-            data: { countries, destinations, activities, pendingRequests, confirmedRequests } 
+            data: { 
+                countries, 
+                destinations, 
+                activities, 
+                pendingRequests: pendingRequests + totalInquiries, 
+                confirmedRequests,
+                totalInquiries
+            } 
         });
     } catch (error) {
         console.error(`[GET /api/stats] Error:`, error);

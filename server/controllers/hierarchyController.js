@@ -76,6 +76,7 @@ const deleteCountry = async (req, res) => {
 // States
 const getStates = async (req, res) => {
     try {
+        console.log(`[GET /countries/${req.params.id}/states] Fetching states...`);
         const states = await prisma.state.findMany({
             where: { countryId: req.params.id }
         });

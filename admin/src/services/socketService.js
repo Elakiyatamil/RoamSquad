@@ -7,7 +7,7 @@ export const getSocket = (token) => {
     
     if (!token) return null;
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
     const socketUrl = import.meta.env.VITE_SOCKET_URL || apiUrl.replace(/\/api$/, '');
     socket = io(socketUrl, {
         auth: { token },

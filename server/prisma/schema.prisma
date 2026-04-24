@@ -51,6 +51,8 @@ model Destination {
   rating        Float           @default(4.0)
   coverImage    String?
   images        String[]
+  image_url     String?
+  cloudinary_public_id String?
   avgCost       String?
   bestSeason    String?
   active        Boolean         @default(true)
@@ -74,6 +76,8 @@ model Activity {
   icon          String?
   images        String[]
   imageUrl      String?
+  image_url     String?
+  cloudinary_public_id String?
   isFeatured    Boolean     @default(false)
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
@@ -94,6 +98,8 @@ model FoodOption {
 
   dietaryTags   String[]
   imageUrl      String?
+  image_url     String?
+  cloudinary_public_id String?
   isFeatured    Boolean     @default(false)
   isActive      Boolean     @default(true)
   sortOrder     Int         @default(0)
@@ -112,6 +118,8 @@ model Accommodation {
   stars             Int?
   includes          String[]
   imageUrl          String?
+  image_url         String?
+  cloudinary_public_id String?
   isFeatured        Boolean     @default(false)
   isActive          Boolean     @default(true)
 
@@ -154,6 +162,8 @@ model UpcomingEvent {
   endDate        DateTime?
   bannerImage    String?
   image          String?
+  image_url      String?
+  cloudinary_public_id String?
   location       String?
   contactNumber  String?
   isFeatured     Boolean  @default(false)
@@ -170,6 +180,8 @@ model Package {
   highlights String[]
   tag        String?
   coverImage String?
+  image_url  String?
+  cloudinary_public_id String?
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   interests  PackageInterest[]
@@ -306,6 +318,8 @@ model SquadLove {
   id        String   @id @default(uuid())
   type      String   // "IMAGE" or "VIDEO"
   url       String
+  image_url String?
+  cloudinary_public_id String?
   caption   String?
   name      String?
   location  String?

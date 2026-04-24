@@ -20,6 +20,7 @@ import RequestManager from './pages/admin/RequestManager';
 import ActivityLog from './pages/admin/ActivityLog';
 import InquiryManager from './pages/admin/InquiryManager';
 import SquadLoveManager from './pages/admin/SquadLoveManager';
+import AdminImagesPage from './pages/admin/AdminImagesPage';
 
 // Initialize React Query client
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ function App() {
             <Route path="requests" element={<RequestManager />} />
             <Route path="inquiries" element={<InquiryManager />} />
             <Route path="squad-love" element={<SquadLoveManager />} />
+            <Route path="images" element={<AdminImagesPage />} />
             <Route path="activity-log" element={<ActivityLog />} />
           </Route>
 

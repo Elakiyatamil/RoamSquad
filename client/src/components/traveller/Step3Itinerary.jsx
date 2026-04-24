@@ -17,6 +17,17 @@ const DESTINATION_IMAGES = {
 
 // Fallback images for categories when admin has not provided an image
 const NO_IMAGE = 'https://placehold.co/600x400/f8f9fa/a0aec0?text=Image+Needed';
+
+// Utility to resolve image URLs from the backend
+const getImgUrl = (item) => {
+  if (!item) return null;
+  const url = item.image_url || item.imageUrl || item.images?.[0] || item.coverImage || item.bannerImage;
+  if (!url) return null;
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
+  const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 const CATEGORY_FALLBACKS = {
   activities: NO_IMAGE,
   food: NO_IMAGE,
@@ -213,7 +224,7 @@ const ExperienceCard = ({ item, isAdded, onToggle, type }) => {
         border: '1px solid rgba(0,0,0,0.03)'
       }}>
         <ImageWithShimmer 
-          src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
+          src={getImgUrl(item) || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
           alt={displayName} 
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
         />
@@ -332,7 +343,7 @@ const FanCarousel = ({ items, isAddedFn, onToggleFn, type }) => {
                 display: 'flex', flexDirection: 'column'
               }}>
                 <img 
-                  src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
+                  src={getImgUrl(item) || CATEGORY_FALLBACKS[type] || CATEGORY_FALLBACKS.activities} 
                   style={{ height: '60%', width: '100%', objectFit: 'cover' }} 
                   alt={item.name}
                 />
@@ -480,7 +491,7 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
         
         <div className="category-hero-image-container" style={{ flex: 1.2, position: 'relative', minHeight: 300 }}>
           <img 
-            src={featured.imageUrl || featured.images?.[0] || heroImage || CATEGORY_FALLBACKS[type]} 
+            src={getImgUrl(featured) || heroImage || CATEGORY_FALLBACKS[type]} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             alt="Category Hero"
           />
@@ -491,7 +502,7 @@ const CategorySection = ({ type, title, items, isAddedFn, onToggleFn, heroImage 
             overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.15)', zIndex: 12
           }}>
             <img 
-              src={featured.imageUrl || featured.images?.[0] || CATEGORY_FALLBACKS[type]} 
+              src={getImgUrl(featured) || CATEGORY_FALLBACKS[type]} 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
               alt="Detail"
             />
@@ -590,7 +601,7 @@ const TripPlanPanel = ({ plan, config, budget, timeline, onWishlist, onReview })
                     }}
                   >
                     <img 
-                      src={item.imageUrl || item.images?.[0] || CATEGORY_FALLBACKS.activities} 
+                      src={getImgUrl(item) || CATEGORY_FALLBACKS.activities} 
                       alt="" 
                       style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} 
                     />
@@ -1228,7 +1239,7 @@ const ScrapbookDestinationSelector = ({ destinations, selectedId, onSelect }) =>
                   borderRadius: 2, overflow: 'hidden' 
                 }}>
                   <ImageWithShimmer 
-                    src={dest.heroImage || dest.coverImage || dest.images?.[0] || DESTINATION_IMAGES[dest.name?.toUpperCase()] || NO_IMAGE} 
+                    src={getImgUrl(dest.heroImage || dest.coverImage || dest.images?.[0]) || DESTINATION_IMAGES[dest.name?.toUpperCase()] || NO_IMAGE} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>

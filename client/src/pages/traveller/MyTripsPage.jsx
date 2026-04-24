@@ -17,7 +17,7 @@ const MyTripsPage = () => {
         const load = async () => {
             if (isAuthenticated && token) {
                 try {
-                    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/inquiry/my`, {
+                    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/my`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setTrips(res.data.data || []);

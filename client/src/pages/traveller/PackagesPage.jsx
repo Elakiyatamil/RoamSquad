@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
 
-const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api`;
+const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
 const SnowEngine = () => {
   const canvasRef = useRef(null);

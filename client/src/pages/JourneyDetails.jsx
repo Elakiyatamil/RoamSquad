@@ -11,7 +11,7 @@ export default function JourneyDetails() {
   const { data: inquiry, isLoading, error } = useQuery({
     queryKey: ['inquiry', id],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/inquiry/${id}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       return res.data?.data || res.data
