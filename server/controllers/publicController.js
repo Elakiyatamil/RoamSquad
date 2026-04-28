@@ -37,6 +37,11 @@ exports.getDestinations = async (req, res) => {
         const destinations = await prisma.destination.findMany({
             where: { status: 'ACTIVE' },
             include: {
+                state: {
+                    include: {
+                        country: true
+                    }
+                },
                 district: {
                     include: {
                         state: {
@@ -69,12 +74,16 @@ exports.getDestinations = async (req, res) => {
             rating: dest.rating,
             status: dest.status,
             category: dest.category,
-            location: `${dest.district.name}, ${dest.district.state.name}`,
-            districtId: dest.district.id,
-            districtName: dest.district.name,
-            stateId: dest.district.state.id,
-            stateName: dest.district.state.name,
-            countryName: dest.district.state.country?.name,
+            location: dest.district
+                ? `${dest.district.name}, ${dest.district.state.name}`
+                : dest.state
+                    ? dest.state.name
+                    : 'Unknown',
+            districtId: dest.district?.id || null,
+            districtName: dest.district?.name || null,
+            stateId: dest.state?.id || dest.district?.state?.id || null,
+            stateName: dest.state?.name || dest.district?.state?.name || null,
+            countryName: dest.state?.country?.name || dest.district?.state?.country?.name || null,
             highlights: dest.activities.map(a => a.name),
             startingPrice: dest.accommodations[0]?.price || 0,
             avgCost: dest.avgCost,
@@ -236,6 +245,28 @@ exports.getDestinationsByDistrict = async (req, res) => {
         res.status(200).json({ success: true, data: destinations });
     } catch (error) {
         console.error(`[GET /public/destinations/district/${req.params.districtId}] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// Get active destinations for a state (including district-less destinations)
+exports.getDestinationsByState = async (req, res) => {
+    try {
+        const { stateId } = req.params;
+        const destinations = await prisma.destination.findMany({
+            where: { stateId, status: 'ACTIVE' },
+            include: {
+                activities: { where: { isActive: true } },
+                accommodations: { where: { isActive: true } },
+                foodOptions: { where: { isActive: true } },
+                district: true
+            },
+            orderBy: { name: 'asc' }
+        });
+
+        res.status(200).json({ success: true, data: destinations });
+    } catch (error) {
+        console.error(`[GET /public/destinations/state/${req.params.stateId}] Error:`, error);
         res.status(500).json({ success: false, error: error.message });
     }
 };

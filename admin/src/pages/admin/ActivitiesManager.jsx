@@ -231,22 +231,13 @@ const ActivitiesManager = () => {
         enabled: !!selectedCountry
     });
 
-    const { data: districts = [] } = useQuery({
-        queryKey: ['districts', selectedState],
+    const { data: destinations = [] } = useQuery({
+        queryKey: ['destinations', selectedState],
         queryFn: async () => {
-            const res = await apiClient.get(`/states/${selectedState}/districts`);
+            const res = await apiClient.get(`/states/${selectedState}/destinations`);
             return res.data.data || [];
         },
         enabled: !!selectedState
-    });
-
-    const { data: destinations = [] } = useQuery({
-        queryKey: ['destinations', selectedDistrict],
-        queryFn: async () => {
-            const res = await apiClient.get(`/districts/${selectedDistrict}/destinations`);
-            return res.data.data || [];
-        },
-        enabled: !!selectedDistrict
     });
 
 
@@ -303,15 +294,8 @@ const ActivitiesManager = () => {
                     </select>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">District</label>
-                    <select value={selectedDistrict} onChange={e => { setSelectedDistrict(e.target.value); setSelectedDestId(''); }} disabled={!selectedState} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
-                        <option value="">Select District</option>
-                        {(Array.isArray(districts) ? districts : []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                    </select>
-                </div>
-                <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Destination</label>
-                    <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} disabled={!selectedDistrict} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
+                    <select value={selectedDestId} onChange={e => setSelectedDestId(e.target.value)} disabled={!selectedState} className="w-full px-4 py-3 bg-ink/5 rounded-2xl outline-none font-bold text-ink disabled:opacity-50">
                         <option value="">Select Destination</option>
                         {(Array.isArray(destinations) ? destinations : []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>

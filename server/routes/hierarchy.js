@@ -26,8 +26,11 @@ router.patch('/districts/:id', hierarchyController.updateDistrict);
 router.delete('/districts/:id', hierarchyController.deleteDistrict);
 
 // Destinations
-router.get('/districts/:id/destinations', hierarchyController.getDestinationsByDistrict);
-router.post('/districts/:id/destinations', hierarchyController.createDestination);
+router.get('/districts/:districtId/destinations', hierarchyController.getDestinationsByDistrict);
+router.post('/districts/:districtId/destinations', hierarchyController.createDestination);
+// Allow creating destinations directly under a State (state-level mapping)
+router.post('/states/:stateId/destinations', hierarchyController.createDestinationUnderState);
+router.get('/states/:stateId/destinations', hierarchyController.getDestinationsByState);
 router.get('/destinations', hierarchyController.getFlatDestinations);
 router.get('/destinations/:id', hierarchyController.getFullDestination);
 router.patch('/destinations/:id', hierarchyController.updateDestination);

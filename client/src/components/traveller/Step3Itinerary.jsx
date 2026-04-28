@@ -1115,9 +1115,9 @@ const GlassDropdown = ({ value, opts, onChange, placeholder }) => {
    DESTINATION SELECTOR BAR
 ────────────────────────────────────────────── */
 const DestinationSelectorBar = ({
-  countries, states, districts, destinations,
-  selectedCountry, selectedState, selectedDistrict, selectedDestinationId,
-  onCountryChange, onStateChange, onDistrictChange, onDestinationChange,
+  countries, states, destinations,
+  selectedCountry, selectedState, selectedDestinationId,
+  onCountryChange, onStateChange, onDestinationChange,
 }) => {
   return (
     <div style={{
@@ -1139,8 +1139,7 @@ const DestinationSelectorBar = ({
       {[
         { label: 'COUNTRY', value: selectedCountry, opts: (countries || []).map(c => ({ id: c.id, label: c.name })), onChange: onCountryChange },
         { label: 'STATE', value: selectedState, opts: (states || []).map(s => ({ id: s.id, label: s.name })), onChange: onStateChange },
-        { label: 'DISTRICT', value: selectedDistrict, opts: (districts || []).map(d => ({ id: d.id, label: d.name })), onChange: onDistrictChange },
-        { label: 'DESTINATION', value: selectedDestinationId, opts: (destinations || []).map(d => ({ id: d.id, label: d.name })), onChange: onDestinationChange },
+        { label: 'DESTINATION', value: selectedDestinationId, opts: (destinations || []).map(d => ({ id: d.id, label: d.district?.name ? `${d.name} (${d.district.name})` : d.name })), onChange: onDestinationChange },
       ].map(({ label, value, opts, onChange }) => (
         <div key={label} style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 10, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)' }}>
@@ -1313,10 +1312,10 @@ const Step3Itinerary = ({
   plan, setPlan, budget, setBudget,
   timeline,
   activities, food, stays,
-  countries, states, districts, destinations,
-  selectedCountry, selectedState, selectedDistrict, selectedDestinationId,
+  countries, states, destinations,
+  selectedCountry, selectedState, selectedDestinationId,
   daySelectedDestinations, selectedDay, setSelectedDay,
-  onCountryChange, onStateChange, onDistrictChange, onDestinationChange,
+  onCountryChange, onStateChange, onDestinationChange,
   totalActivityTime, isOverScheduled,
   onWishlist, onReview,
   heroAnimIn,
@@ -1378,15 +1377,12 @@ const Step3Itinerary = ({
         <DestinationSelectorBar
           countries={countries}
           states={states}
-          districts={districts}
           destinations={destinations}
           selectedCountry={selectedCountry}
           selectedState={selectedState}
-          selectedDistrict={selectedDistrict}
           selectedDestinationId={selectedDestinationId}
           onCountryChange={onCountryChange}
           onStateChange={onStateChange}
-          onDistrictChange={onDistrictChange}
           onDestinationChange={onDestinationChange}
         />
       </div>

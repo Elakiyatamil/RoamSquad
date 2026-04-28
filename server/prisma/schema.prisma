@@ -23,6 +23,7 @@ model State {
   countryId String
   active    Boolean    @default(true)
   districts District[]
+  destinations Destination[]
   country   Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
 
   @@unique([name, countryId])
@@ -45,7 +46,8 @@ model Destination {
   id            String          @id @default(cuid())
   name          String
   slug          String          @unique
-  districtId    String
+  districtId    String?
+  stateId       String
   description   String?
   category      String
   rating        Float           @default(4.0)
@@ -62,7 +64,8 @@ model Destination {
   activities    Activity[]
   foodOptions   FoodOption[]
   accommodations Accommodation[]
-  district      District        @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  district      District?       @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  state         State           @relation(fields: [stateId], references: [id], onDelete: Cascade)
   travelOptions TravelOption[]
 }
 

@@ -78,8 +78,9 @@ const DestinationForm = ({ destination, onClose }) => {
                 accommodation: fullDestination.accommodations || [],
                 travelOptions: fullDestination.travelOptions || []
             });
-            setSelectedCountry(fullDestination.district?.state?.countryId || '');
-            setSelectedState(fullDestination.district?.stateId || '');
+            // Prefer direct state mapping; fall back to district->state
+            setSelectedCountry(fullDestination.state?.countryId || fullDestination.district?.state?.countryId || '');
+            setSelectedState(fullDestination.stateId || fullDestination.district?.stateId || '');
             setSelectedDistrict(fullDestination.districtId || '');
         }
     }, [fullDestination]);
@@ -117,7 +118,14 @@ const DestinationForm = ({ destination, onClose }) => {
             if (destination?.id) {
                 return await apiClient.patch(`/destinations/${destination.id}`, data);
             } else {
-                return await apiClient.post(`/districts/${selectedDistrict}/destinations`, data);
+                // If district selected, create under district. Otherwise create under state.
+                if (selectedDistrict) {
+                    return await apiClient.post(`/districts/${selectedDistrict}/destinations`, data);
+                } else if (selectedState) {
+                    return await apiClient.post(`/states/${selectedState}/destinations`, data);
+                } else {
+                    throw new Error('Select a State (and optionally a District) before saving.');
+                }
             }
         },
         onSuccess: (res) => {
@@ -147,8 +155,8 @@ const DestinationForm = ({ destination, onClose }) => {
     });
 
     const handleSaveBasicInfo = (publishNow = false) => {
-        if (!selectedDistrict && !destination?.id) {
-            alert('Please select a District first.');
+        if (!selectedState && !destination?.id) {
+            alert('Please select a State first.');
             return;
         }
         if (!formData.name?.trim() || !formData.category || formData.rating === '') {
@@ -336,7 +344,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-ink/60">District *</label>
+                                    <label className="text-xs font-bold text-ink/60">District (optional)</label>
                                     <select
                                         value={selectedDistrict}
                                         onChange={(e) => setSelectedDistrict(e.target.value)}

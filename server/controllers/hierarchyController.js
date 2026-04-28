@@ -7,6 +7,7 @@ const getTree = async (req, res) => {
             include: {
                 states: {
                     include: {
+                        destinations: true,
                         districts: {
                             include: {
                                 destinations: true
@@ -184,11 +185,24 @@ const deleteDistrict = async (req, res) => {
 const getDestinationsByDistrict = async (req, res) => {
     try {
         const destinations = await prisma.destination.findMany({
-            where: { districtId: req.params.id }
+            where: { districtId: req.params.districtId }
         });
         res.status(200).json({ success: true, data: destinations });
     } catch (error) {
-        console.error(`[GET /districts/${req.params.id}/destinations] Error:`, error);
+        console.error(`[GET /districts/${req.params.districtId}/destinations] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+const getDestinationsByState = async (req, res) => {
+    try {
+        const destinations = await prisma.destination.findMany({
+            where: { stateId: req.params.stateId },
+            include: { state: true, district: true }
+        });
+        res.status(200).json({ success: true, data: destinations });
+    } catch (error) {
+        console.error(`[GET /states/${req.params.stateId}/destinations] Error:`, error);
         res.status(500).json({ success: false, error: error.message });
     }
 };
@@ -197,6 +211,16 @@ const createDestination = async (req, res) => {
     try {
         const { name, category = 'Other', rating = 0, status = 'ACTIVE', active = true, coverImage = null, description = '' } = req.body;
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const districtId = req.params.districtId;
+        const district = await prisma.district.findUnique({
+            where: { id: districtId },
+            select: { stateId: true }
+        });
+
+        if (!district) {
+            return res.status(404).json({ success: false, error: 'District not found' });
+        }
+
         const destination = await prisma.destination.create({
             data: { 
                 name, 
@@ -207,13 +231,59 @@ const createDestination = async (req, res) => {
                 coverImage, 
                 description, 
                 slug, 
-                districtId: req.params.id 
+                districtId,
+                stateId: district.stateId
             }
         });
         await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
         res.status(201).json({ success: true, data: destination });
     } catch (error) {
-        console.error(`[POST /districts/${req.params.id}/destinations] Error:`, error);
+        console.error(`[POST /districts/${req.params.districtId}/destinations] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+const createDestinationUnderState = async (req, res) => {
+    try {
+        const { name, category = 'Other', rating = 0, status = 'ACTIVE', active = true, coverImage = null, description = '', districtId } = req.body;
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const stateId = req.params.stateId;
+        const state = await prisma.state.findUnique({ where: { id: stateId }, select: { id: true } });
+
+        if (!state) {
+            return res.status(404).json({ success: false, error: 'State not found' });
+        }
+
+        let normalizedDistrictId = null;
+        if (districtId) {
+            const district = await prisma.district.findFirst({
+                where: { id: districtId, stateId },
+                select: { id: true }
+            });
+            if (!district) {
+                return res.status(400).json({ success: false, error: 'District not found in this state' });
+            }
+            normalizedDistrictId = district.id;
+        }
+
+        const destination = await prisma.destination.create({
+            data: {
+                name,
+                category,
+                rating: parseFloat(rating) || 0,
+                active,
+                status,
+                coverImage,
+                description,
+                slug,
+                stateId,
+                districtId: normalizedDistrictId
+            }
+        });
+        await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
+        res.status(201).json({ success: true, data: destination });
+    } catch (error) {
+        console.error(`[POST /states/${req.params.stateId}/destinations] Error:`, error);
         res.status(500).json({ success: false, error: error.message });
     }
 };
@@ -236,11 +306,8 @@ const getFlatDestinations = async (req, res) => {
                 skip,
                 take,
                 include: {
-                    district: {
-                        include: {
-                            state: true
-                        }
-                    }
+                    state: true,
+                    district: { include: { state: true } }
                 },
                 orderBy: { createdAt: 'desc' }
             }),
@@ -272,15 +339,8 @@ const getFullDestination = async (req, res) => {
                 foodOptions: { orderBy: { sortOrder: 'asc' } },
                 accommodations: true,
                 travelOptions: true,
-                district: {
-                    include: {
-                        state: {
-                            include: {
-                                country: true
-                            }
-                        }
-                    }
-                }
+                state: { include: { country: true } },
+                district: { include: { state: true } }
             }
         });
         if (!destination) {
@@ -310,6 +370,10 @@ const updateDestination = async (req, res) => {
             avgCost,
             bestSeason
         };
+
+        // allow updating state or district
+        if (req.body.stateId !== undefined) updateData.stateId = req.body.stateId;
+        if (req.body.districtId !== undefined) updateData.districtId = req.body.districtId || null;
 
         // Filter out undefined fields to prevent Prisma errors
         Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
@@ -344,5 +408,5 @@ module.exports = {
     getCountries, createCountry, updateCountry, deleteCountry,
     getStates, createState, updateState, deleteState,
     getDistricts, createDistrict, updateDistrict, deleteDistrict,
-    getDestinationsByDistrict, createDestination, getFlatDestinations, getFullDestination, updateDestination, deleteDestination
+    getDestinationsByDistrict, getDestinationsByState, createDestination, createDestinationUnderState, getFlatDestinations, getFullDestination, updateDestination, deleteDestination
 };

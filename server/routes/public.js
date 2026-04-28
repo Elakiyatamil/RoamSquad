@@ -14,6 +14,7 @@ router.get('/destinations/:slug', publicController.getDestinationDetails);
 router.get('/countries', publicController.getCountries);
 router.get('/states/:countryId', publicController.getStates);
 router.get('/districts/:stateId', publicController.getDistricts);
+router.get('/destinations/state/:stateId', publicController.getDestinationsByState);
 router.get('/destinations/district/:districtId', publicController.getDestinationsByDistrict);
 
 // Granular Destination Details

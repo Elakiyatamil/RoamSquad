@@ -61,7 +61,6 @@ const PlannerPage = () => {
 
     const [selectedCountry, setSelectedCountry] = useState('');
     const [selectedState, setSelectedState] = useState('');
-    const [selectedDistrict, setSelectedDistrict] = useState('');
 
     const [daySelectedDestinations, setDaySelectedDestinations] = useState({}); // { 1: 'id1', 2: 'id2' }
     const [selectedDay, setSelectedDay] = useState(1);
@@ -98,25 +97,14 @@ const PlannerPage = () => {
         enabled: !!selectedCountry
     });
 
-    // Fetch Districts
-    const { data: districts } = useQuery({
-        queryKey: ['districts', selectedState],
+    const { data: destinations } = useQuery({
+        queryKey: ['public-destinations', selectedState],
         queryFn: async () => {
             if (!selectedState) return [];
-            const res = await axios.get(`${API_BASE}/districts/${selectedState}`);
+            const res = await axios.get(`${API_BASE}/destinations/state/${selectedState}`);
             return res.data.data || [];
         },
         enabled: !!selectedState
-    });
-
-    const { data: destinations } = useQuery({
-        queryKey: ['public-destinations', selectedDistrict],
-        queryFn: async () => {
-            if (!selectedDistrict) return [];
-            const res = await axios.get(`${API_BASE}/destinations/district/${selectedDistrict}`);
-            return res.data.data || [];
-        },
-        enabled: !!selectedDistrict
     });
 
     // 🔴 STEP 9 — FIX STATE RESET
@@ -271,7 +259,8 @@ const PlannerPage = () => {
 
             const state = states?.find(s => s.id === selectedState)?.name || null;
             const destinationName = destinations?.find(d => d.id === selectedDestinationId)?.name || null;
-            const district = destinationName || districts?.find(d => d.id === selectedDistrict)?.name || null;
+            const selectedDestination = (destinations || []).find(d => d.id === selectedDestinationId) || null;
+            const district = selectedDestination?.district?.name || selectedDestination?.districtName || null;
             const name = user?.name || config.userName;
             const email = user?.email || config.userEmail;
             const phone = config.userPhone;
@@ -578,18 +567,15 @@ const PlannerPage = () => {
                             stays={stays}
                             countries={countries}
                             states={states}
-                            districts={districts}
                             destinations={destinations}
                             selectedCountry={selectedCountry}
                             selectedState={selectedState}
-                            selectedDistrict={selectedDistrict}
                             selectedDestinationId={selectedDestinationId}
                             daySelectedDestinations={daySelectedDestinations}
                             selectedDay={selectedDay}
                             setSelectedDay={setSelectedDay}
-                            onCountryChange={(val) => { setSelectedCountry(val); setSelectedState(''); setSelectedDistrict(''); setDaySelectedDestinations({}); }}
-                            onStateChange={(val) => { setSelectedState(val); setSelectedDistrict(''); setDaySelectedDestinations({}); }}
-                            onDistrictChange={(val) => { setSelectedDistrict(val); setDaySelectedDestinations({}); }}
+                            onCountryChange={(val) => { setSelectedCountry(val); setSelectedState(''); setDaySelectedDestinations({}); }}
+                            onStateChange={(val) => { setSelectedState(val); setDaySelectedDestinations({}); }}
                             onDestinationChange={(val) => {
                                 setDaySelectedDestinations(prev => ({
                                     ...prev,

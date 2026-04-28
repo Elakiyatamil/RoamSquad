@@ -20,9 +20,11 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
 
     const getTitle = () => {
         if (isEdit) return `Edit ${parentType}`;
-        const childMap = { root: 'Country', country: 'State', state: 'District', district: 'Destination' };
+        const childMap = { root: 'Country', country: 'State', state: 'District / Destination', district: 'Destination' };
         return `Add ${childMap[parentType] || 'Node'}`;
     };
+
+    const [stateChildKind, setStateChildKind] = useState('destination'); // when parentType === 'state'
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -38,17 +40,25 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
                 };
                 await apiClient.patch(typePathMap[parentType], { name });
             } else {
-                const createPathMap = {
-                    root: `/countries`,
-                    country: `/countries/${parentId}/states`,
-                    state: `/states/${parentId}/districts`,
-                    district: `/districts/${parentId}/destinations`,
-                };
                 const payload = { name };
-                if (parentType === 'district') {
+                if (parentType === 'district' || (parentType === 'state' && stateChildKind === 'destination')) {
+                    // creating a destination (either under district or directly under state)
                     payload.slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                 }
-                await apiClient.post(createPathMap[parentType], payload);
+
+                if (parentType === 'root') {
+                    await apiClient.post(`/countries`, payload);
+                } else if (parentType === 'country') {
+                    await apiClient.post(`/countries/${parentId}/states`, payload);
+                } else if (parentType === 'state') {
+                    if (stateChildKind === 'district') {
+                        await apiClient.post(`/states/${parentId}/districts`, payload);
+                    } else {
+                        await apiClient.post(`/states/${parentId}/destinations`, payload);
+                    }
+                } else if (parentType === 'district') {
+                    await apiClient.post(`/districts/${parentId}/destinations`, payload);
+                }
             }
             queryClient.invalidateQueries(['countries']);
             queryClient.invalidateQueries(['states']);
@@ -74,6 +84,21 @@ const NodeForm = ({ node, parentType, parentId, onClose, onSaved }) => {
                     <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-red/10 text-ink/40 hover:text-red transition-all"><X size={18} /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {!isEdit && parentType === 'state' && (
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Add under State as</label>
+                            <div className="flex gap-3">
+                                <label className={`px-3 py-2 rounded-xl border ${stateChildKind === 'destination' ? 'bg-forest text-white' : 'bg-white'}`}>
+                                    <input type="radio" name="stateChildKind" value="destination" checked={stateChildKind === 'destination'} onChange={() => setStateChildKind('destination')} className="hidden" />
+                                    Destination
+                                </label>
+                                <label className={`px-3 py-2 rounded-xl border ${stateChildKind === 'district' ? 'bg-forest text-white' : 'bg-white'}`}>
+                                    <input type="radio" name="stateChildKind" value="district" checked={stateChildKind === 'district'} onChange={() => setStateChildKind('district')} className="hidden" />
+                                    District
+                                </label>
+                            </div>
+                        </div>
+                    )}
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Name *</label>
                         <input autoFocus value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium" placeholder="Enter name..." />
@@ -108,8 +133,21 @@ const TreeNode = ({ node, depth, type, onSelect, onRefresh }) => {
         }
     };
 
-    const childType = { country: 'state', state: 'district', district: 'destination' }[type];
-    const children = node.states || node.districts || node.destinations || [];
+    const childType = { country: 'state', state: 'district / destination', district: 'destination' }[type];
+    const children = (() => {
+        if (type === 'country') {
+            return (Array.isArray(node.states) ? node.states : []).map(child => ({ ...child, _nodeType: 'state' }));
+        }
+        if (type === 'state') {
+            const districts = (Array.isArray(node.districts) ? node.districts : []).map(child => ({ ...child, _nodeType: 'district' }));
+            const destinations = (Array.isArray(node.destinations) ? node.destinations : []).map(child => ({ ...child, _nodeType: 'destination' }));
+            return [...districts, ...destinations];
+        }
+        if (type === 'district') {
+            return (Array.isArray(node.destinations) ? node.destinations : []).map(child => ({ ...child, _nodeType: 'destination' }));
+        }
+        return [];
+    })();
     const hasChildren = Array.isArray(children) && children.length > 0;
 
     const handleDelete = async (e) => {
@@ -183,8 +221,8 @@ const TreeNode = ({ node, depth, type, onSelect, onRefresh }) => {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                         {(Array.isArray(children) ? children : []).map(child => (
                             <TreeNode
-                                key={child.id} node={child} depth={depth + 1}
-                                type={childType}
+                                key={`${child.id}-${child._nodeType}`} node={child} depth={depth + 1}
+                                type={child._nodeType}
                                 onSelect={onSelect}
                                 onRefresh={onRefresh}
                             />
@@ -236,6 +274,22 @@ const LocationTreeManager = () => {
     const filteredTree = search.trim()
         ? (Array.isArray(tree) ? tree : []).filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
         : (Array.isArray(tree) ? tree : []);
+
+    const selectedNodeChildren = (() => {
+        if (!selectedNode) return [];
+        if (selectedNode.type === 'country') {
+            return (Array.isArray(selectedNode.states) ? selectedNode.states : []).map(child => ({ ...child, _nodeType: 'state' }));
+        }
+        if (selectedNode.type === 'state') {
+            const districts = (Array.isArray(selectedNode.districts) ? selectedNode.districts : []).map(child => ({ ...child, _nodeType: 'district' }));
+            const destinations = (Array.isArray(selectedNode.destinations) ? selectedNode.destinations : []).map(child => ({ ...child, _nodeType: 'destination' }));
+            return [...districts, ...destinations];
+        }
+        if (selectedNode.type === 'district') {
+            return (Array.isArray(selectedNode.destinations) ? selectedNode.destinations : []).map(child => ({ ...child, _nodeType: 'destination' }));
+        }
+        return [];
+    })();
 
     return (
         <div className="h-[calc(100vh-160px)] flex gap-8">
@@ -325,7 +379,7 @@ const LocationTreeManager = () => {
                                         >
                                             <Plus size={18} /> Add {
                                                 selectedNode.type === 'country' ? 'State' : 
-                                                selectedNode.type === 'state' ? 'District' : 
+                                                selectedNode.type === 'state' ? 'District / Destination' : 
                                                 'Destination'
                                             }
                                         </button>
@@ -377,21 +431,21 @@ const LocationTreeManager = () => {
                                         </div>
                                         
                                         <div className="grid grid-cols-1 gap-2">
-                                            {(Array.isArray(selectedNode.states || selectedNode.districts || selectedNode.destinations) ? (selectedNode.states || selectedNode.districts || selectedNode.destinations) : []).length === 0 ? (
+                                            {(Array.isArray(selectedNodeChildren) ? selectedNodeChildren : []).length === 0 ? (
                                                 <div className="py-12 text-center border-2 border-dashed border-ink/10 rounded-3xl">
                                                     <p className="text-sm font-medium text-ink/20">No items found.</p>
                                                 </div>
                                             ) : (
-                                                (Array.isArray(selectedNode.states || selectedNode.districts || selectedNode.destinations) ? (selectedNode.states || selectedNode.districts || selectedNode.destinations) : []).map(child => (
+                                                (Array.isArray(selectedNodeChildren) ? selectedNodeChildren : []).map(child => (
                                                     <div 
-                                                        key={child.id}
-                                                        onClick={() => setSelectedNode({ ...child, type: selectedNode.type === 'country' ? 'state' : selectedNode.type === 'state' ? 'district' : 'destination' })}
+                                                        key={`${child.id}-${child._nodeType}`}
+                                                        onClick={() => setSelectedNode({ ...child, type: child._nodeType })}
                                                         className="p-4 bg-ink/5 rounded-2xl flex items-center justify-between group hover:bg-ink/10 cursor-pointer transition-all"
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                                                                {selectedNode.type === 'country' ? <Map size={14} className="text-forest" /> : 
-                                                                 selectedNode.type === 'state' ? <MapPin size={14} className="text-gold" /> : 
+                                                                {child._nodeType === 'state' ? <Map size={14} className="text-forest" /> : 
+                                                                 child._nodeType === 'district' ? <MapPin size={14} className="text-gold" /> : 
                                                                  <TreePalm size={14} className="text-ocean" />}
                                                             </div>
                                                             <span className="font-bold text-ink text-sm">{child.name}</span>
