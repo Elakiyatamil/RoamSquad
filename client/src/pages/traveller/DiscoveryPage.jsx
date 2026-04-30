@@ -1,13 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Compass, MapPin, Star, ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
-import PlannerPortalSection from '../../components/PlannerPortal/PlannerPortalSection';
-import TypographicHeroSection from '../../components/TypoHero/TypographicHeroSection';
-import CloudNavbarSection from '../../components/TypoHero/CloudNavbarSection';
+import RoamgHero from '../../components/RoamgHero/RoamgHero';
 import ExpandingCards from '../../components/ExpandingCards/ExpandingCards';
 import SocialProofSection from '../../components/SocialProof/SocialProofSection';
 import './CosmosLayout.css';
@@ -30,35 +24,13 @@ const DiscoveryPage = () => {
         if (saved) setWishlist(JSON.parse(saved));
     }, []);
 
-    const toggleWishlist = (e, dest) => {
-        e.preventDefault();
-        e.stopPropagation();
-        let updated;
-        if (wishlist.find(item => item.id === dest.id)) {
-            updated = wishlist.filter(item => item.id !== dest.id);
-        } else {
-            updated = [...wishlist, { 
-                id: dest.id, 
-                name: dest.name, 
-                location: dest.location, 
-                image: dest.coverImage, 
-                type: 'Destination',
-                path: `/destinations/${dest.slug}`
-            }];
-        }
-        setWishlist(updated);
-        localStorage.setItem('roam_wishlist', JSON.stringify(updated));
-    };
-
     return (
-        <div className="discovery-cosmos-parent relative">
-            {/* Editorial Typographic Arch Hero */}
-            <TypographicHeroSection />
-            <PlannerPortalSection />
-            <CloudNavbarSection />
-
-            <ExpandingCards />
-            <SocialProofSection />
+        <div className="discovery-cosmos-parent relative bg-white">
+            <RoamgHero />
+            <div className="mt-12 bg-white">
+                <ExpandingCards />
+                <SocialProofSection />
+            </div>
         </div>
     );
 };

@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+.roamg-hero-wrapper {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+.roamg-bg-text {
+  font-size: clamp(10rem, 28vw, 30rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: #ffffff;
+  /* Make the text highly visible but still blended, exactly like the reference */
+  mix-blend-mode: overlay;
+  opacity: 0.45; /* Much higher opacity to match the strong white text in the mockup */
+  filter: blur(0px); /* Keep it sharp like the mockup */
+  transform: translateY(5%); /* Push down slightly so the mountain shape naturally covers the bottom */
+  pointer-events: none;
+  
+  /* Mask image: Angled fade to perfectly mimic the text sitting behind the sloped mountain peak in the foreground */
+  mask-image: linear-gradient(165deg, black 40%, transparent 65%);
+  -webkit-mask-image: linear-gradient(165deg, black 40%, transparent 65%);
+}
