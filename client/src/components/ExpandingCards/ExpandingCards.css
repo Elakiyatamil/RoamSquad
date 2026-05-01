@@ -3,6 +3,8 @@
 .expanding-cards-section {
     background: #0a0a0a;
     scroll-margin-top: 64px;
+    position: relative;
+    z-index: 20;
 }
 
 /* Tab Bar Styling */

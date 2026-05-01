@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { globalSignals, useGlobalSignal } from '../../utils/signals';
 
 /**
  * ROAMSQUAD PLANNER V10.3 - PRECISION RADIAL DIAL
@@ -320,7 +321,13 @@ const EnergySweep = ({ active }) => {
 };
 
 const Step1Immersive = ({ config, setConfig, onNext }) => {
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const preSelectedCompanion = useGlobalSignal(() => globalSignals.getCompanionChoice());
+
+  useEffect(() => {
+    if (preSelectedCompanion && !config.travelType) {
+      setConfig(prev => ({ ...prev, travelType: preSelectedCompanion }));
+    }
+  }, [preSelectedCompanion, setConfig]);
 
   const handleContinue = () => {
     setIsTransitioning(true);
@@ -395,21 +402,25 @@ const Step1Immersive = ({ config, setConfig, onNext }) => {
 
         {/* BOTTOM SELECTION & ARROW CTA (25% height on mobile) */}
         <div className="h-[25vh] md:h-auto w-full flex flex-col justify-center relative pb-8 md:pb-0">
-          {/* NEW SECTION HEADING */}
-          <div className="w-full flex justify-center mb-4 md:mb-8">
-            <h2 
-              className="text-white font-serif italic text-center text-[clamp(20px,4vw,28px)] md:text-[clamp(24px,4vw,36px)] leading-tight opacity-90"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
-            >
-              How about your <span className="relative inline-block">crew?<SwirlUnderline delay={1.8} /></span>
-            </h2>
-          </div>
+          {!preSelectedCompanion && (
+            <>
+              {/* NEW SECTION HEADING */}
+              <div className="w-full flex justify-center mb-4 md:mb-8">
+                <h2 
+                  className="text-white font-serif italic text-center text-[clamp(20px,4vw,28px)] md:text-[clamp(24px,4vw,36px)] leading-tight opacity-90"
+                  style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+                >
+                  How about your <span className="relative inline-block">crew?<SwirlUnderline delay={1.8} /></span>
+                </h2>
+              </div>
 
-          <TypographyScroller 
-            selected={config.travelType}
-            onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
-            isTransitioning={isTransitioning}
-          />
+              <TypographyScroller 
+                selected={config.travelType}
+                onSelect={(t) => setConfig(prev => ({ ...prev, travelType: t }))}
+                isTransitioning={isTransitioning}
+              />
+            </>
+          )}
 
           {/* ASYMMETRIC ARROW PIVOT */}
           <motion.div 
