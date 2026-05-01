@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 import { createSignal, globalSignals } from '../../utils/signals';
 import './RoamgHero.css';
@@ -90,11 +90,18 @@ const RoamgHero = () => {
   const onSelectCompanion = (label) => {
     setIsSelecting(true);
     globalSignals.setCompanionChoice(label.toUpperCase());
-    setTimeout(() => navigate('/planner'), 800); // 800ms for zoom-in animation
+    setTimeout(() => navigate('/planner'), 800);
   };
 
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.9]);
+
   return (
-    <section className={`rh-wrapper ${isSelecting ? 'rh-wrapper--zooming' : ''}`}>
+    <motion.section 
+      className={`rh-wrapper ${isSelecting ? 'rh-wrapper--zooming' : ''}`}
+      style={{ opacity: heroOpacity, scale: heroScale }}
+    >
       
       {/* ══════════════════════════════════
           CINEMATIC PANEL
@@ -112,7 +119,7 @@ const RoamgHero = () => {
         <header className={`rh-nav-master ${scrolled ? 'rh-nav--scrolled' : ''}`}>
           <div className="rh-nav-inner">
             <Link to="/" className="rh-logo-master" onClick={() => setActiveLink('/')}>
-              <img src="/assets/roamg-logo.png" alt="Roamg" className="rh-logo-img" />
+              <img src="/logo.png" alt="Roamg" className="rh-logo-img" style={{ height: '40px', width: 'auto' }} />
             </Link>
             <nav className="rh-nav-links">
               {['Discover', 'Planner', 'Packages', 'Events', 'Wishlist'].map((label) => (
@@ -160,6 +167,19 @@ const RoamgHero = () => {
           </button>
         </div>
 
+        <div className="rh-scroll-indicator">
+          <span className="rh-scroll-text">Scroll to explore</span>
+          <motion.div 
+            className="rh-scroll-arrow"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+            </svg>
+          </motion.div>
+        </div>
+
         <div className="rh-svg-cut-wrap">
           <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="rh-svg-cut">
             <path d="M0,0 Q720,100 1440,0 V100 H0 Z" fill="#ffffff" />
@@ -167,67 +187,7 @@ const RoamgHero = () => {
         </div>
       </div>
 
-      {/* ══════════════════════════════════
-          TYPOGRAPHIC CAROUSEL
-      ══════════════════════════════════ */}
-      <div className="rh-dial-polish">
-        
-        <div className="rh-dial-header">
-          <h2 className="rh-dial-heading-top">Who’s ready with you?</h2>
-        </div>
-
-        <div className="rh-dial-carousel-wrap">
-          <motion.div 
-            className="rh-dial-gesture-area"
-            drag="x"
-            dragConstraints={{ left: -100, right: 100 }}
-            onDrag={handleDialDrag}
-            onDragEnd={handleDialDragEnd}
-          >
-            <div className="rh-dial-track">
-              {COMPANION_OPTIONS.map((opt, i) => {
-                const angleOffset = (i - 2) * ITEM_ANGLE;
-                const relativeRot = useTransform(smoothRotation, r => r + angleOffset);
-                
-                // Dial Path Math
-                const x = useTransform(relativeRot, a => 500 + Math.sin(a * Math.PI / 180) * 450);
-                const y = useTransform(relativeRot, a => 200 - Math.cos(a * Math.PI / 180) * 150);
-                const op = useTransform(relativeRot, a => Math.max(0.1, 1 - Math.abs(a) / 90));
-                const scale = useTransform(relativeRot, a => 1 - Math.abs(a) / 200);
-
-                const isFocused = focusedIndex === i;
-
-                return (
-                  <motion.div
-                    key={opt.id}
-                    className={`rh-dial-item ${isFocused ? 'rh-focused-item' : ''}`}
-                    style={{ left: x, top: y, opacity: op, scale }}
-                    onClick={() => isFocused ? onSelectCompanion(opt.label) : handleSnap(i)}
-                  >
-                    <motion.span 
-                      className="rh-item-text"
-                      animate={isFocused && isSelecting ? { scale: 3.5, opacity: 0 } : {}}
-                      transition={{ duration: 0.8, ease: "easeInOut" }}
-                    >
-                      {opt.label}
-                    </motion.span>
-                    {isFocused && (
-                      <motion.div 
-                        className="rh-item-glow" 
-                        animate={isSelecting ? { scale: 4, opacity: 0 } : {}}
-                      />
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        </div>
-
-        <div className="rh-dial-hint-polish">Slide to discover • Tap center to choose</div>
-      </div>
-
-    </section>
+    </motion.section>
   );
 };
 

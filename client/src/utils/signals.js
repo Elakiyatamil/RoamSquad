@@ -2,46 +2,48 @@ import { useState, useCallback, useEffect } from 'react';
 
 /**
  * Antigravity Signals (createSignal)
- * A lightweight wrapper around React's useState to mimic SolidJS-style signals.
- * 
- * @param {any} initialValue - The initial state value.
- * @returns {[Function, Function]} - [getter, setter]
+ * A lightweight hook for local component state that mimics SolidJS signals.
  */
 export function createSignal(initialValue) {
   const [state, setState] = useState(initialValue);
-
   const getter = useCallback(() => state, [state]);
-
   const setter = useCallback((newValue) => {
-    if (typeof newValue === 'function') {
-      setState((prev) => newValue(prev));
-    } else {
-      setState(newValue);
-    }
+    setState(newValue);
   }, []);
-
   return [getter, setter];
 }
 
 /**
  * GLOBAL SIGNAL STORE
- * Simple singleton to share state between components.
+ * Simple singleton to share state between components using a subscription model.
  */
-const globalState = {
-  companionChoice: localStorage.getItem('roam_companion_choice') || null,
-};
+let globalCompanionChoice = localStorage.getItem('roam_companion_choice') || null;
+let globalCurrentPlannerStep = 1;
+let globalDestinationChoice = null;
 
 const listeners = new Set();
-
 const notify = () => listeners.forEach(fn => fn());
 
 export const globalSignals = {
-  getCompanionChoice: () => globalState.companionChoice,
+  getCompanionChoice: () => globalCompanionChoice,
   setCompanionChoice: (val) => {
-    globalState.companionChoice = val;
+    globalCompanionChoice = val;
     localStorage.setItem('roam_companion_choice', val);
     notify();
   },
+
+  currentPlannerStep: () => globalCurrentPlannerStep,
+  setCurrentPlannerStep: (val) => {
+    globalCurrentPlannerStep = val;
+    notify();
+  },
+
+  destinationChoice: () => globalDestinationChoice,
+  setDestinationChoice: (val) => {
+    globalDestinationChoice = val;
+    notify();
+  },
+
   subscribe: (fn) => {
     listeners.add(fn);
     return () => listeners.delete(fn);
@@ -49,15 +51,17 @@ export const globalSignals = {
 };
 
 /**
- * Hook to use global signals with reactivity
+ * Hook to use global signals with reactivity.
+ * Re-renders the component when the selected global state changes.
  */
 export function useGlobalSignal(selector) {
   const [val, setVal] = useState(selector());
   
   useEffect(() => {
-    return globalSignals.subscribe(() => {
+    const unsubscribe = globalSignals.subscribe(() => {
       setVal(selector());
     });
+    return unsubscribe;
   }, [selector]);
 
   return val;

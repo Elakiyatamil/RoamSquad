@@ -1,12 +1,15 @@
 import React from 'react';
 import RoamgHero from '../../components/RoamgHero/RoamgHero';
+import DestinationStack from '../../components/DestinationStack/DestinationStack';
+import StickySearch from '../../components/StickySearch/StickySearch';
 import './CosmosLayout.css';
 
 const DiscoveryPage = () => {
     return (
-        <div className="discovery-cosmos-parent relative bg-white">
+        <div className="discovery-cosmos-parent relative bg-black">
+            <StickySearch />
             <RoamgHero />
-            {/* The "Companion Selector" is now integrated into the bottom of RoamgHero */}
+            <DestinationStack />
         </div>
     );
 };

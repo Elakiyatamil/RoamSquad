@@ -18,7 +18,7 @@ export default function TravellerLayout() {
       <header className="sticky top-0 z-[100] bg-transparent backdrop-blur border-b border-white/5 h-[56px] md:h-auto flex items-center">
         <div className="w-full max-w-6xl mx-auto px-4 md:px-6 flex items-center justify-between">
           <Link to="/" className="font-bold tracking-tight shrink-0 mr-4">
-            RoamSquad
+            <img src="/logo.png" alt="ROAMG Logo" style={{ height: '32px', width: 'auto' }} />
           </Link>
           <nav 
             className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide w-full md:w-auto"
