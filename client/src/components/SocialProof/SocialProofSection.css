@@ -224,3 +224,24 @@
 .squad-moment-wrapper:hover .squad-reveal-quote {
     opacity: 1; max-height: 40px; margin-top: 0.5rem;
 }
+
+@media (max-width: 768px) {
+    .squad-social-proof {
+        padding: 3rem 0;
+    }
+    .squad-header {
+        margin-bottom: 2rem;
+    }
+    .squad-title {
+        font-size: 2rem;
+    }
+    .squad-carousel-container {
+        padding: 0 0 3rem 0;
+    }
+    .squad-moment-wrapper {
+        width: 180px;
+    }
+    .skel-h-1 { height: 280px; }
+    .skel-h-2 { height: 240px; }
+    .skel-h-3 { height: 300px; }
+}

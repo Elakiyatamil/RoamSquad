@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Menu, X, Search } from 'lucide-react';
 import { createSignal, globalSignals } from '../../utils/signals';
 import './RoamgHero.css';
 
@@ -23,6 +23,7 @@ const RoamgHero = () => {
   const [isMuted, setIsMuted] = createSignal(true);
   const [activeLink, setActiveLink] = createSignal(location.pathname);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Dial State
   const [focusedIndex, setFocusedIndex] = useState(2); // Start at 'FAMILY'
@@ -121,7 +122,9 @@ const RoamgHero = () => {
             <Link to="/" className="rh-logo-master" onClick={() => setActiveLink('/')}>
               <img src="/logo.png" alt="Roamg" className="rh-logo-img" style={{ height: '40px', width: 'auto' }} />
             </Link>
-            <nav className="rh-nav-links">
+
+            {/* Desktop Navigation */}
+            <nav className="rh-nav-links desktop-only">
               {['Discover', 'Planner', 'Packages', 'Events', 'Wishlist'].map((label) => (
                 <Link key={label} to={`/${label.toLowerCase()}`} className="rh-nav-link" onClick={() => setActiveLink(`/${label.toLowerCase()}`)}>
                   {label}
@@ -129,7 +132,59 @@ const RoamgHero = () => {
                 </Link>
               ))}
             </nav>
+
+            <div className="rh-nav-right desktop-only">
+               <div className="rh-nav-search" onClick={() => navigate('/planner')}>
+                 <Search size={16} className="rh-search-icon" />
+                 <span>Where to next?</span>
+               </div>
+            </div>
+
+            {/* Mobile Hamburger Toggle */}
+            <button 
+              className="rh-mobile-toggle mobile-only"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
+
+          {/* Mobile Side Drawer */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div 
+                className="rh-mobile-drawer"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              >
+                <div className="rh-drawer-header">
+                  <img src="/logo.png" alt="Roamg" className="rh-logo-img" style={{ height: '32px', filter: 'none' }} />
+                  <button onClick={() => setIsMobileMenuOpen(false)}><X size={24} /></button>
+                </div>
+                <nav className="rh-drawer-nav">
+                  {['Discover', 'Planner', 'Packages', 'Events', 'Wishlist'].map((label) => (
+                    <Link 
+                      key={label} 
+                      to={`/${label.toLowerCase()}`} 
+                      className="rh-drawer-link"
+                      onClick={() => {
+                        setActiveLink(`/${label.toLowerCase()}`);
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                  <button className="rh-drawer-search-btn" onClick={() => { navigate('/planner'); setIsMobileMenuOpen(false); }}>
+                    <Search size={18} />
+                    <span>Where to next?</span>
+                  </button>
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </header>
 
         <div className="rh-hero-content rh-hero-content--journal">

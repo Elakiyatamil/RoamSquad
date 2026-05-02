@@ -16,6 +16,20 @@
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
 }
 
+.ss-right-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ss-mobile-toggle {
+  background: transparent;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  display: none;
+}
+
 .ss-logo {
   font-size: 24px;
   font-weight: 800;
@@ -87,8 +101,8 @@
 }
 
 /* RESPONSIVENESS */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .ss-header { padding: 0 20px; height: 60px; }
-  .ss-nav { display: none; } /* Hide nav links on mobile sticky, show in hamburger if needed */
-  .ss-search-wrap { width: 180px; }
+  .ss-right-section { gap: 10px; }
+  .ss-mobile-toggle { display: flex; }
 }

@@ -83,6 +83,14 @@ const DestinationStack = ({ heroRef }) => {
                       <span className="ds-search-text">Where do you want to go?</span>
                       <div className="ds-neon-glow" />
                     </div>
+                    <motion.p 
+                      className="ds-curated-subtitle"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      Curated Journeys
+                    </motion.p>
                   </div>
                 ) : (
                   <button 
