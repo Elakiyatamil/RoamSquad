@@ -229,10 +229,10 @@
 
 /* RESPONSIVENESS */
 @media (max-width: 768px) {
-  .ds-card-content { padding: 0 20px 40px; }
-  .ds-card-title { font-size: 2.2rem; margin-bottom: 20px; }
+  .ds-card-content { padding: 0 24px 40px; }
+  .ds-card-title { font-size: 2rem; margin-bottom: 24px; }
   .ds-card-category { letter-spacing: 1px; font-size: 12px; }
-  .ds-neon-search-bar { height: 56px; padding: 0 20px; border-radius: 28px; }
+  .ds-neon-search-bar { height: 56px; padding: 0 24px; border-radius: 28px; }
   .ds-neon-glow { border-radius: 28px; }
   .ds-search-text { font-size: 14px; }
   .ds-explore-btn { padding: 14px 28px; font-size: 12px; }
