@@ -68,11 +68,9 @@ const uploadSingle = async (req, res) => {
         } catch (cloudinaryError) {
             console.error("[uploadSingle] Cloudinary failed, falling back to local storage:", cloudinaryError.message);
             
-            const fs = require('fs');
-            const path = require('path');
-            
-            // Ensure uploads directory exists
-            const uploadsDir = path.join(__dirname, '../public/uploads');
+            // Ensure uploads directory exists (including subfolders)
+            const folder = req.body.folder || '';
+            const uploadsDir = path.join(__dirname, '../public/uploads', folder);
             if (!fs.existsSync(uploadsDir)) {
                 fs.mkdirSync(uploadsDir, { recursive: true });
             }
@@ -86,7 +84,7 @@ const uploadSingle = async (req, res) => {
             fs.writeFileSync(filepath, req.file.buffer);
             
             // Construct relative URL for better portability
-            const localUrl = `/uploads/${filename}`;
+            const localUrl = `/uploads/${folder ? folder + '/' : ''}${filename}`;
             
             res.status(200).json({
                 success: true,
@@ -141,7 +139,7 @@ const uploadMultiple = async (req, res) => {
                 fs.writeFileSync(filepath, file.buffer);
                 
                 localResults.push({
-                    url: `/uploads/${filename}`,
+                    url: `/uploads/${folder ? folder + '/' : ''}${filename}`,
                     public_id: filename
                 });
             }
