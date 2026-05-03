@@ -28,6 +28,13 @@ yarn-error.log*
 *.swp
 *.swo
 
-# Prisma
+# Media and Uploads
+server/public/uploads
+client/public/destinationvideo
+client/video
+scratch/
+server/scratch/
+*.log
+test_image.png
 /prisma/migrations
 /prisma/schema.prisma.backup

@@ -3,13 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Package, Users, Star, Calendar } from 'lucide-react';
 import apiClient from '../../services/apiClient';
+import ImageUpload from '../../components/ui/ImageUpload';
 
 function PackageForm({ onSave }) {
   const [form, setForm] = useState({ name: '', daysCount: 3, totalPrice: 0, highlights: '', tag: '', coverImage: '', isActive: true });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...form, daysCount: Number(form.daysCount), totalPrice: Number(form.totalPrice), highlights: form.highlights.split(',').map(h => h.trim()).filter(Boolean) });
+    onSave({ 
+      ...form, 
+      daysCount: Number(form.daysCount), 
+      totalPrice: Number(form.totalPrice), 
+      highlights: form.highlights.split(',').map(h => h.trim()).filter(Boolean) 
+    });
     setForm({ name: '', daysCount: 3, totalPrice: 0, highlights: '', tag: '', coverImage: '', isActive: true });
   };
 
@@ -22,10 +28,16 @@ function PackageForm({ onSave }) {
         <input type="number" className="p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Total Price (₹)" value={form.totalPrice} onChange={e => setForm(p => ({...p, totalPrice: e.target.value}))} />
       </div>
       <input className="w-full p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Highlights (comma separated)" value={form.highlights} onChange={e => setForm(p => ({...p, highlights: e.target.value}))} />
-      <div className="grid grid-cols-2 gap-4">
-        <input className="p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Tag (e.g. POPULAR)" value={form.tag} onChange={e => setForm(p => ({...p, tag: e.target.value}))} />
-        <input className="p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Cover Image URL" value={form.coverImage} onChange={e => setForm(p => ({...p, coverImage: e.target.value}))} />
-      </div>
+      
+      <input className="w-full p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Tag (e.g. POPULAR)" value={form.tag} onChange={e => setForm(p => ({...p, tag: e.target.value}))} />
+      
+      <ImageUpload 
+        value={form.coverImage} 
+        onChange={(url) => setForm(p => ({ ...p, coverImage: url }))} 
+        label="Cover Image"
+        folder="packages"
+      />
+
       <button type="submit" className="w-full py-4 bg-ink text-cream rounded-xl font-bold hover:bg-ink/90 transition flex items-center justify-center gap-2">
         <Plus size={18} /> Add Package
       </button>
@@ -68,6 +80,14 @@ export default function GlobalPackagesManager() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['adminPackages'] })
   });
 
+  const getImgUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const base = 'http://localhost:5005';
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-end justify-between">
@@ -95,7 +115,7 @@ export default function GlobalPackagesManager() {
             {isLoading && <p className="text-ink/40 font-bold animate-pulse">Loading packages...</p>}
             {(Array.isArray(packages) ? packages : []).map(pkg => (
               <div key={pkg.id} className="bg-white rounded-2xl p-6 border border-ink/5 flex items-center gap-4 shadow-sm">
-                {pkg.coverImage && <img src={pkg.coverImage} alt={pkg.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />}
+                {(pkg.coverImage || pkg.image_url) && <img src={getImgUrl(pkg.coverImage || pkg.image_url)} alt={pkg.name} className="w-20 h-20 rounded-xl object-cover shrink-0" />}
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     {pkg.tag && <span className="text-[10px] font-bold bg-gold/20 text-gold px-2 py-0.5 rounded uppercase">{pkg.tag}</span>}

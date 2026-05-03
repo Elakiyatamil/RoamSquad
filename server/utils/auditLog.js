@@ -11,10 +11,15 @@ const prisma = require('./prisma');
  */
 const logAction = async (user, action, entity, entityId = null, entityName = null, details = null) => {
     try {
+        if (!user || !user.id) {
+            console.warn('[AuditLog] Skipping log - User missing or has no ID');
+            return;
+        }
+
         await prisma.auditLog.create({
             data: {
                 userId: user.id,
-                userName: user.name || user.email,
+                userName: user.name || user.email || 'Unknown User',
                 action,
                 entity,
                 entityId: entityId ? String(entityId) : null,

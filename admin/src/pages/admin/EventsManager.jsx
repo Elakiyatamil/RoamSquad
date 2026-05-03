@@ -1,29 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Calendar, Users, MapPin, Phone, ImagePlus, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Calendar, Users, MapPin, Phone, Loader2 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
+import ImageUpload from '../../components/ui/ImageUpload';
 
-function EventForm({ onSave, isSaving }) {
-  const [form, setForm] = useState({ title: '', description: '', location: '', dateTime: '', contactNumber: '' });
-  const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const fileRef = useRef(null);
+function EventForm({ onSave, isSaving, onSuccess }) {
+  const [form, setForm] = useState({ title: '', description: '', location: '', dateTime: '', contactNumber: '', image: '' });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) return;
-    onSave(form, imageFile);
-    setForm({ title: '', description: '', location: '', dateTime: '', contactNumber: '' });
-    setImageFile(null);
-    setPreview(null);
-  };
-
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setPreview(URL.createObjectURL(file));
-    }
+    onSave(form, {
+      onSuccess: () => {
+        setForm({ title: '', description: '', location: '', dateTime: '', contactNumber: '', image: '' });
+        if (onSuccess) onSuccess();
+      }
+    });
   };
 
   return (
@@ -64,22 +56,12 @@ function EventForm({ onSave, isSaving }) {
         onChange={e => setForm(p => ({ ...p, contactNumber: e.target.value }))}
       />
 
-      {/* Image Upload */}
-      <div
-        onClick={() => fileRef.current?.click()}
-        className="border-2 border-dashed border-ink/10 rounded-xl p-4 cursor-pointer hover:border-gold transition text-center"
-      >
-        {preview ? (
-          <img src={preview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
-        ) : (
-          <div className="flex flex-col items-center gap-2 py-4 text-ink/40">
-            <ImagePlus size={32} />
-            <p className="text-sm font-semibold">Click to upload event image</p>
-            <p className="text-xs">JPEG, PNG, WebP – max 5MB</p>
-          </div>
-        )}
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-      </div>
+      <ImageUpload 
+        value={form.image} 
+        onChange={(url) => setForm(p => ({ ...p, image: url }))} 
+        label="Event Image"
+        folder="events"
+      />
 
       <button
         type="submit"
@@ -114,14 +96,17 @@ export default function EventsManager() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async ({ formData, imageFile }) => {
-      const fd = new FormData();
-      Object.entries(formData).forEach(([k, v]) => { if (v) fd.append(k, v); });
-      if (imageFile) fd.append('image', imageFile);
-      return apiClient.post('/events', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    mutationFn: async (data) => {
+      return apiClient.post('/events', data);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['adminEvents'] }),
-    onError: (err) => console.error('createEvent failed:', err)
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminEvents'] });
+    },
+    onError: (err) => {
+      console.error('createEvent failed:', err);
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+      alert(`Create Event Failed: ${msg}`);
+    }
   });
 
   const deleteMutation = useMutation({
@@ -132,6 +117,14 @@ export default function EventsManager() {
   const formatDate = (dt) => {
     try { return new Date(dt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }); }
     catch { return dt || '-'; }
+  };
+
+  const getImgUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    const base = 'http://localhost:5005';
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
   };
 
   return (
@@ -159,15 +152,15 @@ export default function EventsManager() {
           <div className="lg:col-span-1">
             <EventForm
               isSaving={createMutation.isPending}
-              onSave={(formData, imageFile) => createMutation.mutate({ formData, imageFile })}
+              onSave={(data, options) => createMutation.mutate(data, options)}
             />
           </div>
           <div className="lg:col-span-2 space-y-4">
             {isLoading && <p className="text-ink/40 font-bold animate-pulse">Loading events...</p>}
             {(Array.isArray(events) ? events : []).map(evt => (
               <div key={evt.id} className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden flex">
-                {evt.image && (
-                  <img src={evt.image} alt={evt.title} className="w-28 h-full object-cover shrink-0" />
+                {(evt.image || evt.bannerImage || evt.image_url) && (
+                  <img src={getImgUrl(evt.image || evt.bannerImage || evt.image_url)} alt={evt.title} className="w-28 h-full object-cover shrink-0" />
                 )}
                 <div className="p-6 flex-1">
                   <h3 className="font-bold text-ink text-lg mb-1">{evt.title}</h3>

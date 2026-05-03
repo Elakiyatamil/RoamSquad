@@ -55,6 +55,15 @@ const EventsSlider = () => {
     ));
   };
 
+  const getImgUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    // Direct fallback to localhost if env is missing
+    const base = 'http://localhost:5005';
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
+
   return (
     <>
       {/* FULL-WIDTH HEADER */}
@@ -119,11 +128,11 @@ const EventsSlider = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
               >
-                <Link to={`/events/${evt.id || evt._id}`} className="fs-card">
+                <Link to="/events" className="fs-card">
                   
                   {/* Background Image & Overlay */}
                   <img 
-                    src={evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url} 
+                    src={getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url)} 
                     alt={evt.title || evt.name} 
                     className="fs-card-bg-img" 
                     loading="lazy"
@@ -132,10 +141,7 @@ const EventsSlider = () => {
                       height: '100%',
                       objectFit: 'cover',
                       display: 'block',
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.style.background = '#1a1a2e';
+                      zIndex: 1
                     }}
                   />
                   <div className="fs-card-overlay" />

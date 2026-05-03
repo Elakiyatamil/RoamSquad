@@ -112,6 +112,14 @@ export default function PackagesPage() {
         setShowPhoneModal(true);
     };
 
+    const getImgUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        const base = 'http://localhost:5005';
+        const path = url.startsWith('/') ? url : `/${url}`;
+        return `${base}${path}`;
+    };
+
     return (
         <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
             
@@ -192,9 +200,9 @@ export default function PackagesPage() {
                                 transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                                 className="group relative bg-black/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl transition-all border border-white/10 flex flex-col hover:-translate-y-2 hover:border-white/30"
                             >
-                                {pkg.coverImage ? (
+                                {(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url) ? (
                                     <div className="h-64 overflow-hidden relative">
-                                        <img src={pkg.coverImage} alt={pkg.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        <img src={getImgUrl(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url)} alt={pkg.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
                                     </div>
                                 ) : (

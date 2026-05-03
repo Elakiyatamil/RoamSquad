@@ -27,40 +27,50 @@ const getEventsPublic = async (req, res) => {
 
 const createEvent = async (req, res) => {
     try {
+        console.log('[POST /events] Body:', req.body);
+        console.log('[POST /events] File:', req.file ? 'Present' : 'Missing');
+
         const { title, description, location, dateTime, contactNumber, districtId } = req.body;
         
-        // Handle file upload: check if multer put a file in req.file
-        let imageUrl = req.body.image || null;
-        if (req.file) {
-            const cloudinary = require('../utils/cloudinary');
-            const { Readable } = require('stream');
-            imageUrl = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: 'roam_squad/events' },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result.secure_url);
-                    }
-                );
-                Readable.from(req.file.buffer).pipe(stream);
-            });
+        if (!title) {
+            return res.status(400).json({ success: false, error: 'Title is required' });
         }
 
-        const event = await prisma.upcomingEvent.create({
-            data: { 
-                title, 
-                description, 
-                location, 
-                dateTime: dateTime ? new Date(dateTime) : null, 
-                image: imageUrl,
-                contactNumber: contactNumber || null,
-                districtId: districtId || null
+        // Handle image from body (URL string from standardized upload)
+        let imageUrl = req.body.image || null;
+
+
+        let parsedDate = null;
+        if (dateTime) {
+            const d = new Date(dateTime);
+            if (!isNaN(d.getTime())) {
+                parsedDate = d;
+            } else {
+                return res.status(400).json({ success: false, error: 'Invalid date format' });
             }
+        }
+
+        const eventData = { 
+            title, 
+            description: description || null, 
+            location: location || null, 
+            dateTime: parsedDate, 
+            image: imageUrl,
+            contactNumber: contactNumber || null,
+            districtId: districtId || null
+        };
+
+        const event = await prisma.upcomingEvent.create({
+            data: eventData
         });
-        await logAction(req.user, 'CREATE', 'Event', event.id, event.title);
+        
+        if (req.user) {
+            await logAction(req.user, 'CREATE', 'Event', event.id, event.title);
+        }
+        
         res.status(201).json({ success: true, data: event });
     } catch (error) {
-        console.error('[POST /events] Error:', error);
+        console.error('[POST /events] Fatal Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 };
@@ -69,22 +79,9 @@ const updateEvent = async (req, res) => {
     try {
         const { dateTime, ...rest } = req.body;
         
-        // Handle file upload
+        // Image URL from standardized upload
         let imageUrl = req.body.image;
-        if (req.file) {
-            const cloudinary = require('../utils/cloudinary');
-            const { Readable } = require('stream');
-            imageUrl = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: 'roam_squad/events' },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result.secure_url);
-                    }
-                );
-                Readable.from(req.file.buffer).pipe(stream);
-            });
-        }
+
 
         const event = await prisma.upcomingEvent.update({
             where: { id: req.params.id },

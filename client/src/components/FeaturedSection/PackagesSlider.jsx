@@ -55,6 +55,15 @@ const PackagesSlider = () => {
     ));
   };
 
+  const getImgUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    // Direct fallback to localhost if env is missing
+    const base = 'http://localhost:5005';
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
+
   return (
     <>
       {/* FULL-WIDTH HEADER */}
@@ -119,11 +128,11 @@ const PackagesSlider = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
               >
-                <Link to={`/packages/${pkg.id || pkg._id}`} className="fs-card">
+                <Link to="/packages" className="fs-card">
                   
                   {/* Background Image & Overlay */}
                   <img 
-                    src={pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url} 
+                    src={getImgUrl(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url)} 
                     alt={pkg.title || pkg.name} 
                     className="fs-card-bg-img" 
                     loading="lazy"
@@ -132,10 +141,7 @@ const PackagesSlider = () => {
                       height: '100%',
                       objectFit: 'cover',
                       display: 'block',
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.style.background = '#1a1a2e';
+                      zIndex: 1
                     }}
                   />
                   <div className="fs-card-overlay" />

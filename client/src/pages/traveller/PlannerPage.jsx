@@ -365,6 +365,74 @@ const StepDots = ({ activeStep }) => (
   </div>
 );
 
+// ── LivingDestinationCard ───────────────────────────────────────────
+const LivingDestinationCard = ({ dest, isSelected, idx, onSelect }) => {
+  const videoRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = isHovered ? 1.0 : 0.5;
+      
+      if (isHovered) {
+        videoRef.current.muted = false;
+        videoRef.current.volume = 0;
+        let vol = 0;
+        const interval = setInterval(() => {
+          vol = Math.min(vol + 0.1, 1);
+          if (videoRef.current) videoRef.current.volume = vol;
+          if (vol >= 1) clearInterval(interval);
+        }, 20); // 200ms fade-in total
+        return () => clearInterval(interval);
+      } else {
+        videoRef.current.muted = true;
+      }
+    }
+  }, [isHovered]);
+
+  return (
+    <div className="living-dest-container">
+      <motion.div
+        className={`destination-card video-variant ${isSelected ? 'active' : ''}`}
+        onClick={onSelect}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ delay: idx * 0.05 }}
+      >
+        <video
+          ref={videoRef}
+          src={dest.videoUrl}
+          poster={dest.displayImage}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="dest-card-video"
+        />
+        {isSelected && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="selected-indicator"
+          >
+            <ArrowRight size={14} color="white" />
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Typography moved below the card */}
+      <div className="living-dest-meta">
+        <p className="dest-meta-location">{dest.location || 'EDINBURGH, UK'}</p>
+        <h3 className="dest-meta-name">{dest.name}</h3>
+      </div>
+    </div>
+  );
+};
+
 // ── Main PlannerPage ─────────────────────────────────────────────────
 const PlannerPage = () => {
   const containerRef = useRef(null);
@@ -467,7 +535,12 @@ const PlannerPage = () => {
         if (response.data.success) {
           const mapped = response.data.data.map(d => ({
             ...d,
+<<<<<<< HEAD
             displayImage: d.coverImage || d.images?.[0] || `https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800&auto=format&fit=crop`
+=======
+            displayImage: d.coverImage || d.images?.[0] || `https://loremflickr.com/800/1200/travel,${d.name.replace(/\s+/g, '')}`,
+            videoUrl: `/destinationvideo/${d.name.toLowerCase()}.mp4`
+>>>>>>> b5016b7 (Standardize media infrastructure and fix image rendering)
           }));
           setDestinations(mapped);
           if (mapped.length > 0) setSelectedDestination(mapped[0]);
@@ -629,30 +702,12 @@ const PlannerPage = () => {
                     />
                   </svg>
 
-                  <motion.div
-                    className={`destination-card ${isSelected ? 'active' : ''}`}
-                    onClick={() => setSelectedDestination(dest)}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ y: -6 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ delay: idx * 0.05 }}
-                  >
-                    <img src={dest.displayImage} alt={dest.name} loading="lazy" />
-                    <div className="destination-card-overlay">
-                      <p>{dest.location || 'Boutique Experience'}</p>
-                      <h3>{dest.name}</h3>
-                    </div>
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="selected-indicator"
-                      >
-                        <ArrowRight size={14} color="white" />
-                      </motion.div>
-                    )}
-                  </motion.div>
+                  <LivingDestinationCard 
+                    dest={dest} 
+                    isSelected={isSelected} 
+                    idx={idx}
+                    onSelect={() => setSelectedDestination(dest)}
+                  />
                 </div>
               );
             })}

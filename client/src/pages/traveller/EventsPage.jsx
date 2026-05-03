@@ -128,6 +128,14 @@ export default function EventsPage() {
 
     const isUpcoming = (dt) => dt ? new Date(dt) > new Date() : true;
 
+    const getImgUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        const base = 'http://localhost:5005';
+        const path = url.startsWith('/') ? url : `/${url}`;
+        return `${base}${path}`;
+    };
+
     return (
         <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
             
@@ -212,10 +220,10 @@ export default function EventsPage() {
                                 transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                                 className="group bg-black/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] hover:border-white/30 transition-all flex flex-col md:flex-row"
                             >
-                                {evt.image ? (
+                                {(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url) ? (
                                     <div className="md:w-[350px] h-64 md:h-auto overflow-hidden shrink-0 relative">
                                         <img
-                                            src={evt.image}
+                                            src={getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url)}
                                             alt={evt.title}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                             onError={(e) => { e.target.style.display = 'none'; }}

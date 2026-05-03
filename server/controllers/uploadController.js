@@ -85,15 +85,14 @@ const uploadSingle = async (req, res) => {
             // Save file
             fs.writeFileSync(filepath, req.file.buffer);
             
-            // Construct local URL
-            const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-            const localUrl = `${baseUrl}/uploads/${filename}`;
+            // Construct relative URL for better portability
+            const localUrl = `/uploads/${filename}`;
             
             res.status(200).json({
                 success: true,
                 data: {
                     url: localUrl,
-                    public_id: filename // Use filename as identifier for potential future deletion
+                    public_id: filename 
                 }
             });
         }
@@ -132,7 +131,6 @@ const uploadMultiple = async (req, res) => {
                 fs.mkdirSync(uploadsDir, { recursive: true });
             }
             
-            const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
             const localResults = [];
             
             for (const file of req.files) {
@@ -143,7 +141,7 @@ const uploadMultiple = async (req, res) => {
                 fs.writeFileSync(filepath, file.buffer);
                 
                 localResults.push({
-                    url: `${baseUrl}/uploads/${filename}`,
+                    url: `/uploads/${filename}`,
                     public_id: filename
                 });
             }

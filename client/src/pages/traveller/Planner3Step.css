@@ -193,9 +193,9 @@
 .destination-carousel {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 32px 24px; /* More gap for text below */
   justify-content: center;
-  max-width: 960px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 32px 24px;
   z-index: 30;
@@ -203,52 +203,71 @@
   pointer-events: auto;
 }
 
-.destination-card-wrapper {
-  position: relative;
-  flex: 0 0 220px;
+.living-dest-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  width: 220px;
 }
 
-.destination-card {
+.destination-card.video-variant {
   width: 220px;
   height: 300px;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(0,0,0,0.08);
-  background: var(--white);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  border: 1.5px solid transparent;
+  background: #000;
 }
 
-.destination-card img {
+.destination-card.video-variant:hover {
+  border-color: #800020;
+  box-shadow: 0 0 30px rgba(128,0,32,0.25);
+}
+
+.destination-card.video-variant.active {
+  border-color: #800020;
+  border-width: 2px;
+}
+
+.dest-card-video {
   width: 100%;
-  height: 65%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.5s ease;
 }
 
-.destination-card:hover img { transform: scale(1.05); }
-
-.destination-card-overlay {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 35%;
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 14px 16px;
+.living-dest-meta {
+  width: 100%;
+  text-align: left;
 }
 
-.destination-card-overlay h3 {
+.dest-meta-location {
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 0 0 3px 0;
-  line-height: 1.2;
+  font-size: 10px;
+  font-weight: 500;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0 0 4px 0;
+}
+
+.dest-meta-name {
+  font-family: 'DM Serif Display', serif; /* Or Playfair Display if imported */
+  font-size: 18px;
+  font-weight: 400;
+  color: #1A1A1A;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.destination-card-wrapper {
+  position: relative;
+  flex: 0 0 220px;
 }
 
 .destination-card-overlay p {
