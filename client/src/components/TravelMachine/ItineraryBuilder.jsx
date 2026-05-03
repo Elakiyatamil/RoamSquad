@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import './ItineraryBuilder.css';
 import LoginScreen from './LoginScreen';
+import InquiryModal from './InquiryModal';
+import useAuthStore from '../../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
@@ -109,11 +111,14 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   
   const [activeDay, setActiveDay] = useState(0);
   const [showLogin, setShowLogin] = useState(false);
+  const [showInquiry, setShowInquiry] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [priceRolling, setPriceRolling] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(null);
   const [successId, setSuccessId] = useState(null);
+
+  const { isAuthenticated, user, logout } = useAuthStore();
 
   const currentDest = itinerary[activeDay]?.destination || propDestination;
 
@@ -226,6 +231,18 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="z-[5000] fixed inset-0">
             <LoginScreen onBack={() => setShowLogin(false)} />
           </motion.div>
+        )}
+        {showInquiry && (
+          <InquiryModal 
+            isOpen={showInquiry} 
+            onClose={() => setShowInquiry(false)}
+            selectedItems={selectedItems}
+            totalPrice={totalPrice}
+            destination={fullDest}
+            user={user}
+            itinerary={itinerary}
+            tripConfig={tripConfig}
+          />
         )}
       </AnimatePresence>
 
@@ -401,7 +418,15 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
             ))}
             {selectedItems.length > 3 && <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 ring-2 ring-[#1A1A1A]"><span className="text-xs font-medium text-white">+{selectedItems.length - 3}</span></div>}
           </div>
-          <button className="btn-grab-premium" onClick={() => setShowLogin(true)}>Send it to us! (we will make the trip) <Send size={20} /></button>
+          <button 
+            className="btn-grab-premium" 
+            onClick={() => {
+              if (isAuthenticated) setShowInquiry(true);
+              else setShowLogin(true);
+            }}
+          >
+            Send it to us! (we will make the trip) <Send size={20} />
+          </button>
         </div>
       </div>
     </div>

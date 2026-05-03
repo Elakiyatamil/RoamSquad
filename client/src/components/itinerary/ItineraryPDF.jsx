@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Page, Text, View, Document, StyleSheet, Image, Svg, Path, G 
+  Page, Text, View, Document, StyleSheet, Image, Svg, Path 
 } from '@react-pdf/renderer';
 
 // Premium Color Palette
@@ -11,8 +11,7 @@ const COLORS = {
   lightGray: '#f8f8f8',
   textSecondary: '#666',
   border: '#e0e0e0',
-  accent: '#fff5f5', // Very light red accent
-  red: '#8B0000'
+  accent: '#fff5f5'
 };
 
 // SVG ICONS
@@ -61,16 +60,13 @@ const Icons = {
 
 const styles = StyleSheet.create({
   page: { padding: 0, fontFamily: 'Helvetica', backgroundColor: COLORS.white },
-  
-  // --- PAGE 1: COVER ---
-  coverPage: { height: '100vh', justifyContent: 'center', padding: 50, backgroundColor: COLORS.white },
+  coverPage: { height: '100vh', justifyContent: 'center', padding: 50 },
   coverContent: { marginTop: -100 },
   brandLine: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   journeyBy: { fontSize: 13, letterSpacing: 2, color: COLORS.textSecondary },
   roamSquad: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary, marginLeft: 6 },
-  mainTitle: { fontSize: 40, fontWeight: 'black', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 30, lineHeight: 1.1 },
+  mainTitle: { fontSize: 40, fontWeight: 'black', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 30 },
   
-  // --- STATS RIBBON ---
   statsRibbon: { flexDirection: 'row', flexWrap: 'wrap', gap: 15, marginTop: 40 },
   statCard: { 
     flex: 1, minWidth: '45%', padding: 20, backgroundColor: COLORS.white, borderRadius: 10, 
@@ -78,62 +74,64 @@ const styles = StyleSheet.create({
   },
   statHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6 },
   statLabel: { fontSize: 9, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 1 },
-  statValueRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   statValue: { fontSize: 14, fontWeight: 'bold', color: COLORS.dark },
+  statValueRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 
-  // --- ITINERARY SECTION ---
-  itineraryPage: { padding: '50 50 80 50', backgroundColor: COLORS.white },
+  itineraryPage: { padding: '50 50 80 50' },
   sectionHeader: { 
     fontSize: 28, fontWeight: 'bold', color: COLORS.dark, 
     borderBottom: `2pt solid ${COLORS.primary}`, paddingBottom: 15, marginBottom: 40 
   },
-  dayContainer: { marginBottom: 50, position: 'relative' },
+  dayContainer: { marginBottom: 50 },
   dayMarker: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  iconBox: { marginRight: 15 },
-  dayTitle: { fontSize: 22, fontWeight: 'bold', color: COLORS.primary, letterSpacing: -0.5 },
+  dayTitle: { fontSize: 22, fontWeight: 'bold', color: COLORS.primary },
   
-  activityList: { marginLeft: 45, borderLeft: `1pt dashed ${COLORS.primary}`, paddingLeft: 25 },
-  activityRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 15 },
-  activityBullet: { width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.primary, marginTop: 7, marginRight: 15 },
-  activityText: { fontSize: 15, color: '#333', flex: 1, lineHeight: 1.5 },
-  durationBadge: { 
-    backgroundColor: COLORS.accent, padding: '3 8', borderRadius: 4, 
-    flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 10
+  activityList: { marginLeft: 25, borderLeft: `1pt dashed ${COLORS.primary}`, paddingLeft: 25 },
+  activityRow: { 
+    flexDirection: 'row', 
+    marginBottom: 10, 
+    padding: 10, 
+    backgroundColor: '#fff', 
+    borderRadius: 12,
+    border: '0.5pt solid #eee',
+    alignItems: 'center',
+    gap: 12
   },
-  badgeText: { fontSize: 9, color: COLORS.primary, fontWeight: 'bold' },
-
-  richCard: {
-    marginTop: 20, padding: 15, backgroundColor: COLORS.lightGray,
-    borderRadius: 10, borderLeft: `4pt solid ${COLORS.primary}`,
-    flexDirection: 'row', alignItems: 'center', gap: 15, minHeight: 60
+  activityImage: { width: 55, height: 55, borderRadius: 8, objectFit: 'cover' },
+  activityContent: { flex: 1, flexDirection: 'column', gap: 2 },
+  itemCategory: { fontSize: 6, fontWeight: 800, color: COLORS.primary, letterSpacing: 1, marginBottom: 2 },
+  itemTitle: { fontSize: 11, fontWeight: 700, color: '#1A1A1A', marginBottom: 2 },
+  itemDetails: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
+  detailBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 3, 
+    backgroundColor: '#FFF0F0', 
+    padding: '2 6', 
+    borderRadius: 4,
+    width: 'auto',
+    alignSelf: 'flex-start'
   },
-  cardTitle: { fontSize: 14, fontWeight: 'bold', color: COLORS.dark, marginBottom: 2 },
-  cardSub: { fontSize: 11, color: COLORS.textSecondary },
+  detailText: { fontSize: 6, fontWeight: 700, color: COLORS.primary },
 
-  // --- TERMS & FINANCIALS PAGE ---
-  termsPage: { padding: 50, backgroundColor: COLORS.white },
+  termsPage: { padding: 50 },
   cardRow: { flexDirection: 'row', gap: 20, marginBottom: 40 },
-  termCard: { 
-    flex: 1, padding: 25, borderRadius: 12, backgroundColor: COLORS.white,
-    border: '1pt solid #f0f0f0' 
-  },
-  inclusionCard: { borderRight: `4pt solid ${COLORS.green}`, borderBottom: `4pt solid ${COLORS.green}` },
+  termCard: { flex: 1, padding: 25, borderRadius: 12, backgroundColor: COLORS.white, border: '1pt solid #f0f0f0' },
+  inclusionCard: { borderRight: `4pt solid ${COLORS.primary}`, borderBottom: `4pt solid ${COLORS.primary}` },
   exclusionCard: { borderRight: `4pt solid ${COLORS.primary}`, borderBottom: `4pt solid ${COLORS.primary}` },
-  
-  termTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 20, letterSpacing: 1 },
+  termTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 20 },
   termItem: { flexDirection: 'row', marginBottom: 10, alignItems: 'center' },
-  termDot: { width: 4, height: 4, borderRadius: 2, marginRight: 10 },
+  termDot: { width: 4, height: 4, borderRadius: 2, marginRight: 10, backgroundColor: COLORS.primary },
   termText: { fontSize: 12, color: COLORS.dark },
 
   priceSummary: { 
     marginTop: 'auto', padding: 40, backgroundColor: COLORS.dark, 
     borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' 
   },
-  totalLabel: { color: '#aaa', fontSize: 12, marginBottom: 8, letterSpacing: 1 },
+  totalLabel: { color: '#aaa', fontSize: 12, marginBottom: 8 },
   priceBigRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   priceBig: { fontSize: 36, fontWeight: 'bold', color: COLORS.white },
 
-  // --- FOOTER ---
   footer: {
     position: 'absolute', bottom: 30, left: 50, right: 50,
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
@@ -144,15 +142,22 @@ const styles = StyleSheet.create({
 
 const chunkArray = (arr, size) => {
   const chunks = [];
+  if (!arr) return chunks;
   for (let i = 0; i < arr.length; i += size) {
     chunks.push(arr.slice(i, i + size));
   }
   return chunks;
 };
 
+const safeRender = (val) => {
+  if (!val) return '';
+  if (typeof val === 'object') return val.name || val.title || 'Item';
+  return String(val);
+};
+
 const ItineraryPDF = ({ data }) => {
   if (!data) return null;
-  const { destinationInfo, tripConfig, timeline, snapshots } = data;
+  const { destinationInfo, tripConfig, timeline } = data;
 
   const Footer = () => (
     <View style={styles.footer} fixed>
@@ -161,21 +166,17 @@ const ItineraryPDF = ({ data }) => {
     </View>
   );
 
-  const dayChunks = chunkArray(timeline || [], 2);
+  const dayChunks = [timeline || []]; // Single chunk for all days
 
   return (
     <Document>
-      {/* PAGE 1: COVER */}
       <Page size="A4" style={styles.coverPage}>
         <View style={styles.coverContent}>
           <View style={styles.brandLine}>
             <Text style={styles.journeyBy}>YOUR JOURNEY BY</Text>
             <Text style={styles.roamSquad}>ROAMG</Text>
           </View>
-          <Text style={styles.mainTitle} hyphenation={false}>
-            {destinationInfo?.destinationName || 'THE ADVENTURE'}
-          </Text>
-          
+          <Text style={styles.mainTitle}>{destinationInfo?.destinationName || 'THE ADVENTURE'}</Text>
           <View style={styles.statsRibbon}>
             <View style={styles.statCard}>
               <View style={styles.statHeader}><Icons.Calendar /><Text style={styles.statLabel}>Duration</Text></View>
@@ -201,75 +202,69 @@ const ItineraryPDF = ({ data }) => {
         <Footer />
       </Page>
 
-      {/* ITINERARY PAGES (2 DAYS PER PAGE) */}
       {dayChunks.map((chunk, chunkIdx) => (
         <Page key={chunkIdx} size="A4" style={styles.itineraryPage}>
           <Text style={styles.sectionHeader}>Itinerary Breakdown (Part {chunkIdx + 1})</Text>
-          {chunk.map((day, idx) => {
-             const actualDayIdx = chunkIdx * 2 + idx;
-             return (
-              <View key={idx} style={styles.dayContainer} wrap={false}>
-                <View style={styles.dayMarker}>
-                  <View style={styles.iconBox}><Icons.MapPin /></View>
-                  <Text style={styles.dayTitle}>DAY {String(actualDayIdx + 1).padStart(2, '0')}</Text>
-                </View>
-                <View style={styles.activityList}>
-                  {day.activities?.map((act, i) => (
-                    <View key={i} style={styles.activityRow}>
-                      <View style={styles.activityBullet} />
-                      <Text style={styles.activityText}>{act}</Text>
-                      <View style={styles.durationBadge}><Icons.Clock /><Text style={styles.badgeText}>2.5 HR</Text></View>
-                    </View>
-                  ))}
-                  {actualDayIdx === 0 && snapshots?.hotel && (
-                    <View style={styles.richCard}>
-                      <Icons.Hotel /><View><Text style={styles.cardTitle}>{snapshots.hotel.name || 'Premium Stay'}</Text><Text style={styles.cardSub}>Selected Luxury Accommodation</Text></View>
-                    </View>
-                  )}
-                  {snapshots?.food?.length > 0 && actualDayIdx % 2 === 0 && (
-                    <View style={[styles.richCard, { borderLeftColor: COLORS.primary }]}>
-                      <Icons.Food /><View><Text style={styles.cardTitle}>Local Dining: {snapshots.food[0] || 'Specials'}</Text><Text style={styles.cardSub}>Authentic Culinary Experience</Text></View>
-                    </View>
-                  )}
-                </View>
+          {chunk.map((day, idx) => (
+            <View key={idx} style={styles.dayContainer}>
+              <View style={styles.dayMarker}>
+                <Icons.MapPin />
+                <Text style={styles.dayTitle}>DAY {String(idx + 1).padStart(2, '0')}</Text>
               </View>
-             );
-          })}
+              <View style={styles.activityList}>
+                {day.activities?.map((act, i) => (
+                  <View key={i} style={styles.activityRow} wrap={false}>
+                    {act.image && <Image src={act.image} style={styles.activityImage} />}
+                    <View style={styles.activityContent}>
+                      <Text style={styles.itemCategory}>{act.category || 'EXPERIENCE'}</Text>
+                      <Text style={styles.itemTitle}>{safeRender(act)}</Text>
+                      <View style={styles.itemDetails}>
+                        <View style={styles.detailBadge}>
+                          <Icons.Clock /><Text style={styles.detailText}>{act.timing || '2.5 HR'}</Text>
+                        </View>
+                        {act.price > 0 && (
+                          <View style={styles.detailBadge}>
+                            <Icons.Rupee /><Text style={styles.detailText}>₹{Number(act.price).toLocaleString()}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
           <Footer />
         </Page>
       ))}
 
-      {/* FINAL PAGE: TERMS & FINANCIALS */}
       <Page size="A4" style={styles.termsPage}>
         <Text style={styles.sectionHeader}>Project Summary & Terms</Text>
-        
         <View style={styles.cardRow}>
           <View style={[styles.termCard, styles.inclusionCard]}>
             <Text style={[styles.termTitle, { color: COLORS.primary }]}>INCLUSIONS</Text>
             {['Stay: Comfort Stay', 'Curated Local Activities', '24/7 Dedicated Support', 'Local Dining Recommendations'].map((item, i) => (
               <View key={i} style={styles.termItem}>
-                <View style={[styles.termDot, { backgroundColor: COLORS.primary }]} />
+                <View style={styles.termDot} />
                 <Text style={styles.termText}>{item}</Text>
               </View>
             ))}
           </View>
-          
           <View style={[styles.termCard, styles.exclusionCard]}>
             <Text style={[styles.termTitle, { color: COLORS.primary }]}>EXCLUSIONS</Text>
             {['Inter-state Flights', 'Personal Expenses', 'Travel Insurance'].map((item, i) => (
               <View key={i} style={styles.termItem}>
-                <View style={[styles.termDot, { backgroundColor: COLORS.primary }]} />
+                <View style={styles.termDot} />
                 <Text style={styles.termText}>{item}</Text>
               </View>
             ))}
           </View>
         </View>
-
         <View style={styles.priceSummary}>
           <View>
             <Text style={styles.totalLabel}>ESTIMATED TRIP TOTAL</Text>
             <View style={styles.priceBigRow}>
-              <Svg width="24" height="24" viewBox="0 0 24 24"><Path d="M13.98 11.07c-2.07 0-3.39-2-3.39-2h3.39V6.36h-4s.22-3.65 3-3.65H15V0H6v2.71h2.24c-2.71 0-2.73 3.65-2.73 3.65h-2v2.71h2.27c.18 2.05 1.35 4.71 4.21 4.71V15c-3.12 0-3.54-2-3.54-2h-3c0 3.86 4.38 5 6.27 5h.27l1 6h3.45l-1.35-6.23V11.07z" fill="white" /></Svg>
+              <Icons.Rupee />
               <Text style={styles.priceBig}>{Number(tripConfig?.totalBudget || 0).toLocaleString()}</Text>
             </View>
           </View>
@@ -278,7 +273,6 @@ const ItineraryPDF = ({ data }) => {
             <Text style={{ color: '#888', fontSize: 11, marginTop: 5 }}>www.roamg.com</Text>
           </View>
         </View>
-
         <Footer />
       </Page>
     </Document>

@@ -9,6 +9,23 @@ import ItineraryPDF from '../components/itinerary/ItineraryPDF';
 const normalizeData = (raw) => {
     const itinerary = raw.itinerarySnapshot || raw.itinerary || {};
     
+    // Support both nested (legacy) and flat (new) structures
+    const tripConfig = raw.tripConfig || {
+        days: itinerary.days || raw.days || 0,
+        people: itinerary.people || raw.people || 1,
+        vibe: itinerary.vibe || raw.vibe || 'Discovery',
+        totalBudget: raw.totalBudget || 0
+    };
+
+    const timeline = raw.timeline || (itinerary.timeline || []).map(day => ({
+        day: day.day,
+        activities: (day.activities || []).map(a => ({
+            ...a,
+            name: String(a.name || (typeof a === 'string' ? a : 'Activity')),
+            image: a.image || a.imageUrl || a.image_url
+        }))
+    }));
+
     return {
         userInfo: {
             name: raw.name || raw.itinerary?.user?.name || 'Traveler',
@@ -20,22 +37,18 @@ const normalizeData = (raw) => {
             state: raw.state || '',
             district: raw.district || ''
         },
-        tripConfig: {
-            days: itinerary.days || raw.days || 0,
-            people: itinerary.people || raw.people || 1,
-            vibe: itinerary.vibe || raw.vibe || 'Discovery',
-            totalBudget: raw.totalBudget || 0
-        },
-        timeline: (itinerary.timeline || []).map(day => ({
-            day: day.day,
-            activities: (day.activities || []).map(a => `${a.name} (${a.destinationName || ''})`)
-        })),
+        tripConfig,
+        timeline,
         snapshots: {
             hotel: {
                 name: raw.hotelSnapshot?.name || raw.hotel || 'Comfort Stay',
-                description: raw.hotelSnapshot?.description || 'A curated selection from our premium network.'
+                description: raw.hotelSnapshot?.description || 'A curated selection from our premium network.',
+                image: raw.hotelSnapshot?.image || raw.hotelSnapshot?.imageUrl || raw.hotelSnapshot?.image_url
             },
-            food: raw.foodSnapshot?.items || (raw.foodSnapshot?.name ? [raw.foodSnapshot.name] : (typeof raw.food === 'string' ? [raw.food] : []))
+            food: (raw.foodSnapshot?.items || []).map(f => ({
+                name: String(f.name || (typeof f === 'string' ? f : 'Specials')),
+                image: f.image || f.imageUrl || f.image_url
+            }))
         }
     };
 };

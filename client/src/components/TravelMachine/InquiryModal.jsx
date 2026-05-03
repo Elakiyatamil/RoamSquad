@@ -5,13 +5,31 @@ import axios from 'axios';
 import { generatePDF } from '../../utils/pdfExport';
 import './InquiryModal.css';
 
-const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination, user }) => {
+const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination, user, itinerary, tripConfig }) => {
     const [phone, setPhone] = useState(user?.phone || '');
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [error, setError] = useState('');
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const BACKEND_URL = API_BASE.replace('/api', '');
+
+    const getImageUrl = (url, type) => {
+        if (!url) {
+            if (type === 'food') return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800';
+            if (type === 'stay') return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800';
+            return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800';
+        }
+        if (url.startsWith('http')) return url;
+        
+        // Handle specific upload paths
+        if (type === 'food' && !url.includes('/')) return `${BACKEND_URL}/uploads/food/${url}`;
+        if (type === 'stay' && !url.includes('/')) return `${BACKEND_URL}/uploads/stay/${url}`;
+        if (type === 'activity' && !url.includes('/')) return `${BACKEND_URL}/uploads/activities/${url}`;
+        
+        const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+        return `${BACKEND_URL}${cleanUrl}`;
+    };
 
     const handleSubmit = async () => {
         if (!phone || phone.length < 10) {
@@ -52,8 +70,28 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
 
     const handleDownloadPDF = async () => {
         const hotelItem = selectedItems.find(i => i.hotelNameInternal || i.tier);
-        const foodItems = selectedItems.filter(i => i.category === 'Food' || i.type === 'Food').map(i => i.name);
-        const activityNames = selectedItems.filter(i => !i.tier && !foodItems.includes(i.name)).map(i => i.name);
+        
+        const timelineData = itinerary ? itinerary.map((day, idx) => ({
+            day: idx + 1,
+            activities: day.dayItems.map(item => ({
+                name: item.name,
+                image: getImageUrl(item.imageUrl || item.image_url, item.mealType ? 'food' : 'activity'),
+                category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+                price: item.price || 0,
+                timing: item.timing || '2.5 HR'
+            }))
+        })) : [
+            { 
+                day: 1, 
+                activities: selectedItems.map(i => ({ 
+                    name: i.name, 
+                    image: getImageUrl(i.imageUrl || i.image_url, i.mealType ? 'food' : 'activity'),
+                    category: i.mealType ? 'FOOD' : (i.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+                    price: i.price || 0,
+                    timing: i.timing || '2.5 HR'
+                })) 
+            }
+        ];
 
         const pdfData = {
             name: user?.name || 'Guest User',
@@ -61,16 +99,24 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
             phone: phone,
             destinationName: destination?.name,
             totalBudget: totalPrice,
-            itinerary: {
-                days: 1,
-                people: 2, // Mock or get from props
-                vibe: 'Discovery',
-                timeline: [
-                    { day: 1, activities: activityNames.map(name => ({ name, destinationName: destination?.name })) }
-                ]
+            tripConfig: {
+                days: itinerary?.length || 1,
+                people: tripConfig?.people || 2,
+                vibe: tripConfig?.tripType || 'Discovery',
+                totalBudget: totalPrice
             },
-            hotelSnapshot: hotelItem ? { name: hotelItem.name || hotelItem.tier, description: 'Selected Luxury Accommodation' } : null,
-            foodSnapshot: { items: foodItems }
+            timeline: timelineData,
+            hotelSnapshot: hotelItem ? { 
+                name: hotelItem.name || hotelItem.tier, 
+                description: 'Selected Luxury Accommodation',
+                image: getImageUrl(hotelItem.imageUrl || hotelItem.image_url, 'stay')
+            } : null,
+            foodSnapshot: { 
+                items: selectedItems.filter(i => i.mealType).map(i => ({
+                    name: i.name,
+                    image: getImageUrl(i.imageUrl || i.image_url, 'food')
+                }))
+            }
         };
 
         await generatePDF(pdfData);
@@ -113,7 +159,7 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                 {/* Selected Summary Card */}
                                 <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 bg-[#2D5A5A]/10 rounded-xl flex items-center justify-center text-[#2D5A5A]">
+                                        <div className="w-10 h-10 bg-[#8B0000]/10 rounded-xl flex items-center justify-center text-[#8B0000]">
                                             <ShoppingBag size={20} />
                                         </div>
                                         <h3 className="font-bold text-slate-800">Trip Summary</h3>
@@ -128,7 +174,7 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                     </div>
                                     <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
                                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Price</span>
-                                        <span className="text-xl font-black text-[#2D5A5A]">₹{totalPrice.toLocaleString()}</span>
+                                        <span className="text-xl font-black text-[#8B0000]">₹{totalPrice.toLocaleString()}</span>
                                     </div>
                                 </div>
 
@@ -140,7 +186,7 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                         <input 
                                             type="tel" 
                                             placeholder="Enter your phone number" 
-                                            className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-transparent focus:border-[#2D5A5A] rounded-2xl outline-none font-bold transition-all"
+                                            className="w-full pl-14 pr-6 py-4 bg-slate-50 border-2 border-transparent focus:border-[#8B0000] rounded-2xl outline-none font-bold transition-all"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
                                         />
@@ -154,7 +200,7 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                 <button 
                                     onClick={handleSubmit}
                                     disabled={loading}
-                                    className="w-full bg-[#2D5A5A] text-white py-5 rounded-2xl font-black shadow-xl shadow-[#2D5A5A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                                    className="w-full bg-[#8B0000] text-white py-5 rounded-2xl font-black shadow-xl shadow-[#8B0000]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={20} /> : 'Submit Request'}
                                     {!loading && <ArrowRight size={20} />}
@@ -167,7 +213,7 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex flex-col items-center py-10 text-center"
                             >
-                                <div className="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-6">
+                                <div className="w-24 h-24 bg-[#800020]/10 text-[#800020] rounded-full flex items-center justify-center mb-6">
                                     <CheckCircle size={48} />
                                 </div>
                                 <h3 className="text-2xl font-black text-slate-900 mb-2">Request Received!</h3>
