@@ -37,8 +37,8 @@ const SocialProofSection = () => {
     useEffect(() => {
         const fetchSquad = async () => {
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
-                const response = await fetch(`${apiUrl}/squad-love`);
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const response = await fetch(`${apiUrl}/api/squad-love`);
                 if (!response.ok) throw new Error('API Error');
                 const result = await response.json();
                 

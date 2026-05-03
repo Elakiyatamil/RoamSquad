@@ -102,6 +102,16 @@
   gap: 15px;
   color: #fff;
 }
+.destination-title-hud h1 {
+  text-shadow: 0 0 30px rgba(255,255,255,0.3);
+}
+
+.glass-pill {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+}
 
 .hud-mini-map-wrap {
   position: relative;
@@ -143,12 +153,19 @@
   margin-bottom: 80px;
 }
 
+.section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
 .section-label-premium {
   font-family: var(--playfair);
   font-size: 32px;
   font-weight: 900;
   color: var(--dark-slate);
-  margin-bottom: 30px;
+  margin-bottom: 0;
   display: block;
   letter-spacing: -0.5px;
 }

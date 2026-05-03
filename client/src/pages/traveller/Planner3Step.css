@@ -1,253 +1,464 @@
-/* 
-   RESTORED ORIGINAL 3-STEP PLANNER STYLES
-*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&family=Montserrat:wght@800;900&display=swap');
 
-.planner-step-content {
-  padding: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: 70vh;
+:root {
+  --premium-black: #1A1A1A;
+  --premium-white: #FFFFFF;
+  --brand-green: #00D084;
+  --brand-emerald: #10b981;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.2);
 }
 
-.center-content {
+.planner-3step-layout {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+  /* Dark base for video contrast */
+}
+
+.planner-main-scrollable {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  position: relative;
+  z-index: 10;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.planner-main-scrollable::-webkit-scrollbar {
+  display: none;
+}
+
+.planner-3step-layout.lock-scroll .planner-main-scrollable {
+  overflow-y: hidden;
+}
+
+.planner-3step-layout.allow-scroll .planner-main-scrollable {
+  overflow-y: auto;
+}
+
+.planner-section {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  /* Default relative */
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.planner-section.sticky-stack {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  pointer-events: none;
+  /* Crucial: Let clicks/scrolls pass through to sections below */
+}
+
+.planner-section.sticky-stack>* {
+  pointer-events: auto;
+  /* Re-enable for the cards and interactive content */
+}
+
+/* SECTION 1: HERO */
+.section-header-text {
+  text-align: center;
+  margin-bottom: 20px;
+  z-index: 20;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glitch-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -2px;
+  margin: 0;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* PERSISTENT HEADER FIXED (CANVA STYLE) */
+.persistent-header-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: black;
+  display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  z-index: 100;
 }
 
-.step-title {
-  font-size: 32px;
+.card-sub-header {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
   font-weight: 800;
-  margin-bottom: 40px;
-  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #999;
+  margin-bottom: 20px;
 }
 
-/* Step 1: Destination Selection */
-.planner-search-wrap {
-  margin-bottom: 40px;
+/* GUEST ROWS (Step 3) */
+.guest-row-premium {
+  background: white;
+  border-radius: 16px;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  margin-bottom: 10px;
 }
 
-.planner-search-box {
-  background: #f1f5f9;
-  border-radius: 20px;
-  padding: 15px 25px;
+.controls-flex {
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+.controls-flex button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* PILL SCROLL ROW */
+.pill-scroll-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* BG OVERLAY */
+.planner-bg-video-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.planner-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+}
+
+.destination-carousel {
+  display: flex;
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.planner-search-box input {
-  background: none;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-  outline: none;
-  width: 100%;
-}
-
-.destination-grid-wrap {
-  margin-top: 40px;
-}
-
-.destination-arched-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Smooth inertia scroll for iOS */
+  scroll-snap-type: x mandatory;
+  padding: 60px 20vw;
   gap: 30px;
+  align-items: center;
+  z-index: 30;
+  position: relative;
+  pointer-events: auto;
+  scrollbar-width: none;
+  will-change: transform;
+  /* Hint for browser optimization */
 }
 
-.dest-card {
-  position: relative;
-  height: 350px;
-  border-radius: 30px;
+.destination-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.destination-card {
+  flex: 0 0 240px;
+  /* Slightly larger for easier clicking */
+  height: 340px;
+  scroll-snap-align: center;
+  border-radius: 24px;
   overflow: hidden;
-  cursor: pointer;
-  transition: all 0.4s;
-}
-
-.dest-card:hover {
-  transform: translateY(-10px);
-}
-
-.dest-card.active {
-  border: 4px solid var(--emerald-green);
-}
-
-.dest-image-wrap {
-  width: 100%;
-  height: 100%;
   position: relative;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 2px solid transparent;
 }
 
-.dest-image-wrap img {
+.destination-card.active {
+  transform: scale(1.15);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+  border-color: var(--brand-green);
+}
+
+.destination-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 1.2s ease;
 }
 
-.dest-overlay {
+.destination-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  color: white;
 }
 
-.dest-info {
-  position: absolute;
-  bottom: 25px;
-  left: 25px;
-  color: #fff;
+.destination-card-overlay h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  margin: 0;
+  line-height: 1.1;
 }
 
-.dest-info h3 {
-  font-size: 24px;
-  font-weight: 800;
+.destination-card-overlay p {
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.6rem;
+  opacity: 0.7;
   margin-bottom: 4px;
 }
 
-.dest-info p {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* Step 2: Companion Selection */
-.companion-fallback-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-  width: 100%;
-  max-width: 800px;
-}
-
-.companion-btn {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  padding: 30px;
-  border-radius: 25px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.companion-btn:hover {
-  background: #f1f5f9;
-  border-color: var(--emerald-green);
-  color: var(--emerald-green);
-}
-
-/* Step 3: Dates & Duration */
-.input-group {
+/* PREMIUM DARK CARD OVERLAYS (Canva Style) */
+.sequence-card {
+  background: rgba(0, 0, 0, 0.85); /* Match Hero black aesthetic */
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px 40px 0 0;
+  padding: 60px 5vw;
+  width: 100vw; /* Expanded left and right side */
+  max-width: 100vw;
+  height: 90vh; 
+  box-shadow: 0 -30px 100px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  text-align: left;
+  align-items: center; /* Center content */
+  justify-content: flex-start;
+  color: white; /* White text for dark mode */
 }
 
-.input-group label {
-  font-weight: 800;
-  font-size: 14px;
-  text-transform: uppercase;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.input-group input[type="date"] {
-  width: 100%;
-  padding: 15px 25px;
-  border-radius: 20px;
-  border: 2px solid #e2e8f0;
-  font-size: 18px;
-  font-weight: 700;
-  outline: none;
-  background: #f8fafc;
-}
-.duration-dates-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.number-picker {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f1f5f9;
-  padding: 15px 25px;
-  border-radius: 20px;
-}
-
-.number-picker button {
-  background: #fff;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 20px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.number-picker span {
-  font-size: 24px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.find-escape-btn {
-  background: var(--emerald-green);
-  color: #fff;
-  padding: 20px;
-  border-radius: 25px;
-  font-size: 18px;
+/* TEXT CONTRAST FOR DARK CARDS */
+.card-sub-header {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
   font-weight: 900;
-  border: none;
-  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--brand-green); /* Use brand green for subheader */
+  margin-bottom: 30px;
+}
+
+.days-display {
+  font-family: 'Playfair Display', serif;
+  font-size: 150px; /* Even bigger */
+  line-height: 0.8;
+  font-weight: 900;
+  color: white;
+  margin: 30px 0;
+}
+
+/* GUEST ROWS (Dark Mode) */
+.guest-row-premium {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.controls-flex button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
 }
 
-/* RESULTS PAGE WRAPPER */
-.results-page-layout {
-  min-height: 100vh;
-  background: #fff;
+/* CENTERED HOLD BUTTON (Step 3) */
+.hold-to-go-wrap {
+  margin: auto 0; /* Center vertically in the remaining space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-.results-hero {
-  height: 70vh;
+.hold-button-container {
   position: relative;
-  overflow: hidden;
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
 }
 
-.video-stack {
+.hold-inner-btn-white {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: #00D084; /* Vibrant Green */
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(0, 208, 132, 0.4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hero-video {
+.hold-svg-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg);
+  z-index: 1;
+}
+
+.hold-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+}
+
+.hold-circle-progress {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.hold-label-white {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: white;
+}
+
+/* THE GOLDEN WINDOW (Timeline Card) */
+.timeline-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: blur(40px) brightness(0.4);
+  opacity: 0.5;
+  z-index: -1;
+  border-radius: 40px 40px 0 0;
 }
 
-/* 
-   ITINERARY BUILDER PARENT (Legacy compatibility)
-*/
-.itinerary-builder-parent {
-  font-family: 'Inter', sans-serif;
+/* PREMIUM STEPPER (Dark Mode) */
+.stepper-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.2s;
+}
+
+.stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--brand-green);
+}
+
+/* PILL BUTTONS (Dark Mode) */
+.pill-btn-outline {
+  flex: 0 0 auto;
+  padding: 14px 28px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.pill-btn-outline.active {
+  border-color: var(--pill-color);
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(var(--pill-color-rgb), 0.2);
+}
+
+/* HISTOGRAM LIGHTING (Step 3) */
+.histogram-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.h-bar {
+  flex: 1;
+  margin: 0 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s;
+}
+
+.h-bar.active {
+  background: var(--brand-green);
+  box-shadow: 0 0 15px rgba(0, 208, 132, 0.5);
+}
+
+/* ANIMATIONS */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pop-animation {
+  animation: pop 0.3s ease-out;
 }

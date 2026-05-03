@@ -13,8 +13,8 @@ const EventsSlider = () => {
     const fetchEvents = async () => {
       try {
         setIsLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
-        const response = await fetch(`${apiUrl}/events`);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/events/public`);
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
