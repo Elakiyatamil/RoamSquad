@@ -1,42 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, ArrowLeft, Calendar, Users, MapPin, Clock } from 'lucide-react';
+import { Search, ArrowRight, ArrowLeft, Calendar, Users, MapPin, Clock, Zap, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { globalSignals, useGlobalSignal } from '../../utils/signals';
 import './Planner3Step.css';
 
+// New Travel Machine Components
+import MapHUD from '../../components/TravelMachine/MapHUD';
+import ResultsGrid from '../../components/TravelMachine/ResultsGrid';
+import TrustLayer from '../../components/TravelMachine/TrustLayer';
+import NicheCustomization from '../../components/TravelMachine/NicheCustomization';
+import ItineraryBuilder from '../../components/TravelMachine/ItineraryBuilder';
+import PersonaSwitcher from '../../components/TravelMachine/PersonaSwitcher';
+import FloatingTripBuilder from '../../components/TravelMachine/FloatingTripBuilder';
+
 const DESTINATIONS = [
-  { id: 'bali', name: 'Bali', country: 'Indonesia', video: '/drone_shots.mp4', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80' },
-  { id: 'vietnam', name: 'Vietnam', country: 'Southeast Asia', video: '/drone_shots.mp4', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80' },
-  { id: 'thailand', name: 'Thailand', country: 'Southeast Asia', video: '/drone_shots.mp4', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80' },
-  { id: 'maldives', name: 'Maldives', country: 'Indian Ocean', video: '/drone_shots.mp4', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80' },
-  { id: 'japan', name: 'Japan', country: 'East Asia', video: '/drone_shots.mp4', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80' },
+  { id: 'bali', name: 'Bali', country: 'Indonesia', video: '/droneshot.mp4', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80' },
+  { id: 'vietnam', name: 'Vietnam', country: 'Southeast Asia', video: '/waterfall.mp4', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80' },
+  { id: 'thailand', name: 'Thailand', country: 'Southeast Asia', video: '/sea.mp4', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80' },
+  { id: 'maldives', name: 'Maldives', country: 'Indian Ocean', video: '/fall.mp4', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80' },
+  { id: 'japan', name: 'Japan', country: 'East Asia', video: '/droneshot.mp4', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80' },
 ];
 
 const PlannerPage = () => {
   const navigate = useNavigate();
   const currentStep = useGlobalSignal(() => globalSignals.currentPlannerStep());
   const companionChoice = useGlobalSignal(() => globalSignals.getCompanionChoice());
+  
+  const [lifecycleStage, setLifecycleStage] = useState('PLANNING'); // PLANNING or RESULTS
+  const [activePersona, setActivePersona] = useState('COUPLE');
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [hoveredDestination, setHoveredDestination] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [duration, setDuration] = useState(7);
+  const [duration, setDuration] = useState(5);
   const [startDate, setStartDate] = useState('');
   
-  const videoRef = useRef(null);
+  const [activeLocation, setActiveLocation] = useState({ id: 'bali', name: 'Bali', video: 'https://v1.peaceful-travel.com/bali_drone.mp4' });
+  const [nextVideo, setNextVideo] = useState(null);
+  const [isFading, setIsFading] = useState(false);
 
-  // Sync video with hover/selection
+  const videoRef = useRef(null);
+  const nextVideoRef = useRef(null);
+
+  // Sync video with hover/selection in planning stage
   useEffect(() => {
-    if (videoRef.current) {
+    if (lifecycleStage === 'PLANNING' && videoRef.current) {
       videoRef.current.load();
       videoRef.current.play().catch(() => {});
     }
-  }, [hoveredDestination, selectedDestination]);
+  }, [hoveredDestination, selectedDestination, lifecycleStage]);
+
+  const handleLocationSelect = (loc) => {
+    if (loc.id === activeLocation.id || isFading) return;
+    
+    setNextVideo(loc.video);
+    setIsFading(true);
+    
+    setTimeout(() => {
+      setActiveLocation(loc);
+      setNextVideo(null);
+      setIsFading(false);
+    }, 1000); // Cross-fade duration
+  };
 
   const handleNext = () => {
     if (currentStep === 1) {
       if (companionChoice) {
-        globalSignals.setCurrentPlannerStep(3); // Skip Step 2
+        globalSignals.setCurrentPlannerStep(3);
       } else {
         globalSignals.setCurrentPlannerStep(2);
       }
@@ -53,7 +83,12 @@ const PlannerPage = () => {
     }
   };
 
-  const renderStep = () => {
+  const startTravelMachine = () => {
+    setLifecycleStage('RESULTS');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPlanningStep = () => {
     switch (currentStep) {
       case 1:
         return (
@@ -106,7 +141,6 @@ const PlannerPage = () => {
         return (
           <div className="planner-step-content center-content">
             <h2 className="step-title">Who are you traveling with?</h2>
-            {/* Simple fallback dial or grid */}
             <div className="companion-fallback-grid">
               {['Couple', 'Solo', 'Family', 'Friends', 'Strangers'].map((type) => (
                 <button 
@@ -146,13 +180,10 @@ const PlannerPage = () => {
               </div>
               
               <button 
-                className="generate-btn"
-                onClick={() => {
-                  // Final Action: Lead to itinerary
-                  navigate('/my-journeys');
-                }}
+                className="find-escape-btn"
+                onClick={startTravelMachine}
               >
-                Generate My Journey <ArrowRight size={20} />
+                Find My Escape <Zap size={20} fill="currentColor" />
               </button>
             </div>
           </div>
@@ -162,11 +193,20 @@ const PlannerPage = () => {
     }
   };
 
-  const activeVideo = hoveredDestination?.video || selectedDestination?.video || '/drone_shots.mp4';
+  if (lifecycleStage === 'RESULTS') {
+    return (
+      <ItineraryBuilder 
+        destination={selectedDestination} 
+        duration={duration} 
+        startDate={startDate} 
+      />
+    );
+  }
+
+  const activeVideo = hoveredDestination?.video || selectedDestination?.video || 'https://v1.peaceful-travel.com/bali_drone.mp4';
 
   return (
     <div className="planner-3step-layout">
-      {/* BACKGROUND VIDEO */}
       <div className="planner-bg-video-wrap">
         <video
           key={activeVideo}
@@ -179,14 +219,12 @@ const PlannerPage = () => {
         <div className="planner-bg-overlay" />
       </div>
 
-      {/* PROGRESS INDICATOR */}
       <div className="planner-progress-bar">
         {[1, 2, 3].map((s) => (
           <div key={s} className={`progress-dot ${currentStep >= s ? 'active' : ''}`} />
         ))}
       </div>
 
-      {/* HEADER CONTROLS */}
       <div className="planner-header">
         {currentStep > 1 && (
           <button className="back-btn" onClick={handleBack}>
@@ -196,7 +234,6 @@ const PlannerPage = () => {
         <div className="step-indicator">Step {currentStep} of 3</div>
       </div>
 
-      {/* MAIN CONTENT WITH SLIDE TRANSITION */}
       <div className="planner-main">
         <AnimatePresence mode="wait">
           <motion.div
@@ -207,7 +244,7 @@ const PlannerPage = () => {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="planner-step-container"
           >
-            {renderStep()}
+            {renderPlanningStep()}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -34,6 +34,7 @@ const FoodForm = ({ food, destinationId, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Food name is required.'); return; }
+        if (!destinationId) { alert('Please select a destination first.'); return; }
         mutation.mutate({ ...form, price: parseFloat(form.price) || 0 });
     };
 
@@ -188,7 +189,12 @@ const FoodOptionsManager = () => {
                     <h1 className="text-5xl font-display font-bold text-ink mb-2">Food Palette</h1>
                     <p className="text-ink/60 font-medium">Curate authentic culinary experiences per destination.</p>
                 </div>
-                <button onClick={() => openAdd('BREAKFAST')} className="btn-primary flex items-center gap-2">
+                <button
+                    onClick={() => openAdd('BREAKFAST')}
+                    disabled={!selectedDestId}
+                    title={!selectedDestId ? 'Select a destination first' : ''}
+                    className="btn-primary flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                     <Plus size={20} /> Add Food Option
                 </button>
             </div>
@@ -221,8 +227,8 @@ const FoodOptionsManager = () => {
 
             {!selectedDestId ? (
                 <div className="py-24 text-center text-ink/30">
-                    <p className="font-bold text-lg">No destinations yet</p>
-                    <p className="text-sm mt-1">Create a destination first to add food options.</p>
+                    <p className="font-bold text-lg">Select a destination above</p>
+                    <p className="text-sm mt-1">Choose Country → State → Destination to manage its food options.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

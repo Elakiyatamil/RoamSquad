@@ -272,7 +272,12 @@ const ActivitiesManager = () => {
                     <h1 className="text-5xl font-display font-bold text-ink mb-2">Activities</h1>
                     <p className="text-ink/60 font-medium">Manage thrills, culture, and nature experiences.</p>
                 </div>
-                <button onClick={openAdd} className="btn-primary flex items-center gap-2">
+                <button
+                    onClick={openAdd}
+                    disabled={!selectedDestId}
+                    title={!selectedDestId ? 'Select a destination first' : ''}
+                    className="btn-primary flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                     <Plus size={20} /> Add Activity
                 </button>
             </div>
@@ -310,8 +315,8 @@ const ActivitiesManager = () => {
 
             {!selectedDestId ? (
                 <div className="py-24 text-center text-ink/30">
-                    <p className="font-bold text-lg">No destinations yet</p>
-                    <p className="text-sm mt-1">Create a destination first, then add activities to it.</p>
+                    <p className="font-bold text-lg">Select a destination above</p>
+                    <p className="text-sm mt-1">Choose Country → State → Destination to manage its activities.</p>
                 </div>
             ) : isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

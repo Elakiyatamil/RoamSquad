@@ -1,194 +1,81 @@
-.planner-3step-layout {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  background: #000;
-  color: #fff;
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
-}
-
-/* BACKGROUND VIDEO */
-.planner-bg-video-wrap {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.planner-bg-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.planner-bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-  z-index: 2;
-}
-
-/* PROGRESS BAR */
-.planner-progress-bar {
-  position: absolute;
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
-  z-index: 100;
-}
-
-.progress-dot {
-  width: 32px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
-
-.progress-dot.active {
-  background: var(--brand-burgundy, #800020);
-  box-shadow: 0 0 10px var(--brand-burgundy, #800020);
-}
-
-/* HEADER */
-.planner-header {
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 100%;
-  padding: 0 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 100;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.back-btn:hover { opacity: 1; }
-
-.step-indicator {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-weight: 600;
-  opacity: 0.8;
-}
-
-/* MAIN CONTENT */
-.planner-main {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.planner-step-container {
-  width: 100%;
-  max-width: 1200px;
-  padding: 0 40px;
-}
+/* 
+   RESTORED ORIGINAL 3-STEP PLANNER STYLES
+*/
 
 .planner-step-content {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 70vh;
 }
 
 .center-content {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 .step-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: 32px;
   font-weight: 800;
   margin-bottom: 40px;
-  letter-spacing: -1px;
+  color: #0f172a;
 }
 
-/* STEP 1: DESTINATION */
+/* Step 1: Destination Selection */
 .planner-search-wrap {
-  width: 100%;
-  max-width: 700px;
-  margin: 0 auto 60px;
+  margin-bottom: 40px;
 }
 
 .planner-search-box {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 40px;
-  height: 72px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  padding: 15px 25px;
   display: flex;
   align-items: center;
-  padding: 0 30px;
-  gap: 20px;
-  transition: all 0.3s ease;
-}
-
-.planner-search-box:focus-within {
-  border-color: var(--brand-burgundy, #800020);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 30px rgba(128, 0, 32, 0.3);
+  gap: 15px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .planner-search-box input {
   background: none;
   border: none;
-  flex: 1;
-  color: #fff;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
   outline: none;
-}
-
-.planner-search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  width: 100%;
 }
 
 .destination-grid-wrap {
-  width: 100%;
-  overflow: visible;
+  margin-top: 40px;
 }
 
 .destination-arched-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 30px;
-  justify-content: center;
-  perspective: 1000px;
 }
 
 .dest-card {
-  flex: 0 0 280px;
-  height: 400px;
-  cursor: pointer;
-  border-radius: 140px 140px 20px 20px; /* Arched style */
-  overflow: hidden;
   position: relative;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 350px;
+  border-radius: 30px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s;
 }
 
 .dest-card:hover {
-  transform: translateY(-20px) scale(1.05);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  transform: translateY(-10px);
 }
 
 .dest-card.active {
-  border: 3px solid var(--brand-burgundy, #800020);
-  box-shadow: 0 0 30px rgba(128, 0, 32, 0.5);
+  border: 4px solid var(--emerald-green);
 }
 
 .dest-image-wrap {
@@ -201,26 +88,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s;
-}
-
-.dest-card:hover .dest-image-wrap img {
-  transform: scale(1.1);
 }
 
 .dest-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
 }
 
 .dest-info {
   position: absolute;
-  bottom: 30px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  padding: 0 20px;
+  bottom: 25px;
+  left: 25px;
+  color: #fff;
 }
 
 .dest-info h3 {
@@ -231,138 +111,143 @@
 
 .dest-info p {
   font-size: 14px;
-  opacity: 0.7;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  opacity: 0.8;
 }
 
-/* STEP 2: TRAVELERS */
+/* Step 2: Companion Selection */
 .companion-fallback-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  max-width: 800px;
 }
 
 .companion-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  padding: 20px 40px;
-  border-radius: 40px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  padding: 30px;
+  border-radius: 25px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #0f172a;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .companion-btn:hover {
-  background: var(--brand-burgundy, #800020);
-  border-color: var(--brand-burgundy, #800020);
-  transform: translateY(-5px);
+  background: #f1f5f9;
+  border-color: var(--emerald-green);
+  color: var(--emerald-green);
 }
 
-/* STEP 3: DURATION */
-.duration-dates-wrap {
-  width: 100%;
-  max-width: 500px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  padding: 40px;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
+/* Step 3: Dates & Duration */
 .input-group {
-  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   text-align: left;
 }
 
 .input-group label {
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 15px;
-  opacity: 0.6;
+}
+
+.input-group input[type="date"] {
+  width: 100%;
+  padding: 15px 25px;
+  border-radius: 20px;
+  border: 2px solid #e2e8f0;
+  font-size: 18px;
+  font-weight: 700;
+  outline: none;
+  background: #f8fafc;
+}
+.duration-dates-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .number-picker {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+  background: #f1f5f9;
+  padding: 15px 25px;
+  border-radius: 20px;
 }
 
 .number-picker button {
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-size: 24px;
+  background: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.number-picker button:hover {
-  background: var(--brand-burgundy, #800020);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .number-picker span {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 800;
-  min-width: 40px;
-  text-align: center;
+  color: #0f172a;
 }
 
-.input-group input[type="date"] {
-  width: 100%;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 0 20px;
+.find-escape-btn {
+  background: var(--emerald-green);
   color: #fff;
+  padding: 20px;
+  border-radius: 25px;
   font-size: 18px;
-  outline: none;
-}
-
-.generate-btn {
-  width: 100%;
-  height: 64px;
-  background: var(--brand-burgundy, #800020);
-  color: #fff;
+  font-weight: 900;
   border: none;
-  border-radius: 32px;
-  font-size: 18px;
-  font-weight: 700;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
+  gap: 15px;
   margin-top: 20px;
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
 }
 
-.generate-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(128, 0, 32, 0.4);
+/* RESULTS PAGE WRAPPER */
+.results-page-layout {
+  min-height: 100vh;
+  background: #fff;
 }
 
-/* MOBILE ADAPTATION */
-@media (max-width: 768px) {
-  .planner-header { padding: 0 20px; }
-  .destination-arched-grid {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding-bottom: 20px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .dest-card { flex: 0 0 240px; }
-  .duration-dates-wrap { padding: 30px 20px; }
+.results-hero {
+  height: 70vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-stack {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 
+   ITINERARY BUILDER PARENT (Legacy compatibility)
+*/
+.itinerary-builder-parent {
+  font-family: 'Inter', sans-serif;
 }

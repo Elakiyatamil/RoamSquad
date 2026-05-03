@@ -28,15 +28,16 @@ const createActivity = async (req, res) => {
 
         const activity = await prisma.activity.create({
             data: {
-                name,
-                duration,
+                name: name || '',
+                duration: duration || '',
                 price: Number(price) || 0,
-                description: description || "",
+                description: description || '',
                 destinationId,
                 isActive: req.body.isActive !== undefined ? req.body.isActive : true,
                 isFeatured: req.body.isFeatured || false,
-                imageUrl: req.body.imageUrl || (req.body.images && req.body.images[0]) || "",
-                icon: req.body.icon || '📍',
+                images: Array.isArray(req.body.images) ? req.body.images : [],
+                imageUrl: req.body.imageUrl || (Array.isArray(req.body.images) && req.body.images[0]) || '',
+                icon: req.body.icon || '\uD83D\uDCCD',
                 sortOrder: req.body.sortOrder || 0
             }
         });
@@ -51,9 +52,22 @@ const createActivity = async (req, res) => {
 
 const updateActivity = async (req, res) => {
     try {
+        const { name, duration, price, description, icon, isActive, isFeatured, imageUrl, images, sortOrder } = req.body;
+        const data = {};
+        if (name !== undefined) data.name = name;
+        if (duration !== undefined) data.duration = duration;
+        if (price !== undefined) data.price = Number(price);
+        if (description !== undefined) data.description = description;
+        if (icon !== undefined) data.icon = icon;
+        if (isActive !== undefined) data.isActive = isActive;
+        if (isFeatured !== undefined) data.isFeatured = isFeatured;
+        if (imageUrl !== undefined) data.imageUrl = imageUrl;
+        if (images !== undefined) data.images = Array.isArray(images) ? images : [];
+        if (sortOrder !== undefined) data.sortOrder = Number(sortOrder);
+
         const activity = await prisma.activity.update({
             where: { id: req.params.id },
-            data: req.body
+            data
         });
         await logAction(req.user, 'UPDATE', 'Activity', activity.id, activity.name);
         res.status(200).json({ success: true, data: activity });
@@ -121,17 +135,17 @@ const createFoodOption = async (req, res) => {
 
         const food = await prisma.foodOption.create({
             data: {
-                name,
+                name: name || '',
                 type: type || req.body.mealType || 'RESTAURANT',
                 price: Number(price) || 0,
-                description: description || req.body.description || "",
+                description: description || req.body.description || '',
                 destinationId,
                 mealType: req.body.mealType || type || 'LUNCH',
-                dietaryTags: req.body.dietaryTags || [],
+                dietaryTags: Array.isArray(req.body.dietaryTags) ? req.body.dietaryTags : [],
                 isActive: req.body.isActive !== undefined ? req.body.isActive : true,
                 isFeatured: req.body.isFeatured || false,
-                imageUrl: req.body.imageUrl || "",
-                icon: req.body.icon || req.body.emoji || '🍴',
+                imageUrl: req.body.imageUrl || '',
+                icon: req.body.icon || req.body.emoji || '\uD83C\uDF74',
                 sortOrder: req.body.sortOrder || 0
             }
         });
@@ -146,9 +160,24 @@ const createFoodOption = async (req, res) => {
 
 const updateFoodOption = async (req, res) => {
     try {
+        const { name, type, price, description, mealType, dietaryTags, icon, emoji, isActive, isFeatured, imageUrl, sortOrder } = req.body;
+        const data = {};
+        if (name !== undefined) data.name = name;
+        if (type !== undefined) data.type = type;
+        if (price !== undefined) data.price = Number(price);
+        if (description !== undefined) data.description = description;
+        if (mealType !== undefined) data.mealType = mealType;
+        if (dietaryTags !== undefined) data.dietaryTags = Array.isArray(dietaryTags) ? dietaryTags : [];
+        if (icon !== undefined) data.icon = icon;
+        if (emoji !== undefined) data.icon = emoji; // support both
+        if (isActive !== undefined) data.isActive = isActive;
+        if (isFeatured !== undefined) data.isFeatured = isFeatured;
+        if (imageUrl !== undefined) data.imageUrl = imageUrl;
+        if (sortOrder !== undefined) data.sortOrder = Number(sortOrder);
+
         const food = await prisma.foodOption.update({
             where: { id: req.params.id },
-            data: req.body
+            data
         });
         await logAction(req.user, 'UPDATE', 'FoodOption', food.id, food.name);
         res.status(200).json({ success: true, data: food });
