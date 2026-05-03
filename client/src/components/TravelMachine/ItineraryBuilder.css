@@ -99,8 +99,25 @@
 
 .hud-controls-icons {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   color: #fff;
+  align-items: center;
+}
+
+.icon-btn-plain {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.icon-btn-plain:hover {
+  transform: scale(1.1);
+  color: var(--action-green);
 }
 .destination-title-hud h1 {
   text-shadow: 0 0 30px rgba(255,255,255,0.3);
@@ -349,11 +366,12 @@
 .dock-expanded {
   background: var(--dark-slate);
   border-radius: 40px;
-  padding: 12px 12px 12px 35px;
+  padding: 12px 25px 12px 35px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .dock-left-content { display: flex; align-items: center; gap: 20px; }
@@ -388,12 +406,16 @@
 }
 
 .btn-util {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.1);
   color: #fff;
-  padding: 15px 25px;
+  padding: 16px 25px;
   border-radius: 25px;
   font-weight: 900;
-  margin-right: 10px;
+  transition: all 0.3s;
+}
+
+.btn-util:hover {
+  background: rgba(255,255,255,0.2);
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

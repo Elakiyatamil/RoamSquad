@@ -11,6 +11,16 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api'
 const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showLogin, setShowLogin] = useState(false);
+  const [currentVideoIdx, setCurrentVideoIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const videoSources = [
+    '/drone_shots.mp4',
+    '/fall.mp4',
+    '/drone_shots.mp4',
+    '/sea.mp4'
+  ];
 
   // 1. Fetch Full Destination Details (including activities/food) from PUBLIC endpoint
   const { data: fullDest, isLoading: destLoading } = useQuery({
@@ -38,6 +48,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
 
   const activities = fullDest?.activities || [];
   const foodOptions = fullDest?.foodOptions || [];
+  const accommodations = fullDest?.accommodations || [];
 
   if (destLoading) {
     return (
@@ -60,9 +71,37 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
       {/* 1. CINEMATIC STATIC HUD */}
       <header className="itinerary-header-static">
         <div className="static-video-wrap">
-          <video autoPlay muted loop playsInline>
-            <source src="/droneshot.mp4" type="video/mp4" />
+          <video 
+            key={videoSources[currentVideoIdx % videoSources.length]}
+            autoPlay 
+            muted={isMuted} 
+            loop 
+            playsInline
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            ref={(el) => {
+              if (el) {
+                if (isPlaying) el.play().catch(() => {});
+                else el.pause();
+              }
+            }}
+          >
+            <source src={videoSources[currentVideoIdx % videoSources.length]} type="video/mp4" />
           </video>
+          {/* Mild background audio loop */}
+          <audio 
+            src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
+            autoPlay 
+            loop 
+            muted={isMuted}
+            ref={(el) => {
+              if (el) {
+                el.volume = 0.2;
+                if (isPlaying) el.play().catch(() => {});
+                else el.pause();
+              }
+            }}
+          />
         </div>
         <div className="header-overlay" />
 
@@ -76,27 +115,50 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
 
         <div className="video-hud-footer">
           <div className="hud-footer-left">
-            <div className="glass-pill p-3 flex items-center gap-4">
-              <div className="flex flex-col">
-                <span className="text-[10px] text-white/50 uppercase">Timeline</span>
-                <span className="text-sm text-white font-bold">{duration} Nights</span>
+            <div className="site-nav-list no-scrollbar">
+              {/* Destination Item */}
+              <div 
+                className={`site-nav-item ${currentVideoIdx === 0 ? 'active' : ''}`}
+                onClick={() => setCurrentVideoIdx(0)}
+              >
+                <MapPin size={14} className="nav-pin" />
+                {fullDest?.name}
               </div>
-              <div className="w-px h-6 bg-white/10" />
-              <div className="flex flex-col">
-                <span className="text-[10px] text-white/50 uppercase">Vibe</span>
-                <span className="text-sm text-white font-bold">{tripConfig?.tripType || 'ADVENTURE'}</span>
-              </div>
+              
+              {/* Activity Items */}
+              {activities.map((act, idx) => (
+                <div 
+                  key={act.id} 
+                  className={`site-nav-item ${currentVideoIdx === idx + 1 ? 'active' : ''}`}
+                  onClick={() => setCurrentVideoIdx(idx + 1)}
+                >
+                  <MapPin size={14} className="nav-pin" />
+                  {act.name}
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="hud-footer-right">
+            <div className="hud-controls-icons">
+              <button onClick={() => setIsMuted(!isMuted)} className="icon-btn-plain">
+                {isMuted ? <Volume2 size={20} className="opacity-40" /> : <Volume2 size={20} className="text-emerald-400" />}
+              </button>
+              <button onClick={() => setIsPlaying(!isPlaying)} className="icon-btn-plain">
+                {isPlaying ? <Info size={20} /> : <Play size={20} />}
+              </button>
+            </div>
+            
              <div className="hud-mini-map-wrap">
               <svg viewBox="0 0 100 80" className="hud-map-outline">
                 <path d="M20,30 C30,10 70,5 90,20 C100,30 110,60 90,70 C70,80 40,75 20,60 C10,50 5,40 20,30 Z" />
               </svg>
               <motion.div 
                 className="hud-map-pin"
-                animate={{ left: `50%`, top: `45%` }}
+                animate={{ 
+                  left: `${20 + (currentVideoIdx * 10) % 60}%`, 
+                  top: `${30 + (currentVideoIdx * 5) % 40}%` 
+                }}
               />
             </div>
           </div>
@@ -124,7 +186,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
               <div className="p-20 text-white/20 text-center w-full italic">No activities added yet in Admin...</div>
             ) : activities.map((act, idx) => {
               const isSelected = selectedItems.find(i => i.id === act.id);
-              const displayImg = act.image_url || act.imageUrl || `https://loremflickr.com/600/800/travel,${act.name.replace(/\s+/g, '')}`;
+              const displayImg = act.image_url || act.imageUrl || `https://images.unsplash.com/photo-1527631746610-bca00a040d60?q=80&w=600&auto=format&fit=crop`;
               
               return (
                 <motion.div 
@@ -176,7 +238,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
               <div className="p-20 text-white/20 text-center w-full italic">No food options added yet in Admin...</div>
             ) : foodOptions.map((food, idx) => {
               const isSelected = selectedItems.find(i => i.id === food.id);
-              const displayImg = food.image_url || food.imageUrl || `https://loremflickr.com/400/400/food,${food.name.replace(/\s+/g, '')}`;
+              const displayImg = food.image_url || food.imageUrl || `https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400&auto=format&fit=crop`;
               
               return (
                 <motion.div 
@@ -200,6 +262,61 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
             })}
           </div>
         </section>
+
+        {/* ACCOMMODATION SECTION */}
+        <section className="section-wrap">
+          <div className="section-header-flex">
+            <motion.span 
+              className="section-label-premium"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+            >
+              Stays & Sanctuaries
+            </motion.span>
+            <span className="text-white/40 text-xs uppercase tracking-widest">{accommodations.length} Options</span>
+          </div>
+          
+          <div className="horizontal-scroll-row no-scrollbar">
+            {accommodations.length === 0 ? (
+              <div className="p-20 text-white/20 text-center w-full italic">No accommodation tiers added yet in Admin...</div>
+            ) : accommodations.map((acc, idx) => {
+              const isSelected = selectedItems.find(i => i.id === acc.id);
+              const displayImg = acc.image_url || acc.imageUrl || `https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format&fit=crop`;
+              
+              return (
+                <motion.div 
+                  key={acc.id}
+                  className={`discovery-card-premium ${isSelected ? 'selected' : ''}`}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  onClick={() => toggleItem(acc)}
+                >
+                  <img src={displayImg} alt={acc.tier} />
+                  <div className="card-price-badge-premium">₹{acc.price?.toLocaleString()}</div>
+                  <div className="discovery-card-overlay-premium">
+                    <div className="card-top-actions">
+                      <button className="icon-btn-glass"><Heart size={18} fill={isSelected ? '#22c55e' : 'none'} /></button>
+                      <button className="icon-btn-glass"><Share2 size={18} /></button>
+                    </div>
+                    <div className="card-title-premium">{acc.tier} Stay</div>
+                    <div className="card-meta-premium flex items-center gap-2">
+                      <div className="flex text-yellow-400">
+                        {[...Array(acc.stars || 3)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
+                      </div>
+                      • {acc.hotelNameInternal ? 'Verified Property' : 'Bespoke Selection'}
+                    </div>
+                  </div>
+                  {isSelected && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center border-2 border-emerald-500 rounded-[28px]">
+                      <Check size={48} className="text-white" />
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
       </main>
 
       {/* 3. SELECTION DOCK */}
@@ -209,7 +326,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
             <div className="dock-thumb-strip">
               {selectedItems.slice(0, 4).map((item) => (
                 <motion.div key={item.id} className="dock-thumb-item" layoutId={item.id}>
-                  <img src={item.image_url || item.imageUrl || `https://loremflickr.com/100/100/travel,${item.name}`} alt="" />
+                  <img src={item.image_url || item.imageUrl || `https://images.unsplash.com/photo-1488085061387-422e29b40080?q=80&w=100&auto=format&fit=crop`} alt="" />
                 </motion.div>
               ))}
               {selectedItems.length > 4 && <div className="text-white/40 text-xs">+{selectedItems.length - 4}</div>}
@@ -220,9 +337,9 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
             </div>
           </div>
 
-          <div className="dock-action-btns">
-            <button className="btn-util" disabled={selectedItems.length === 0} onClick={() => setSelectedItems([])}>Clear All</button>
-            <button className="btn-grab-it" onClick={() => setShowLogin(true)}>
+          <div className="dock-action-btns flex items-center gap-3">
+            <button className="btn-util whitespace-nowrap" disabled={selectedItems.length === 0} onClick={() => setSelectedItems([])}>Clear All</button>
+            <button className="btn-grab-it whitespace-nowrap" onClick={() => setShowLogin(true)}>
               Grab it for ₹{totalPrice.toLocaleString()} <ArrowRight size={20} />
             </button>
           </div>

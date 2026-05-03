@@ -86,7 +86,7 @@ const uploadSingle = async (req, res) => {
             fs.writeFileSync(filepath, req.file.buffer);
             
             // Construct local URL
-            const baseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:5005';
+            const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
             const localUrl = `${baseUrl}/uploads/${filename}`;
             
             res.status(200).json({
@@ -132,7 +132,7 @@ const uploadMultiple = async (req, res) => {
                 fs.mkdirSync(uploadsDir, { recursive: true });
             }
             
-            const baseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:5005';
+            const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
             const localResults = [];
             
             for (const file of req.files) {

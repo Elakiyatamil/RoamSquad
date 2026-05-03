@@ -467,7 +467,7 @@ const PlannerPage = () => {
         if (response.data.success) {
           const mapped = response.data.data.map(d => ({
             ...d,
-            displayImage: d.coverImage || d.images?.[0] || `https://loremflickr.com/800/1200/travel,${d.name.replace(/\s+/g, '')}`
+            displayImage: d.coverImage || d.images?.[0] || `https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800&auto=format&fit=crop`
           }));
           setDestinations(mapped);
           if (mapped.length > 0) setSelectedDestination(mapped[0]);

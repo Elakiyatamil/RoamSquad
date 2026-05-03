@@ -13,7 +13,10 @@ const LoginScreen = ({ onBack }) => {
       >
         {/* LEFT SIDE: FORM (50%) */}
         <div className="login-form-side flex-1 p-6 sm:p-10 lg:p-12 flex flex-col justify-center overflow-y-auto">
-          <div className="voyager-logo text-[#2D5A5A] font-black text-xl mb-6">voyger</div>
+          <div className="flex items-center gap-2 mb-6">
+            <img src="/logo.png" alt="RoamG" className="w-8 h-8 object-contain" />
+            <span className="text-[#2D5A5A] font-black text-xl">RoamG</span>
+          </div>
           
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mb-6 leading-tight">
             Start your<br />perfect trip
@@ -79,7 +82,7 @@ const LoginScreen = ({ onBack }) => {
 
           <div className="absolute bottom-[8%] left-1/2 -translate-x-1/2">
              <div className="bg-white/85 backdrop-blur-md px-4 py-2 rounded-full text-slate-900 font-bold text-xs shadow-xl whitespace-nowrap">
-               Voyager Discovery
+               RoamG
              </div>
           </div>
         </div>
