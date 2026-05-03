@@ -14,7 +14,7 @@ import axios from 'axios';
 import './Planner3Step.css';
 import ItineraryBuilder from '../../components/TravelMachine/ItineraryBuilder';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 
 const TRIP_TYPES = [
   { id: 'solo', label: 'Solo', icon: <User size={14} />, color: '#FF4D4D' },

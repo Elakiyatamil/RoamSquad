@@ -20,7 +20,7 @@ const RoamgHero = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isMuted, setIsMuted] = createSignal(true);
+  const [isMuted, setIsMuted] = useState(true);
   const [activeLink, setActiveLink] = createSignal(location.pathname);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,22 +38,21 @@ const RoamgHero = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Sync muted property with state
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
+
   const handleVideoCanPlay = useCallback(() => {
     setIsVideoReady(true);
     videoRef.current?.play().catch(() => {});
   }, []);
 
   const toggleMute = useCallback(() => {
-    if (!videoRef.current) return;
-    if (isMuted()) {
-      videoRef.current.muted = false;
-      videoRef.current.volume = 0.5;
-      setIsMuted(false);
-    } else {
-      videoRef.current.muted = true;
-      setIsMuted(true);
-    }
-  }, [isMuted, setIsMuted]);
+    setIsMuted(prev => !prev);
+  }, []);
 
   // Dial Interaction
   const updateFocus = (rot) => {
@@ -112,7 +111,11 @@ const RoamgHero = () => {
           ref={videoRef}
           className={`rh-video ${isVideoReady ? 'rh-video--ready' : ''}`}
           src="/drone_shots.mp4"
-          autoPlay muted loop playsInline preload="auto"
+          autoPlay 
+          muted={isMuted} 
+          loop 
+          playsInline 
+          preload="auto"
           onCanPlay={handleVideoCanPlay}
         />
         <div className="rh-master-overlay" />
@@ -120,7 +123,7 @@ const RoamgHero = () => {
         <header className={`rh-nav-master ${scrolled ? 'rh-nav--scrolled' : ''}`}>
           <div className="rh-nav-inner">
             <Link to="/" className="rh-logo-master" onClick={() => setActiveLink('/')}>
-              <img src="/logo.png" alt="Roamg" className="rh-logo-img" style={{ height: '40px', width: 'auto' }} />
+              <img src="/logo.png" alt="Roamg" className="rh-logo-img" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -214,11 +217,15 @@ const RoamgHero = () => {
         </div>
 
         <div className="rh-audio-container">
-          {!isMuted() && (
+          {!isMuted && (
             <div className="rh-audio-ripples"><div className="rh-ripple" /><div className="rh-ripple" /></div>
           )}
-          <button className={`rh-audio-btn-burgundy ${!isMuted() ? 'rh-audio--on' : ''}`} onClick={toggleMute}>
-            {isMuted() ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          <button 
+            className={`rh-audio-btn-burgundy ${!isMuted ? 'rh-audio--on' : ''}`} 
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
         </div>
 

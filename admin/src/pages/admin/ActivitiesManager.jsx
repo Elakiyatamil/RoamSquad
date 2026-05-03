@@ -123,7 +123,7 @@ const ActivityForm = ({ activity, destinationId, onClose }) => {
                                                 });
                                                 setForm(prev => ({ 
                                                     ...prev, 
-                                                    images: [...prev.images, ...res.data.urls] 
+                                                    images: [...prev.images, ...res.data.data.map(item => item.url)] 
                                                 }));
                                             } catch (err) {
                                                 alert('Failed to upload images.');

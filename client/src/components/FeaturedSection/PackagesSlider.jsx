@@ -6,32 +6,33 @@ import { Link } from 'react-router-dom';
 const PackagesSlider = () => {
   const [packages, setPackages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const trackRef = useRef(null);
 
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        setIsLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/packages/public`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch packages');
-        }
-        const data = await response.json();
-        
-        // Handle potentially nested data like { packages: [...] } or direct array
-        const packagesData = Array.isArray(data) ? data : (data.packages || data.data || []);
-        setPackages(packagesData);
-      } catch (err) {
-        console.error('Error fetching packages:', err);
-        setError('Failed to load packages');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchPackages = async () => {
+    try {
+      setIsLoading(true);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
+      const response = await fetch(`${apiUrl}/packages/public`);
+      if (!response.ok) throw new Error('Failed to fetch packages');
+      const data = await response.json();
+      const packagesData = Array.isArray(data) ? data : (data.packages || data.data || []);
+      setPackages(packagesData);
+    } catch (err) {
+      console.error('Error fetching packages:', err);
+      setPackages([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
     fetchPackages();
+    
+    // Optional: listen for storage events to sync cross-tab if needed
+    const handleStorage = () => fetchPackages();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const scroll = (direction) => {
@@ -45,8 +46,12 @@ const PackagesSlider = () => {
   };
 
   const renderSkeletons = () => {
-    return Array(4).fill(0).map((_, i) => (
-      <div key={`skel-${i}`} className="fs-card fs-skeleton"></div>
+    return Array(3).fill(0).map((_, i) => (
+      <div key={`skel-${i}`} className="fs-card fs-skeleton" style={{
+        background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'fs-shimmer 1.5s infinite'
+      }}></div>
     ));
   };
 
@@ -93,35 +98,57 @@ const PackagesSlider = () => {
       <div className="fs-slider-track" ref={trackRef}>
         {isLoading ? (
           renderSkeletons()
-        ) : error || packages.length === 0 ? (
-          <div className="fs-empty-state">
-            No trips loaded yet. Check back soon! ✈️
+        ) : packages.length === 0 ? (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: '#9CA3AF',
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '14px',
+            width: '100%'
+          }}>
+            No packages added yet.
           </div>
         ) : (
           <AnimatePresence>
             {packages.map((pkg, index) => (
               <motion.div
-                key={pkg._id || pkg.id}
+                key={pkg.id || pkg._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
               >
-                <Link to={`/packages/${pkg._id || pkg.id}`} className="fs-card">
+                <Link to={`/packages/${pkg.id || pkg._id}`} className="fs-card">
                   
                   {/* Background Image & Overlay */}
-                  <img src={pkg.image || pkg.coverImage || pkg.images?.[0]} alt={pkg.title} className="fs-card-bg-img" loading="lazy" />
+                  <img 
+                    src={pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url} 
+                    alt={pkg.title || pkg.name} 
+                    className="fs-card-bg-img" 
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.background = '#1a1a2e';
+                    }}
+                  />
                   <div className="fs-card-overlay" />
                   
                   {/* Badges */}
-                  {pkg.category && <span className="fs-badge-tl">{pkg.category}</span>}
-                  {pkg.duration && <span className="fs-badge-tr">{pkg.duration}</span>}
+                  {(pkg.category || pkg.type || pkg.tag) && <span className="fs-badge-tl">{pkg.category || pkg.type || pkg.tag}</span>}
+                  {(pkg.duration || pkg.daysCount) && <span className="fs-badge-tr">{pkg.duration || `${pkg.daysCount} Days`}</span>}
                   
                   {/* Default State Content */}
                   <div className="fs-card-default-content">
-                    <h3 className="fs-card-title">{pkg.title}</h3>
+                    <h3 className="fs-card-title">{pkg.title || pkg.name}</h3>
                     <div className="fs-card-price-pill">
-                      From ₹{pkg.price?.toLocaleString('en-IN') || 'N/A'}
+                      From ₹{(pkg.price || pkg.totalPrice)?.toLocaleString('en-IN') || 'N/A'}
                     </div>
                   </div>
                   
@@ -132,17 +159,17 @@ const PackagesSlider = () => {
                   
                   {/* Hover Frosted Panel */}
                   <div className="fs-card-hover-panel">
-                    <h4 className="fs-hover-title">{pkg.title}</h4>
+                    <h4 className="fs-hover-title">{pkg.title || pkg.name}</h4>
                     <div className="fs-hover-location">
                       <MapPin size={12} />
-                      {pkg.destination || `${pkg.city || ''} ${pkg.country || ''}`}
+                      {pkg.destination || pkg.location || pkg.place || pkg.city || 'Curated Trip'}
                     </div>
                     
                     <div className="fs-hover-row">
-                      <div className="fs-hover-price">From ₹{pkg.price?.toLocaleString('en-IN') || 'N/A'}</div>
+                      <div className="fs-hover-price">From ₹{(pkg.price || pkg.totalPrice)?.toLocaleString('en-IN') || 'N/A'}</div>
                       <div className="fs-hover-rating">
                         <Star size={12} />
-                        {pkg.rating || 'New'} {pkg.reviews_count ? `(${pkg.reviews_count})` : ''}
+                        {pkg.rating || pkg.stars || 'New'}
                       </div>
                     </div>
                     

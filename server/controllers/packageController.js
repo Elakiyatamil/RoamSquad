@@ -13,7 +13,25 @@ const getPackages = async (req, res) => {
 
 const createPackage = async (req, res) => {
     try {
-        const pkg = await prisma.package.create({ data: req.body });
+        const data = { ...req.body };
+        
+        if (req.file) {
+            const cloudinary = require('../utils/cloudinary');
+            const { Readable } = require('stream');
+            const imageUrl = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'roam_squad/packages' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result.secure_url);
+                    }
+                );
+                Readable.from(req.file.buffer).pipe(stream);
+            });
+            data.coverImage = imageUrl;
+        }
+
+        const pkg = await prisma.package.create({ data });
         await logAction(req.user, 'CREATE', 'Package', pkg.id, pkg.name);
         res.status(201).json({ success: true, data: pkg });
     } catch (error) {
@@ -24,9 +42,27 @@ const createPackage = async (req, res) => {
 
 const updatePackage = async (req, res) => {
     try {
+        const data = { ...req.body };
+        
+        if (req.file) {
+            const cloudinary = require('../utils/cloudinary');
+            const { Readable } = require('stream');
+            const imageUrl = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'roam_squad/packages' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result.secure_url);
+                    }
+                );
+                Readable.from(req.file.buffer).pipe(stream);
+            });
+            data.coverImage = imageUrl;
+        }
+
         const pkg = await prisma.package.update({
             where: { id: req.params.id },
-            data: req.body
+            data
         });
         await logAction(req.user, 'UPDATE', 'Package', pkg.id, pkg.name);
         res.status(200).json({ success: true, data: pkg });

@@ -17,8 +17,12 @@ export default function TravellerLayout() {
       {location.pathname !== '/' && (
       <header className="sticky top-0 z-[100] bg-transparent backdrop-blur border-b border-white/5 h-[56px] md:h-auto flex items-center">
         <div className="w-full max-w-6xl mx-auto px-4 md:px-6 flex items-center justify-between">
-          <Link to="/" className="font-bold tracking-tight shrink-0 mr-4">
-            <img src="/logo.png" alt="ROAMG Logo" style={{ height: '32px', width: 'auto' }} />
+          <Link to="/" className="flex items-center shrink-0 mr-4 w-fit">
+            <img 
+              src="/logo.png" 
+              alt="ROAMG Logo" 
+              className="h-7 md:h-8 w-auto max-w-[120px] object-contain block" 
+            />
           </Link>
           <nav 
             className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide w-full md:w-auto"

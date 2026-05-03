@@ -6,7 +6,7 @@ import { Search, MapPin, Check, ArrowRight, Volume2, Play, ChevronLeft, ChevronR
 import './ItineraryBuilder.css';
 import LoginScreen from './LoginScreen';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 
 const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
   const [selectedItems, setSelectedItems] = useState([]);

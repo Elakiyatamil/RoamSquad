@@ -31,7 +31,7 @@ const ImageUploader = ({ folder = 'roamsquad', onUpload, currentUrl }) => {
             });
 
             if (response.data.success) {
-                const { url, public_id } = response.data;
+                const { url, public_id } = response.data.data;
                 setPreview(url);
                 if (onUpload) onUpload(url, public_id);
             } else {

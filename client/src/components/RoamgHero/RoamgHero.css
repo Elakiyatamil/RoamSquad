@@ -107,7 +107,27 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.rh-logo-img { height: 38px; filter: brightness(0) invert(1); }
+.rh-logo-master {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: fit-content;
+}
+
+.rh-logo-img { 
+  height: 28px; 
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  display: block;
+  filter: brightness(0) invert(1); 
+}
+
+@media (min-width: 768px) {
+  .rh-logo-img {
+    height: 32px;
+  }
+}
 
 .rh-nav-links { display: flex; gap: 40px; }
 

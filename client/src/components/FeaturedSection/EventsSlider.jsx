@@ -6,32 +6,33 @@ import { Link } from 'react-router-dom';
 const EventsSlider = () => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const trackRef = useRef(null);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setIsLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/events/public`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch events');
-        }
-        const data = await response.json();
-        
-        // Handle potentially nested data like { events: [...] } or direct array
-        const eventsData = Array.isArray(data) ? data : (data.events || data.data || []);
-        setEvents(eventsData);
-      } catch (err) {
-        console.error('Error fetching events:', err);
-        setError('Failed to load events');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
+      const response = await fetch(`${apiUrl}/events/public`);
+      if (!response.ok) throw new Error('Failed to fetch events');
+      const data = await response.json();
+      const eventsData = Array.isArray(data) ? data : (data.events || data.data || []);
+      setEvents(eventsData);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setEvents([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
     fetchEvents();
+    
+    // Optional: listen for storage events to sync cross-tab if needed
+    const handleStorage = () => fetchEvents();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const scroll = (direction) => {
@@ -45,8 +46,12 @@ const EventsSlider = () => {
   };
 
   const renderSkeletons = () => {
-    return Array(4).fill(0).map((_, i) => (
-      <div key={`skel-evt-${i}`} className="fs-card fs-skeleton"></div>
+    return Array(3).fill(0).map((_, i) => (
+      <div key={`skel-evt-${i}`} className="fs-card fs-skeleton" style={{
+        background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'fs-shimmer 1.5s infinite'
+      }}></div>
     ));
   };
 
@@ -64,8 +69,8 @@ const EventsSlider = () => {
           <div className="fs-journal-label">
             <span className="fs-journal-text">
               <span className="fs-marker-bg">
-                <svg viewBox="0 0 200 20" preserveAspectRatio="none">
-                  <path d="M5,15 C40,10 80,18 120,12 C160,6 195,15 195,15" className="fs-scribble-path events-scribble" />
+                <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+                  <path d="M5,30 C5,10 45,5 75,15 C95,25 95,45 75,55 C45,65 5,50 5,30 Z" className="fs-scribble-path events-scribble" />
                 </svg>
               </span>
               THIS MONTH
@@ -93,39 +98,61 @@ const EventsSlider = () => {
       <div className="fs-slider-track" ref={trackRef}>
         {isLoading ? (
           renderSkeletons()
-        ) : error || events.length === 0 ? (
-          <div className="fs-empty-state">
-            No events loaded yet. Stay tuned! 🎒
+        ) : events.length === 0 ? (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: 'rgba(255,255,255,0.3)',
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '14px',
+            width: '100%'
+          }}>
+            No events added yet.
           </div>
         ) : (
           <AnimatePresence>
             {events.map((evt, index) => (
               <motion.div
-                key={evt._id || evt.id}
+                key={evt.id || evt._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
               >
-                <Link to={`/events/${evt._id || evt.id}`} className="fs-card">
+                <Link to={`/events/${evt.id || evt._id}`} className="fs-card">
                   
                   {/* Background Image & Overlay */}
-                  <img src={evt.image || evt.coverImage || evt.images?.[0]} alt={evt.title} className="fs-card-bg-img" loading="lazy" />
+                  <img 
+                    src={evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url} 
+                    alt={evt.title || evt.name} 
+                    className="fs-card-bg-img" 
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.style.background = '#1a1a2e';
+                    }}
+                  />
                   <div className="fs-card-overlay" />
                   
                   {/* Badges */}
-                  {evt.type && <span className="fs-badge-tl">{evt.type}</span>}
-                  {evt.date && <span className="fs-badge-tr">{evt.date}</span>}
+                  {(evt.type || evt.category || evt.tag) && <span className="fs-badge-tl">{evt.type || evt.category || evt.tag}</span>}
+                  {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) && (
+                    <span className="fs-badge-tr">
+                      {new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    </span>
+                  )}
                   
                   {/* Default State Content */}
                   <div className="fs-card-default-content">
-                    <h3 className="fs-card-title">{evt.title}</h3>
+                    <h3 className="fs-card-title">{evt.title || evt.name}</h3>
                     <div className="fs-card-row">
-                      {evt.seats_left < 10 ? (
-                        <div className="fs-card-seats-indicator warning">⚡ Only {evt.seats_left || 0} seats left</div>
-                      ) : (
-                        <div className="fs-card-seats-indicator available">✓ Spots available</div>
-                      )}
+                      <div className="fs-card-seats-indicator available">✓ Spots available</div>
                     </div>
                   </div>
                   
@@ -136,23 +163,18 @@ const EventsSlider = () => {
                   
                   {/* Hover Frosted Panel */}
                   <div className="fs-card-hover-panel">
-                    <h4 className="fs-hover-title">{evt.title}</h4>
+                    <h4 className="fs-hover-title">{evt.title || evt.name}</h4>
                     <div className="fs-hover-location">
                       <MapPin size={12} />
-                      {evt.location}
+                      {evt.location || evt.place || evt.venue || 'TBA'}
                     </div>
                     
                     <div className="fs-hover-row">
                       <div className="fs-hover-datetime">
                         <Calendar size={12} />
-                        {evt.date} {evt.time ? `• ${evt.time}` : ''}
-                      </div>
-                      <div className="fs-hover-seats">
-                        {evt.seats_left < 10 ? (
-                          <span style={{color: '#E8A838'}}>⚡ {evt.seats_left || 0} left</span>
-                        ) : (
-                          <span style={{color: '#0D5C63'}}>✓ Open</span>
-                        )}
+                        {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) 
+                          ? new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) 
+                          : 'TBA'}
                       </div>
                     </div>
                     

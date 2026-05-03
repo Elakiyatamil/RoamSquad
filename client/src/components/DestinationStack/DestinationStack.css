@@ -109,15 +109,32 @@
   height: 100%;
 }
 
-.ds-card-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.8rem, 6.5vw, 5.5rem);
-  font-weight: 700;
-  color: #fff;
+.ds-motto-container {
+  text-align: center;
+  position: relative;
+  margin-bottom: 32px;
+  z-index: 2;
+}
+
+.ds-motto-line-1 {
+  font-family: 'DM Serif Display', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
   line-height: 1.1;
-  margin-bottom: 40px; /* Space for search bar below */
-  letter-spacing: -0.01em;
-  text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+  display: block;
+}
+
+.ds-motto-line-2 {
+  font-family: 'DM Serif Display', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  display: block;
+  font-style: italic;
 }
 
 .ds-search-low {

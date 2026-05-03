@@ -129,7 +129,7 @@ const AccommodationForm = ({ accommodation, destinationId, onClose }) => {
                                             const res = await apiClient.post('/upload/single', uploadData, {
                                                 headers: { 'Content-Type': 'multipart/form-data' }
                                             });
-                                            setForm(prev => ({ ...prev, imageUrl: res.data.url }));
+                                            setForm(prev => ({ ...prev, imageUrl: res.data.data.url }));
                                         } catch (err) {
                                             alert('Failed to upload image.');
                                         }

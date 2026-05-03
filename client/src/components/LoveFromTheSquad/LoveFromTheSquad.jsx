@@ -98,11 +98,10 @@ const LoveFromTheSquad = () => {
           </h2>
         </motion.div>
 
-        {/* VIDEO CAROUSEL */}
+        {/* VIDEO/IMAGE CAROUSEL */}
         <motion.div
           className="lfts-carousel-track"
           initial="hidden"
-          style={{ justifyContent: 'center' }}
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           variants={{ visible: { transition: { staggerChildren: 0.1 } } }}

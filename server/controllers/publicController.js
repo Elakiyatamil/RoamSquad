@@ -319,3 +319,16 @@ exports.getDestinationTravelOptions = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getSquadLove = async (req, res) => {
+    try {
+        const moments = await prisma.squadLove.findMany({
+            where: { isActive: true },
+            orderBy: { sortOrder: 'asc' }
+        });
+        res.status(200).json({ success: true, data: moments });
+    } catch (error) {
+        console.error(`[GET /public/squad-love] Error:`, error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};

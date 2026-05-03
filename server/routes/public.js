@@ -22,5 +22,6 @@ router.get('/destinations/:id/activities', publicController.getDestinationActivi
 router.get('/destinations/:id/accommodation', publicController.getDestinationAccommodation);
 router.get('/destinations/:id/food', publicController.getDestinationFood);
 router.get('/destinations/:id/travel-options', publicController.getDestinationTravelOptions);
+router.get('/squad-love', publicController.getSquadLove);
 
 module.exports = router;

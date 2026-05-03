@@ -16,12 +16,15 @@ const STACK_DATA = [
 
 const DestinationStack = ({ heroRef }) => {
   const navigate = useNavigate();
+
   const { scrollYProgress } = useScroll();
-  
-  // Hero Parallax: Fade and scale back as we scroll
-  // We want the hero to disappear as cards come up
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  
+  // Watermark transforms must be defined at the top level
+  const watermarkY = useTransform(scrollYProgress, [0, 0.4], [0, 80]);
+  const watermarkFilter = useTransform(scrollYProgress, [0, 0.4], ["blur(6px)", "blur(12px)"]);
+  const watermarkOpacity = useTransform(scrollYProgress, [0, 0.4], [0.08, 0.12]);
 
   const handleSearchClick = (destName) => {
     globalSignals.setDestinationChoice(destName);
@@ -46,7 +49,7 @@ const DestinationStack = ({ heroRef }) => {
         {STACK_DATA.map((card, index) => (
           <div key={card.id} className="ds-card-item">
             <div className="ds-card-bg">
-              <img src={card.image} alt={card.title} />
+              <img src={card.coverImage || card.image} alt={card.name} />
               <div className="ds-card-overlay" />
             </div>
 
@@ -56,9 +59,9 @@ const DestinationStack = ({ heroRef }) => {
                 <motion.div 
                   className="ds-massive-watermark"
                   style={{ 
-                    y: useTransform(scrollYProgress, [0, 0.4], [0, 80]),
-                    filter: useTransform(scrollYProgress, [0, 0.4], ["blur(6px)", "blur(12px)"]),
-                    opacity: useTransform(scrollYProgress, [0, 0.4], [0.08, 0.12])
+                    y: watermarkY,
+                    filter: watermarkFilter,
+                    opacity: watermarkOpacity
                   }}
                 >
                   <img src="/logo.png" alt="ROAMG Watermark" className="ds-watermark-img" />
@@ -71,14 +74,32 @@ const DestinationStack = ({ heroRef }) => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="ds-content-inner"
               >
-                <h2 className="ds-card-title">{card.title}</h2>
-                
+                <div className="ds-motto-container">
+                  <motion.span 
+                    className="ds-motto-line-1"
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                    viewport={{ once: true }}
+                  >
+                    Roam Together
+                  </motion.span>
+                  <motion.span 
+                    className="ds-motto-line-2"
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+                    viewport={{ once: true }}
+                  >
+                    Explore Forever
+                  </motion.span>
+                </div>
                 {/* Search is embedded in the first card (index 0) */}
                 {index === 0 ? (
                   <div className="ds-search-entry-container ds-search-low">
                     <div 
                       className="ds-neon-search-bar"
-                      onClick={() => handleSearchClick(card.title)}
+                      onClick={() => handleSearchClick(card.name)}
                     >
                       <span className="ds-search-text">Where do you want to go?</span>
                       <div className="ds-neon-glow" />
@@ -95,9 +116,9 @@ const DestinationStack = ({ heroRef }) => {
                 ) : (
                   <button 
                     className="ds-explore-btn"
-                    onClick={() => handleSearchClick(card.title)}
+                    onClick={() => handleSearchClick(card.name)}
                   >
-                    Explore {card.id}
+                    Explore {card.name}
                   </button>
                 )}
               </motion.div>

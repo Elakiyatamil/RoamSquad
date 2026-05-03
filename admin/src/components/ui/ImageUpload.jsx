@@ -49,7 +49,11 @@ const ImageUpload = ({ value, onChange, label = "Upload Image", folder = "genera
             <div className="relative group">
                 {preview ? (
                     <div className="relative w-full h-48 rounded-2xl overflow-hidden border border-ink/5 bg-white shadow-sm">
-                        <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                        {preview.includes('video') || preview.match(/\.(mp4|webm|ogg)$/) ? (
+                            <video src={preview} className="w-full h-full object-cover" muted loop autoPlay />
+                        ) : (
+                            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                        )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                             <button 
                                 onClick={() => document.getElementById(`file-${label}`).click()}

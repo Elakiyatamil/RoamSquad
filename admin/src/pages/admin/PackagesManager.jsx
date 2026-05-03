@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
+import ImageUpload from '../../components/ui/ImageUpload';
+
 // --- Package Form Modal ---
 const PackageForm = ({ pkg, onClose }) => {
     const queryClient = useQueryClient();
@@ -95,10 +97,11 @@ const PackageForm = ({ pkg, onClose }) => {
                         </select>
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Cover Image URL</label>
-                        <input value={form.coverImage} onChange={e => setForm({ ...form, coverImage: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="https://images.unsplash.com/..." />
-                    </div>
+                    <ImageUpload 
+                        label="Package Cover Image"
+                        value={form.coverImage}
+                        onChange={(url) => setForm({ ...form, coverImage: url })}
+                    />
 
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Highlights (comma-separated)</label>

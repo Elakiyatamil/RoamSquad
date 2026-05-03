@@ -520,9 +520,14 @@ const DestinationForm = ({ destination, onClose }) => {
                                                         const uploadData = new FormData();
                                                         uploadData.append('image', file);
                                                         try {
-                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            const res = await apiClient.post('/upload/single', uploadData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
                                                             updateItem('activities', i, { ...act, imageUrl: res.data.data.url });
-                                                        } catch (err) { alert('Upload failed'); }
+                                                        } catch (err) { 
+                                                            console.error('Upload Error:', err);
+                                                            alert(err.response?.data?.error || 'Upload failed'); 
+                                                        }
                                                     }}
                                                 />
                                             </div>
@@ -645,9 +650,11 @@ const DestinationForm = ({ destination, onClose }) => {
                                                         const uploadData = new FormData();
                                                         uploadData.append('image', file);
                                                         try {
-                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            const res = await apiClient.post('/upload/single', uploadData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
                                                             updateItem('foodOptions', i, { ...food, imageUrl: res.data.data.url });
-                                                        } catch (err) { alert('Upload failed'); }
+                                                        } catch (err) { alert(err.response?.data?.error || 'Upload failed'); }
                                                     }}
                                                 />
                                             </div>
@@ -775,9 +782,11 @@ const DestinationForm = ({ destination, onClose }) => {
                                                         const uploadData = new FormData();
                                                         uploadData.append('image', file);
                                                         try {
-                                                            const res = await apiClient.post('/upload/single', uploadData);
+                                                            const res = await apiClient.post('/upload/single', uploadData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
                                                             updateItem('accommodation', i, { ...acc, imageUrl: res.data.data.url });
-                                                        } catch (err) { alert('Upload failed'); }
+                                                        } catch (err) { alert(err.response?.data?.error || 'Upload failed'); }
                                                     }}
                                                 />
                                             </div>
@@ -889,7 +898,7 @@ const DestinationForm = ({ destination, onClose }) => {
                                     });
                                     setFormData(prev => ({ 
                                         ...prev, 
-                                        images: [...(prev.images || []), ...res.data.data.urls] 
+                                        images: [...(prev.images || []), ...res.data.data.map(item => item.url)] 
                                     }));
                                 } catch (err) {
                                     alert('Failed to upload images.');
