@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const prisma = require('../utils/prisma');
 
+const generateToken = (user) => {
+    return jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+};
+
 const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -10,7 +18,7 @@ const login = async (req, res) => {
             where: { email }
         });
 
-        if (!user) {
+        if (!user || !user.password) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
@@ -19,11 +27,7 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
+        const token = generateToken(user);
 
         res.status(200).json({
             success: true,
@@ -39,7 +43,7 @@ const login = async (req, res) => {
         });
     } catch (error) {
         console.error('Login Error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
@@ -65,11 +69,7 @@ const register = async (req, res) => {
             }
         });
 
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '1d' }
-        );
+        const token = generateToken(user);
 
         res.status(201).json({
             success: true,
@@ -85,7 +85,7 @@ const register = async (req, res) => {
         });
     } catch (error) {
         console.error('Register Error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
@@ -107,4 +107,4 @@ const getMe = async (req, res) => {
     }
 };
 
-module.exports = { login, register, getMe };
+module.exports = { login, register, getMe, generateToken };

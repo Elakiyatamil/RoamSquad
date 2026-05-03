@@ -5,14 +5,14 @@ import {
 
 // Premium Color Palette
 const COLORS = {
-  primary: '#d32f2f', // Roam Red
+  primary: '#8B0000', // Deep Macaroon Red
   dark: '#1a1a1a',
   white: '#ffffff',
   lightGray: '#f8f8f8',
   textSecondary: '#666',
   border: '#e0e0e0',
-  accent: '#fdeaea',
-  green: '#4caf50'
+  accent: '#fff5f5', // Very light red accent
+  red: '#8B0000'
 };
 
 // SVG ICONS
@@ -49,7 +49,7 @@ const Icons = {
   ),
   Food: () => (
     <Svg width="22" height="22" viewBox="0 0 24 24">
-      <Path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" fill={COLORS.green} />
+      <Path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z" fill={COLORS.primary} />
     </Svg>
   ),
   Clock: () => (
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   coverContent: { marginTop: -100 },
   brandLine: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   journeyBy: { fontSize: 13, letterSpacing: 2, color: COLORS.textSecondary },
-  roamSquad: { fontSize: 13, fontWeight: 'bold', color: COLORS.dark, marginLeft: 6 },
+  roamSquad: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary, marginLeft: 6 },
   mainTitle: { fontSize: 40, fontWeight: 'black', color: COLORS.primary, textTransform: 'uppercase', marginBottom: 30, lineHeight: 1.1 },
   
   // --- STATS RIBBON ---
@@ -139,9 +139,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
     borderTop: `1pt solid #eee`, paddingTop: 15
   },
-  logoGroup: { flexDirection: 'row', alignItems: 'center' },
-  footerLogoText: { fontSize: 12, fontWeight: 'bold', color: COLORS.dark },
-  footerLogoRed: { fontSize: 12, fontWeight: 'bold', color: COLORS.primary }
+  footerLogoImg: { width: 40, height: 'auto' }
 });
 
 const chunkArray = (arr, size) => {
@@ -158,11 +156,8 @@ const ItineraryPDF = ({ data }) => {
 
   const Footer = () => (
     <View style={styles.footer} fixed>
-      <Text style={{ fontSize: 9, color: '#aaa' }}>ROAMSQUAD TRAVEL BROCHURE</Text>
-      <View style={styles.logoGroup}>
-        <Text style={styles.footerLogoText}>ROAM</Text>
-        <Text style={styles.footerLogoRed}>SQUAD</Text>
-      </View>
+      <Text style={{ fontSize: 9, color: '#aaa' }}>ROAMG TRAVEL BROCHURE</Text>
+      <Image src="/logo.png" style={styles.footerLogoImg} />
     </View>
   );
 
@@ -175,7 +170,7 @@ const ItineraryPDF = ({ data }) => {
         <View style={styles.coverContent}>
           <View style={styles.brandLine}>
             <Text style={styles.journeyBy}>YOUR JOURNEY BY</Text>
-            <Text style={styles.roamSquad}>ROAMSQUAD</Text>
+            <Text style={styles.roamSquad}>ROAMG</Text>
           </View>
           <Text style={styles.mainTitle} hyphenation={false}>
             {destinationInfo?.destinationName || 'THE ADVENTURE'}
@@ -232,7 +227,7 @@ const ItineraryPDF = ({ data }) => {
                     </View>
                   )}
                   {snapshots?.food?.length > 0 && actualDayIdx % 2 === 0 && (
-                    <View style={[styles.richCard, { borderLeftColor: COLORS.green }]}>
+                    <View style={[styles.richCard, { borderLeftColor: COLORS.primary }]}>
                       <Icons.Food /><View><Text style={styles.cardTitle}>Local Dining: {snapshots.food[0] || 'Specials'}</Text><Text style={styles.cardSub}>Authentic Culinary Experience</Text></View>
                     </View>
                   )}
@@ -250,10 +245,10 @@ const ItineraryPDF = ({ data }) => {
         
         <View style={styles.cardRow}>
           <View style={[styles.termCard, styles.inclusionCard]}>
-            <Text style={[styles.termTitle, { color: COLORS.green }]}>INCLUSIONS</Text>
+            <Text style={[styles.termTitle, { color: COLORS.primary }]}>INCLUSIONS</Text>
             {['Stay: Comfort Stay', 'Curated Local Activities', '24/7 Dedicated Support', 'Local Dining Recommendations'].map((item, i) => (
               <View key={i} style={styles.termItem}>
-                <View style={[styles.termDot, { backgroundColor: COLORS.green }]} />
+                <View style={[styles.termDot, { backgroundColor: COLORS.primary }]} />
                 <Text style={styles.termText}>{item}</Text>
               </View>
             ))}
@@ -279,8 +274,8 @@ const ItineraryPDF = ({ data }) => {
             </View>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ color: COLORS.white, fontSize: 14, fontWeight: 'bold' }}>hello@roamsquad.com</Text>
-            <Text style={{ color: '#888', fontSize: 11, marginTop: 5 }}>www.roamsquad.com</Text>
+            <Text style={{ color: COLORS.white, fontSize: 14, fontWeight: 'bold' }}>hello@roamg.com</Text>
+            <Text style={{ color: '#888', fontSize: 11, marginTop: 5 }}>www.roamg.com</Text>
           </View>
         </View>
 

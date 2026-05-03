@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Playfair+Display:wght@900&display=swap');
 
 :root {
-  --emerald-green: #10b981;
-  --action-green: #22c55e;
+  --emerald-green: #8B0000;
+  --action-green: #8B0000;
   --dark-slate: #0f172a;
   --outfit: 'Outfit', sans-serif;
   --playfair: 'Playfair Display', serif;
@@ -419,4 +419,25 @@
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.login-link-btn {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: 99px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s;
+}
+
+.login-link-btn.authenticated {
+  background: rgba(139, 0, 0, 0.1);
+  border-color: rgba(139, 0, 0, 0.3);
+  color: #ff4d4d;
+}
+
+.login-link-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}

@@ -207,10 +207,51 @@ const getDestinationsByState = async (req, res) => {
     }
 };
 
+// Helper: pick only scalar Destination fields from an arbitrary request body
+const pickDestinationScalars = (body) => {
+    const {
+        name, category, rating, status, active, coverImage, description,
+        slug, avgCost, bestSeason, images, image_url, cloudinary_public_id
+    } = body;
+    const data = {};
+    if (name !== undefined) data.name = name;
+    if (category !== undefined) data.category = category;
+    if (rating !== undefined) data.rating = parseFloat(rating) || 0;
+    if (status !== undefined) data.status = status;
+    if (active !== undefined) data.active = active;
+    if (coverImage !== undefined) data.coverImage = coverImage || null;
+    if (description !== undefined) data.description = description;
+    if (slug !== undefined) data.slug = slug;
+    if (avgCost !== undefined) data.avgCost = avgCost;
+    if (bestSeason !== undefined) data.bestSeason = bestSeason;
+    if (images !== undefined) data.images = Array.isArray(images) ? images : [];
+    if (image_url !== undefined) data.image_url = image_url;
+    if (cloudinary_public_id !== undefined) data.cloudinary_public_id = cloudinary_public_id;
+    return data;
+};
+
+// Generate a unique slug, appending -2, -3, etc. if collision occurs
+const generateUniqueSlug = async (baseName, existingSlug) => {
+    let slug = (existingSlug && existingSlug.trim())
+        ? existingSlug.trim()
+        : baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const existing = await prisma.destination.findUnique({ where: { slug } });
+    if (!existing) return slug;
+
+    // Slug collision — append incrementing suffix
+    let suffix = 2;
+    while (true) {
+        const candidate = `${slug}-${suffix}`;
+        const collision = await prisma.destination.findUnique({ where: { slug: candidate } });
+        if (!collision) return candidate;
+        suffix++;
+        if (suffix > 100) throw new Error('Too many slug collisions');
+    }
+};
+
 const createDestination = async (req, res) => {
     try {
-        const { name, category = 'Other', rating = 0, status = 'ACTIVE', active = true, coverImage = null, description = '' } = req.body;
-        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const districtId = req.params.districtId;
         const district = await prisma.district.findUnique({
             where: { id: districtId },
@@ -221,32 +262,29 @@ const createDestination = async (req, res) => {
             return res.status(404).json({ success: false, error: 'District not found' });
         }
 
+        const scalars = pickDestinationScalars(req.body);
+        if (!scalars.name) return res.status(400).json({ success: false, error: 'Name is required' });
+
+        scalars.slug = await generateUniqueSlug(scalars.name, scalars.slug);
+        scalars.category = scalars.category || 'Other';
+        scalars.status = scalars.status || 'ACTIVE';
+
         const destination = await prisma.destination.create({
-            data: { 
-                name, 
-                category, 
-                rating: parseFloat(rating) || 0, 
-                active,
-                status, 
-                coverImage, 
-                description, 
-                slug, 
-                districtId,
-                stateId: district.stateId
-            }
+            data: { ...scalars, districtId, stateId: district.stateId }
         });
         await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
         res.status(201).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[POST /districts/${req.params.districtId}/destinations] Error:`, error);
+        if (error.code === 'P2002') {
+            return res.status(409).json({ success: false, error: `A destination with this ${error.meta?.target?.join(', ') || 'value'} already exists.` });
+        }
         res.status(500).json({ success: false, error: error.message });
     }
 };
 
 const createDestinationUnderState = async (req, res) => {
     try {
-        const { name, category = 'Other', rating = 0, status = 'ACTIVE', active = true, coverImage = null, description = '', districtId } = req.body;
-        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const stateId = req.params.stateId;
         const state = await prisma.state.findUnique({ where: { id: stateId }, select: { id: true } });
 
@@ -254,10 +292,11 @@ const createDestinationUnderState = async (req, res) => {
             return res.status(404).json({ success: false, error: 'State not found' });
         }
 
+        const { districtId: rawDistrictId } = req.body;
         let normalizedDistrictId = null;
-        if (districtId) {
+        if (rawDistrictId) {
             const district = await prisma.district.findFirst({
-                where: { id: districtId, stateId },
+                where: { id: rawDistrictId, stateId },
                 select: { id: true }
             });
             if (!district) {
@@ -266,26 +305,26 @@ const createDestinationUnderState = async (req, res) => {
             normalizedDistrictId = district.id;
         }
 
+        const scalars = pickDestinationScalars(req.body);
+        if (!scalars.name) return res.status(400).json({ success: false, error: 'Name is required' });
+
+        scalars.slug = await generateUniqueSlug(scalars.name, scalars.slug);
+        scalars.category = scalars.category || 'Other';
+        scalars.status = scalars.status || 'ACTIVE';
+
         const destination = await prisma.destination.create({
-            data: {
-                name,
-                category,
-                rating: parseFloat(rating) || 0,
-                active,
-                status,
-                coverImage,
-                description,
-                slug,
-                stateId,
-                districtId: normalizedDistrictId
-            }
+            data: { ...scalars, stateId, districtId: normalizedDistrictId }
         });
         await logAction(req.user, 'CREATE', 'Destination', destination.id, destination.name);
         res.status(201).json({ success: true, data: destination });
     } catch (error) {
         console.error(`[POST /states/${req.params.stateId}/destinations] Error:`, error);
+        if (error.code === 'P2002') {
+            return res.status(409).json({ success: false, error: `A destination with this ${error.meta?.target?.join(', ') || 'value'} already exists.` });
+        }
         res.status(500).json({ success: false, error: error.message });
     }
+
 };
 
 const getFlatDestinations = async (req, res) => {
@@ -355,34 +394,33 @@ const getFullDestination = async (req, res) => {
 
 const updateDestination = async (req, res) => {
     try {
-        const { id, name, description, category, rating, active, status, slug, coverImage, images, avgCost, bestSeason } = req.body;
-        
-        const updateData = {
-            name,
-            description,
-            category,
-            rating: parseFloat(rating) || 0,
-            active: active === true,
-            status: status || 'ACTIVE',
-            slug,
-            coverImage,
-            images,
-            avgCost,
-            bestSeason
-        };
-
-        // allow updating state or district
-        if (req.body.stateId !== undefined) updateData.stateId = req.body.stateId;
-        if (req.body.districtId !== undefined) updateData.districtId = req.body.districtId || null;
-
-        // Filter out undefined fields to prevent Prisma errors
-        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
-
+        // Extract scalar fields from request body
+        const scalars = pickDestinationScalars(req.body);
+        if (Object.keys(scalars).length === 0) {
+            return res.status(400).json({ success: false, error: 'No valid fields to update' });
+        }
+        // Ensure slug uniqueness if provided
+        let newSlug = scalars.slug;
+        if (newSlug) {
+            const existing = await prisma.destination.findFirst({
+                where: { slug: newSlug, id: { not: req.params.id } }
+            });
+            if (existing) {
+                return res.status(409).json({ success: false, error: `A destination with slug "${newSlug}" already exists.` });
+            }
+        } else {
+            // Preserve existing slug if not supplied
+            const current = await prisma.destination.findUnique({ where: { id: req.params.id }, select: { slug: true } });
+            newSlug = current?.slug;
+        }
+        if (newSlug) scalars.slug = newSlug;
+        // Allow optional stateId / districtId updates
+        if (req.body.stateId !== undefined) scalars.stateId = req.body.stateId;
+        if (req.body.districtId !== undefined) scalars.districtId = req.body.districtId || null;
         const destination = await prisma.destination.update({
             where: { id: req.params.id },
-            data: updateData
+            data: scalars
         });
-        
         await logAction(req.user, 'UPDATE', 'Destination', destination.id, destination.name);
         res.status(200).json({ success: true, data: destination });
     } catch (error) {

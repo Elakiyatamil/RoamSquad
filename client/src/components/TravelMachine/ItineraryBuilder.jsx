@@ -2,18 +2,23 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Search, MapPin, Check, ArrowRight, Volume2, Play, ChevronLeft, ChevronRight, Edit3, Heart, Share2, Info, Star, Clock } from 'lucide-react';
+import { Search, MapPin, Check, ArrowRight, Volume2, Play, ChevronLeft, ChevronRight, Edit3, Heart, Share2, Info, Star, Clock, Trash2 } from 'lucide-react';
 import './ItineraryBuilder.css';
 import LoginScreen from './LoginScreen';
+import InquiryModal from './InquiryModal';
+import useAuthStore from '../../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 
 const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showLogin, setShowLogin] = useState(false);
+  const [showInquiry, setShowInquiry] = useState(false);
   const [currentVideoIdx, setCurrentVideoIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+
+  const { isAuthenticated, user, logout } = useAuthStore();
 
   const videoSources = [
     '/drone_shots.mp4',
@@ -66,6 +71,16 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
             <LoginScreen onBack={() => setShowLogin(false)} />
           </motion.div>
         )}
+        {showInquiry && (
+          <InquiryModal 
+            isOpen={showInquiry} 
+            onClose={() => setShowInquiry(false)}
+            selectedItems={selectedItems}
+            totalPrice={totalPrice}
+            destination={fullDest}
+            user={user}
+          />
+        )}
       </AnimatePresence>
 
       {/* 1. CINEMATIC STATIC HUD */}
@@ -110,7 +125,12 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
             <p className="text-white/60 text-xs tracking-widest uppercase mb-1">Planning for</p>
             <h1 className="text-3xl font-display font-bold text-white">{fullDest?.name}</h1>
           </div>
-          <button className="login-link-btn" onClick={() => setShowLogin(true)}>Login</button>
+          <button 
+            className={`login-link-btn ${isAuthenticated ? 'authenticated' : ''}`} 
+            onClick={() => isAuthenticated ? logout() : setShowLogin(true)}
+          >
+            {isAuthenticated ? `Logout (${user?.name?.split(' ')[0]})` : 'Login'}
+          </button>
         </div>
 
         <div className="video-hud-footer">
@@ -201,7 +221,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
                   <div className="card-price-badge-premium">₹{act.price?.toLocaleString()}</div>
                   <div className="discovery-card-overlay-premium">
                     <div className="card-top-actions">
-                      <button className="icon-btn-glass"><Heart size={18} fill={isSelected ? '#22c55e' : 'none'} /></button>
+                      <button className="icon-btn-glass"><Heart size={18} fill={isSelected ? '#8B0000' : 'none'} /></button>
                       <button className="icon-btn-glass"><Share2 size={18} /></button>
                     </div>
                     <div className="card-title-premium">{act.name}</div>
@@ -210,7 +230,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
                     </div>
                   </div>
                   {isSelected && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center border-2 border-emerald-500 rounded-[28px]">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-[#8B0000]/20 flex items-center justify-center border-2 border-[#8B0000] rounded-[28px]">
                       <Check size={48} className="text-white" />
                     </motion.div>
                   )}
@@ -308,7 +328,7 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
                     </div>
                   </div>
                   {isSelected && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center border-2 border-emerald-500 rounded-[28px]">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-[#8B0000]/20 flex items-center justify-center border-2 border-[#8B0000] rounded-[28px]">
                       <Check size={48} className="text-white" />
                     </motion.div>
                   )}
@@ -338,8 +358,20 @@ const ItineraryBuilder = ({ destination, duration, startDate, tripConfig }) => {
           </div>
 
           <div className="dock-action-btns flex items-center gap-3">
-            <button className="btn-util whitespace-nowrap" disabled={selectedItems.length === 0} onClick={() => setSelectedItems([])}>Clear All</button>
-            <button className="btn-grab-it whitespace-nowrap" onClick={() => setShowLogin(true)}>
+            <button 
+              className="btn-util whitespace-nowrap flex items-center gap-2" 
+              disabled={selectedItems.length === 0} 
+              onClick={() => setSelectedItems([])}
+            >
+              {isAuthenticated ? <><Edit3 size={16} /> Edit</> : 'Clear All'}
+            </button>
+            <button 
+              className="btn-grab-it whitespace-nowrap" 
+              onClick={() => {
+                if (isAuthenticated) setShowInquiry(true);
+                else setShowLogin(true);
+              }}
+            >
               Grab it for ₹{totalPrice.toLocaleString()} <ArrowRight size={20} />
             </button>
           </div>

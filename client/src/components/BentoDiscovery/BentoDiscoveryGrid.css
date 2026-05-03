@@ -172,3 +172,26 @@ html, body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+
+.bento-card__link-wrapper {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card__arrow {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  opacity: 0;
+  transform: translate(-10px, 10px);
+  transition: all 0.3s ease;
+}
+
+.bento-card:hover .bento-card__arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}

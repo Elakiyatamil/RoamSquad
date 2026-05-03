@@ -1,0 +1,39 @@
+.login-screen-parent {
+  color: #0f172a;
+}
+
+.social-btn {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 14px;
+  transition: all 0.3s;
+}
+
+.social-btn:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.login-input {
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  padding: 16px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.login-input:focus {
+  border-color: #2D5A5A;
+  background: #fff;
+}
+
+.glass-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}

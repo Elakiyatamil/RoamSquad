@@ -53,6 +53,7 @@ async function main() {
             category: 'inside_india',
             rating: 4.8,
             districtId: districtsMap['Idukki'].id,
+            stateId: kerala.id,
             description: 'The tea capital of Kerala.'
         }
     });
@@ -64,6 +65,7 @@ async function main() {
             category: 'inside_india',
             rating: 4.7,
             districtId: districtsMap['Kodagu'].id,
+            stateId: karnataka.id,
             description: 'The Scotland of India.'
         }
     });
@@ -75,6 +77,7 @@ async function main() {
             category: 'inside_india',
             rating: 4.5,
             districtId: districtsMap['Uttara Kannada'].id,
+            stateId: karnataka.id,
             description: 'Temple town with pristine beaches.'
         }
     });
@@ -86,6 +89,7 @@ async function main() {
             category: 'inside_india',
             rating: 4.9,
             districtId: districtsMap['Mysuru'].id,
+            stateId: karnataka.id,
             description: 'Historical royal residence.'
         }
     });

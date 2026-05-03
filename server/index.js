@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const path = require('path');
-require('dotenv').config();
+const session = require('express-session');
+const passport = require('./config/passport');
 
 const { init: initSockets } = require('./sockets');
 const hierarchyRoutes = require('./routes/hierarchy');
@@ -54,6 +56,19 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// Passport & Session
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'roamsquad_session_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // #region agent log
 // Debug-only endpoint for this session (no secrets).

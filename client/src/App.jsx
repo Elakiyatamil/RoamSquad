@@ -14,6 +14,7 @@ import MyJourneys from './pages/MyJourneys.jsx'
 import PackagesPage from './pages/traveller/PackagesPage.jsx'
 import EventsPage from './pages/traveller/EventsPage.jsx'
 import ComingSoonPage from './pages/traveller/ComingSoonPage.jsx'
+import AuthSuccess from './pages/traveller/AuthSuccess.jsx'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="packages/:id" element={<ComingSoonPage type="Package" />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="events/:id" element={<ComingSoonPage type="Event" />} />
+            <Route path="auth-success" element={<AuthSuccess />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

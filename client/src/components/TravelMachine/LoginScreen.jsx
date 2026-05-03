@@ -1,8 +1,71 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Apple, Chrome as Google, Facebook, Eye, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Apple, Chrome as Google, Facebook, Eye, EyeOff, X, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import useAuthStore from '../../store/authStore';
+import './LoginScreen.css';
 
 const LoginScreen = ({ onBack }) => {
+  const [isLogin, setIsLogin] = useState(false); // Default to Signup based on "Start your perfect trip"
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const { login } = useAuthStore();
+  
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      return setError('Please fill in all required fields');
+    }
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const res = await axios.post(`${API_BASE}${endpoint}`, formData);
+      
+      const { user, token } = res.data.data;
+      login(user, token);
+      
+      // Sync Wishlist from localStorage if it exists
+      const localWishlist = JSON.parse(localStorage.getItem('roam_wishlist') || '[]');
+      if (localWishlist.length > 0) {
+        try {
+          await axios.post(`${API_BASE}/api/wishlist/sync`, 
+            { items: localWishlist.map(item => ({ entityType: item.type || 'Destination', entityId: item.id })) },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          localStorage.removeItem('roam_wishlist');
+        } catch (syncErr) {
+          console.error('Wishlist sync failed:', syncErr);
+          // Don't block the user if sync fails, they are still logged in
+        }
+      }
+      
+      // Close the screen on success
+      onBack();
+    } catch (err) {
+      console.error('Auth error:', err);
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE}/api/auth/google`;
+  };
+
   return (
     <div className="login-screen-parent fixed inset-0 z-[5000] bg-black/40 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6">
       {/* "Self-Healing" Optimized Container */}
@@ -19,35 +82,90 @@ const LoginScreen = ({ onBack }) => {
           </div>
           
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mb-6 leading-tight">
-            Start your<br />perfect trip
+            {isLogin ? 'Welcome\nback' : 'Start your\nperfect trip'}
           </h1>
 
           {/* Social Logins - Wrapping Row */}
           <div className="flex flex-wrap gap-3 mb-6">
-            <button className="social-btn flex-1 min-w-[50px]"><Apple size={18} /></button>
-            <button className="social-btn flex-1 min-w-[50px]"><Google size={18} /></button>
-            <button className="social-btn flex-1 min-w-[50px]"><Facebook size={18} /></button>
+            <button className="social-btn flex-1 min-w-[50px] opacity-50 cursor-not-allowed" title="Coming Soon"><Apple size={18} /></button>
+            <button className="social-btn flex-1 min-w-[50px]" onClick={handleGoogleLogin}><Google size={18} /></button>
+            <button className="social-btn flex-1 min-w-[50px] opacity-50 cursor-not-allowed" title="Coming Soon"><Facebook size={18} /></button>
           </div>
 
           <div className="text-slate-400 text-[10px] mb-6 text-center font-bold uppercase tracking-widest">or</div>
 
-          {/* Input Fields - Full Width */}
-          <div className="space-y-3 w-full">
-            <input type="text" placeholder="Full name" className="login-input w-full text-sm" />
-            <input type="email" placeholder="Email" className="login-input w-full text-sm" />
-            <div className="relative w-full">
-              <input type="password" placeholder="Password" className="login-input w-full text-sm" />
-              <Eye className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            </div>
-          </div>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 text-[11px] font-bold rounded-xl text-center"
+            >
+              {error}
+            </motion.div>
+          )}
 
-          <button className="login-start-btn bg-[#2D5A5A] text-white w-full py-4 rounded-xl font-bold mt-6 shadow-lg shadow-[#2d5a5a3d] transition-transform active:scale-95 text-sm">
-            Start
-          </button>
+          {/* Input Fields - Full Width */}
+          <form onSubmit={handleSubmit} className="space-y-3 w-full">
+            {!isLogin && (
+              <input 
+                name="name"
+                type="text" 
+                placeholder="Full name" 
+                className="login-input w-full text-sm" 
+                value={formData.name}
+                onChange={handleChange}
+              />
+            )}
+            <input 
+              name="email"
+              type="email" 
+              placeholder="Email" 
+              className="login-input w-full text-sm" 
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <div className="relative w-full">
+              <input 
+                name="password"
+                type={showPassword ? "text" : "password"} 
+                placeholder="Password" 
+                className="login-input w-full text-sm" 
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            <button 
+              disabled={loading}
+              className="login-start-btn bg-[#2D5A5A] text-white w-full py-4 rounded-xl font-bold mt-6 shadow-lg shadow-[#2d5a5a3d] transition-all active:scale-95 text-sm flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loading && <Loader2 size={18} className="animate-spin" />}
+              {isLogin ? 'Log in' : 'Start'}
+            </button>
+          </form>
 
           <p className="text-center mt-5 text-slate-500 font-medium text-xs">
-            Already have an account? <span className="text-slate-900 font-bold cursor-pointer">Log in</span>
+            {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
+            <span 
+              className="text-slate-900 font-bold cursor-pointer hover:underline"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+              }}
+            >
+              {isLogin ? 'Sign up' : 'Log in'}
+            </span>
           </p>
+
         </div>
 
         {/* RIGHT SIDE: IMAGE (50%) */}
@@ -95,30 +213,6 @@ const LoginScreen = ({ onBack }) => {
           <X size={24} />
         </button>
       </motion.div>
-
-      <style jsx>{`
-        .social-btn {
-          height: 52px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #f1f5f9;
-          border-radius: 14px;
-          transition: all 0.3s;
-        }
-        .social-btn:hover { background: #e2e8f0; transform: translateY(-1px); }
-        .login-input {
-          background: #f1f5f9;
-          border: 1px solid transparent;
-          padding: 16px 20px;
-          border-radius: 14px;
-          font-weight: 600;
-          outline: none;
-          transition: all 0.2s;
-        }
-        .login-input:focus { border-color: #2D5A5A; background: #fff; }
-        .glass-pin { display: flex; flex-direction: column; align-items: flex-start; }
-      `}</style>
     </div>
   );
 };
