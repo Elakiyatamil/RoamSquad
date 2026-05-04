@@ -80,25 +80,62 @@ const DetailModal = ({ inquiry, onClose, onStatusUpdate }) => {
 
           <div className="p-4 bg-white rounded-xl border border-ink/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mb-3">Itinerary</p>
-            {timeline.length ? (
-              <div className="space-y-3">
-                {(Array.isArray(timeline) ? timeline : []).map((day) => (
-                  <div key={day.day} className="border-l-2 border-gold/30 pl-4 py-1">
-                    <p className="text-[10px] font-bold text-gold uppercase tracking-tighter mb-1">Day {day.day}</p>
-                    <div className="space-y-1">
-                      {(day.activities || []).map((act) => (
-                        <p key={act.planId || `${act.destinationName}:${act.name}`} className="text-xs font-bold text-ink/70 leading-tight">
-                          {act.destinationName}: {act.name}
-                        </p>
-                      ))}
-                      {day.travelNote ? <p className="text-[11px] text-ink/40 italic">{day.travelNote}</p> : null}
-                    </div>
+            {(() => {
+              const rawItinerary = inquiry?.itinerarySnapshot || inquiry?.itinerary;
+              let parsed = rawItinerary;
+              
+              if (typeof rawItinerary === 'string') {
+                try { parsed = JSON.parse(rawItinerary); } catch (e) { console.error("Parse error", e); }
+              }
+
+              // Case 1: Timeline based (standard)
+              const timeline = parsed?.timeline || parsed?.itinerary?.timeline || [];
+              if (timeline.length > 0) {
+                return (
+                  <div className="space-y-3">
+                    {timeline.map((day) => (
+                      <div key={day.day} className="border-l-2 border-gold/30 pl-4 py-1">
+                        <p className="text-[10px] font-bold text-gold uppercase tracking-tighter mb-1">Day {day.day}</p>
+                        <div className="space-y-1">
+                          {(day.activities || []).map((act) => (
+                            <p key={act.planId || `${act.destinationName}:${act.name}`} className="text-xs font-bold text-ink/70 leading-tight">
+                              {act.destinationName}: {act.name}
+                            </p>
+                          ))}
+                          {day.travelNote ? <p className="text-[11px] text-ink/40 italic">{day.travelNote}</p> : null}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <pre className="text-xs text-ink/60 whitespace-pre-wrap">{JSON.stringify(inquiry.itinerary, null, 2)}</pre>
-            )}
+                );
+              }
+
+              // Case 2: Items based (Direct selections)
+              const items = parsed?.items || (Array.isArray(parsed) ? parsed : null);
+              if (items && items.length > 0) {
+                return (
+                  <div className="grid grid-cols-1 gap-2">
+                    {items.map((item, idx) => (
+                      <div key={item.id || idx} className="flex items-center gap-3 p-3 bg-ink/5 rounded-xl border border-ink/5">
+                        <div className="w-10 h-10 flex-shrink-0 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
+                          {item.icon || '📍'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-ink truncate">{item.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[9px] font-bold text-ink/30 uppercase tracking-widest">{item.type || 'Activity'}</span>
+                            {item.price > 0 && <span className="text-[9px] font-bold text-gold">₹{item.price}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
+              // Fallback: Raw JSON if all else fails
+              return <pre className="text-[10px] text-ink/60 bg-ink/5 p-4 rounded-xl overflow-x-auto">{JSON.stringify(parsed, null, 2)}</pre>;
+            })()}
           </div>
         </div>
 

@@ -14,6 +14,7 @@ import axios from 'axios';
 import './Planner3Step.css';
 import ItineraryBuilder from '../../components/TravelMachine/ItineraryBuilder';
 import FloatingNav from '../../components/FloatingNav/FloatingNav';
+import OmniSearch, { EmptyState } from '../../components/OmniSearch/OmniSearch';
 import useAuthStore from '../../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
@@ -451,6 +452,7 @@ const PlannerPage = () => {
   // STATE
   const [loading, setLoading]                   = useState(true);
   const [destinations, setDestinations]         = useState([]);
+  const [filteredDestinations, setFilteredDestinations] = useState([]);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [showResults, setShowResults]           = useState(false);
   const [activeStep, setActiveStep]             = useState(1);
@@ -495,6 +497,18 @@ const PlannerPage = () => {
       }
       tap.count = 0;
     }, 300);
+  };
+
+  const handleSearchSelect = (dest) => {
+    setSelectedDestination(dest);
+    // Smooth scroll to Step 2
+    const step2El = document.querySelector('[data-step="2"]');
+    if (step2El && containerRef.current) {
+      containerRef.current.scrollTo({
+        top: step2El.offsetTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Step 2 complete signal
@@ -542,6 +556,7 @@ const PlannerPage = () => {
             videoUrl: `/destinationvideo/${d.name.toLowerCase()}.mp4`
           }));
           setDestinations(mapped);
+          setFilteredDestinations(mapped);
           if (mapped.length > 0) setSelectedDestination(mapped[0]);
         }
       } catch (error) {
@@ -655,49 +670,72 @@ const PlannerPage = () => {
             </p>
           </motion.div>
 
+          {/* Omni Search Bar */}
+          <motion.div style={{ opacity: carouselOpacity }}>
+            <OmniSearch 
+              destinations={destinations} 
+              onFilter={setFilteredDestinations}
+              onSelect={handleSearchSelect}
+            />
+          </motion.div>
+
           <motion.div
             className="destination-carousel no-scrollbar"
             style={{ opacity: carouselOpacity }}
           >
             {loading ? (
               <div className="planner-loading-text">Summoning destinations…</div>
-            ) : destinations.map((dest, idx) => {
-              const isSelected = selectedDestination?.id === dest.id;
-              const threadColor = CARD_THREAD_COLORS[idx % CARD_THREAD_COLORS.length];
-              const driftDuration = 4 + (idx % 4);
-              return (
-                <div key={dest.id} className="destination-card-wrapper">
-                  {/* Per-card accent thread */}
-                  <svg
-                    aria-hidden="true"
-                    style={{
-                      position:'absolute',
-                      top:'-10%', left:'-10%',
-                      width:'120%', height:'120%',
-                      pointerEvents:'none', zIndex:-1,
-                      animation:`threadDrift ${driftDuration}s ease-in-out infinite`
-                    }}
-                  >
-                    <path
-                      d={idx % 2 === 0
-                        ? "M10,0 Q60,40 110,20 T200,60"
-                        : "M200,100 Q150,60 100,80 T0,40"}
-                      fill="none"
-                      stroke={threadColor}
-                      strokeWidth="1.5"
-                      opacity="0.4"
-                    />
-                  </svg>
+            ) : filteredDestinations.length > 0 ? (
+              <AnimatePresence mode="popLayout">
+                {filteredDestinations.map((dest, idx) => {
+                  const isSelected = selectedDestination?.id === dest.id;
+                  const threadColor = CARD_THREAD_COLORS[idx % CARD_THREAD_COLORS.length];
+                  const driftDuration = 4 + (idx % 4);
+                  return (
+                    <motion.div 
+                      key={dest.id} 
+                      className="destination-card-wrapper"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                      layout
+                    >
+                      {/* Per-card accent thread */}
+                      <svg
+                        aria-hidden="true"
+                        style={{
+                          position:'absolute',
+                          top:'-10%', left:'-10%',
+                          width:'120%', height:'120%',
+                          pointerEvents:'none', zIndex:-1,
+                          animation:`threadDrift ${driftDuration}s ease-in-out infinite`
+                        }}
+                      >
+                        <path
+                          d={idx % 2 === 0
+                            ? "M10,0 Q60,40 110,20 T200,60"
+                            : "M200,100 Q150,60 100,80 T0,40"}
+                          fill="none"
+                          stroke={threadColor}
+                          strokeWidth="1.5"
+                          opacity="0.4"
+                        />
+                      </svg>
 
-                  <LivingDestinationCard 
-                    dest={dest} 
-                    isSelected={isSelected} 
-                    idx={idx}
-                    onSelect={() => setSelectedDestination(dest)}
-                  />
-                </div>
-              );
-            })}
+                      <LivingDestinationCard 
+                        dest={dest} 
+                        isSelected={isSelected} 
+                        idx={idx}
+                        onSelect={() => setSelectedDestination(dest)}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            ) : (
+              <EmptyState />
+            )}
           </motion.div>
 
           <AnimatePresence>
