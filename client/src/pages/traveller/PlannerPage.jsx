@@ -13,6 +13,8 @@ import {
 import axios from 'axios';
 import './Planner3Step.css';
 import ItineraryBuilder from '../../components/TravelMachine/ItineraryBuilder';
+import FloatingNav from '../../components/FloatingNav/FloatingNav';
+import useAuthStore from '../../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 
@@ -444,6 +446,7 @@ const PlannerPage = () => {
   const headerScale  = useTransform(scrollYProgress, [0, 0.15],   [1, 0.7]);
   const headerOpacity= useTransform(scrollYProgress, [0, 0.1],    [1, 0]);
   const carouselOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const { isAuthenticated, user } = useAuthStore();
 
   // STATE
   const [loading, setLoading]                   = useState(true);
@@ -630,20 +633,8 @@ const PlannerPage = () => {
       </svg>
 
       {/* ── Navbar ── */}
-      <div className="planner-navbar">
-        <motion.img
-          src="/logo.png" alt="RoamSquad"
-          className="planner-nav-logo"
-          onClick={handleLogoClick}
-          whileTap={{ scale: 0.88 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-          style={{ cursor: 'pointer' }}
-          onError={e => { e.target.style.display='none'; }}
-        />
-        <span className="planner-nav-title">WHERE TO NEXT?</span>
-        <StepDots activeStep={activeStep} />
-      </div>
+      <FloatingNav isAuthenticated={isAuthenticated} user={user} />
+
 
       {/* ── Scrollable container ── */}
       <div className="planner-main-scrollable no-scrollbar" ref={containerRef}>

@@ -269,22 +269,24 @@
 
 /* AUDIO CONTROLLER */
 .rh-audio-container {
-  position: absolute; bottom: 12%; right: 60px; z-index: 50;
+  position: absolute; bottom: 8%; right: 40px; z-index: 50;
 }
 
-.rh-audio-btn-burgundy {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--brand-burgundy); color: #fff; border: none;
+.rh-audio-btn-glass {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   display: flex; align-items: center; justify-content: center; cursor: pointer;
-  box-shadow: 0 10px 30px rgba(128, 0, 32, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.rh-audio-ripples .rh-ripple {
-  position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--brand-burgundy);
-  animation: ripple-out 2s infinite;
+.rh-audio-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
 }
-
-@keyframes ripple-out { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.2); opacity: 0; } }
 
 /* CURVED CUT */
 /* ─────────────────────────────────────────────────
@@ -490,7 +492,7 @@
 @media (max-width: 767px) {
   .rh-nav-master { padding: 15px 0; }
   .rh-nav-inner { padding: 0 15px; }
-  .rh-hero-content--journal { padding-top: 10vh; }
+  .rh-hero-content--journal { padding-top: 15vh; }
   
   .rh-headline-journal { 
     font-size: clamp(2rem, 9vw, 2.8rem); 
@@ -506,10 +508,10 @@
     inset: -2px;
   }
   
-  .rh-audio-container { right: 15px; bottom: 12%; }
-  .rh-scroll-indicator { bottom: 50px; }
-  .rh-svg-cut-wrap { height: 50px; bottom: -2px; }
-  .rh-video-panel { height: 70vh; }
+  .rh-audio-container { right: 15px; bottom: 8%; }
+  .rh-scroll-indicator { bottom: 30px; transform: translateX(-50%) scale(0.8); }
+  .rh-svg-cut-wrap { height: 40px; bottom: -2px; }
+  .rh-video-panel { height: 60vh; }
   
   .rh-dial-heading-top { font-size: 1.4rem; padding: 0 20px; }
   

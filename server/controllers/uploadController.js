@@ -1,5 +1,7 @@
 const cloudinary = require('../utils/cloudinary');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 // Use Memory Storage for Cloudinary uploads
 const storage = multer.memoryStorage();
@@ -119,9 +121,6 @@ const uploadMultiple = async (req, res) => {
             });
         } catch (cloudinaryError) {
             console.error("[uploadMultiple] Cloudinary failed, falling back to local storage:", cloudinaryError.message);
-            
-            const fs = require('fs');
-            const path = require('path');
             
             // Ensure uploads directory exists
             const uploadsDir = path.join(__dirname, '../public/uploads');

@@ -1,39 +1,69 @@
 .login-screen-parent {
-  color: #0f172a;
+  color: #1A1A1A;
 }
 
-.social-btn {
-  height: 52px;
+.font-playfair {
+  font-family: 'DM Serif Display', serif;
+}
+
+/* Glassmorphism Social Pills */
+.social-pill {
+  height: 48px;
+  width: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 14px;
-  transition: all 0.3s;
+  color: #1A1A1A;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.social-btn:hover {
-  background: #e2e8f0;
-  transform: translateY(-1px);
+.social-pill:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(128, 0, 32, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  color: #800020;
 }
 
-.login-input {
-  background: #f1f5f9;
-  border: 1px solid transparent;
+/* Glassmorphism Inputs */
+.login-input-glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   padding: 16px 20px;
   border-radius: 14px;
   font-weight: 600;
   outline: none;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #1A1A1A;
 }
 
-.login-input:focus {
-  border-color: #2D5A5A;
-  background: #fff;
+.login-input-glass::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+  font-weight: 500;
 }
 
-.glass-pin {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+.login-input-glass:focus {
+  border-color: rgba(128, 0, 32, 0.4);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 4px rgba(128, 0, 32, 0.05);
+}
+
+/* The Tempting Button */
+.btn-burgundy-gradient {
+  background: linear-gradient(135deg, #800020 0%, #4A0012 100%);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-burgundy-gradient:hover:not(:disabled) {
+  box-shadow: 0 12px 24px rgba(128, 0, 32, 0.3);
+  transform: translateY(-2px);
 }

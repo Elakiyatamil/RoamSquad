@@ -12,7 +12,6 @@ import './CosmosLayout.css';
 const DiscoveryPage = () => {
     return (
         <div className="discovery-cosmos-parent relative bg-black">
-            <StickySearch />
             <RoamgHero />
             <DestinationStack />
             <div style={{ 

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { 
-  Check, ArrowRight, Volume2, Edit3, 
+  Check, ArrowRight, Volume2, VolumeX, Edit3, 
   Star, Clock, Plus, Minus,
   Menu, X, MapPin, Send,
   Coffee, Utensils, Home, Sparkles
@@ -12,6 +12,8 @@ import './ItineraryBuilder.css';
 import LoginScreen from './LoginScreen';
 import InquiryModal from './InquiryModal';
 import useAuthStore from '../../store/authStore';
+import useAudioStore from '../../store/useAudioStore';
+import FloatingNav from '../FloatingNav/FloatingNav';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
@@ -65,40 +67,6 @@ const SameStateModal = ({ isOpen, onClose, siblings, currentState, onSelect }) =
   );
 };
 
-const FloatingNavbar = ({ onLogin }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  return (
-    <nav className="floating-nav-capsule">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-[#800020] rounded-lg flex items-center justify-center text-white font-black text-xl">R</div>
-        <span className="text-xl font-black tracking-tight text-gray-900">ROAMG</span>
-      </div>
-      <div className="nav-links-centered hidden md:flex">
-        <a href="/" className="nav-link-item">Discover</a>
-        <a href="/planner" className="nav-link-item">Planner</a>
-        <a href="/packages" className="nav-link-item">Packages</a>
-        <a href="/community" className="nav-link-item">Community</a>
-      </div>
-      <div className="flex items-center gap-4">
-        <button className="hidden md:block text-xs font-bold uppercase tracking-widest text-gray-900/40 hover:text-[#800020] transition-colors" onClick={onLogin}>Login</button>
-        <button className="md:hidden p-2 text-gray-900" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}><Menu size={24} /></button>
-      </div>
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div className="absolute top-full left-0 right-0 mt-4 bg-white rounded-3xl p-6 shadow-2xl flex flex-col gap-4 md:hidden" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-            <a href="/" className="text-lg font-bold">Discover</a>
-            <a href="/planner" className="text-lg font-bold">Planner</a>
-            <a href="/packages" className="text-lg font-bold">Packages</a>
-            <a href="/community" className="text-lg font-bold text-[#800020]">Community</a>
-            <hr className="border-gray-100" />
-            <button className="text-left font-bold text-gray-400" onClick={onLogin}>Login</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
-  );
-};
-
 const ItineraryBuilder = ({ destination: propDestination, duration, startDate, tripConfig }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [itinerary, setItinerary] = useState(() => {
@@ -112,13 +80,25 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   const [activeDay, setActiveDay] = useState(0);
   const [showLogin, setShowLogin] = useState(false);
   const [showInquiry, setShowInquiry] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const { isMuted, toggleMute } = useAudioStore();
+  const videoRef = useRef(null);
   const [priceRolling, setPriceRolling] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(null);
   const [successId, setSuccessId] = useState(null);
 
   const { isAuthenticated, user, logout } = useAuthStore();
+
+  // Sync audio imperatively — HTML muted attr must stay true for autoplay to work
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      if (!isMuted) {
+        videoRef.current.muted = false;
+        videoRef.current.volume = 1;
+      }
+    }
+  }, [isMuted]);
 
   const currentDest = itinerary[activeDay]?.destination || propDestination;
 
@@ -257,11 +237,11 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         )}
       </AnimatePresence>
 
-      <FloatingNavbar onLogin={() => setShowLogin(true)} />
+      <FloatingNav isAuthenticated={isAuthenticated} user={user} onLogin={() => setShowLogin(true)} />
 
       <header className="itinerary-hero-60">
         <div className="hero-video-wrap">
-          <video autoPlay loop muted={isMuted} playsInline key={currentDest.id}>
+          <video ref={videoRef} autoPlay loop muted playsInline key={currentDest.id}>
             <source src={`/destinationvideo/${currentDest.name.toLowerCase()}.mp4`} type="video/mp4" />
           </video>
           <div className="hero-gradient-fade" />
@@ -277,7 +257,23 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
           </div>
         </div>
         <div className="absolute bottom-8 right-8 z-10 flex gap-4">
-          <button onClick={() => setIsMuted(!isMuted)} className="icon-btn-glass">{isMuted ? <Volume2 size={20} className="opacity-40" /> : <Volume2 size={20} className="text-white" />}</button>
+          <button 
+            className="rh-audio-btn-glass" 
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+          >
+            <AnimatePresence mode="wait">
+              {isMuted ? (
+                <motion.div key="mute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <VolumeX size={20} color="white" />
+                </motion.div>
+              ) : (
+                <motion.div key="unmute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <Volume2 size={20} color="white" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </button>
         </div>
       </header>
 

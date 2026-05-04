@@ -52,16 +52,32 @@
 }
 
 /* 1. FLOATING NAVBAR */
+.rh-audio-btn-glass {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.rh-audio-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
 .floating-nav-capsule {
-  position: absolute;
+  position: fixed;
   top: 24px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
   max-width: 1200px;
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 100px;
   padding: 12px 32px;
@@ -69,7 +85,7 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-  z-index: 100;
+  z-index: 4000;
 }
 
 .nav-links-centered {
@@ -89,6 +105,8 @@
   opacity: 0.6;
   transition: all 0.3s;
   text-decoration: none;
+  padding: 6px 16px;
+  border-radius: 100px;
 }
 
 .nav-link-item:hover {
@@ -96,9 +114,15 @@
   letter-spacing: 0.25em;
 }
 
+.nav-link-item.active {
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 1;
+  color: var(--burgundy);
+}
+
 .hero-info-bar {
   position: absolute;
-  top: 100px; /* Below navbar */
+  top: 104px; /* Below unified navbar */
   left: 40px;
   z-index: 3;
   display: flex;
@@ -146,7 +170,7 @@
   flex: 0 0 350px; /* Increased min width */
   min-width: 320px;
   position: sticky;
-  top: 40px;
+  top: 104px; /* Pushed down to clear fixed navbar */
   height: fit-content;
 }
 
@@ -167,6 +191,7 @@
   font-size: 42px;
   color: var(--dark-slate);
   margin: 0;
+  padding-top: 16px; /* Ensure title is not obscured */
 }
 
 .day-indicators-list {
@@ -537,6 +562,15 @@
 /* MOBILE DRAWER */
 @media (max-width: 1024px) {
   .itinerary-main-split { flex-direction: column; padding: 0 24px; }
+  .floating-capsule-dock {
+    bottom: 24px;
+    width: calc(100% - 48px);
+    min-width: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 32px;
+  }
   
   .timeline-column { 
     position: fixed;

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Phone, CheckCircle, Download, ArrowRight, Loader2, FileText, ShoppingBag } from 'lucide-react';
 import axios from 'axios';
 import { generatePDF } from '../../utils/pdfExport';
+import useAuthStore from '../../store/authStore';
 import './InquiryModal.css';
 
 const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination, user, itinerary, tripConfig }) => {
@@ -11,8 +12,10 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
     const [sent, setSent] = useState(false);
     const [error, setError] = useState('');
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-    const BACKEND_URL = API_BASE.replace('/api', '');
+    const { token, logout } = useAuthStore();
+
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
+    const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
 
     const getImageUrl = (url, type) => {
         if (!url) {
@@ -41,28 +44,68 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
         setError('');
 
         try {
-            const payload = {
-                userId: user?.id,
-                name: user?.name || 'Guest User',
-                email: user?.email,
-                phone: phone,
-                destinationId: destination?.id,
-                destinationName: destination?.name,
-                itinerary: { items: selectedItems },
-                itinerarySnapshot: { items: selectedItems },
-                totalBudget: totalPrice,
-                tripDate: new Date(), // Default to today or ask for date
-                status: 'INQUIRY SENT'
-            };
+            // Serialize the day-by-day itinerary into a storable timeline format
+        const timelinePayload = itinerary ? itinerary.map((day, idx) => ({
+            day: idx + 1,
+            destination: day.destination?.name || destination?.name || '',
+            destinationId: day.destination?.id || destination?.id || null,
+            accommodation: day.accommodation ? {
+                id: day.accommodation.id,
+                name: day.accommodation.hotelNameInternal || day.accommodation.tier,
+                tier: day.accommodation.tier,
+                price: day.accommodation.price || 0,
+                imageUrl: day.accommodation.imageUrl || day.accommodation.image_url || null,
+            } : null,
+            activities: (day.dayItems || []).map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price || 0,
+                imageUrl: item.imageUrl || item.image_url || null,
+                category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+                destinationName: item.destinationName || day.destination?.name || '',
+                duration: item.duration || item.timing || null,
+            }))
+        })) : [{ day: 1, activities: selectedItems.map(item => ({
+            id: item.id, name: item.name, price: item.price || 0,
+            imageUrl: item.imageUrl || item.image_url || null,
+            category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+        })) }];
 
-            await axios.post(`${API_BASE}/api/inquiry`, payload, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('roamsquad-traveller-auth') ? JSON.parse(localStorage.getItem('roamsquad-traveller-auth')).state.token : ''}` }
-            });
+        const hotelItem = selectedItems.find(i => i.hotelNameInternal || i.tier);
+
+        const payload = {
+            userId: user?.id,
+            name: user?.name || 'Guest User',
+            email: user?.email,
+            phone: phone,
+            destinationId: destination?.id,
+            destinationName: destination?.name,
+            state: destination?.district?.state?.name || null,
+            district: destination?.district?.name || null,
+            itinerary: { timeline: timelinePayload },
+            itinerarySnapshot: { timeline: timelinePayload },
+            hotelSnapshot: hotelItem ? { name: hotelItem.hotelNameInternal || hotelItem.tier, tier: hotelItem.tier, price: hotelItem.price } : null,
+            totalBudget: totalPrice,
+            days: itinerary?.length || 1,
+            people: tripConfig?.people || null,
+            vibe: tripConfig?.tripType || null,
+            tripDate: new Date(),
+            status: 'INQUIRY SENT'
+        };
+
+        await axios.post(`${API_BASE_URL}/inquiry`, payload, {
+            headers: { Authorization: `Bearer ${token || ''}` }
+        });
 
             setSent(true);
         } catch (err) {
             console.error('Inquiry error:', err);
-            setError(err.response?.data?.error || 'Failed to send inquiry');
+            if (err.response?.status === 401) {
+                logout();
+                setError('Your session has expired. Please close this and log in again.');
+            } else {
+                setError(err.response?.data?.error || 'Failed to send inquiry');
+            }
         } finally {
             setLoading(false);
         }

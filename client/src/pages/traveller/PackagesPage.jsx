@@ -6,6 +6,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
+import FloatingNav from '../../components/FloatingNav/FloatingNav';
+import { useLoader } from '../../context/LoaderContext';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
@@ -70,6 +72,7 @@ export default function PackagesPage() {
     const [pendingPkg, setPendingPkg] = useState(null);
     const { isAuthenticated, user } = useAuthStore();
     const token = useAuthStore(s => s.token);
+    const { setIsLoading: setGlobalLoading } = useLoader();
 
     const { data: packages = [], isLoading } = useQuery({
         queryKey: ['publicPackages'],
@@ -78,6 +81,10 @@ export default function PackagesPage() {
             return res.data.data || [];
         }
     });
+
+    useEffect(() => {
+      setGlobalLoading(isLoading);
+    }, [isLoading, setGlobalLoading]);
 
     const interestMutation = useMutation({
         mutationFn: async ({ packageId, packageName, customPhone }) => {
@@ -122,12 +129,13 @@ export default function PackagesPage() {
 
     return (
         <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
+            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC BACKGROUND ── */}
             <div 
-                className="fixed inset-0 z-0 bg-cover bg-center"
+                className="fixed inset-0 z-0 bg-cover bg-center h-[60vh] md:h-screen"
                 style={{ 
-                    backgroundImage: `url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2560&q=100')`,
+                    backgroundImage: `url('https://images.unsplash.com/photo-1514525253361-bee8718a300a?auto=format&fit=crop&w=2560&q=100')`,
                 }}
             />
 
@@ -154,7 +162,7 @@ export default function PackagesPage() {
             <div className="fixed inset-0 z-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none mix-blend-multiply" />
 
             {/* ── MAIN CONTENT ── */}
-            <main className="relative z-10 container mx-auto px-6 py-24 max-w-7xl">
+            <main className="relative z-10 container mx-auto px-6 pt-32 pb-24 max-w-7xl">
                 <header className="mb-20 text-center">
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
@@ -162,7 +170,7 @@ export default function PackagesPage() {
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                         className="text-5xl md:text-7xl font-display font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                     >
-                        Global Packages
+                        Recently Booked Packages
                     </motion.h1>
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
@@ -252,7 +260,7 @@ export default function PackagesPage() {
                                     <button
                                         onClick={() => handleInterest(pkg)}
                                         disabled={interestMutation.isPending}
-                                        className="mt-auto w-full py-4 bg-white/10 text-white border border-white/20 rounded-full font-bold hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-50 backdrop-blur-md"
+                                        className="mt-auto w-full py-4 bg-white/10 text-white border border-white/20 rounded-full font-bold hover:bg-[#800020] hover:border-[#800020] hover:shadow-[0_0_24px_rgba(128,0,32,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 backdrop-blur-md"
                                     >
                                         {interestMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                                         Request Itinerary

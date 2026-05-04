@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import TravellerLayout from './layouts/TravellerLayout.jsx'
+import { useLoader } from './context/LoaderContext'
 import { Toaster } from 'react-hot-toast'
 import Loader from './components/Loader/Loader.jsx'
 
@@ -18,6 +19,25 @@ import AuthSuccess from './pages/traveller/AuthSuccess.jsx'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
+  const { setIsLoading } = useLoader()
+  const isFirstMount = React.useRef(true)
+
+  // Route change loading trigger
+  useEffect(() => {
+    if (!loading) {
+      if (isFirstMount.current) {
+        isFirstMount.current = false
+        return
+      }
+      setIsLoading(true)
+      const timer = setTimeout(() => setIsLoading(false), 800)
+      return () => {
+        clearTimeout(timer)
+        setIsLoading(false)
+      }
+    }
+  }, [location.pathname, loading, setIsLoading])
   
   return (
     <>

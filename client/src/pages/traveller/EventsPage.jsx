@@ -6,6 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
+import FloatingNav from '../../components/FloatingNav/FloatingNav';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
@@ -138,12 +139,13 @@ export default function EventsPage() {
 
     return (
         <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
+            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC BACKGROUND ── */}
             <div 
-                className="fixed inset-0 z-0 bg-cover bg-center"
+                className="fixed inset-0 z-0 bg-cover bg-center h-[60vh] md:h-screen"
                 style={{ 
-                    backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2560&q=100')`,
+                    backgroundImage: `url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=2560&q=100')`,
                 }}
             />
 
@@ -170,13 +172,13 @@ export default function EventsPage() {
             <div className="fixed inset-0 z-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none mix-blend-multiply" />
 
             {/* ── MAIN CONTENT ── */}
-            <main className="relative z-10 container mx-auto px-6 py-24 max-w-5xl">
+            <main className="relative z-10 container mx-auto px-6 pt-32 pb-24 max-w-5xl">
                 <header className="mb-20 text-center">
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-5xl md:text-7xl font-display font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
+                        className="text-4xl md:text-7xl font-display font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                     >
                         Upcoming Events
                     </motion.h1>
@@ -184,7 +186,7 @@ export default function EventsPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-white/90 text-2xl md:text-4xl font-serif italic max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
+                        className="text-white/90 text-xl md:text-4xl font-serif italic max-w-4xl mx-auto leading-relaxed drop-shadow-lg"
                     >
                         "Join our community events, meetups, and exclusive experiences."
                     </motion.p>
@@ -218,7 +220,7 @@ export default function EventsPage() {
                                 initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                className="group bg-black/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] hover:border-white/30 transition-all flex flex-col md:flex-row"
+                                className="group bg-black/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border border-white/20 shadow-2xl hover:shadow-[0_0_40px_rgba(128,0,32,0.2)] hover:border-[#800020]/50 transition-all flex flex-col md:flex-row"
                             >
                                 {(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url) ? (
                                     <div className="md:w-[350px] h-64 md:h-auto overflow-hidden shrink-0 relative">
@@ -271,7 +273,7 @@ export default function EventsPage() {
                                     <button
                                         onClick={() => handleJoin(evt)}
                                         disabled={joinMutation.isPending}
-                                        className="mt-auto self-start px-10 py-4 bg-white/10 border border-white/20 text-white rounded-full font-bold hover:bg-white hover:text-black transition-all flex items-center gap-3 disabled:opacity-50 backdrop-blur-md shadow-lg"
+                                        className="mt-auto self-start px-10 py-4 bg-white/10 border border-white/20 text-white rounded-full font-bold hover:bg-[#800020] hover:border-[#800020] hover:shadow-[0_0_24px_rgba(128,0,32,0.5)] transition-all flex items-center gap-3 disabled:opacity-50 backdrop-blur-md shadow-lg"
                                     >
                                         {joinMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                                         Join Event

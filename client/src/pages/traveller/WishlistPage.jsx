@@ -4,6 +4,7 @@ import { Heart, Trash2, MapPin, ArrowRight, Compass, Loader2, Calendar } from 'l
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
+import FloatingNav from '../../components/FloatingNav/FloatingNav';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
@@ -35,11 +36,12 @@ const WishlistPage = () => {
 
     return (
         <div className="w-full min-h-screen bg-[#FDFCF0] font-sans pb-32">
+            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC HERO HEADER ── */}
-            <header className="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+            <header className="relative w-full h-[60vh] md:h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
                 <img 
-                    src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=2560&q=100&auto=format" 
+                    src="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=2560&q=100&auto=format" 
                     alt="Wishlist Background"
                     className="absolute inset-0 w-full h-full object-cover scale-105"
                     style={{ animation: "pan-slow 25s ease-in-out infinite alternate" }}
@@ -52,7 +54,7 @@ const WishlistPage = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-6xl md:text-8xl font-display font-bold text-white mb-4 tracking-tight drop-shadow-2xl"
+                        className="text-4xl md:text-8xl font-display font-bold text-white mb-4 tracking-tight drop-shadow-2xl"
                     >
                         Your Wishlist.
                     </motion.h1>
@@ -153,7 +155,7 @@ const WishlistPage = () => {
                                     </p>
                                     <Link 
                                         to="/planner" 
-                                        className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-[#E8A838] to-[#C4724A] text-white rounded-full font-semibold text-lg hover:scale-105 transition-transform shadow-xl shadow-[#E8A838]/20"
+                                        className="inline-flex items-center gap-3 px-10 py-5 bg-[#800020] text-white rounded-full font-semibold text-lg hover:scale-105 transition-transform shadow-xl shadow-[#800020]/20"
                                     >
                                         <span>Start Discovering</span> <Compass size={22} />
                                     </Link>

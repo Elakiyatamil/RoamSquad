@@ -3,6 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
 import { Volume2, VolumeX, Menu, X, Search } from 'lucide-react';
 import { createSignal, globalSignals } from '../../utils/signals';
+import useAudioStore from '../../store/useAudioStore';
+import FloatingNav from '../FloatingNav/FloatingNav';
+import useAuthStore from '../../store/authStore';
 import './RoamgHero.css';
 
 const COMPANION_OPTIONS = [
@@ -20,7 +23,8 @@ const RoamgHero = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const { isMuted, toggleMute } = useAudioStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [activeLink, setActiveLink] = createSignal(location.pathname);
   const [isSelecting, setIsSelecting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,20 +42,22 @@ const RoamgHero = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Sync muted property with state
+  // Sync muted property imperatively — browsers block autoplay on unmuted videos,
+  // so the HTML muted attribute must stay true. We toggle audio via the ref instead.
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
+      if (!isMuted) {
+        // Try to unmute; browsers may still block it without user gesture
+        videoRef.current.muted = false;
+        videoRef.current.volume = 1;
+      }
     }
   }, [isMuted]);
 
   const handleVideoCanPlay = useCallback(() => {
     setIsVideoReady(true);
     videoRef.current?.play().catch(() => {});
-  }, []);
-
-  const toggleMute = useCallback(() => {
-    setIsMuted(prev => !prev);
   }, []);
 
   // Dial Interaction
@@ -112,83 +118,15 @@ const RoamgHero = () => {
           className={`rh-video ${isVideoReady ? 'rh-video--ready' : ''}`}
           src="/drone_shots.mp4"
           autoPlay 
-          muted={isMuted} 
+          muted
           loop 
           playsInline 
           preload="auto"
           onCanPlay={handleVideoCanPlay}
         />
         <div className="rh-master-overlay" />
+        <FloatingNav isAuthenticated={isAuthenticated} user={user} />
 
-        <header className={`rh-nav-master ${scrolled ? 'rh-nav--scrolled' : ''}`}>
-          <div className="rh-nav-inner">
-            <Link to="/" className="rh-logo-master" onClick={() => setActiveLink('/')}>
-              <img src="/logo.png" alt="Roamg" className="rh-logo-img" />
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="rh-nav-links desktop-only">
-              {['Discover', 'Planner', 'Packages', 'Events', 'Wishlist'].map((label) => (
-                <Link key={label} to={`/${label.toLowerCase()}`} className="rh-nav-link" onClick={() => setActiveLink(`/${label.toLowerCase()}`)}>
-                  {label}
-                  <span className="rh-nav-underline" />
-                </Link>
-              ))}
-            </nav>
-
-            <div className="rh-nav-right desktop-only">
-               <div className="rh-nav-search" onClick={() => navigate('/planner')}>
-                 <Search size={16} className="rh-search-icon" />
-                 <span>Where to next?</span>
-               </div>
-            </div>
-
-            {/* Mobile Hamburger Toggle */}
-            <button 
-              className="rh-mobile-toggle mobile-only"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-
-          {/* Mobile Side Drawer */}
-          <AnimatePresence>
-            {isMobileMenuOpen && (
-              <motion.div 
-                className="rh-mobile-drawer"
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              >
-                <div className="rh-drawer-header">
-                  <img src="/logo.png" alt="Roamg" className="rh-logo-img" style={{ height: '32px', filter: 'none' }} />
-                  <button onClick={() => setIsMobileMenuOpen(false)}><X size={24} /></button>
-                </div>
-                <nav className="rh-drawer-nav">
-                  {['Discover', 'Planner', 'Packages', 'Events', 'Wishlist'].map((label) => (
-                    <Link 
-                      key={label} 
-                      to={`/${label.toLowerCase()}`} 
-                      className="rh-drawer-link"
-                      onClick={() => {
-                        setActiveLink(`/${label.toLowerCase()}`);
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                  <button className="rh-drawer-search-btn" onClick={() => { navigate('/planner'); setIsMobileMenuOpen(false); }}>
-                    <Search size={18} />
-                    <span>Where to next?</span>
-                  </button>
-                </nav>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </header>
 
         <div className="rh-hero-content rh-hero-content--journal">
           <motion.h1 
@@ -217,15 +155,22 @@ const RoamgHero = () => {
         </div>
 
         <div className="rh-audio-container">
-          {!isMuted && (
-            <div className="rh-audio-ripples"><div className="rh-ripple" /><div className="rh-ripple" /></div>
-          )}
           <button 
-            className={`rh-audio-btn-burgundy ${!isMuted ? 'rh-audio--on' : ''}`} 
+            className="rh-audio-btn-glass" 
             onClick={toggleMute}
             aria-label={isMuted ? "Unmute video" : "Mute video"}
           >
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            <AnimatePresence mode="wait">
+              {isMuted ? (
+                <motion.div key="mute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <VolumeX size={20} color="white" />
+                </motion.div>
+              ) : (
+                <motion.div key="unmute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                  <Volume2 size={20} color="white" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
         </div>
 
