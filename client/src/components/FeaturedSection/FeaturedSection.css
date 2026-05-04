@@ -240,13 +240,21 @@
   height: 340px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   display: block;
   text-decoration: none;
   cursor: pointer;
   transform: none;
+  background: #0A0E1A; /* Dark base for events */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.fs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
 }
 
 .fs-card-bg-img {
@@ -258,8 +266,13 @@
   min-height: 200px;
   display: block;
   object-fit: cover;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
   z-index: 1;
+  opacity: 0;
+}
+
+.fs-card-bg-img.loaded {
+  opacity: 1;
 }
 
 .fs-card:hover .fs-card-bg-img {
@@ -280,7 +293,42 @@
 }
 
 .fs-events-section .fs-card-overlay {
-  background: linear-gradient(to top, rgba(10,14,26,0.90) 0%, transparent 45%);
+  background: linear-gradient(to top, rgba(10,14,26,0.6) 0%, transparent 45%);
+}
+
+.fs-card-gradient-readability {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 30%, transparent 60%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Wanderlust Loader inside Card */
+.fs-card-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 26, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.fs-paper-plane-spinner {
+  color: #FFFFFF;
+  animation: fs-float 2s ease-in-out infinite;
+}
+
+.fs-plane-icon {
+  transform: rotate(45deg);
+}
+
+@keyframes fs-float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(4px, -4px) rotate(10deg); }
+  75% { transform: translate(-4px, 4px) rotate(-10deg); }
 }
 
 /* Top Badges */
@@ -581,7 +629,8 @@
   }
   .fs-card {
     width: 200px;
-    height: 280px;
+    aspect-ratio: 4 / 5;
+    height: auto;
   }
   .fs-card-title {
     font-size: 15px;

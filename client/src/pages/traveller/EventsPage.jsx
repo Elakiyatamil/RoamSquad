@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { CalendarDays, MapPin, Phone, Loader2, ArrowRight, Clock } from 'lucide-react';
+import { CalendarDays, MapPin, Phone, Loader2, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
@@ -130,9 +130,10 @@ export default function EventsPage() {
     const isUpcoming = (dt) => dt ? new Date(dt) > new Date() : true;
 
     const getImgUrl = (url) => {
-        if (!url) return null;
+        const PLACEHOLDER = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+        if (!url || url === 'null' || url === 'undefined') return PLACEHOLDER;
         if (url.startsWith('http') || url.startsWith('data:')) return url;
-        const base = 'http://localhost:5005';
+        const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
         const path = url.startsWith('/') ? url : `/${url}`;
         return `${base}${path}`;
     };
@@ -228,7 +229,9 @@ export default function EventsPage() {
                                             src={getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url)}
                                             alt={evt.title}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                            onError={(e) => { 
+                                                e.target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+                                            }}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-black/80 to-transparent" />
                                     </div>
@@ -268,6 +271,9 @@ export default function EventsPage() {
                                                 <Phone size={16} className="text-[#E8A838] shrink-0" /> {evt.contactNumber}
                                             </span>
                                         )}
+                                        <span className="flex items-center gap-2 font-bold text-[#48C9B0]">
+                                            <CheckCircle2 size={16} /> Spots available
+                                        </span>
                                     </div>
 
                                     <button

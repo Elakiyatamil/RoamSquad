@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Calendar, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { MapPin, Calendar, ChevronLeft, ChevronRight, ArrowRight, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const EventsSlider = () => {
@@ -56,12 +56,108 @@ const EventsSlider = () => {
   };
 
   const getImgUrl = (url) => {
-    if (!url) return null;
+    // Premium placeholder: Desaturated mountain landscape
+    const PLACEHOLDER = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+    
+    if (!url || url === 'null' || url === 'undefined') return PLACEHOLDER;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
+    
     // Direct fallback to localhost if env is missing
-    const base = 'http://localhost:5005';
+    const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
     const path = url.startsWith('/') ? url : `/${url}`;
     return `${base}${path}`;
+  };
+
+  const EventCard = ({ evt, index }) => {
+    const [imgLoaded, setImgLoaded] = useState(false);
+    const [imgError, setImgError] = useState(false);
+    const imgUrl = getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url);
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
+      >
+        <Link to="/events" className="fs-card">
+          
+          {/* Wanderlust Loader (Visible until image loads) */}
+          <AnimatePresence>
+            {!imgLoaded && !imgError && (
+              <motion.div 
+                className="fs-card-loader"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="fs-paper-plane-spinner">
+                  <Send size={18} fill="currentColor" className="fs-plane-icon" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Background Image & Overlay */}
+          <img 
+            src={imgError ? "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" : imgUrl} 
+            alt={evt.title || evt.name} 
+            className={`fs-card-bg-img ${imgLoaded ? 'loaded' : ''}`} 
+            loading="lazy"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              setImgError(true);
+              setImgLoaded(true);
+            }}
+          />
+          <div className="fs-card-overlay" />
+          <div className="fs-card-gradient-readability" />
+          
+          {/* Badges */}
+          {(evt.type || evt.category || evt.tag) && <span className="fs-badge-tl">{evt.type || evt.category || evt.tag}</span>}
+          {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) && (
+            <span className="fs-badge-tr">
+              {new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+            </span>
+          )}
+          
+          {/* Default State Content */}
+          <div className="fs-card-default-content">
+            <h3 className="fs-card-title">{evt.title || evt.name}</h3>
+            <div className="fs-card-row">
+              <div className="fs-card-seats-indicator available">✓ Spots available</div>
+            </div>
+          </div>
+          
+          {/* Hover Arrow Icon */}
+          <div className="fs-card-arrow-icon">
+            <ArrowRight size={16} />
+          </div>
+          
+          {/* Hover Frosted Panel */}
+          <div className="fs-card-hover-panel">
+            <h4 className="fs-hover-title">{evt.title || evt.name}</h4>
+            <div className="fs-hover-location">
+              <MapPin size={12} />
+              {evt.location || evt.place || evt.venue || 'TBA'}
+            </div>
+            
+            <div className="fs-hover-row">
+              <div className="fs-hover-datetime">
+                <Calendar size={12} />
+                {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) 
+                  ? new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) 
+                  : 'TBA'}
+              </div>
+            </div>
+            
+            <button className="fs-hover-btn mt-auto">
+              Join Event <ArrowRight size={16} />
+            </button>
+          </div>
+          
+        </Link>
+      </motion.div>
+    );
   };
 
   return (
@@ -121,76 +217,7 @@ const EventsSlider = () => {
         ) : (
           <AnimatePresence>
             {events.map((evt, index) => (
-              <motion.div
-                key={evt.id || evt._id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index < 5 ? index * 0.08 : 0 }}
-              >
-                <Link to="/events" className="fs-card">
-                  
-                  {/* Background Image & Overlay */}
-                  <img 
-                    src={getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url)} 
-                    alt={evt.title || evt.name} 
-                    className="fs-card-bg-img" 
-                    loading="lazy"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                      zIndex: 1
-                    }}
-                  />
-                  <div className="fs-card-overlay" />
-                  
-                  {/* Badges */}
-                  {(evt.type || evt.category || evt.tag) && <span className="fs-badge-tl">{evt.type || evt.category || evt.tag}</span>}
-                  {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) && (
-                    <span className="fs-badge-tr">
-                      {new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                    </span>
-                  )}
-                  
-                  {/* Default State Content */}
-                  <div className="fs-card-default-content">
-                    <h3 className="fs-card-title">{evt.title || evt.name}</h3>
-                    <div className="fs-card-row">
-                      <div className="fs-card-seats-indicator available">✓ Spots available</div>
-                    </div>
-                  </div>
-                  
-                  {/* Hover Arrow Icon */}
-                  <div className="fs-card-arrow-icon">
-                    <ArrowRight size={16} />
-                  </div>
-                  
-                  {/* Hover Frosted Panel */}
-                  <div className="fs-card-hover-panel">
-                    <h4 className="fs-hover-title">{evt.title || evt.name}</h4>
-                    <div className="fs-hover-location">
-                      <MapPin size={12} />
-                      {evt.location || evt.place || evt.venue || 'TBA'}
-                    </div>
-                    
-                    <div className="fs-hover-row">
-                      <div className="fs-hover-datetime">
-                        <Calendar size={12} />
-                        {(evt.date || evt.startDate || evt.dateTime || evt.eventDate) 
-                          ? new Date(evt.date || evt.startDate || evt.dateTime || evt.eventDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) 
-                          : 'TBA'}
-                      </div>
-                    </div>
-                    
-                    <button className="fs-hover-btn mt-auto">
-                      Join Event <ArrowRight size={16} />
-                    </button>
-                  </div>
-                  
-                </Link>
-              </motion.div>
+              <EventCard key={evt.id || evt._id} evt={evt} index={index} />
             ))}
           </AnimatePresence>
         )}
