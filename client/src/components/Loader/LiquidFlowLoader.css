@@ -1,0 +1,97 @@
+:root {
+  --cream: #F5F5F0;
+  --half-white: #FFFFFF;
+  --black: #000000;
+  --font-main: 'Outfit', 'Inter', 'Canva Sans', sans-serif;
+}
+
+.liquid-loader-container {
+  position: fixed;
+  inset: 0;
+  background-color: var(--cream);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transform-origin: center center;
+}
+
+/* 1. Background Wave Texture - Thin Half White Lines */
+.liquid-loader-bg-waves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.8;
+  background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,500 Q250,400 500,500 T1000,500' fill='none' stroke='%23FFFFFF' stroke-width='0.5'/%3E%3Cpath d='M0,600 Q250,500 500,600 T1000,600' fill='none' stroke='%23FFFFFF' stroke-width='0.3'/%3E%3Cpath d='M0,400 Q250,300 500,400 T1000,400' fill='none' stroke='%23FFFFFF' stroke-width='0.2'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+.liquid-logo-wrapper {
+  position: relative;
+  width: 500px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  /*
+   * Smooth exit fade (removed zoom)
+   */
+  transition: opacity 1s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* 2. Entrance Exit State - simple fade, no zoom */
+.execute-zoom .liquid-logo-wrapper {
+  opacity: 0;
+}
+
+.liquid-logo-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.liquid-logo-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 90px;
+  font-weight: bold;
+  letter-spacing: -0.02em;
+}
+
+/* 3. The Percentage counter - lowercase and minimalist */
+.liquid-counter {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+  color: var(--black);
+  opacity: 0.5;
+}
+
+.liquid-counter.over-fill {
+  color: var(--half-white);
+  opacity: 0.9;
+}
+
+/* 4. Curvy Wave Animation */
+@keyframes wave-move {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.liquid-wave {
+  animation: wave-move 2.5s ease-in-out infinite; /* Smoother motion */
+}
+
+/* Exit Fade Effect */
+.execute-zoom .liquid-loader-container {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease-out;
+}

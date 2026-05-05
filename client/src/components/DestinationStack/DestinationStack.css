@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap');
+
+.ds-stack-container {
+  position: relative;
+  width: 100%;
+  background: #000;
+}
+
+/* Hero Parallax Section wrapper */
+.ds-hero-parallax-wrapper {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 5;
+  transition: transform 0.1s linear;
+}
+
+/* THE STACK */
+.ds-card-stack {
+  position: relative;
+  width: 100%;
+  z-index: 10;
+}
+
+.ds-card-item {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.ds-card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.ds-card-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ds-card-item:hover .ds-card-bg img {
+  transform: scale(1.05);
+}
+
+.ds-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.8) 100%);
+  z-index: 1;
+}
+
+/* CARD CONTENT */
+.ds-card-content {
+  position: relative;
+  z-index: 10;
+  padding: 0 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ds-massive-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(12rem, 45vw, 40rem);
+  font-weight: 950;
+  color: rgba(255, 255, 255, 0.12);
+  letter-spacing: -0.05em;
+  pointer-events: none;
+  z-index: -1;
+  text-align: center;
+  /* Blur is handled by inline motion style for scroll reactivity */
+}
+
+.ds-watermark-img {
+  width: clamp(20rem, 60vw, 60rem);
+  height: auto;
+  opacity: 1; /* Inherits parent opacity */
+  object-fit: contain;
+  filter: brightness(1.5); /* Make it pop a bit more in the blur */
+}
+
+.ds-content-inner {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  height: 100%;
+}
+
+.ds-motto-container {
+  text-align: center;
+  position: relative;
+  margin-bottom: 32px;
+  z-index: 2;
+}
+
+.ds-motto-line-1 {
+  font-family: 'DM Serif Display', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  display: block;
+}
+
+.ds-motto-line-2 {
+  font-family: 'DM Serif Display', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  display: block;
+  font-style: italic;
+}
+
+.ds-search-low {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+}
+
+/* NEON PULSE SEARCH (Embedded in Top Card) */
+.ds-search-entry-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.ds-neon-search-bar {
+  position: relative;
+  width: 100%;
+  height: 72px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ds-neon-search-bar:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.ds-search-low {
+  margin-top: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.ds-curated-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+  margin: 0;
+}
+
+.ds-search-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #fff;
+  opacity: 0.8;
+}
+
+/* NEON HEARTBEAT GLOW */
+.ds-neon-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: 36px;
+  border: 2px solid #800020;
+  z-index: -1;
+  box-shadow: 0 0 20px rgba(128, 0, 32, 0.6);
+  opacity: 0;
+  animation: neon-heartbeat 3s infinite;
+  transition: all 0.4s ease;
+}
+
+.ds-neon-search-bar:hover .ds-neon-glow {
+  box-shadow: 0 0 40px rgba(128, 0, 32, 0.9);
+  opacity: 1 !important;
+}
+
+@keyframes neon-heartbeat {
+  0% { opacity: 0.2; box-shadow: 0 0 10px rgba(128, 0, 32, 0.4); }
+  15% { opacity: 0.7; box-shadow: 0 0 25px rgba(128, 0, 32, 0.8); }
+  30% { opacity: 0.3; box-shadow: 0 0 15px rgba(128, 0, 32, 0.5); }
+  45% { opacity: 0.8; box-shadow: 0 0 30px rgba(128, 0, 32, 0.9); }
+  100% { opacity: 0.2; box-shadow: 0 0 10px rgba(128, 0, 32, 0.4); }
+}
+
+.ds-explore-btn {
+  margin-top: 40px;
+  padding: 18px 36px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 30px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ds-explore-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* RESPONSIVENESS */
+@media (max-width: 768px) {
+  .ds-card-content { padding: 0 24px 40px; }
+  .ds-card-title { font-size: 2rem; margin-bottom: 24px; }
+  .ds-card-category { letter-spacing: 1px; font-size: 12px; }
+  .ds-neon-search-bar { height: 56px; padding: 0 24px; border-radius: 28px; }
+  .ds-neon-glow { border-radius: 28px; }
+  .ds-search-text { font-size: 14px; }
+  .ds-explore-btn { padding: 14px 28px; font-size: 12px; }
+  .ds-search-low { margin-top: 5vh; }
+}
