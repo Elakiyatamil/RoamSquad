@@ -1,18 +1,12 @@
 import React from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
+import FloatingNav from '../components/FloatingNav/FloatingNav'
 
 export default function TravellerLayout() {
   const location = useLocation()
-  const nav = [
-    { to: '/', label: 'Discover' },
-    { to: '/planner', label: 'Planner' },
-    { to: '/packages', label: 'Packages' },
-    { to: '/events', label: 'Events' },
-    { to: '/wishlist', label: 'Wishlist' },
-    { to: '/my-trips', label: 'My Trips' },
-  ]
-
+  
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-bg-cream text-primary">
       {location.pathname !== '/' && !location.pathname.startsWith('/planner') && !location.pathname.startsWith('/my-trips') && !location.pathname.startsWith('/journey') && !location.pathname.startsWith('/packages') && !location.pathname.startsWith('/events') && !location.pathname.startsWith('/wishlist') && (
       <header className="sticky top-0 z-[100] bg-transparent backdrop-blur border-b border-white/5 h-[56px] md:h-auto flex items-center">
@@ -43,6 +37,10 @@ export default function TravellerLayout() {
         </div>
       </header>
       )}
+=======
+    <div className="min-h-screen">
+      <FloatingNav />
+>>>>>>> 518dda2 (feat: complete Tether aesthetic rebrand and UI optimization)
       <main>
         <Outlet />
       </main>

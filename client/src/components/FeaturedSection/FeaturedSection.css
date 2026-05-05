@@ -2,60 +2,47 @@
 
 .fs-wrapper {
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif !important;
   position: relative;
   z-index: 10;
-  border-radius: 60px 60px 0 0;
-  margin-top: -60px;
-  overflow: hidden; /* To clip the curved top on the children backgrounds if needed, but the wrapper itself has the curve */
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
 }
 
-/* We will assign the background to the sections inside */
 .fs-packages-section {
-  background-color: #FFFFFF;
-  padding: 80px 0 60px 0;
+  background-color: var(--bg-warm, #F5F0EB);
+  padding: 60px 5%;
   width: 100%;
   overflow: hidden;
   position: relative;
 }
 
-.fs-events-section {
-  background-color: #0A0E1A;
-  padding: 0 0 80px 0;
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.fs-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  text-align: center;
-  color: #888;
-  letter-spacing: 0.2em;
-  font-size: 11px;
-  padding: 30px 0;
-  font-weight: 600;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Full Width Header Styling */
 .fs-header-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 32px;
-}
-
-.fs-header-left {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.fs-journal-text {
+  color: #7A1535 !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.fs-heading {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: #1A1A1A;
+  margin: 0;
 }
 
 .fs-header-right {
@@ -204,52 +191,33 @@
   opacity: 0.8;
 }
 
-/* Card Strip */
+/* Card Grid */
 .fs-slider-track {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  overflow-y: visible;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
   width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-
-  padding-top: 16px;
-  padding-bottom: 32px;
-  padding-left: max(40px, calc((100vw - 1400px) / 2));
-  padding-right: max(40px, calc((100vw - 1400px) / 2));
-
-  margin-left: 0;
-  margin-right: 0;
-  transform: none;
-  position: relative;
-  min-width: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  overflow: visible;
 }
 
-.fs-slider-track::-webkit-scrollbar {
-  display: none;
-}
-
-/* Card Redesign */
+/* Card Styling */
 .fs-card {
-  width: 260px;
-  height: 340px;
-  flex-shrink: 0;
-  scroll-snap-align: start;
+  min-width: 280px;
+  width: 100%;
+  height: 380px;
+  flex: 1;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
   display: block;
   text-decoration: none;
   cursor: pointer;
-  transform: none;
-  background: #0A0E1A; /* Dark base for events */
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .fs-card:hover {
@@ -598,50 +566,115 @@
   text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .fs-card {
-    width: 230px;
-    height: 310px;
-  }
+/* Events Section Specifics */
+.fs-events-section {
+  background-color: #1A1A1A;
+  padding: 80px 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin-top: 30px; /* Spacing from Packages */
 }
 
+.fs-events-section .fs-header-container {
+  max-width: 1280px;
+  margin: 0 auto 40px;
+  padding: 0 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.fs-events-section .fs-heading {
+  color: #FFFFFF;
+}
+
+.fs-events-section .fs-journal-text {
+  color: #00FFCC !important; /* Soft teal for Events available */
+}
+
+/* Sync Events Grid with Packages */
+.fs-events-section .fs-slider-track {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Event Card Specifics */
+.fs-events-section .fs-card {
+  height: 400px;
+  background: #0A0E1A;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.fs-events-section .fs-card-default-content {
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 50%;
+}
+
+.fs-events-section .fs-card-title {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.fs-events-section .fs-card-seats-indicator.available {
+  color: #00FFCC; /* Soft teal available */
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* "5 Jun" Badge in Top Right */
+.fs-events-section .fs-badge-tr {
+  top: 15px;
+  right: 15px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Shimmer for dark mode events */
+.fs-events-section .fs-skeleton {
+  background: #1a1e2b;
+}
+
+/* Responsive Events */
 @media (max-width: 768px) {
-  .fs-header-container {
-    padding: 0 24px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+  .fs-packages-section {
+    padding: 40px 20px;
   }
-  .fs-heading {
-    font-size: 28px;
+  .fs-events-section {
+    padding: 60px 0;
+    margin-top: 20px;
   }
-  .fs-nav-arrows {
-    display: none;
+  .fs-events-section .fs-header-container {
+    padding: 0 20px;
   }
-  .fs-header-right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-  .fs-slider-track {
-    padding-left: max(24px, calc((100vw - 1400px) / 2));
-    padding-right: max(24px, calc((100vw - 1400px) / 2));
+  .fs-events-section .fs-slider-track {
+    grid-template-columns: 1fr;
+    width: calc(100% - 40px);
   }
   .fs-card {
-    width: 200px;
-    aspect-ratio: 4 / 5;
-    height: auto;
-  }
-  .fs-card-title {
-    font-size: 15px;
-  }
-  .fs-card-price-pill {
-    font-size: 12px;
-  }
-  .fs-card-arrow-icon {
-    width: 28px;
-    height: 28px;
-    bottom: 16px;
-    right: 16px;
+    min-width: 100%;
+    height: 340px;
   }
 }

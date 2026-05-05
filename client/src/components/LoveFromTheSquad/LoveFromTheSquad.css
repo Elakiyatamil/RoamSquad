@@ -2,13 +2,13 @@
 
 /* ─── WRAPPER ─── */
 .lfts-wrapper {
-  background-color: #0A0E1A;
+  background-color: #1A1A1A;
   width: 100%;
   position: relative;
   z-index: 1;
   overflow-x: clip;
-  font-family: 'Inter', sans-serif;
-  padding: 100px 0 80px;
+  font-family: 'Poppins', sans-serif;
+  padding: 80px 0;
 }
 
 /* ─── ANIMATED SVG WAVES ─── */
@@ -64,9 +64,9 @@
 }
 
 .lfts-title {
-  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(40px, 6vw, 76px);
-  font-weight: 400;
+  font-weight: 800;
   color: #FFFFFF;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -76,7 +76,7 @@
 
 /* "Love" in brand burgundy */
 .lfts-love {
-  color: #8B1A2F;
+  color: var(--accent-burgundy, #7A1535);
 }
 
 /* "Squad" with SVG drawn circle around it */
@@ -99,7 +99,7 @@
 
 .lfts-circle-path {
   fill: none;
-  stroke: #8B1A2F;
+  stroke: var(--accent-burgundy, #7A1535);
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
