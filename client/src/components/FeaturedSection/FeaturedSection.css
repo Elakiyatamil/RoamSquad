@@ -1,0 +1,647 @@
+/* FeaturedSection.css */
+
+.fs-wrapper {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  z-index: 10;
+  border-radius: 60px 60px 0 0;
+  margin-top: -60px;
+  overflow: hidden; /* To clip the curved top on the children backgrounds if needed, but the wrapper itself has the curve */
+}
+
+/* We will assign the background to the sections inside */
+.fs-packages-section {
+  background-color: #FFFFFF;
+  padding: 80px 0 60px 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.fs-events-section {
+  background-color: #0A0E1A;
+  padding: 0 0 80px 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.fs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  color: #888;
+  letter-spacing: 0.2em;
+  font-size: 11px;
+  padding: 30px 0;
+  font-weight: 600;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Full Width Header Styling */
+.fs-header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+}
+
+.fs-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fs-header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Journal Note Style */
+.fs-journal-label {
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.fs-journal-text {
+  position: relative;
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 8px;
+}
+
+.fs-packages-section .fs-journal-text {
+  color: #8B1A2F;
+}
+
+.fs-events-section .fs-journal-text {
+  color: #48C9B0;
+}
+
+.fs-marker-bg {
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.fs-marker-bg svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.fs-scribble-path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: fs-draw-pen 1.2s ease-out forwards 0.2s;
+}
+
+.packages-scribble {
+  stroke: rgba(139, 26, 47, 0.4); /* Faint crimson for circle */
+}
+
+.events-scribble {
+  stroke: rgba(72, 201, 176, 0.5); /* Faint teal for underline */
+}
+
+@keyframes fs-draw-pen {
+  to { stroke-dashoffset: 0; }
+}
+
+.fs-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 700;
+  margin: 0;
+}
+
+.fs-packages-section .fs-heading {
+  color: #1A1A1A;
+}
+
+.fs-events-section .fs-heading {
+  color: #FFFFFF;
+}
+
+/* Navigation Arrows */
+.fs-nav-arrows {
+  display: flex;
+  gap: 12px;
+}
+
+.fs-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fs-packages-section .fs-nav-btn {
+  border: 1px solid rgba(0,0,0,0.1);
+  background: #FFFFFF;
+  color: #1A1A1A;
+}
+
+.fs-packages-section .fs-nav-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.fs-events-section .fs-nav-btn {
+  border: 1px solid rgba(255,255,255,0.2);
+  background: #0A0E1A;
+  color: #FFFFFF;
+}
+
+.fs-events-section .fs-nav-btn:hover {
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.05);
+}
+
+.fs-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.fs-view-all-link {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+
+.fs-packages-section .fs-view-all-link {
+  color: #8B1A2F;
+}
+
+.fs-events-section .fs-view-all-link {
+  color: #0D5C63;
+}
+
+.fs-view-all-link:hover {
+  opacity: 0.8;
+}
+
+/* Card Strip */
+.fs-slider-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+
+  padding-top: 16px;
+  padding-bottom: 32px;
+  padding-left: max(40px, calc((100vw - 1400px) / 2));
+  padding-right: max(40px, calc((100vw - 1400px) / 2));
+
+  margin-left: 0;
+  margin-right: 0;
+  transform: none;
+  position: relative;
+  min-width: 0;
+}
+
+.fs-slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card Redesign */
+.fs-card {
+  width: 260px;
+  height: 340px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+  transform: none;
+  background: #0A0E1A; /* Dark base for events */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.fs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.fs-card-bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+  z-index: 1;
+  opacity: 0;
+}
+
+.fs-card-bg-img.loaded {
+  opacity: 1;
+}
+
+.fs-card:hover .fs-card-bg-img {
+  transform: scale(1.08);
+}
+
+.fs-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.fs-packages-section .fs-card-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%);
+}
+
+.fs-events-section .fs-card-overlay {
+  background: linear-gradient(to top, rgba(10,14,26,0.6) 0%, transparent 45%);
+}
+
+.fs-card-gradient-readability {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 30%, transparent 60%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Wanderlust Loader inside Card */
+.fs-card-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 26, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+}
+
+.fs-paper-plane-spinner {
+  color: #FFFFFF;
+  animation: fs-float 2s ease-in-out infinite;
+}
+
+.fs-plane-icon {
+  transform: rotate(45deg);
+}
+
+@keyframes fs-float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(4px, -4px) rotate(10deg); }
+  75% { transform: translate(-4px, 4px) rotate(-10deg); }
+}
+
+/* Top Badges */
+.fs-badge-tl {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 3;
+}
+
+.fs-packages-section .fs-badge-tl {
+  background: #E8A838;
+  color: #1A1A1A;
+}
+
+.fs-events-section .fs-badge-tl {
+  background: #0D5C63;
+  color: #FFFFFF;
+}
+
+.fs-badge-tr {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  z-index: 3;
+}
+
+.fs-packages-section .fs-badge-tr {
+  background: rgba(0,0,0,0.6);
+  color: #FFFFFF;
+  backdrop-filter: blur(4px);
+}
+
+.fs-events-section .fs-badge-tr {
+  background: rgba(10,14,26,0.8);
+  color: #FFFFFF;
+}
+
+/* Default Bottom Content */
+.fs-card-default-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fs-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.fs-events-section .fs-card-title {
+  font-size: 17px;
+}
+
+.fs-card-price-pill {
+  display: inline-block;
+  background: rgba(0,0,0,0.5);
+  color: #8B1A2F;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  width: fit-content;
+}
+
+.fs-card-seats-indicator {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fs-card-seats-indicator.warning { color: #E8A838; }
+.fs-card-seats-indicator.available { color: #0D5C63; }
+
+.fs-card-arrow-icon {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+
+.fs-packages-section .fs-card-arrow-icon {
+  background: #8B1A2F;
+}
+
+.fs-events-section .fs-card-arrow-icon {
+  background: #0D5C63;
+}
+
+/* Hover Frosted Panel */
+.fs-card-hover-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background: rgba(10, 14, 26, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 4;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+}
+
+.fs-card:hover .fs-card-hover-panel {
+  transform: translateY(0);
+}
+
+.fs-hover-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  color: #FFFFFF;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fs-hover-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #0D5C63;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.fs-hover-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: auto;
+}
+
+.fs-hover-price {
+  color: #8B1A2F;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.fs-hover-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+.fs-hover-rating svg {
+  color: #E8A838;
+  fill: #E8A838;
+}
+
+.fs-hover-datetime {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #888;
+  font-size: 12px;
+}
+
+.fs-hover-seats {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fs-hover-btn {
+  width: 100%;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.fs-packages-section .fs-hover-btn { background: #8B1A2F; }
+.fs-events-section .fs-hover-btn { background: #0D5C63; }
+
+/* Shimmer Skeleton */
+.fs-skeleton {
+  background: #e0e0e0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.fs-skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.4) 20%,
+    rgba(255, 255, 255, 0.6) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: fs-shimmer 2s infinite;
+}
+
+.fs-events-section .fs-skeleton {
+  background: #1a1e2b;
+}
+
+.fs-events-section .fs-skeleton::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+}
+
+@keyframes fs-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Empty State */
+.fs-empty-state {
+  padding: 40px;
+  color: #888;
+  font-size: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .fs-card {
+    width: 230px;
+    height: 310px;
+  }
+}
+
+@media (max-width: 768px) {
+  .fs-header-container {
+    padding: 0 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .fs-heading {
+    font-size: 28px;
+  }
+  .fs-nav-arrows {
+    display: none;
+  }
+  .fs-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .fs-slider-track {
+    padding-left: max(24px, calc((100vw - 1400px) / 2));
+    padding-right: max(24px, calc((100vw - 1400px) / 2));
+  }
+  .fs-card {
+    width: 200px;
+    aspect-ratio: 4 / 5;
+    height: auto;
+  }
+  .fs-card-title {
+    font-size: 15px;
+  }
+  .fs-card-price-pill {
+    font-size: 12px;
+  }
+  .fs-card-arrow-icon {
+    width: 28px;
+    height: 28px;
+    bottom: 16px;
+    right: 16px;
+  }
+}

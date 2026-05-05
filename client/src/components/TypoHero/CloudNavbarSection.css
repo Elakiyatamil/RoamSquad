@@ -1,0 +1,206 @@
+.cloud-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(5, 13, 26, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.3s ease;
+}
+
+.cloud-nav-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 4rem;
+  min-height: 64px;
+}
+
+.cloud-brand {
+  position: absolute;
+  left: 4rem;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.cloud-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cloud-link {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.cloud-link:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cloud-link.is-active {
+  color: #C1351A;
+  font-weight: 600;
+}
+
+.cloud-sep {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+/* Mobile row — hidden on desktop */
+.cloud-nav-mobile {
+  display: none;
+}
+
+/* Hamburger button */
+.cloud-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.cloud-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #F5F0E8;
+  border-radius: 2px;
+}
+
+/* Fullscreen drawer */
+.cloud-drawer {
+  position: fixed;
+  inset: 0;
+  background: #050d1a;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+  pointer-events: none;
+}
+
+.cloud-drawer--open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Subtle star texture overlay inside drawer */
+.cloud-drawer-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 13, 26, 0.97);
+  pointer-events: none;
+}
+
+.cloud-drawer-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 1.5rem;
+  color: #F5F0E8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 8px;
+  z-index: 10;
+  transition: color 0.2s ease;
+}
+
+.cloud-drawer-close:hover {
+  color: #C1351A;
+}
+
+.cloud-drawer-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.cloud-drawer-link {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: clamp(1.8rem, 8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #F5F0E8;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cloud-drawer-link:hover,
+.cloud-drawer-link.is-active {
+  color: #C1351A;
+}
+
+/* Backdrop (catches taps outside drawer) */
+.cloud-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
+@media (max-width: 1024px) {
+  .cloud-nav-content {
+    padding: 14px 2rem;
+  }
+  .cloud-brand {
+    left: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop content row */
+  .cloud-nav-content {
+    display: none;
+  }
+
+  /* Show mobile bar */
+  .cloud-nav-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    height: 56px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .cloud-brand-mobile {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #F5F0E8;
+    text-decoration: none;
+  }
+}
+

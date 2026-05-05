@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #000000;
+  --color-bg-cream: #F5F5F0;
+  --color-surface: #FFFFFF;
+  --color-accent-maroon: #800020;
+  
+  --font-display: "Outfit", "Inter", sans-serif;
+  --font-body: "Open Sans", "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-bg-cream text-primary font-body;
+  overflow-x: hidden;
+}
+
+/* Organic Wave Background */
+.wave-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,500 Q250,400 500,500 T1000,500' fill='none' stroke='%23800020' stroke-width='0.5'/%3E%3Cpath d='M0,600 Q250,500 500,600 T1000,600' fill='none' stroke='%23000000' stroke-width='0.3'/%3E%3Cpath d='M0,400 Q250,300 500,400 T1000,400' fill='none' stroke='%23800020' stroke-width='0.2'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+/* Card Styling */
+.glass-card {
+  @apply bg-surface/80 backdrop-blur-md border border-black/5 rounded-[24px] shadow-sm;
+}
+
+h1, h2, h3, h4, .font-display {
+  @apply font-display font-semibold tracking-tight;
+}
+
+
+
+

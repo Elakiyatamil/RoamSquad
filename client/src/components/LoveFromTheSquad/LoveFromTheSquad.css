@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+
+/* ─── WRAPPER ─── */
+.lfts-wrapper {
+  background-color: #0A0E1A;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  overflow-x: clip;
+  font-family: 'Inter', sans-serif;
+  padding: 100px 0 80px;
+}
+
+/* ─── ANIMATED SVG WAVES ─── */
+.lfts-waves-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.lfts-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-width: 1px;
+}
+
+.lfts-wave.wave-1 {
+  stroke: rgba(139, 26, 47, 0.3);
+  animation: lftsWaveScroll 18s linear infinite;
+}
+.lfts-wave.wave-2 {
+  stroke: rgba(13, 92, 99, 0.25);
+  animation: lftsWaveScroll 24s linear infinite reverse;
+}
+.lfts-wave.wave-3 {
+  stroke: rgba(232, 168, 56, 0.18);
+  animation: lftsWaveScroll 30s linear infinite;
+}
+
+@keyframes lftsWaveScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── CONTENT LAYER ─── */
+.lfts-content-layer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── HEADER ─── */
+.lfts-header {
+  text-align: center;
+  margin-bottom: 52px;
+  padding: 0 24px;
+}
+
+.lfts-title {
+  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-size: clamp(40px, 6vw, 76px);
+  font-weight: 400;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-align: center;
+  margin: 0;
+}
+
+/* "Love" in brand burgundy */
+.lfts-love {
+  color: #8B1A2F;
+}
+
+/* "Squad" with SVG drawn circle around it */
+.lfts-squad-wrap {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.lfts-circle-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 115%;
+  height: 160%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.lfts-circle-path {
+  fill: none;
+  stroke: #8B1A2F;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  animation: lftsDrawCircle 1.2s ease-out forwards 0.6s;
+}
+
+@keyframes lftsDrawCircle {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── CAROUSEL ─── */
+.lfts-carousel-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Calculated padding to center the content area on desktop */
+  padding: 24px calc((100vw - 900px) / 2);
+  justify-content: flex-start;
+}
+
+.lfts-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Depth effect — siblings dim when any card is hovered */
+.lfts-carousel-track:has(.lfts-video-card:hover) .lfts-video-card:not(:hover) {
+  transform: scale(0.96);
+  opacity: 0.65;
+}
+
+/* ─── CARD WRAPPER ─── */
+.lfts-card-wrapper {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+/* ─── VIDEO CARD ─── */
+.lfts-video-card {
+  width: clamp(200px, 22vw, 280px);
+  height: clamp(340px, 38vw, 500px);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: #0d1120;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease,
+              box-shadow 0.35s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.lfts-video-card:hover {
+  transform: scale(1.04);
+  opacity: 1;
+  z-index: 10;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.lfts-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  display: block;
+}
+
+/* Bottom-heavy dark gradient overlay */
+.lfts-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 14, 26, 0.9) 0%,
+    rgba(10, 14, 26, 0.2) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ─── BOTTOM INFO ─── */
+.lfts-video-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 18px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lfts-video-name {
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.lfts-video-tag {
+  display: inline-block;
+  background: rgba(13, 92, 99, 0.8);
+  backdrop-filter: blur(6px);
+  color: #FFFFFF;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255,255,255,0.12);
+  width: fit-content;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .lfts-video-card {
+    width: clamp(180px, 28vw, 240px);
+    height: clamp(300px, 45vw, 420px);
+  }
+}
+
+@media (max-width: 768px) {
+  .lfts-wrapper {
+    padding: 60px 0;
+  }
+  .lfts-header {
+    margin-bottom: 36px;
+  }
+  .lfts-carousel-track {
+    padding: 16px 24px;
+    gap: 12px;
+  }
+  .lfts-video-card {
+    width: 62vw;
+    height: calc(62vw * 1.78); /* 9:16 ratio */
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lfts-video-card {
+    width: 72vw;
+    height: calc(72vw * 1.78);
+  }
+}

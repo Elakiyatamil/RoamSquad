@@ -1,0 +1,103 @@
+.velvet-splash-container {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #FDFCF0; /* Brand Cream */
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.velvet-splash-exit {
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(0 50% 0 50%); /* Split dissolve effect */
+}
+
+.velvet-splash-container .velvet-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+
+.velvet-splash-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(128, 0, 32, 0.05);
+}
+
+.velvet-progress-fill {
+  height: 100%;
+  background: #800020;
+  box-shadow: 0 0 10px rgba(128, 0, 32, 0.3);
+}
+
+/* Reuse keyframes from VelvetLoader.css if already loaded, 
+   but redefined here for standalone splash reliability. */
+
+@keyframes breathe-splash {
+  0%, 100% { opacity: 0.6; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.velvet-splash-container .velvet-logo-pulse {
+  height: 64px;
+  width: auto;
+  animation: breathe-splash 4s ease-in-out infinite;
+}
+
+.velvet-splash-container .paper-plane-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.velvet-splash-container .paper-plane-wrapper {
+  animation: infinity-loop-splash 5s linear infinite;
+}
+
+@keyframes infinity-loop-splash {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  12.5% { transform: translate(50px, -25px) rotate(20deg); }
+  25% { transform: translate(100px, 0) rotate(0deg); }
+  37.5% { transform: translate(50px, 25px) rotate(-20deg); }
+  50% { transform: translate(0, 0) rotate(0deg); }
+  62.5% { transform: translate(-50px, -25px) rotate(20deg); }
+  75% { transform: translate(-100px, 0) rotate(0deg); }
+  87.5% { transform: translate(-50px, 25px) rotate(-20deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.velvet-splash-container .paper-plane-icon {
+  color: #800020;
+  width: 28px;
+  height: 28px;
+  transform: rotate(45deg);
+}
+
+.velvet-splash-container .velvet-loader-text {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: #800020;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .velvet-splash-container .velvet-loader-text {
+    font-size: 1.1rem;
+  }
+  .velvet-splash-container .paper-plane-wrapper {
+    transform: scale(0.7);
+  }
+}

@@ -1,0 +1,6 @@
+-- NOTE:
+-- This migration originally created the "AuditLog" table, but that table was already created
+-- in an earlier migration (20260316153140_refactor_trip_plan). Keeping a duplicate CREATE TABLE
+-- causes prisma migrate dev (shadow database) to fail with "relation AuditLog already exists".
+--
+-- This migration is intentionally a no-op.

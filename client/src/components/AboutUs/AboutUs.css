@@ -1,0 +1,273 @@
+/* ─── KEYFRAMES ─── */
+@keyframes au-sunSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes au-drawCircle {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── WRAPPER ─── */
+.au-wrapper {
+  background-color: #0A0E1A;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 24px 100px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Dot grid texture */
+.au-dot-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Content layer */
+.au-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* ─── LEFT ─── */
+.au-label {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #E8A838;
+  margin: 0 0 16px;
+}
+
+/* ─── HEADING ─── */
+.au-heading {
+  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-size: clamp(30px, 4.5vw, 52px);
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 28px;
+}
+
+/* Word wrapper — holds text + SVG circle */
+.au-word-wrap {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* The SVG circle that draws around the word */
+.au-word-circle {
+  position: absolute;
+  top: -10px;
+  left: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 20px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The animated ellipse path inside the SVG */
+.au-circle-path {
+  animation: au-drawCircle 1.2s ease-in-out forwards;
+  /* delay is set inline via style prop */
+}
+
+/* ─── BODY ─── */
+.au-body {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.9;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+/* ─── STATS ─── */
+.au-stats-block {
+  margin-top: 32px;
+}
+
+.au-stats-rule {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 32px;
+}
+
+.au-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+}
+
+.au-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.au-stat-num-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Small sun burst behind each stat number */
+.au-stat-sunburst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  animation: au-sunSpin 15s linear infinite;
+  pointer-events: none;
+}
+
+.au-stat-num {
+  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-size: 36px;
+  color: #FFFFFF;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Infinity symbol in amber gold */
+.au-stat-infinity {
+  color: #E8A838;
+  font-size: 44px;
+}
+
+.au-stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ─── CTA ─── */
+.au-cta-wrap {
+  margin-top: 32px;
+}
+
+.au-cta {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8B1A2F;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.au-arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+
+.au-cta:hover .au-arrow {
+  transform: translateX(6px);
+}
+
+/* ─── RIGHT: Photo collage ─── */
+.au-right {
+  display: flex;
+  justify-content: center;
+}
+
+.au-collage {
+  position: relative;
+  height: 420px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.au-polaroid {
+  position: absolute;
+  object-fit: cover;
+  border: 8px solid #FFFFFF;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ─── CLOSING ─── */
+.au-closing {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.au-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1) 20%,
+    rgba(255, 255, 255, 0.1) 80%,
+    transparent
+  );
+  margin: 80px 0 40px;
+}
+
+.au-tagline {
+  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: #FFF8E7; /* Premium Cream White */
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .au-collage { height: 340px; }
+  .au-polaroid:nth-child(1) { width: 190px !important; height: 240px !important; }
+  .au-polaroid:nth-child(2) { width: 175px !important; height: 220px !important; }
+  .au-polaroid:nth-child(3) { width: 160px !important; height: 200px !important; }
+}
+
+@media (max-width: 768px) {
+  .au-wrapper { padding: 80px 20px; }
+  .au-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .au-heading {
+    line-height: 1.2;
+  }
+  .au-collage {
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    overflow: visible;
+    margin-top: 20px;
+  }
+  .au-polaroid {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 130px !important; /* Slightly larger on mobile */
+    height: 170px !important;
+    border-width: 6px;
+  }
+  .au-rule { margin: 60px 0 30px; }
+  .au-tagline { font-size: 17px; padding: 0 10px; }
+  .au-stats { gap: 20px 32px; }
+}

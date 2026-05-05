@@ -1,0 +1,18 @@
+[
+  {
+    "id": "8338ba33-1792-4820-9635-85d0b6b3c644",
+    "name": "India",
+    "flag": null,
+    "code": null,
+    "active": true,
+    "createdAt": "2026-03-17T12:19:37.061Z"
+  },
+  {
+    "id": "12e1abff-e195-479e-9994-5df39422a615",
+    "name": "uk",
+    "flag": null,
+    "code": null,
+    "active": true,
+    "createdAt": "2026-03-17T12:24:55.706Z"
+  }
+]
