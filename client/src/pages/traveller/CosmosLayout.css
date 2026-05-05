@@ -1,7 +1,10 @@
 .discovery-cosmos-parent {
-    background: #ffffff;
+    background: #F5F0EB;
     overflow: visible;
     min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 /* Ensure no borders or shadows between sections */
@@ -9,4 +12,5 @@
     border-top: none !important;
     border-bottom: none !important;
     box-shadow: none !important;
+    margin: 0 !important;
 }
