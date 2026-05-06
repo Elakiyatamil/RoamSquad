@@ -23,7 +23,8 @@ export default function App() {
   const { setIsLoading } = useLoader()
   const isFirstMount = React.useRef(true)
 
-  // Route change loading trigger
+  // Route change loading trigger - Disabled as per user request to remove "fog" effect
+  /*
   useEffect(() => {
     if (!loading) {
       if (isFirstMount.current) {
@@ -38,6 +39,7 @@ export default function App() {
       }
     }
   }, [location.pathname, loading, setIsLoading])
+  */
   
   return (
     <>

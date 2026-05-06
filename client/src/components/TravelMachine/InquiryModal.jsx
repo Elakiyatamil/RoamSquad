@@ -278,6 +278,12 @@ const InquiryModal = ({ isOpen, onClose, selectedItems, totalPrice, destination,
                                     >
                                         Go Back to Discovery
                                     </button>
+                                    <button 
+                                        onClick={() => window.location.href = '/'}
+                                        className="w-full py-4 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+                                    >
+                                        Return to Home
+                                    </button>
                                 </div>
                             </motion.div>
                         )}
