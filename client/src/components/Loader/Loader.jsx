@@ -1,113 +1,137 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send } from 'lucide-react';
-import './VelvetSplash.css';
+import './LiquidFlowLoader.css';
 
-const SPLASH_TEXTS = [
-  "Curating your escape...",
-  "Gathering local flavors...",
-  "Mapping your journey...",
-  "Ready to explore?"
-];
+const LiquidFlowLoader = ({ onComplete }) => {
+  const [progress, setProgress] = useState(0);
+  const [isZooming, setIsZooming] = useState(false);
+  const [showCounter, setShowCounter] = useState(true);
+  // Wave phase for animating the sine wave surface independently
+  const [wavePhase, setWavePhase] = useState(0);
+  const rafRef = useRef(null);
+  const progressRef = useRef(0);
 
-/**
- * VelvetSplash - The new premium entry experience.
- */
-export default function Loader({ onComplete }) {
-  const [textIndex, setTextIndex] = useState(0);
-  const [fadeOut, setFadeOut] = useState(false);
-  const [trailPositions, setTrailPositions] = useState([]);
-  const trailIdRef = useRef(0);
-
+  // -- 1. Wave animation via requestAnimationFrame (smooth, not CSS) --
   useEffect(() => {
-    // Cycle text faster for splash
-    const textInterval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % SPLASH_TEXTS.length);
-    }, 900);
-
-    // Sync trails with a wider infinity motion
-    const trailInterval = setInterval(() => {
-      const id = trailIdRef.current++;
-      const time = Date.now() / 1000;
-      const x = Math.sin(time * 2) * 80; // Wider for splash
-      const y = Math.cos(time * 4) * 30;
-
-      setTrailPositions(prev => [...prev.slice(-15), { id, x, y }]);
-    }, 100);
-
-    // Timing
-    const fadeTimer = setTimeout(() => setFadeOut(true), 3200);
-    const completeTimer = setTimeout(() => {
-      if (onComplete) onComplete();
-    }, 4000);
-
-    return () => {
-      clearInterval(textInterval);
-      clearInterval(trailInterval);
-      clearTimeout(fadeTimer);
-      clearTimeout(completeTimer);
+    let startTime = null;
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const t = (timestamp - startTime) / 1000;
+      setWavePhase(t);
+      rafRef.current = requestAnimationFrame(animate);
     };
-  }, [onComplete]);
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  // -- 2. Faster Loading Simulation (~2.5-3s) --
+  useEffect(() => {
+    const interval = setInterval(() => {
+      progressRef.current = Math.min(progressRef.current + Math.random() * 4 + 1, 100);
+      setProgress(Math.floor(progressRef.current));
+      if (progressRef.current >= 100) clearInterval(interval);
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
+
+  // -- 3. Refined Exit: fast zoom IN, then parallel gradual fade --
+  useEffect(() => {
+    if (progress >= 100) {
+      // 400ms pause at solid black, then fire zoom + fade simultaneously
+      const zoomTimer = setTimeout(() => {
+        setShowCounter(false);
+        setIsZooming(true);
+
+        // onComplete fires after the fade animation finishes (1s)
+        const completeTimer = setTimeout(() => {
+          if (onComplete) onComplete();
+        }, 1000);
+
+        return () => clearTimeout(completeTimer);
+      }, 400);
+
+      return () => clearTimeout(zoomTimer);
+    }
+  }, [progress, onComplete]);
+
+  // -- 4. Dynamic SVG Wave Path (curvy sine) --
+  const buildWavePath = (phase, width = 500, amplitude = 14, freq = 2) => {
+    const points = 256; // Quadrupled points for ultra-smooth curve
+    let d = '';
+    for (let i = 0; i <= points; i++) {
+      const x = (i / points) * width;
+      const y = amplitude * Math.sin((i / points) * freq * 2 * Math.PI + phase);
+      if (i === 0) d += `M ${x} ${y}`;
+      else d += ` L ${x} ${y}`;
+    }
+    // Close the shape downward to fill the bottom
+    d += ` L ${width} 200 L 0 200 Z`;
+    return d;
+  };
+
+  const fillY = 150 - progress * 1.5; // 0% => bottom, 100% => top
 
   return (
-    <div className={`velvet-splash-container ${fadeOut ? 'velvet-splash-exit' : ''}`}>
-      <div className="velvet-loader-content">
-        {/* Breathing Logo */}
-        <motion.img 
-          src="/logo.png" 
-          alt="ROAMG" 
-          className="velvet-logo-pulse"
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-        />
+    <div className={`liquid-loader-container ${isZooming ? 'execute-zoom' : ''}`}>
+      {/* Background Texture */}
+      <div className="liquid-loader-bg-waves" />
 
-        {/* Wanderlust Loader */}
-        <div className="paper-plane-container">
-          {trailPositions.map((pos) => (
-            <motion.div 
-              key={pos.id} 
-              className="vapor-trail" 
-              initial={{ opacity: 0.5, scale: 1 }}
-              animate={{ opacity: 0, scale: 2 }}
-              style={{ 
-                position: 'absolute',
-                left: `calc(50% + ${pos.x}px)`, 
-                top: `calc(50% + ${pos.y}px)`,
-                background: '#800020', // Burgundy trails for splash
-                width: 4, height: 4, borderRadius: '50%'
-              }} 
-            />
-          ))}
-          <div className="paper-plane-wrapper">
-            <Send className="paper-plane-icon" fill="currentColor" />
-          </div>
-        </div>
+      <div className="liquid-logo-wrapper">
+        <svg className="liquid-logo-svg" viewBox="0 0 500 150" overflow="visible">
+          <defs>
+            {/* Text shape used as a clipping mask for the rising ink */}
+            <clipPath id="roamgClip">
+              <text
+                x="50%"
+                y="50%"
+                dy=".35em"
+                textAnchor="middle"
+                className="liquid-logo-text"
+              >
+                RoamG
+              </text>
+            </clipPath>
+          </defs>
 
-        {/* Progressive Text */}
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={textIndex}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.5 }}
-            className="velvet-loader-text"
+          {/* 1. Half-White skeleton with a razor-thin solid black stroke for visibility */}
+          <text
+            x="50%"
+            y="50%"
+            dy=".35em"
+            textAnchor="middle"
+            className="liquid-logo-text"
+            fill="#FFFFFF"
+            fillOpacity="0.6"
+            stroke="#000000"
+            strokeWidth="0.15"
+            strokeOpacity="1"
           >
-            {SPLASH_TEXTS[textIndex]}
-          </motion.p>
-        </AnimatePresence>
-      </div>
+            RoamG
+          </text>
 
-      {/* Progress Bar */}
-      <div className="velvet-splash-progress">
-        <motion.div 
-          className="velvet-progress-fill"
-          initial={{ width: 0 }}
-          animate={{ width: '100%' }}
-          transition={{ duration: 3.2, ease: "linear" }}
-        />
+          {/* 2. Rising Black Ink - clipped to text shape */}
+          <g clipPath="url(#roamgClip)">
+            {/* Static black fill below the wave */}
+            <rect x="0" y={fillY + 12} width="500" height="200" fill="#000000" />
+
+            {/* Dynamic curvy wave surface */}
+            <g transform={`translate(0, ${fillY})`}>
+              <path
+                d={buildWavePath(wavePhase * 3, 500, 12, 3)}
+                fill="#000000"
+              />
+            </g>
+          </g>
+        </svg>
+
+        {/* 3. Percentage Counter */}
+        {showCounter && (
+          <div className={`liquid-counter ${progress > 82 ? 'over-fill' : ''}`}>
+            loading... {progress}%
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default LiquidFlowLoader;
