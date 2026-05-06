@@ -1,44 +1,136 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-@theme {
-  --color-primary: #000000;
-  --color-bg-cream: #F5F5F0;
-  --color-surface: #FFFFFF;
-  --color-accent-maroon: #800020;
-  
-  --font-display: "Outfit", "Inter", sans-serif;
-  --font-body: "Open Sans", "Inter", sans-serif;
+:root {
+  --bg-warm: #F5F0EB;
+  --text-charcoal: #1A1A1A;
+  --accent-burgundy: #7A1535;
+  --accent-burgundy-dark: #5C0F28;
+  --accent-gold: #C9A96E;
+  --nav-bg: rgba(245, 240, 235, 0.95);
 }
 
-html {
-  scroll-behavior: smooth;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
 }
 
-body {
-  @apply bg-bg-cream text-primary font-body;
+html, body {
+  font-family: 'Poppins', sans-serif !important;
+  background-color: var(--bg-warm);
+  color: var(--text-charcoal);
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
 }
 
-/* Organic Wave Background */
-.wave-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.4;
-  background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,500 Q250,400 500,500 T1000,500' fill='none' stroke='%23800020' stroke-width='0.5'/%3E%3Cpath d='M0,600 Q250,500 500,600 T1000,600' fill='none' stroke='%23000000' stroke-width='0.3'/%3E%3Cpath d='M0,400 Q250,300 500,400 T1000,400' fill='none' stroke='%23800020' stroke-width='0.2'/%3E%3C/svg%3E");
-  background-size: cover;
+/* Remove potential layout shifting overflows */
+body {
+  overflow-y: auto;
 }
 
-/* Card Styling */
-.glass-card {
-  @apply bg-surface/80 backdrop-blur-md border border-black/5 rounded-[24px] shadow-sm;
+h1, h2, h3, h4, h5, h6, p, span, a, input, button, label {
+  font-family: 'Poppins', sans-serif !important;
 }
 
-h1, h2, h3, h4, .font-display {
-  @apply font-display font-semibold tracking-tight;
+h1, h2, h3, h4, h5, h6 {
+  color: var(--accent-burgundy);
+  font-weight: 700;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
 
+button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+}
 
+.btn-primary {
+  background-color: var(--accent-burgundy);
+  color: var(--bg-warm);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
 
+.btn-primary:hover {
+  background-color: var(--accent-burgundy-dark);
+}
+
+section {
+  padding: 80px 5%;
+  width: 100%;
+  position: relative;
+  background-color: var(--bg-warm);
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  section {
+    padding: 48px 20px;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Clean up empty containers */
+div:empty {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Modern "Ghost" Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 10px;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0; /* Hidden by default */
+}
+
+/* Show when scrolling (via JS adding class to body) */
+body.is-scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Firefox support (simplified) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+body.is-scrolling {
+  scrollbar-color: #000000 transparent;
+}

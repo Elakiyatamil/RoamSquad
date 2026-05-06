@@ -10,11 +10,11 @@
 
 /* ─── WRAPPER ─── */
 .au-wrapper {
-  background-color: #0A0E1A;
+  background-color: var(--bg-warm, #F5F0EB);
   position: relative;
   overflow: hidden;
-  padding: 120px 24px 100px;
-  font-family: 'Inter', sans-serif;
+  padding: 80px 5%;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* Dot grid texture */
@@ -42,19 +42,19 @@
 /* ─── LEFT ─── */
 .au-label {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #E8A838;
+  color: var(--accent-burgundy, #7A1535);
   margin: 0 0 16px;
 }
 
 /* ─── HEADING ─── */
 .au-heading {
-  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(30px, 4.5vw, 52px);
-  font-weight: 400;
-  color: #FFFFFF;
+  font-weight: 800;
+  color: var(--text-charcoal, #1A1A1A);
   line-height: 1.25;
   letter-spacing: -0.02em;
   margin: 0 0 28px;
@@ -87,7 +87,8 @@
 /* ─── BODY ─── */
 .au-body {
   font-size: 17px;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-charcoal, #1A1A1A);
+  opacity: 0.75;
   line-height: 1.9;
   font-weight: 400;
   margin-bottom: 20px;
@@ -135,9 +136,9 @@
 }
 
 .au-stat-num {
-  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 36px;
-  color: #FFFFFF;
+  color: var(--text-charcoal, #1A1A1A);
   line-height: 1;
   position: relative;
   z-index: 1;
@@ -145,13 +146,14 @@
 
 /* Infinity symbol in amber gold */
 .au-stat-infinity {
-  color: #E8A838;
+  color: var(--accent-gold, #C9A96E);
   font-size: 44px;
 }
 
 .au-stat-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-charcoal, #1A1A1A);
+  opacity: 0.5;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -163,8 +165,8 @@
 
 .au-cta {
   font-size: 14px;
-  font-weight: 500;
-  color: #8B1A2F;
+  font-weight: 700;
+  color: var(--accent-burgundy, #7A1535);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -224,10 +226,10 @@
 }
 
 .au-tagline {
-  font-family: 'DM Serif Display', 'Playfair Display', serif;
+  font-family: 'Poppins', sans-serif;
   font-style: italic;
   font-size: 22px;
-  color: #FFF8E7; /* Premium Cream White */
+  color: var(--text-charcoal, #1A1A1A);
   opacity: 0.8;
   letter-spacing: 0.02em;
   margin: 0;
