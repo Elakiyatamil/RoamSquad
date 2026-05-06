@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useSc
 import { Volume2, VolumeX, Menu, X, Search } from 'lucide-react';
 import { createSignal, globalSignals } from '../../utils/signals';
 import useAudioStore from '../../store/useAudioStore';
+import FloatingNav from '../FloatingNav/FloatingNav';
 import useAuthStore from '../../store/authStore';
 import './RoamgHero.css';
 
@@ -124,9 +125,10 @@ const RoamgHero = () => {
           onCanPlay={handleVideoCanPlay}
         />
         <div className="rh-master-overlay" />
+        <FloatingNav isAuthenticated={isAuthenticated} user={user} />
 
 
-        <div className="rh-centered-content">
+        <div className="rh-hero-content rh-hero-content--journal">
           <motion.h1 
             className="rh-headline-journal"
             initial={{ opacity: 0, y: 30 }}
@@ -143,33 +145,13 @@ const RoamgHero = () => {
             <br />
             IN <span className="rh-journal-note">
               <span className="rh-marker-bg">
-                <svg viewBox="0 0 160 60" preserveAspectRatio="none">
-                  <path d="M5,30 C5,10 75,5 135,15 C155,25 155,45 135,55 C75,65 5,50 5,30 Z" className="rh-scribble-path" />
+                <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+                  <path d="M5,30 C5,10 45,5 75,15 C95,25 95,45 75,55 C45,65 5,50 5,30 Z" className="rh-scribble-path" />
                 </svg>
               </span>
-              YOUR WAY
-            </span>
+              YOUR
+            </span> WAY
           </motion.h1>
-
-          <div className="rh-hero-search-wrapper">
-            <div 
-              className="rh-hero-search-bar" 
-              onClick={() => navigate('/planner')}
-              style={{ cursor: 'pointer' }}
-            >
-              <input 
-                type="text" 
-                placeholder="Where do you want to go?" 
-                className="rh-search-input"
-                style={{ pointerEvents: 'none' }}
-                readOnly
-              />
-              <button className="rh-search-submit-btn">
-                <Search size={18} strokeWidth={3} />
-              </button>
-            </div>
-            <p className="rh-search-subtext">DISCOVER YOUR NEXT ADVENTURE</p>
-          </div>
         </div>
 
         <div className="rh-audio-container">
@@ -181,20 +163,33 @@ const RoamgHero = () => {
             <AnimatePresence mode="wait">
               {isMuted ? (
                 <motion.div key="mute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <VolumeX size={18} color="white" />
+                  <VolumeX size={20} color="white" />
                 </motion.div>
               ) : (
                 <motion.div key="unmute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Volume2 size={18} color="white" />
+                  <Volume2 size={20} color="white" />
                 </motion.div>
               )}
             </AnimatePresence>
           </button>
         </div>
 
+        <div className="rh-scroll-indicator">
+          <span className="rh-scroll-text">Scroll to explore</span>
+          <motion.div 
+            className="rh-scroll-arrow"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+            </svg>
+          </motion.div>
+        </div>
+
         <div className="rh-svg-cut-wrap">
           <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="rh-svg-cut">
-            <path d="M0,0 Q720,100 1440,0 V100 H0 Z" fill="#F5F0EB" />
+            <path d="M0,0 Q720,100 1440,0 V100 H0 Z" fill="#ffffff" />
           </svg>
         </div>
       </div>
