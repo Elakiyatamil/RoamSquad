@@ -32,10 +32,7 @@ const WizardFooter = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/95 backdrop-blur text-primary text-[10px] px-4 py-1.5 rounded-full font-bold uppercase tracking-[0.15em] border border-black/5 shadow-sm pointer-events-none mb-1"
         >
-          {step === 1 ? 'Please select a destination to continue' :
-           step === 2 ? 'Please select your dates and duration' :
-           step === 3 ? 'Please select a vibe to continue' :
-           'Please complete this step'}
+          Please select a vibe to continue
         </motion.div>
       )}
 
