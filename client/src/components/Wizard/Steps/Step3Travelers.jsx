@@ -1,105 +1,284 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Minus, User, Baby, Check } from 'lucide-react';
+import { User, Baby, Minus, Plus, Check } from 'lucide-react';
 import usePlannerStore from '../../../store/usePlannerStore';
 
-const Step3Travelers = () => {
+const VIBES = [
+  { id: 'solo',      label: 'Solo',      img: '/solo.png' },
+  { id: 'couple',    label: 'Couple',    img: '/couple.png' },
+  { id: 'family',    label: 'Family',    img: '/family.png' },
+  { id: 'friends',   label: 'Friends',   img: '/friends.png' },
+  { id: 'strangers', label: 'Strangers', img: '/strangers.png' },
+];
+
+function CounterRow({ label, sub, count, icon, onAdd, onSub, minVal = 0 }) {
+  return (
+    <div
+      style={{
+        background: '#fff',
+        borderRadius: 20,
+        padding: '20px 28px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        border: '1px solid rgba(0,0,0,0.07)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+        marginBottom: 14,
+      }}
+    >
+      {/* Icon + labels */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            background: 'rgba(0,0,0,0.04)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'rgba(0,0,0,0.35)',
+          }}
+        >
+          {icon}
+        </div>
+        <div>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 600, color: '#000', margin: 0 }}>
+            {label}
+          </p>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 600, color: 'rgba(0,0,0,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '2px 0 0' }}>
+            {sub}
+          </p>
+        </div>
+      </div>
+
+      {/* Counter controls */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        <button
+          onClick={onSub}
+          disabled={count <= minVal}
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            border: '1px solid rgba(0,0,0,0.12)',
+            background: 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: count <= minVal ? 'not-allowed' : 'pointer',
+            opacity: count <= minVal ? 0.3 : 1,
+            transition: 'all 0.18s',
+          }}
+          onMouseEnter={e => { if (count > minVal) e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        >
+          <Minus size={16} color="#9CA3AF" />
+        </button>
+
+        <motion.span
+          key={count}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          style={{
+            fontFamily: "'Canva Sans', 'Inter', sans-serif",
+            fontSize: 26,
+            fontWeight: 700,
+            color: '#000',
+            minWidth: 28,
+            textAlign: 'center',
+            lineHeight: 1,
+          }}
+        >
+          {count}
+        </motion.span>
+
+        <button
+          onClick={onAdd}
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            border: '1.5px solid #800020',
+            background: 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.18s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#800020'; e.currentTarget.querySelector('svg').style.stroke = '#fff'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.querySelector('svg').style.stroke = '#800020'; }}
+        >
+          <Plus size={16} color="#800020" style={{ transition: 'stroke 0.15s' }} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function Step3Travelers() {
   const { travelers, vibe, updateData } = usePlannerStore();
 
-  const adjustTravelers = (type, amt) => {
+  const adjust = (type, amt) =>
     updateData({
       travelers: {
         ...travelers,
-        [type]: Math.max(type === 'adults' ? 1 : 0, travelers[type] + amt)
-      }
+        [type]: Math.max(type === 'adults' ? 1 : 0, travelers[type] + amt),
+      },
     });
-  };
-
-  const VIBES = [
-    { id: 'solo', label: 'Solo', img: '/solo.png' },
-    { id: 'couple', label: 'Couple', img: '/couple.png' },
-    { id: 'family', label: 'Family', img: '/family.png' },
-    { id: 'friends', label: 'Friends', img: '/friends.png' },
-    { id: 'strangers', label: 'Strangers', img: '/strangers.png' }
-  ];
 
   return (
-    <div className="flex flex-col items-center justify-center max-w-4xl mx-auto px-6 py-12 md:py-20">
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        maxWidth: 680,
+        margin: '0 auto',
+        padding: '40px 24px 24px',
+        minHeight: 'calc(100vh - 192px)',
+      }}
+    >
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full space-y-12"
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{ width: '100%' }}
       >
-        {/* 1. Travelers Counters at the top */}
-        <div className="space-y-6">
-          <CounterRow
-            label="Adults"
-            sub="Age 16+"
-            count={travelers.adults}
-            icon={<User size={24} />}
-            onAdd={() => adjustTravelers('adults', 1)}
-            onSub={() => adjustTravelers('adults', -1)}
-          />
-          <CounterRow
-            label="Kids"
-            sub="Below 16"
-            count={travelers.kids}
-            icon={<Baby size={24} />}
-            onAdd={() => adjustTravelers('kids', 1)}
-            onSub={() => adjustTravelers('kids', -1)}
-          />
-        </div>
+        {/* Traveler counters */}
+        <CounterRow
+          label="Adults" sub="Age 16+"
+          count={travelers.adults}
+          icon={<User size={22} />}
+          onAdd={() => adjust('adults', 1)}
+          onSub={() => adjust('adults', -1)}
+          minVal={1}
+        />
+        <CounterRow
+          label="Kids" sub="Below 16"
+          count={travelers.kids}
+          icon={<Baby size={22} />}
+          onAdd={() => adjust('kids', 1)}
+          onSub={() => adjust('kids', -1)}
+          minVal={0}
+        />
 
-        {/* 2. THE VIBE Sub-header */}
-        <div className="text-center">
-            <h2 className="text-primary/30 uppercase tracking-[0.25em] font-bold text-[11px] mb-8">THE VIBE</h2>
-        </div>
+        {/* THE VIBE */}
+        <p
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.28em',
+            color: 'rgba(0,0,0,0.3)',
+            textAlign: 'center',
+            margin: '32px 0 20px',
+          }}
+        >
+          The Vibe
+        </p>
 
-        {/* 3. Vibe Sticker Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+        {/* Arch sticker cards */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           {VIBES.map((v) => {
-            const isSelected = vibe === v.id;
+            const sel = vibe === v.id;
             return (
               <button
                 key={v.id}
                 onClick={() => updateData({ vibe: v.id })}
-                className="group relative flex flex-col items-center gap-4 outline-none"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  outline: 'none',
+                }}
               >
-                {/* Sticker Card (Arch Shape) */}
-                <div 
-                  className={`relative w-full aspect-[4/5] rounded-t-[120px] rounded-b-[20px] md:rounded-t-[150px] md:rounded-b-[24px] overflow-hidden transition-all duration-500 shadow-xl shadow-black/5 ${
-                    isSelected 
-                      ? 'bg-accent-maroon scale-105 border-4 border-accent-maroon' 
-                      : 'bg-white hover:bg-white/80 hover:-translate-y-2'
-                  }`}
+                {/* Arch card */}
+                <div
+                  style={{
+                    width: 108,
+                    height: 148,
+                    borderRadius: '999px 999px 20px 20px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    background: sel ? '#800020' : '#fff',
+                    border: sel ? '2.5px solid #800020' : '2.5px solid rgba(0,0,0,0.06)',
+                    boxShadow: sel
+                      ? '0 8px 32px rgba(128,0,32,0.28)'
+                      : '0 4px 16px rgba(0,0,0,0.08)',
+                    transform: sel ? 'scale(1.06)' : 'scale(1)',
+                    transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+                  }}
+                  onMouseEnter={e => { if (!sel) e.currentTarget.style.transform = 'translateY(-6px)'; }}
+                  onMouseLeave={e => { if (!sel) e.currentTarget.style.transform = 'scale(1)'; }}
                 >
-                  <div className="w-full h-full p-2 md:p-3 flex flex-col items-center">
-                    <div className="w-full h-[82%] rounded-t-[110px] rounded-b-[12px] overflow-hidden">
-                      <img 
-                        src={v.img} 
-                        alt={v.label}
-                        className={`w-full h-full object-cover transition-all duration-500 ${
-                          isSelected ? 'scale-110 brightness-110' : 'group-hover:scale-105'
-                        }`}
-                      />
-                    </div>
-                    
-                    {/* Label inside the card */}
-                    <div className="flex-1 flex items-center justify-center">
-                      <span className={`text-[10px] md:text-xs font-bold tracking-wider uppercase transition-colors ${
-                        isSelected ? 'text-white' : 'text-primary/60'
-                      }`}>
-                        {v.label}
-                      </span>
-                    </div>
+                  <img
+                    src={v.img}
+                    alt={v.label}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                      filter: sel ? 'brightness(0.85)' : 'none',
+                      transition: 'filter 0.3s',
+                    }}
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
 
-                    {/* Green Checkmark for selected state */}
-                    {isSelected && (
-                      <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg animate-in zoom-in duration-300">
-                        <Check size={12} strokeWidth={4} />
-                      </div>
-                    )}
+                  {/* Label inside card */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 8,
+                      left: 0,
+                      right: 0,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 9,
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.15em',
+                        color: sel ? '#fff' : 'rgba(255,255,255,0.85)',
+                        textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                      }}
+                    >
+                      {v.label}
+                    </span>
                   </div>
+
+                  {/* Green check for selected */}
+                  {sel && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        right: 8,
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        background: '#22c55e',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(34,197,94,0.4)',
+                      }}
+                    >
+                      <Check size={11} color="#fff" strokeWidth={3} />
+                    </motion.div>
+                  )}
                 </div>
               </button>
             );
@@ -108,36 +287,4 @@ const Step3Travelers = () => {
       </motion.div>
     </div>
   );
-};
-
-const CounterRow = ({ label, sub, count, icon, onAdd, onSub }) => (
-  <div className="bg-white/80 backdrop-blur-sm border border-black/5 rounded-[32px] p-6 md:p-8 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-center gap-6">
-      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black/5 flex items-center justify-center text-primary/40">
-        {icon}
-      </div>
-      <div>
-        <h3 className="text-lg md:text-xl font-display font-bold">{label}</h3>
-        <p className="text-[10px] text-primary/30 uppercase tracking-widest font-bold">{sub}</p>
-      </div>
-    </div>
-    
-    <div className="flex items-center gap-4 md:gap-8">
-      <button
-        onClick={onSub}
-        className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center hover:bg-black/5 transition-all active:scale-90"
-      >
-        <Minus size={18} />
-      </button>
-      <span className="text-2xl md:text-3xl font-display font-bold w-6 text-center">{count}</span>
-      <button
-        onClick={onAdd}
-        className="w-10 h-10 rounded-full border border-black/5 flex items-center justify-center hover:bg-black/5 transition-all active:scale-90"
-      >
-        <Plus size={18} />
-      </button>
-    </div>
-  </div>
-);
-
-export default Step3Travelers;
+}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -13,7 +14,6 @@ import LoginScreen from './LoginScreen';
 import InquiryModal from './InquiryModal';
 import useAuthStore from '../../store/authStore';
 import useAudioStore from '../../store/useAudioStore';
-import FloatingNav from '../FloatingNav/FloatingNav';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
@@ -205,6 +205,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   const isAssigned = (id) => itinerary.some(d => d.dayItems.some(i => i.id === id) || d.accommodation?.id === id);
 
   return (
+    <>
     <div className="itinerary-builder-parent">
       <AnimatePresence mode="wait">
         {showLogin && (
@@ -236,8 +237,6 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
           }} />
         )}
       </AnimatePresence>
-
-      <FloatingNav isAuthenticated={isAuthenticated} user={user} onLogin={() => setShowLogin(true)} />
 
       <header className="itinerary-hero-60">
         <div className="hero-video-wrap">
@@ -402,20 +401,38 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         </div>
       </main>
 
-      <div className="floating-capsule-dock">
+    </div>
+
+    {/* Portalled footer — escapes all stacking contexts, always on top */}
+    {createPortal(
+      <div className="itinerary-footer">
         <div className="dock-price-label">
           <span className="dock-price-sub">Current Itinerary Total</span>
-          <motion.span className={`dock-price-total ${priceRolling ? 'rolling-price' : ''}`} key={totalPrice}>₹{totalPrice.toLocaleString()}</motion.span>
+          <motion.span
+            className={`dock-price-total ${priceRolling ? 'rolling-price' : ''}`}
+            key={totalPrice}
+          >
+            ₹{totalPrice.toLocaleString()}
+          </motion.span>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex -space-x-3 overflow-hidden">
             {selectedItems.slice(0, 3).map((item) => (
-              <img key={item.id} className="inline-block h-10 w-10 rounded-full ring-2 ring-[#1A1A1A] object-cover" src={getImageUrl(item.imageUrl || item.image_url)} alt="" />
+              <img
+                key={item.id}
+                className="inline-block h-10 w-10 rounded-full ring-2 ring-[#1A1A1A] object-cover"
+                src={getImageUrl(item.imageUrl || item.image_url)}
+                alt=""
+              />
             ))}
-            {selectedItems.length > 3 && <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 ring-2 ring-[#1A1A1A]"><span className="text-xs font-medium text-white">+{selectedItems.length - 3}</span></div>}
+            {selectedItems.length > 3 && (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 ring-2 ring-[#1A1A1A]">
+                <span className="text-xs font-medium text-white">+{selectedItems.length - 3}</span>
+              </div>
+            )}
           </div>
-          <button 
-            className="btn-grab-premium" 
+          <button
+            className="btn-grab-premium"
             onClick={() => {
               if (isAuthenticated) setShowInquiry(true);
               else setShowLogin(true);
@@ -424,8 +441,10 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
             Send it to us! (we will make the trip) <Send size={20} />
           </button>
         </div>
-      </div>
-    </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 };
 

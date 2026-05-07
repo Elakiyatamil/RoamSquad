@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
 import { Volume2, VolumeX, Menu, X, Search } from 'lucide-react';
 import { createSignal, globalSignals } from '../../utils/signals';
+import usePlannerStore from '../../store/usePlannerStore';
 import useAudioStore from '../../store/useAudioStore';
 import useAuthStore from '../../store/authStore';
 import './RoamgHero.css';
@@ -98,6 +99,23 @@ const RoamgHero = () => {
     setTimeout(() => navigate('/planner'), 800);
   };
 
+  // Ensure planner opens in the new wizard state when user clicks search
+  const resetAndOpenPlanner = () => {
+    try {
+      const resetPlanner = usePlannerStore.getState().resetPlanner;
+      const setStep = usePlannerStore.getState().setStep;
+      if (typeof resetPlanner === 'function') resetPlanner();
+      if (typeof setStep === 'function') setStep(1);
+    } catch (err) {
+      // swallow — best-effort
+      // eslint-disable-next-line no-console
+      console.warn('Planner store not available:', err);
+    }
+    // Keep legacy signal for other components that may listen
+    globalSignals.setCurrentPlannerStep(1);
+    navigate('/planner');
+  };
+
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.9]);
@@ -154,7 +172,7 @@ const RoamgHero = () => {
           <div className="rh-hero-search-wrapper">
             <div 
               className="rh-hero-search-bar" 
-              onClick={() => navigate('/planner')}
+              onClick={resetAndOpenPlanner}
               style={{ cursor: 'pointer' }}
             >
               <input 

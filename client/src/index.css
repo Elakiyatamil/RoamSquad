@@ -1,23 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+/* Prefer Canva Sans if available, fall back to Inter/Geist */
+@font-face {
+  font-family: 'Canva Sans';
+  src: local('Canva Sans'), local('CanvaSans');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
 
-<<<<<<< HEAD
-@theme {
-  --color-primary: #000000;
-  --color-bg-cream: #F5F5F0;
-  --color-surface: #FFFFFF;
-  --color-accent-maroon: #800020;
-  
-  --font-display: "Outfit", "Inter", sans-serif;
-  --font-body: "Open Sans", "Inter", sans-serif;
-=======
 :root {
-  --bg-warm: #F5F0EB;
-  --text-charcoal: #1A1A1A;
-  --accent-burgundy: #7A1535;
-  --accent-burgundy-dark: #5C0F28;
-  --accent-gold: #C9A96E;
-  --nav-bg: rgba(245, 240, 235, 0.95);
->>>>>>> 518dda2 (feat: complete Tether aesthetic rebrand and UI optimization)
+  /* RoamG Design Tokens */
+  --cream: #FDFCF0;
+  --black: #000000;
+  --maroon: #800020;
+  --maroon-weak: rgba(128,0,32,0.08);
+  --ink: #1A1A1A;
+  --ink-light: #6B7280;
+  --ink-faint: #9CA3AF;
+  --white: #FFFFFF;
+  --shadow-strong: 0 20px 60px rgba(0,0,0,0.45);
+  --shadow-soft: 0 8px 32px rgba(0,0,0,0.10);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06);
+  --font-display: 'Canva Sans', 'Inter', 'Geist', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+}
+
+/* Tailwind v4 custom theme tokens */
+@theme {
+  --color-bg-cream: #FDFCF0;
+  --color-primary: #000000;
+  --color-accent-maroon: #800020;
+  --color-accent-maroon-weak: rgba(128,0,32,0.08);
+  --color-ink-faint: #9CA3AF;
+  --font-family-display: 'Canva Sans', 'Inter', 'Geist', sans-serif;
+  --font-family-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-family-serif: 'DM Serif Display', Georgia, serif;
 }
 
 * {
@@ -26,22 +45,23 @@
   box-sizing: border-box !important;
 }
 
-<<<<<<< HEAD
-body {
-  @apply bg-bg-cream text-primary font-body;
-=======
 html, body {
-  font-family: 'Poppins', sans-serif !important;
-  background-color: var(--bg-warm);
-  color: var(--text-charcoal);
->>>>>>> 518dda2 (feat: complete Tether aesthetic rebrand and UI optimization)
+  font-family: var(--font-body);
+  background-color: var(--cream);
+  color: var(--black);
   overflow-x: hidden;
   scroll-behavior: smooth;
   margin: 0;
   padding: 0;
 }
 
-<<<<<<< HEAD
+body {
+  background-color: var(--cream);
+  color: var(--black);
+  font-family: var(--font-body);
+  overflow-y: auto;
+}
+
 /* Organic Wave Background */
 .wave-bg {
   position: fixed;
@@ -55,28 +75,23 @@ html, body {
 
 /* Card Styling */
 .glass-card {
-  @apply bg-surface/80 backdrop-blur-md border border-black/5 rounded-[24px] shadow-sm;
-}
-
-h1, h2, h3, h4, .font-display {
-  @apply font-display font-semibold tracking-tight;
-}
-
-
-=======
-/* Remove potential layout shifting overflows */
-body {
-  overflow-y: auto;
-}
->>>>>>> 518dda2 (feat: complete Tether aesthetic rebrand and UI optimization)
-
-h1, h2, h3, h4, h5, h6, p, span, a, input, button, label {
-  font-family: 'Poppins', sans-serif !important;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--accent-burgundy);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--black);
+}
+
+p, span, a, input, button, label {
+  font-family: var(--font-body);
 }
 
 a {
@@ -136,12 +151,11 @@ img {
   transform: translateY(0);
 }
 
-/* Clean up empty containers */
-div:empty {
-  display: none !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+/* Planner Wizard global overrides */
+.planner-page-root {
+  background-color: var(--cream);
+  min-height: 100vh;
+  font-family: var(--font-body);
 }
 
 /* Modern "Ghost" Scrollbar */
@@ -174,3 +188,4 @@ body.is-scrolling::-webkit-scrollbar-thumb {
 body.is-scrolling {
   scrollbar-color: #000000 transparent;
 }
+
