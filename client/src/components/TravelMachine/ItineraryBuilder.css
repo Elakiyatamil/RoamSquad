@@ -439,24 +439,76 @@
 
 /* ANTIGRAVITY FOOTER — portalled to body, immune to stacking contexts */
 .itinerary-footer {
+  display: flex;
+  align-items: center; /* Locks everything to the center axis */
+  justify-content: space-between;
+  height: 64px; 
+  padding: 0 20px;
+  background: #1A1A1A;
+  border-radius: 50px;
   position: fixed !important;
   bottom: 32px;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(90%, 620px);
+  width: max-content;
   min-width: 480px;
-  background: var(--dark-slate);
-  border-radius: 100px;
-  padding: 8px 8px 8px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+  z-index: 99990;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255,255,255,0.1);
-  z-index: 99999;
   isolation: isolate;
   pointer-events: auto;
+}
+
+.footer-text-slim {
+  margin-left: 10px;
+  line-height: 1; /* Prevents text from shifting based on font-box size */
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+.avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-left: -12px; /* Creates the overlap */
+  object-fit: cover;
+  z-index: 1;
+  position: relative;
+}
+
+.avatar-circle:first-child {
+  margin-left: 0;
+}
+
+.footer-btn-send {
+  background: var(--burgundy);
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(128, 0, 32, 0.4);
+}
+
+.footer-btn-send:hover {
+  background: #a00028;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(128, 0, 32, 0.6);
 }
 
 /* Legacy class kept for non-portal contexts */
@@ -636,4 +688,118 @@
   z-index: 10;
   color: #fff;
   backdrop-filter: blur(4px);
+}
+
+/* CONFIRMATION MODAL */
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99990;
+}
+
+.confirm-modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 24px;
+  padding: 32px;
+  z-index: 100000;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  font-family: var(--outfit);
+}
+
+.confirm-modal-header {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--dark-slate);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.trip-summary-list {
+  background: rgba(0,0,0,0.02);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: rgba(0,0,0,0.6);
+  margin-bottom: 12px;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--dark-slate);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+}
+
+.whatsapp-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-input-wrap:focus-within {
+  border-color: #25D366;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.1);
+}
+
+.whatsapp-icon {
+  color: #25D366;
+  margin-right: 12px;
+}
+
+.whatsapp-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  font-size: 16px;
+  color: var(--dark-slate);
+  font-family: var(--outfit);
+}
+
+.btn-submit-request {
+  width: 100%;
+  background: var(--dark-slate);
+  color: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-submit-request:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }

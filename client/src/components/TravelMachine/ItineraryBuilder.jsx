@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { 
   Check, ArrowRight, Volume2, VolumeX, Edit3, 
   Star, Clock, Plus, Minus,
@@ -80,14 +81,82 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   const [activeDay, setActiveDay] = useState(0);
   const [showLogin, setShowLogin] = useState(false);
   const [showInquiry, setShowInquiry] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const { isMuted, toggleMute } = useAudioStore();
   const videoRef = useRef(null);
   const [priceRolling, setPriceRolling] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(null);
   const [successId, setSuccessId] = useState(null);
+  const { isAuthenticated, user, logout, token } = useAuthStore();
+  const navigate = useNavigate();
+  const submitDisabled = whatsappNumber.replace(/\D/g, '').length !== 10;
+  const [submitting, setSubmitting] = useState(false);
 
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const submitToMyTrips = async () => {
+    setSubmitting(true);
+    try {
+        const timelinePayload = itinerary ? itinerary.map((day, idx) => ({
+            day: idx + 1,
+            destination: day.destination?.name || fullDest?.name || '',
+            destinationId: day.destination?.id || fullDest?.id || null,
+            accommodation: day.accommodation ? {
+                id: day.accommodation.id,
+                name: day.accommodation.hotelNameInternal || day.accommodation.tier,
+                tier: day.accommodation.tier,
+                price: day.accommodation.price || 0,
+                imageUrl: day.accommodation.imageUrl || day.accommodation.image_url || null,
+            } : null,
+            activities: (day.dayItems || []).map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price || 0,
+                imageUrl: item.imageUrl || item.image_url || null,
+                category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+                destinationName: item.destinationName || day.destination?.name || '',
+                duration: item.duration || item.timing || null,
+            }))
+        })) : [{ day: 1, activities: selectedItems.map(item => ({
+            id: item.id, name: item.name, price: item.price || 0,
+            imageUrl: item.imageUrl || item.image_url || null,
+            category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
+        })) }];
+
+        const hotelItem = selectedItems.find(i => i.hotelNameInternal || i.tier);
+
+        const payload = {
+            userId: user?.id,
+            name: user?.name || 'Guest User',
+            email: user?.email,
+            phone: whatsappNumber,
+            destinationId: fullDest?.id,
+            destinationName: fullDest?.name,
+            state: fullDest?.district?.state?.name || null,
+            district: fullDest?.district?.name || null,
+            itinerary: { timeline: timelinePayload },
+            itinerarySnapshot: { timeline: timelinePayload },
+            hotelSnapshot: hotelItem ? { name: hotelItem.hotelNameInternal || hotelItem.tier, tier: hotelItem.tier, price: hotelItem.price } : null,
+            totalBudget: totalPrice,
+            days: itinerary?.length || 1,
+            people: tripConfig?.people || null,
+            vibe: tripConfig?.tripType || null,
+            tripDate: new Date(),
+            status: 'INQUIRY SENT'
+        };
+
+        await axios.post(`${API_BASE_URL}/inquiry`, payload, {
+            headers: { Authorization: `Bearer ${token || ''}` }
+        });
+
+        navigate('/my-trips');
+    } catch (err) {
+        console.error('Submission error:', err);
+        navigate('/my-trips');
+    } finally {
+        setSubmitting(false);
+    }
+  };
 
   // Sync audio imperatively — HTML muted attr must stay true for autoplay to work
   useEffect(() => {
@@ -403,45 +472,114 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
 
     </div>
 
+    {/* CONFIRMATION MODAL */}
+    <AnimatePresence>
+      {showConfirmModal && (
+        <>
+          <motion.div 
+            className="confirm-modal-overlay" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            onClick={() => setShowConfirmModal(false)}
+          />
+          <motion.div 
+            className="confirm-modal-card"
+            initial={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }}
+            style={{ top: '50%', left: '50%' }}
+          >
+            <h2 className="confirm-modal-header">Confirm Your Selection</h2>
+            <button 
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors"
+              onClick={() => setShowConfirmModal(false)}
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="trip-summary-list">
+              <div className="summary-item">
+                <span>Experiences ({itinerary.reduce((acc, day) => acc + day.dayItems.length, 0)})</span>
+                <span>Included</span>
+              </div>
+              <div className="summary-item">
+                <span>Accommodation</span>
+                <span>Included</span>
+              </div>
+              <div className="summary-total">
+                <span>Total Price</span>
+                <span>₹{totalPrice > 0 ? totalPrice.toLocaleString() : "2,100"}</span>
+              </div>
+            </div>
+
+            <div className="whatsapp-input-wrap">
+              <svg className="whatsapp-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766 0 1.011.266 1.996.766 2.868l-.813 2.97 3.037-.797c.84.457 1.782.698 2.768.698h.004c3.18 0 5.766-2.585 5.768-5.766 0-1.541-.6-2.991-1.689-4.08a5.727 5.727 0 0 0-4.073-1.659zm0-1.583c1.966 0 3.816.765 5.205 2.155A7.324 7.324 0 0 1 19.38 11.94c-.001 4.05-3.298 7.348-7.348 7.348-.002 0 0 0 0 0-1.282 0-2.535-.335-3.633-.97L3 20.125l1.844-5.263a7.35 7.35 0 0 1-1.025-3.722c0-4.051 3.297-7.35 7.348-7.35h.001A7.307 7.307 0 0 1 12.03 4.59h.001zm3.896 9.878c-.214-.107-1.264-.624-1.46-.695-.194-.071-.336-.107-.478.107-.142.213-.55.694-.675.836-.123.143-.247.16-.46.054-.214-.107-.903-.333-1.72-1.061-.635-.566-1.063-1.264-1.187-1.478-.124-.213-.013-.328.093-.435.096-.096.213-.25.32-.375.106-.125.142-.213.213-.356.071-.143.035-.268-.018-.375-.053-.107-.478-1.152-.654-1.577-.171-.416-.345-.359-.478-.365-.122-.006-.265-.006-.407-.006-.142 0-.374.053-.568.267-.194.214-.746.73-.746 1.782 0 1.052.763 2.068.87 2.21.106.143 1.506 2.3 3.647 3.224.509.219.907.351 1.218.45.512.162.978.139 1.345.084.414-.061 1.264-.516 1.442-1.015.178-.499.178-.928.125-1.016-.054-.089-.196-.143-.41-.25z"/>
+              </svg>
+              <input 
+                type="tel" 
+                className="whatsapp-input" 
+                placeholder="WhatsApp Number" 
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+              />
+            </div>
+
+            <button 
+              className="btn-submit-request"
+              disabled={submitDisabled || submitting}
+              style={{ opacity: (submitDisabled || submitting) ? 0.5 : 1, pointerEvents: (submitDisabled || submitting) ? 'none' : 'auto' }}
+              onClick={submitToMyTrips}
+            >
+              {submitting ? 'Submitting...' : 'Submit Request'} <ArrowRight size={20} />
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+
     {/* Portalled footer — escapes all stacking contexts, always on top */}
     {createPortal(
-      <div className="itinerary-footer">
-        <div className="dock-price-label">
-          <span className="dock-price-sub">Current Itinerary Total</span>
-          <motion.span
-            className={`dock-price-total ${priceRolling ? 'rolling-price' : ''}`}
-            key={totalPrice}
+      <AnimatePresence>
+        {!showConfirmModal && (
+          <motion.div 
+            className="itinerary-footer"
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
           >
-            ₹{totalPrice.toLocaleString()}
-          </motion.span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex -space-x-3 overflow-hidden">
-            {selectedItems.slice(0, 3).map((item) => (
-              <img
-                key={item.id}
-                className="inline-block h-10 w-10 rounded-full ring-2 ring-[#1A1A1A] object-cover"
-                src={getImageUrl(item.imageUrl || item.image_url)}
-                alt=""
-              />
-            ))}
-            {selectedItems.length > 3 && (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 ring-2 ring-[#1A1A1A]">
-                <span className="text-xs font-medium text-white">+{selectedItems.length - 3}</span>
-              </div>
-            )}
-          </div>
-          <button
-            className="btn-grab-premium"
-            onClick={() => {
-              if (isAuthenticated) setShowInquiry(true);
-              else setShowLogin(true);
-            }}
-          >
-            Send it to us! (we will make the trip) <Send size={20} />
-          </button>
-        </div>
-      </div>,
+            <div className="avatar-stack">
+              {selectedItems.slice(0, 3).map((item) => (
+                <img
+                  key={item.id}
+                  className="avatar-circle"
+                  src={getImageUrl(item.imageUrl || item.image_url)}
+                  alt=""
+                />
+              ))}
+              {selectedItems.length > 3 && (
+                <div className="avatar-circle bg-gray-800 flex items-center justify-center">
+                  <span className="text-xs font-medium text-white">+{selectedItems.length - 3}</span>
+                </div>
+              )}
+            </div>
+            
+            <span className="footer-text-slim hidden sm:block">Roam together, explore forever.</span>
+            
+            <button
+              className="footer-btn-send"
+              onClick={() => {
+                if (isAuthenticated) setShowConfirmModal(true);
+                else setShowLogin(true);
+              }}
+            >
+              Send it to us! <Send size={16} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>,
       document.body
     )}
     </>
