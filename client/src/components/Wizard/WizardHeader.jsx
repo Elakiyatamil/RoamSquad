@@ -1,9 +1,9 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import usePlannerStore from '../../store/usePlannerStore';
 import useAuthStore from '../../store/authStore';
+import NavUserPill from '../Navigation/NavUserPill';
 import './PlannerNavbar.css';
 
 const STEPS = [
@@ -19,14 +19,19 @@ export default function WizardHeader() {
   const navigate = useNavigate();
 
   const handleStepClick = (id) => {
-    // Only allow clicking steps that are already completed or the current step
     if (id <= step) setStep(id);
   };
 
   return (
-    <header className="planner-navbar" style={{ background: 'transparent', borderBottom: 'none', height: '60px' }}>
-      {/* Center — Animated Step Indicator (Full Width) */}
-      <nav className="pn-steps" style={{ position: 'relative', left: 'auto', transform: 'none', width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <header className="planner-navbar">
+
+      {/* LEFT — Logo */}
+      <div className="pn-logo" onClick={() => navigate('/')}>
+        <img src="/logo.png" alt="RoamG" className="pn-logo-img" />
+      </div>
+
+      {/* CENTER — Animated Step Indicator */}
+      <nav className="pn-steps">
         {STEPS.map((s, index) => {
           const isActive = step === s.id;
           const isCompleted = step > s.id;
@@ -38,6 +43,7 @@ export default function WizardHeader() {
                   onClick={() => handleStepClick(s.id)}
                   className={`step-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
                   disabled={!isCompleted && !isActive}
+                  aria-label={`Step ${s.id}: ${s.label}`}
                 >
                   {isCompleted ? <Check size={14} strokeWidth={3} /> : s.id}
                 </button>
@@ -45,8 +51,8 @@ export default function WizardHeader() {
                   {s.label}
                 </span>
               </div>
-              
-              {/* Connector Line (except after last step) */}
+
+              {/* Connector Line — fills crimson as steps complete */}
               {index < STEPS.length - 1 && (
                 <div className={`step-line ${step > s.id ? 'completed' : ''}`} />
               )}
@@ -54,6 +60,19 @@ export default function WizardHeader() {
           );
         })}
       </nav>
+
+      {/* RIGHT — User pill + Close */}
+      <div className="pn-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <NavUserPill />
+        <button
+          className="pn-close-btn"
+          onClick={() => navigate('/')}
+          aria-label="Exit planner"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
     </header>
   );
 }

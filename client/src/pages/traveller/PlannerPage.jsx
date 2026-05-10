@@ -56,8 +56,7 @@ export default function PlannerPage() {
         overflowX: 'hidden',
         backgroundColor: '#FDFCF0',
         fontFamily: "'Inter', 'Canva Sans', sans-serif",
-        paddingTop: '0 !important',
-        marginTop: '0 !important',
+        /* paddingTop and marginTop are controlled by .planner-page-root in PlannerNavbar.css */
       }}
     >
       {/* Subtle animated wave lines — matching RoamG reference */}
@@ -102,18 +101,16 @@ export default function PlannerPage() {
         </path>
       </svg>
 
-      {/* Persistent top breadcrumb header — sits below global nav */}
-      <div style={{ position: 'sticky', top: '80px', zIndex: 50, background: 'rgba(253, 252, 240, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-        <WizardHeader />
-      </div>
+      {/* Planner Navbar — owns its own sticky space */}
+      <WizardHeader />
 
       {/* Step content area */}
       <div
         style={{
           position: 'relative',
           zIndex: 10,
-          paddingTop: '24px',   /* below sticky header */
-          paddingBottom: '120px', /* above fixed footer pill */
+          paddingTop: '24px',
+          paddingBottom: '120px',
           minHeight: '80vh',
           overflow: 'hidden',
         }}

@@ -180,6 +180,7 @@ model Package {
   name       String
   daysCount  Int
   totalPrice Int
+  amount     Int?
   highlights String[]
   tag        String?
   coverImage String?

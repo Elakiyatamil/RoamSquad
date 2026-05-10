@@ -6,7 +6,7 @@ import apiClient from '../../services/apiClient';
 import ImageUpload from '../../components/ui/ImageUpload';
 
 function PackageForm({ onSave }) {
-  const [form, setForm] = useState({ name: '', daysCount: 3, totalPrice: 0, highlights: '', tag: '', coverImage: '', isActive: true });
+  const [form, setForm] = useState({ name: '', daysCount: 3, totalPrice: 0, amount: 0, highlights: '', tag: '', coverImage: '', isActive: true });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,9 +14,10 @@ function PackageForm({ onSave }) {
       ...form, 
       daysCount: Number(form.daysCount), 
       totalPrice: Number(form.totalPrice), 
+      amount: form.amount ? Number(form.amount) : null,
       highlights: form.highlights.split(',').map(h => h.trim()).filter(Boolean) 
     });
-    setForm({ name: '', daysCount: 3, totalPrice: 0, highlights: '', tag: '', coverImage: '', isActive: true });
+    setForm({ name: '', daysCount: 3, totalPrice: 0, amount: 0, highlights: '', tag: '', coverImage: '', isActive: true });
   };
 
   return (
@@ -27,6 +28,7 @@ function PackageForm({ onSave }) {
         <input type="number" className="p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Days" value={form.daysCount} onChange={e => setForm(p => ({...p, daysCount: e.target.value}))} />
         <input type="number" className="p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Total Price (₹)" value={form.totalPrice} onChange={e => setForm(p => ({...p, totalPrice: e.target.value}))} />
       </div>
+      <input type="number" className="w-full p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Budget Amount (₹) - Displayed in Client" value={form.amount} onChange={e => setForm(p => ({...p, amount: e.target.value}))} />
       <input className="w-full p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Highlights (comma separated)" value={form.highlights} onChange={e => setForm(p => ({...p, highlights: e.target.value}))} />
       
       <input className="w-full p-4 bg-ink/5 rounded-xl border-2 border-transparent focus:border-gold outline-none" placeholder="Tag (e.g. POPULAR)" value={form.tag} onChange={e => setForm(p => ({...p, tag: e.target.value}))} />

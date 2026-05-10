@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useLoader } from '../../context/LoaderContext';
+import NavUserPill from '../Navigation/NavUserPill';
 import './FloatingNav.css';
 
 /**
@@ -8,7 +9,8 @@ import './FloatingNav.css';
  * Desktop: pill-shaped fixed nav (unchanged)
  * Mobile:  sticky bar with slide-in drawer from right
  */
-const FloatingNav = ({ isAuthenticated, user, onLogin }) => {
+const FloatingNav = () => {
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { pathname } = useLocation();
   const { isLoading } = useLoader();
@@ -62,32 +64,7 @@ const FloatingNav = ({ isAuthenticated, user, onLogin }) => {
 
         {/* Right action */}
         <div className="fn-right">
-          {isAuthenticated && user ? (
-            <div className="fn-user-pill" onClick={() => navigate('/my-trips')}>
-              <div className="fn-user-initial">
-                {user.name?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <span className="fn-user-name">{user.name?.split(' ')[0] || 'My Account'}</span>
-            </div>
-          ) : (
-            <button 
-              className="fn-login-btn" 
-              onClick={() => navigate('/login')}
-              style={{
-                background: '#8B2040',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50px',
-                padding: '10px 24px',
-                fontFamily: 'Poppins',
-                fontWeight: 600,
-                fontSize: '0.85rem',
-                cursor: 'pointer'
-              }}
-            >
-              Login
-            </button>
-          )}
+          <NavUserPill />
         </div>
       </nav>
 
@@ -112,16 +89,9 @@ const FloatingNav = ({ isAuthenticated, user, onLogin }) => {
             </Link>
           ))}
         </nav>
-        {isAuthenticated && user ? (
-          <div className="fn-drawer-user" onClick={() => { setDrawerOpen(false); navigate('/my-trips'); }}>
-            <div className="fn-user-initial">{user.name?.[0]?.toUpperCase() || 'U'}</div>
-            <span>{user.name}</span>
-          </div>
-        ) : (
-          <button className="fn-team-btn" onClick={() => { setDrawerOpen(false); if (onLogin) onLogin(); }}>
-            LOGIN TO ROAM
-          </button>
-        )}
+        <div className="fn-drawer-actions" style={{ padding: '0 20px', marginTop: '20px' }} onClick={() => setDrawerOpen(false)}>
+          <NavUserPill />
+        </div>
       </aside>
     </div>
   );

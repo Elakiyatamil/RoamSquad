@@ -15,6 +15,7 @@ const PackageForm = ({ pkg, onClose }) => {
         name: '',
         daysCount: '',
         totalPrice: '',
+        amount: '',
         highlights: '',
         tag: 'Bestseller',
         coverImage: '',
@@ -47,6 +48,7 @@ const PackageForm = ({ pkg, onClose }) => {
             ...form,
             daysCount: parseInt(form.daysCount) || 0,
             totalPrice: parseFloat(form.totalPrice) || 0,
+            amount: form.amount ? parseInt(form.amount) : null,
             highlights: highlightsArray,
         });
     };
@@ -79,6 +81,11 @@ const PackageForm = ({ pkg, onClose }) => {
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹) *</label>
                             <input type="number" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="24999" required />
                         </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Budget Amount (₹) - Internal Tracking</label>
+                        <input type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="20000" />
                     </div>
 
                     <div className="space-y-1">
@@ -163,8 +170,12 @@ const PackageCard = ({ item, index, onEdit, onDelete }) => (
                     <IndianRupee size={14} />
                     <span>{item.totalPrice?.toLocaleString()}</span>
                 </div>
-                <div className="w-1.5 h-1.5 bg-ink/10 rounded-full" />
-                <p className="text-ink/40 font-bold text-[10px] uppercase tracking-widest">Starting Price</p>
+                {item.amount && (
+                    <>
+                        <div className="w-1.5 h-1.5 bg-ink/10 rounded-full" />
+                        <div className="text-red font-bold text-xs">Budget: ₹{item.amount.toLocaleString()}</div>
+                    </>
+                )}
             </div>
             {(Array.isArray(item.highlights) ? item.highlights : []).length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-6">

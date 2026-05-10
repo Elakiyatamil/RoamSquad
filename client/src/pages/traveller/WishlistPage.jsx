@@ -4,7 +4,6 @@ import { Heart, Trash2, MapPin, ArrowRight, Compass, Loader2, Calendar } from 'l
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
-import FloatingNav from '../../components/FloatingNav/FloatingNav';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
@@ -36,7 +35,6 @@ const WishlistPage = () => {
 
     return (
         <div className="w-full min-h-screen bg-[#FDFCF0] font-sans pb-32 page-wrapper">
-            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC HERO HEADER ── */}
             <header className="relative w-full h-[60vh] md:h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">

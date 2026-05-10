@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Package, Check, ArrowRight, Loader2, Calendar } from 'lucide-react';
@@ -6,62 +6,10 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
-import FloatingNav from '../../components/FloatingNav/FloatingNav';
 import { useLoader } from '../../context/LoaderContext';
+import './PackagesPage.css';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
-
-const SnowEngine = () => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let W = window.innerWidth, H = window.innerHeight;
-    canvas.width = W; canvas.height = H;
-
-    const particles = Array.from({ length: 150 }, (_, i) => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 2 + 0.3,
-      sy: [0.4, 0.8, 1.2][i % 3], 
-      sx: (0.1 + Math.random() * 0.2), 
-      opacity: [0.2, 0.4, 0.6][i % 3],
-      blur: [2, 0.5, 0][i % 3],
-      depth: (i % 3)
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, W, H);
-      particles.forEach(p => {
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
-        ctx.shadowBlur = p.blur;
-        ctx.shadowColor = "white";
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        p.y += p.sy;
-        p.x += p.sx;
-
-        if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
-        if (p.x > W + 10) { p.x = -10; }
-      });
-      requestAnimationFrame(draw);
-    };
-
-    const handleResize = () => {
-      W = window.innerWidth; H = window.innerHeight;
-      canvas.width = W; canvas.height = H;
-    };
-    window.addEventListener('resize', handleResize);
-    const animId = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', handleResize); };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 z-[1] pointer-events-none" />;
-};
 
 export default function PackagesPage() {
     const [showAuth, setShowAuth] = useState(false);
@@ -120,157 +68,58 @@ export default function PackagesPage() {
     };
 
     const getImgUrl = (url) => {
-        if (!url) return null;
+        if (!url) return 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80';
         if (url.startsWith('http') || url.startsWith('data:')) return url;
-        const base = 'http://localhost:5005';
+        const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
         const path = url.startsWith('/') ? url : `/${url}`;
         return `${base}${path}`;
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32 page-wrapper">
-            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
-            
-            {/* ── CINEMATIC BACKGROUND ── */}
-            <div 
-                className="fixed inset-0 z-0 bg-cover bg-center h-[60vh] md:h-screen"
-                style={{ 
-                    backgroundImage: `url('https://images.unsplash.com/photo-1514525253361-bee8718a300a?auto=format&fit=crop&w=2560&q=100')`,
-                }}
-            />
+        <div className="packages-page">
+            <header>
+                <h1 className="packages-heading">Recently Booked Packages</h1>
+                <p className="packages-sub">Handcrafted travel packages designed for unforgettable, premium experiences.</p>
+            </header>
 
-            {/* ── HUGE BACKGROUND WORD ── */}
-            <div className="fixed inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden mix-blend-overlay">
-                <motion.h1 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.15 }}
-                    transition={{ duration: 2 }}
-                    className="text-white font-bold leading-none text-[25vw] tracking-tighter whitespace-nowrap"
-                    style={{ fontFamily: "'Cormorant Garamond', serif", filter: 'blur(2px)' }}
-                >
-                    ROAMSQUAD
-                </motion.h1>
-            </div>
-
-            {/* Nav Bar Protection Gradient - Soft Blend */}
-            <div className="fixed top-0 left-0 w-full h-40 bg-gradient-to-b from-[#FDFCF0]/90 via-[#FDFCF0]/50 to-transparent z-[5] pointer-events-none" />
-
-            {/* ── FESTIVE ANIMATIONS ── */}
-            <SnowEngine />
-            
-            {/* Gradient Overlay for Readability (Dark at bottom) */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none mix-blend-multiply" />
-
-            {/* ── MAIN CONTENT ── */}
-            <main className="relative z-10 container mx-auto px-6 pt-32 pb-24 max-w-7xl">
-                <header className="mb-20 text-center">
-                    <motion.h1 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-5xl md:text-7xl font-display font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
-                    >
-                        Recently Booked Packages
-                    </motion.h1>
-                    <motion.p 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-white/70 text-xl md:text-3xl font-serif italic max-w-3xl mx-auto"
-                    >
-                        Handcrafted travel packages designed for unforgettable, premium experiences.
-                    </motion.p>
-                </header>
-
-                {isLoading ? (
-                    <div className="flex items-center justify-center py-32 text-white/40">
-                        <Loader2 size={40} className="animate-spin mr-4" /> 
-                        <span className="text-xl font-serif italic">Curating packages...</span>
-                    </div>
-                ) : packages.length === 0 ? (
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-24 bg-white/5 backdrop-blur-md rounded-[3rem] border border-white/10 shadow-2xl max-w-4xl mx-auto relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                        <Package size={56} className="mx-auto text-white/30 mb-6" />
-                        <h2 className="text-3xl font-display font-bold text-white mb-2">No packages available yet.</h2>
-                        <p className="text-white/50 font-serif italic text-lg">Check back soon for new adventures!</p>
-                    </motion.div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {(Array.isArray(packages) ? packages : []).map((pkg, idx) => (
-                            <motion.div
-                                key={pkg.id}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                className="group relative bg-black/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl transition-all border border-white/10 flex flex-col hover:-translate-y-2 hover:border-white/30"
-                            >
-                                {(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url) ? (
-                                    <div className="h-64 overflow-hidden relative">
-                                        <img src={getImgUrl(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url)} alt={pkg.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-                                    </div>
-                                ) : (
-                                    <div className="h-64 relative overflow-hidden">
-                                        <img 
-                                            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80" 
-                                            alt="Travel Adventure" 
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-40" 
-                                        />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <Package size={64} className="text-white/20" />
-                                        </div>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-                                    </div>
+            {isLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: '100px', color: '#9CA3AF' }}>
+                    <Loader2 size={32} className="animate-spin" style={{ marginRight: '12px' }} /> 
+                    <span>Curating packages...</span>
+                </div>
+            ) : packages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' }}>
+                    <Package size={48} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
+                    <p>No packages available yet.</p>
+                </div>
+            ) : (
+                <div className="packages-grid">
+                    {packages.map((pkg) => (
+                        <div key={pkg.id} className="package-card" onClick={() => handleInterest(pkg)}>
+                            <img src={getImgUrl(pkg.image || pkg.imageUrl || pkg.photo || pkg.coverImage || pkg.image_url)} alt={pkg.name} />
+                            <div className="package-card-body">
+                                <h3 className="package-name">{pkg.name}</h3>
+                                <div className="package-days">{pkg.daysCount} Days</div>
+                                <div className="package-price">
+                                    ₹{Number(pkg.amount || pkg.totalPrice).toLocaleString()}
+                                </div>
+                                
+                                {pkg.highlights?.length > 0 && (
+                                    <ul className="package-features">
+                                        {pkg.highlights.slice(0, 3).map((h, i) => (
+                                            <li key={i}>{h}</li>
+                                        ))}
+                                    </ul>
                                 )}
                                 
-                                <div className="p-8 flex flex-col flex-1 relative -mt-16 z-10">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            {pkg.tag && <span className="inline-block text-[10px] font-bold bg-[#E8A838] text-black px-3 py-1 rounded-full uppercase tracking-widest mb-3 shadow-[0_0_15px_rgba(232,168,56,0.4)]">{pkg.tag}</span>}
-                                            <h3 className="text-3xl font-display font-bold text-white group-hover:text-[#E8A838] transition-colors">{pkg.name}</h3>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar size={16} className="text-white/40" />
-                                            <span className="text-white/80 font-serif italic text-lg">{pkg.daysCount} days</span>
-                                        </div>
-                                        <div className="w-1 h-1 rounded-full bg-white/20" />
-                                        <div className="text-left">
-                                            <p className="text-2xl font-display font-bold text-[#E8A838]">₹{Number(pkg.totalPrice).toLocaleString()}</p>
-                                        </div>
-                                    </div>
-
-                                    {pkg.highlights?.length > 0 && (
-                                        <ul className="space-y-3 mb-8 flex-1">
-                                            {pkg.highlights.slice(0, 4).map(h => (
-                                                <li key={h} className="flex items-start gap-3 text-white/70">
-                                                    <Check size={16} className="text-[#E8A838] shrink-0 mt-1" /> 
-                                                    <span className="text-[15px]">{h}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                    
-                                    <button
-                                        onClick={() => handleInterest(pkg)}
-                                        disabled={interestMutation.isPending}
-                                        className="mt-auto w-full py-4 bg-white/10 text-white border border-white/20 rounded-full font-bold hover:bg-[#800020] hover:border-[#800020] hover:shadow-[0_0_24px_rgba(128,0,32,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 backdrop-blur-md"
-                                    >
-                                        {interestMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
-                                        Request Itinerary
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-            </main>
+                                <button className="package-btn">
+                                    Request Itinerary
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} onSuccess={() => {
                 setShowAuth(false);
@@ -286,53 +135,43 @@ export default function PackagesPage() {
 
             {/* Phone Modal */}
             {showPhoneModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="bg-[#1A1A1A] border border-white/10 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#E8A838] to-transparent" />
-                        
+                <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', padding: '20px', boxSizing: 'border-box' }}>
+                    <div style={{ background: '#fff', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', boxSizing: 'border-box' }}>
                         {isSuccess ? (
-                            <div className="text-center py-6">
-                                <motion.div 
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="w-20 h-20 bg-[#E8A838]/20 rounded-full flex items-center justify-center mx-auto mb-6"
-                                >
-                                    <Check size={40} className="text-[#E8A838]" />
-                                </motion.div>
-                                <h3 className="text-3xl font-display font-bold text-white mb-3">Request Sent!</h3>
-                                <p className="text-white/60 mb-8 italic font-serif">Thank you for your interest. Our team will reach out to you shortly to discuss this bespoke adventure.</p>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ width: '60px', height: '60px', background: '#ECFDF5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                                    <Check size={30} color="#10B981" />
+                                </div>
+                                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px' }}>Request Sent!</h3>
+                                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: '1.6', marginBottom: '24px' }}>Thank you! Our team will reach out to you shortly to discuss this bespoke adventure.</p>
                                 <button 
                                     onClick={() => {
                                         setShowPhoneModal(false);
                                         setTimeout(() => setIsSuccess(false), 300);
                                     }} 
-                                    className="w-full py-4 bg-[#E8A838] text-black rounded-full font-bold hover:bg-[#E8A838]/90 transition-colors"
+                                    className="package-btn"
                                 >
                                     Done
                                 </button>
                             </div>
                         ) : (
                             <>
-                                <h3 className="text-3xl font-display font-bold text-white mb-3">Your Contact</h3>
-                                <p className="text-white/50 text-base mb-8 font-serif italic">Please provide your phone number so our team can craft this bespoke package for you.</p>
+                                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px' }}>Your Contact</h3>
+                                <p style={{ fontSize: '0.9rem', color: '#6B7280', marginBottom: '24px' }}>Please provide your phone number so our team can craft this bespoke package for you.</p>
                                 
                                 <input
                                     type="tel"
                                     value={phoneInput}
                                     onChange={e => setPhoneInput(e.target.value)}
                                     placeholder="+91 98765 43210"
-                                    className="w-full p-5 bg-black/50 text-white rounded-2xl border border-white/20 focus:border-[#E8A838] focus:ring-1 focus:ring-[#E8A838] outline-none mb-8 font-medium text-lg placeholder-white/20 transition-all"
+                                    style={{ width: '100%', padding: '16px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '16px', outline: 'none', marginBottom: '24px', fontSize: '1rem' }}
                                     autoFocus
                                 />
                                 
-                                <div className="flex gap-4">
+                                <div style={{ display: 'flex', gap: '12px' }}>
                                     <button
                                         onClick={() => setShowPhoneModal(false)}
-                                        className="flex-1 py-4 font-bold text-white/50 hover:bg-white/5 rounded-full transition-colors"
+                                        style={{ flex: 1, padding: '12px', border: 'none', background: 'none', color: '#9CA3AF', fontWeight: 600, cursor: 'pointer' }}
                                     >
                                         Cancel
                                     </button>
@@ -346,14 +185,15 @@ export default function PackagesPage() {
                                             });
                                         }}
                                         disabled={interestMutation.isPending}
-                                        className="flex-1 py-4 bg-[#E8A838] text-black rounded-full font-bold hover:bg-[#E8A838]/90 transition-colors shadow-[0_0_20px_rgba(232,168,56,0.3)] disabled:opacity-50"
+                                        className="package-btn"
+                                        style={{ flex: 2, marginTop: 0 }}
                                     >
-                                        {interestMutation.isPending ? <Loader2 size={20} className="animate-spin mx-auto" /> : "Confirm"}
+                                        {interestMutation.isPending ? 'Sending...' : 'Confirm'}
                                     </button>
                                 </div>
                             </>
                         )}
-                    </motion.div>
+                    </div>
                 </div>
             )}
         </div>

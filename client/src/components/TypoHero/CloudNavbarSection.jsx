@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import NavUserPill from '../Navigation/NavUserPill'
 import './CloudNavbarSection.css'
 
 export default function CloudNavbarSection() {
@@ -124,6 +125,9 @@ export default function CloudNavbarSection() {
               )
             })}
           </nav>
+          <div className="cloud-nav-actions" style={{ marginLeft: '24px' }}>
+            <NavUserPill />
+          </div>
         </div>
 
         {/* Mobile layout */}

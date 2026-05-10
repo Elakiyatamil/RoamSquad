@@ -1,13 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   Check, ArrowRight, Volume2, VolumeX,
-  Star, Clock, Plus, Minus, X,
-  MapPin, Send, Home
+  Star, Clock, Plus, X,
+  Home, Send
 } from 'lucide-react';
 import './ItineraryBuilder.css';
 import InquiryModal from './InquiryModal';
@@ -17,7 +16,6 @@ import useAudioStore from '../../store/useAudioStore';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
 
-// ASSET REPAIR UTILITY
 const getImageUrl = (url, type) => {
   if (!url) {
     if (type === 'food') return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800';
@@ -33,43 +31,51 @@ const getImageUrl = (url, type) => {
 const SameStateModal = ({ isOpen, onClose, siblings, currentState, onSelect }) => {
   if (!isOpen) return null;
   return (
-    <div className="switch-modal-overlay" onClick={onClose}>
-      <motion.div 
-        className="switch-modal" 
-        onClick={e => e.stopPropagation()}
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.92 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      >
-        <p className="modal-title">Switch City</p>
-        <p className="modal-sub">Other destinations in {currentState || 'this region'}</p>
+    <div style={{
+      position: 'fixed',
+      inset: '0',
+      background: 'rgba(0,0,0,0.5)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      zIndex: 99999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      boxSizing: 'border-box',
+    }} onClick={onClose}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '20px',
+        padding: '24px',
+        boxSizing: 'border-box',
+        width: '100%',
+        maxWidth: '420px',
+        maxHeight: '80vh',
+        overflowY: 'auto',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+      }} onClick={e => e.stopPropagation()}>
+        <p className="modal-title" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>Switch City</p>
+        <p className="modal-sub" style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '24px' }}>Other destinations in {currentState || 'this region'}</p>
 
-        <div className="city-list">
+        <div className="city-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {siblings?.map(dest => (
-            <div
-              key={dest.id}
-              className="city-option"
-              onClick={() => onSelect(dest)}
-            >
-              <img src={getImageUrl(dest.coverImage || dest.images?.[0])} className="city-thumb" alt={dest.name} />
+            <div key={dest.id} className="city-option" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '16px', background: '#FAF8F5', cursor: 'pointer' }} onClick={() => onSelect(dest)}>
+              <img src={getImageUrl(dest.coverImage || dest.images?.[0])} className="city-thumb" alt={dest.name} style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover' }} />
               <div>
-                <p className="city-name">{dest.name}</p>
-                <p className="city-state">{dest.district?.state?.name || dest.state}</p>
+                <p className="city-name" style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>{dest.name}</p>
+                <p className="city-state" style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: 0 }}>{dest.district?.state?.name || dest.state}</p>
               </div>
             </div>
           ))}
-
-          {(!siblings || siblings.length === 0) && (
-            <p className="no-options">No other cities available in this region.</p>
-          )}
+          {(!siblings || siblings.length === 0) && <p className="no-options">No other cities available in this region.</p>}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
 
-const ItineraryBuilder = ({ destination: propDestination, duration, startDate, tripConfig }) => {
+const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [itinerary, setItinerary] = useState(() => {
     return Array.from({ length: duration }).map(() => ({
@@ -80,7 +86,6 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   });
   
   const [activeDay, setActiveDay] = useState(0);
-  const [showLogin, setShowLogin] = useState(false);
   const [showInquiry, setShowInquiry] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState('');
@@ -91,53 +96,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [itinerarySent, setItinerarySent] = useState(false);
-
-  const handleSendItinerary = async () => {
-    if (!isAuthenticated) {
-      // Not logged in — save itinerary to sessionStorage first
-      const timelinePayload = itinerary.map((day, idx) => ({
-          day: idx + 1,
-          destination: day.destination?.name || fullDest?.name || '',
-          destinationId: day.destination?.id || fullDest?.id || null,
-          accommodation: day.accommodation ? {
-              id: day.accommodation.id,
-              name: day.accommodation.hotelNameInternal || day.accommodation.tier,
-              tier: day.accommodation.tier,
-              price: day.accommodation.price || 0,
-              imageUrl: day.accommodation.imageUrl || day.accommodation.image_url || null,
-          } : null,
-          activities: (day.dayItems || []).map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price || 0,
-              imageUrl: item.imageUrl || item.image_url || null,
-              category: item.mealType ? 'FOOD' : (item.tier ? 'ACCOMMODATION' : 'ACTIVITY'),
-              destinationName: item.destinationName || day.destination?.name || '',
-              duration: item.duration || item.timing || null,
-          }))
-      }));
-
-      const payload = {
-          destinationId: fullDest?.id,
-          destinationName: fullDest?.name,
-          state: fullDest?.district?.state?.name || null,
-          district: fullDest?.district?.name || null,
-          itinerary: { timeline: timelinePayload },
-          totalBudget: totalPrice,
-          days: itinerary.length,
-          people: tripConfig?.people || null,
-          vibe: tripConfig?.tripType || null,
-          tripDate: new Date(),
-          status: 'INQUIRY SENT'
-      };
-
-      sessionStorage.setItem('pendingItinerary', JSON.stringify(payload));
-      navigate('/login', { state: { redirectTo: '/planner', reason: 'send' } });
-      return;
-    }
-
-    await submitToMyTrips();
-  };
+  const [duplicateToConfirm, setDuplicateToConfirm] = useState(null);
 
   const totalPrice = useMemo(() => {
     let total = 0;
@@ -148,12 +107,6 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
     if (baseStay) {
       const nights = duration - 1;
       total += (baseStay.price * Math.max(1, nights));
-    } else {
-      itinerary.slice(1).forEach(day => {
-        if (day.accommodation && day.accommodation.id !== itinerary[0].accommodation?.id) {
-          total += (day.accommodation.price || 0);
-        }
-      });
     }
     return total;
   }, [itinerary, duration]);
@@ -163,8 +116,8 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
     try {
         const timelinePayload = itinerary.map((day, idx) => ({
             day: idx + 1,
-            destination: day.destination?.name || fullDest?.name || '',
-            destinationId: day.destination?.id || fullDest?.id || null,
+            destination: day.destination?.name || '',
+            destinationId: day.destination?.id || null,
             accommodation: day.accommodation ? {
                 id: day.accommodation.id,
                 name: day.accommodation.hotelNameInternal || day.accommodation.tier,
@@ -205,33 +158,34 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
             headers: { Authorization: `Bearer ${token || ''}` }
         });
 
-        // SUCCESS FLOW
         setItinerarySent(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        setTimeout(() => {
-          navigate('/my-trips');
-        }, 2000);
+        setTimeout(() => { navigate('/my-trips'); }, 2000);
 
     } catch (err) {
         console.error('Submission error:', err);
-        // Still show toast or navigate if error? User said "after API call succeeds, THEN navigate"
-        // I'll show error toast or just navigate
         navigate('/my-trips');
     } finally {
         setSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = isMuted;
-      if (!isMuted) {
-        videoRef.current.muted = false;
-        videoRef.current.volume = 1;
-      }
+  const handleSendItinerary = () => {
+    if (!isAuthenticated) {
+      // Basic simulation of saving pending
+      const payload = { 
+        destinationId: fullDest?.id, 
+        destinationName: fullDest?.name,
+        itinerary: { timeline: [] },
+        days: itinerary.length,
+        totalBudget: totalPrice
+      };
+      sessionStorage.setItem('pendingItinerary', JSON.stringify(payload));
+      navigate('/login', { state: { redirectTo: '/planner', reason: 'send' } });
+      return;
     }
-  }, [isMuted]);
+    setShowConfirmModal(true);
+  };
 
   const currentDest = itinerary[activeDay]?.destination || propDestination;
 
@@ -256,11 +210,30 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
   });
 
   const assignToSlot = (item) => {
+    const isAccommodation = !!(item.hotelNameInternal || item.tier);
+    const currentDay = itinerary[activeDay];
+    
+    // Check if already in current day
+    const isDuplicate = isAccommodation 
+      ? currentDay.accommodation?.id === item.id
+      : currentDay.dayItems.some(i => i.id === item.id);
+
+    if (isDuplicate) {
+      setDuplicateToConfirm(item);
+      return;
+    }
+
+    executeAdd(item);
+  };
+
+  const executeAdd = (item) => {
+    const isAccommodation = !!(item.hotelNameInternal || item.tier);
     const newItinerary = [...itinerary];
-    if (item.hotelNameInternal || item.tier) {
+    if (isAccommodation) {
       if (activeDay === 0) {
-        newItinerary.forEach(day => {
-          if (day.destination.id === item.destinationId) day.accommodation = item;
+        // Base stay logic: applies to all days in this city
+        newItinerary.forEach(day => { 
+          if (day.destination.id === item.destinationId) day.accommodation = item; 
         });
       } else {
         newItinerary[activeDay].accommodation = item;
@@ -268,8 +241,12 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
     } else {
       newItinerary[activeDay].dayItems.push(item);
     }
+    
     setItinerary(newItinerary);
-    if (!selectedItems.find(i => i.id === item.id)) setSelectedItems([...selectedItems, item]);
+    if (!selectedItems.find(i => i.id === item.id)) {
+      setSelectedItems([...selectedItems, item]);
+    }
+    setDuplicateToConfirm(null);
   };
 
   const removeItem = (dayIdx, itemId, type) => {
@@ -283,27 +260,58 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
     setItinerary(next);
   };
 
-  if (destLoading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#FAF8F5]">
-        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="rounded-full border-2 border-[#8B2040] border-t-transparent w-12 h-12" />
-      </div>
-    );
-  }
+  if (destLoading) return <div className="h-screen w-screen flex items-center justify-center bg-[#FAF8F5]">Loading...</div>;
 
   const isAssigned = (id) => itinerary.some(d => d.dayItems.some(i => i.id === id) || d.accommodation?.id === id);
 
   return (
-    <>
     <div className="itinerary-builder-parent">
-      <AnimatePresence mode="wait">
-
-        {showInquiry && (
-          <InquiryModal isOpen={showInquiry} onClose={() => setShowInquiry(false)} selectedItems={selectedItems} totalPrice={totalPrice} destination={fullDest} user={user} itinerary={itinerary} tripConfig={tripConfig} />
-        )}
-      </AnimatePresence>
-
       <AnimatePresence>
+        {duplicateToConfirm && (
+          <div style={{
+            position: 'fixed',
+            inset: '0',
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            boxSizing: 'border-box',
+          }} onClick={() => setDuplicateToConfirm(null)}>
+            <div style={{
+              background: '#fff',
+              borderRadius: '20px',
+              padding: '24px',
+              boxSizing: 'border-box',
+              width: '100%',
+              maxWidth: '420px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }} onClick={e => e.stopPropagation()}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ width: '60px', height: '60px', background: '#FFF0F3', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                  <Plus size={24} color="#8B2040" />
+                </div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#1A1A2E' }}>Add Duplicate?</h2>
+                <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: '1.5', marginBottom: '24px' }}>
+                  <strong>"{duplicateToConfirm.name || duplicateToConfirm.tier}"</strong> is already in your itinerary for Day {activeDay + 1}. Do you want to add it again?
+                </p>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button className="base-stay-btn" style={{ margin: 0, borderStyle: 'solid', borderColor: '#E5E7EB', color: '#6B7280', flex: 1 }} onClick={() => setDuplicateToConfirm(null)}>
+                    Cancel
+                  </button>
+                  <button className="btn-submit-request" style={{ margin: 0, padding: '12px', flex: 1 }} onClick={() => executeAdd(duplicateToConfirm)}>
+                    Yes, Add Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {showSwitcher !== null && (
           <SameStateModal isOpen={true} onClose={() => setShowSwitcher(null)} siblings={siblings} currentState={currentDest?.district?.state?.name} onSelect={(dest) => {
             const next = [...itinerary];
@@ -314,7 +322,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         )}
       </AnimatePresence>
 
-      {/* 2. HERO IMAGE */}
+      {/* 2. HERO IMAGE — reduce height, clean fade */}
       <header className="itinerary-hero">
         <video ref={videoRef} autoPlay loop muted playsInline key={currentDest.id}>
           <source src={`/destinationvideo/${currentDest.name.toLowerCase()}.mp4`} type="video/mp4" />
@@ -326,7 +334,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         </div>
       </header>
 
-      {/* 1. BADGE ROW */}
+      {/* 1. TIMELINE + VIBE BADGES — reposition nicely */}
       <div className="badge-row">
         <div className="badge-pill">
           <span className="badge-label">Timeline</span>
@@ -338,120 +346,11 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         </div>
       </div>
 
-      {/* 3. PAGE LAYOUT */}
+      {/* 3. PAGE LAYOUT — two-column on desktop */}
       <main className="itinerary-layout">
         
-        {/* LEFT COLUMN: MARKETPLACE */}
-        <div className="marketplace-column">
-          <AnimatePresence mode="wait">
-            <motion.div key={currentDest.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-              
-              {/* SITES SECTION */}
-              <section className="mb-12">
-                <h2 className="section-heading">Sites to enjoy</h2>
-                <span className="section-sub">Curated for your {tripConfig?.tripType || 'Couple'} selection.</span>
-                <div className="curated-row">
-                  {fullDest?.activities?.map((act) => {
-                    const assigned = isAssigned(act.id);
-                    return (
-                      <div key={act.id} className={`curated-card ${assigned ? 'selected' : ''}`} onClick={() => assignToSlot(act)}>
-                        <div className="curated-img-wrap">
-                          <img src={getImageUrl(act.imageUrl || act.image_url)} alt={act.name} />
-                          {assigned && (
-                            <div className="check-badge">
-                              <Check size={16} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="curated-card-body">
-                          <div className="curated-header-row">
-                            <h4 className="curated-name">{act.name}</h4>
-                            <div className="curated-price">₹{act.price?.toLocaleString()}</div>
-                          </div>
-                          <div className="curated-meta"><Clock size={12} /> {act.duration}</div>
-                          <button className="add-to-day-btn">
-                            <Plus size={14} /> Add to Day
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* FOOD SECTION */}
-              <section className="mb-12">
-                <h2 className="section-heading">Eat with all your soul</h2>
-                <span className="section-sub">Taste the local essence.</span>
-                <div className="curated-row">
-                  {fullDest?.foodOptions?.map((food) => {
-                    const assigned = isAssigned(food.id);
-                    return (
-                      <div key={food.id} className={`curated-card ${assigned ? 'selected' : ''}`} onClick={() => assignToSlot(food)}>
-                        <div className="curated-img-wrap">
-                          <img src={getImageUrl(food.imageUrl || food.image_url, 'food')} alt={food.name} />
-                          {assigned && (
-                            <div className="check-badge">
-                              <Check size={16} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="curated-card-body">
-                          <div className="curated-header-row">
-                            <h4 className="curated-name">{food.name}</h4>
-                            <div className="curated-price">₹{food.price?.toLocaleString()}</div>
-                          </div>
-                          <div className="curated-meta">{food.mealType} • {food.cuisine}</div>
-                          <button className="add-to-day-btn">
-                            <Plus size={14} /> Add to Day
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* STAYS SECTION */}
-              <section className="mb-12">
-                <h2 className="section-heading">Stays & Sanctuaries</h2>
-                <span className="section-sub">Handpicked luxury for you.</span>
-                <div className="curated-row">
-                  {fullDest?.accommodations?.map((acc) => {
-                    const assigned = isAssigned(acc.id);
-                    return (
-                      <div key={acc.id} className={`curated-card ${assigned ? 'selected' : ''}`} onClick={() => assignToSlot(acc)}>
-                        <div className="curated-img-wrap">
-                          <img src={getImageUrl(acc.imageUrl || acc.image_url, 'stay')} alt={acc.tier} />
-                          {assigned && (
-                            <div className="check-badge">
-                              <Check size={16} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="curated-card-body">
-                          <div className="curated-header-row">
-                            <h4 className="curated-name">{acc.tier} Sanctuary</h4>
-                            <div className="curated-price">₹{acc.price?.toLocaleString()}</div>
-                          </div>
-                          <div className="curated-meta"><Star size={12} fill="#fbbf24" className="text-yellow-400" /> {acc.stars} Stars</div>
-                          <button className="add-to-day-btn">
-                            <Plus size={14} /> Add to Day
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* RIGHT COLUMN: ITINERARY ARCHITECT */}
+        {/* LEFT COLUMN: DAY CARDS */}
         <aside className="timeline-column">
-          
           {/* 4. DAY TABS */}
           <div className="day-tabs">
             {itinerary.map((_, i) => (
@@ -475,7 +374,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
 
             {/* Base Stay */}
             {itinerary[activeDay].accommodation ? (
-              <div className="experience-item" data-type="BASE STAY">
+              <div className="experience-item">
                 <img src={getImageUrl(itinerary[activeDay].accommodation.imageUrl || itinerary[activeDay].accommodation.image_url, 'stay')} className="experience-thumb" alt="" />
                 <div className="experience-info">
                   <span className="experience-tag">Base Stay</span>
@@ -484,49 +383,127 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
                 <div className="remove-btn" onClick={() => removeItem(activeDay, itinerary[activeDay].accommodation.id, 'accommodation')}><X size={12} /></div>
               </div>
             ) : (
-              <div className="empty-slot dashed" onClick={() => setActiveDay(activeDay)}>
-                <Home size={16} /> <span>+ Add Base Stay</span>
-              </div>
+              <button className="base-stay-btn" onClick={() => {}}>
+                <Home size={16} /> <span>+ Select Base Stay</span>
+              </button>
             )}
 
             {/* Experiences */}
             <div className="experience-list">
-              {itinerary[activeDay].dayItems.length > 0 ? (
-                itinerary[activeDay].dayItems.map((item) => {
-                  const type = item.mealType ? 'DINNER' : (item.isSpecial ? 'LOCAL SPECIAL' : 'EXPERIENCE');
-                  return (
-                    <div key={item.id} className="experience-item" data-type={type}>
-                      <img src={getImageUrl(item.imageUrl || item.image_url, item.mealType ? 'food' : 'activity')} className="experience-thumb" alt="" />
-                      <div className="experience-info">
-                        <span className="experience-tag">{item.mealType || 'Experience'}</span>
-                        <span className="experience-name">{item.name}</span>
-                      </div>
-                      <div className="remove-btn" onClick={() => removeItem(activeDay, item.id, 'experience')}><X size={12} /></div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="empty-slot dashed" style={{ marginTop: '12px' }}>
-                  <Plus size={16} /> <span>+ Add your first experience</span>
+              {itinerary[activeDay].dayItems.map((item) => (
+                <div key={item.id} className="experience-item">
+                  <img src={getImageUrl(item.imageUrl || item.image_url, item.mealType ? 'food' : 'activity')} className="experience-thumb" alt="" />
+                  <div className="experience-info">
+                    <span className="experience-tag">{item.mealType || 'Experience'}</span>
+                    <span className="experience-name">{item.name}</span>
+                  </div>
+                  <div className="remove-btn" onClick={() => removeItem(activeDay, item.id, 'experience')}><X size={12} /></div>
                 </div>
-              )}
+              ))}
+              <button className="add-experience-btn">
+                <Plus size={16} /> <span>+ Add an experience</span>
+              </button>
             </div>
           </div>
         </aside>
 
+        {/* RIGHT COLUMN: CURATED CARDS */}
+        <div className="marketplace-column">
+          <AnimatePresence mode="wait">
+            <motion.div key={currentDest.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              
+              {/* SITES SECTION */}
+              <section className="mb-12">
+                <h2 className="section-heading">Sites to enjoy</h2>
+                <span className="section-sub">Curated for your {tripConfig?.tripType || 'Couple'} selection.</span>
+                <div className="curated-row">
+                  {fullDest?.activities?.map((act) => {
+                    const assigned = isAssigned(act.id);
+                    return (
+                      <div key={act.id} className="curated-card" onClick={() => assignToSlot(act)}>
+                        <div className="curated-img-wrap">
+                          <img src={getImageUrl(act.imageUrl || act.image_url)} alt={act.name} />
+                          {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
+                        </div>
+                        <div className="curated-card-body">
+                          <div className="curated-header-row">
+                            <h4 className="curated-name">{act.name}</h4>
+                            <div className="curated-price">₹{act.price?.toLocaleString()}</div>
+                          </div>
+                          <div className="curated-meta"><Clock size={12} /> {act.duration}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* FOOD SECTION */}
+              <section className="mb-12">
+                <h2 className="section-heading">Eat with all your soul</h2>
+                <span className="section-sub">Taste the local essence.</span>
+                <div className="curated-row">
+                  {fullDest?.foodOptions?.map((food) => {
+                    const assigned = isAssigned(food.id);
+                    return (
+                      <div key={food.id} className="curated-card" onClick={() => assignToSlot(food)}>
+                        <div className="curated-img-wrap">
+                          <img src={getImageUrl(food.imageUrl || food.image_url, 'food')} alt={food.name} />
+                          {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
+                        </div>
+                        <div className="curated-card-body">
+                          <div className="curated-header-row">
+                            <h4 className="curated-name">{food.name}</h4>
+                            <div className="curated-price">₹{food.price?.toLocaleString()}</div>
+                          </div>
+                          <div className="curated-meta">{food.mealType} • {food.cuisine}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* STAYS SECTION */}
+              <section className="mb-12">
+                <h2 className="section-heading">Stays & Sanctuaries</h2>
+                <span className="section-sub">Handpicked luxury for you.</span>
+                <div className="curated-row">
+                  {fullDest?.accommodations?.map((acc) => {
+                    const assigned = isAssigned(acc.id);
+                    return (
+                      <div key={acc.id} className="curated-card" onClick={() => assignToSlot(acc)}>
+                        <div className="curated-img-wrap">
+                          <img src={getImageUrl(acc.imageUrl || acc.image_url, 'stay')} alt={acc.tier} />
+                          {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
+                        </div>
+                        <div className="curated-card-body">
+                          <div className="curated-header-row">
+                            <h4 className="curated-name">{acc.tier} Sanctuary</h4>
+                            <div className="curated-price">₹{acc.price?.toLocaleString()}</div>
+                          </div>
+                          <div className="curated-meta"><Star size={12} fill="#fbbf24" className="text-yellow-400" /> {acc.stars} Stars</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
 
       {/* 8. BOTTOM TOAST BAR */}
       <AnimatePresence>
         {!showConfirmModal && (
           <motion.div className="toast-bar" initial={{ y: 100, x: '-50%' }} animate={{ y: 0, x: '-50%' }} exit={{ y: 100, x: '-50%' }}>
-            <div className="toast-left">
-              <div className="stacked-avatars">
-                {selectedItems.slice(0, 3).map(item => (
-                  <img key={item.id} src={getImageUrl(item.imageUrl || item.image_url)} className="avatar-circle" alt="" />
-                ))}
-                {selectedItems.length > 3 && <div className="avatar-more">+{selectedItems.length - 3}</div>}
-              </div>
+            <div className="stacked-avatars">
+              {selectedItems.slice(0, 3).map(item => (
+                <img key={item.id} src={getImageUrl(item.imageUrl || item.image_url)} className="avatar-circle" alt="" />
+              ))}
+              {selectedItems.length > 3 && <div className="avatar-more">+{selectedItems.length - 3}</div>}
             </div>
             <span className="toast-text">Ready to roam?</span>
             <button className="send-btn" onClick={handleSendItinerary}>
@@ -538,29 +515,10 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
 
       {/* SUCCESS TOAST */}
       {itinerarySent && (
-        <div style={{
-          position: 'fixed',
-          top: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#1A1A2E',
-          color: 'white',
-          fontFamily: 'Poppins',
-          padding: '20px 32px',
-          borderRadius: '20px',
-          zIndex: 99999,
-          textAlign: 'center',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-          animation: 'modalPop 0.3s ease',
-          minWidth: '280px'
-        }}>
+        <div style={{ position: 'fixed', top: '80px', left: '50%', transform: 'translateX(-50%)', background: '#1A1A2E', color: 'white', fontFamily: 'Poppins', padding: '20px 32px', borderRadius: '20px', zIndex: 99999, textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', minWidth: '280px' }}>
           <div style={{ fontSize: '2rem', marginBottom: '8px' }}>✈️</div>
-          <p style={{ fontWeight: 700, fontSize: '1rem', margin: '0 0 4px' }}>
-            Itinerary sent!
-          </p>
-          <p style={{ fontSize: '0.75rem', opacity: 0.6, margin: 0 }}>
-            Taking you to My Trips...
-          </p>
+          <p style={{ fontWeight: 700, fontSize: '1rem', margin: '0 0 4px' }}>Itinerary sent!</p>
+          <p style={{ fontSize: '0.75rem', opacity: 0.6, margin: 0 }}>Taking you to My Trips...</p>
         </div>
       )}
 
@@ -569,7 +527,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         {showConfirmModal && (
           <>
             <motion.div className="confirm-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowConfirmModal(false)} />
-            <motion.div className="confirm-modal-card" initial={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }} animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }} exit={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }} style={{ top: '50%', left: '50%' }}>
+            <motion.div className="confirm-modal-card" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2001 }}>
               <h2 className="confirm-modal-header">Confirm Selection</h2>
               <div className="mb-6">
                 <div className="summary-item"><span>Experiences</span><span>{selectedItems.length} items</span></div>
@@ -587,7 +545,6 @@ const ItineraryBuilder = ({ destination: propDestination, duration, startDate, t
         )}
       </AnimatePresence>
     </div>
-    </>
   );
 };
 

@@ -1,4 +1,4 @@
-/* ItineraryBuilder.css - Architect Recovery Edition */
+/* ItineraryBuilder.css - Architect Elite Redesign */
 
 .itinerary-builder-parent {
   min-height: 100vh;
@@ -8,13 +8,14 @@
   overflow-x: hidden;
 }
 
-/* 2. HERO IMAGE */
+/* 2. HERO IMAGE — clean line cut, no fog */
 .itinerary-hero {
   height: 45vh;
   max-height: 320px;
   width: 100%;
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid rgba(0,0,0,0.08); /* Clean line cut */
 }
 
 .itinerary-hero video,
@@ -24,23 +25,33 @@
   object-fit: cover;
 }
 
-.itinerary-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0; 
-  left: 0; 
-  right: 0;
-  height: 120px;
-  background: linear-gradient(to bottom, transparent, #FAF8F5);
-  pointer-events: none;
+/* rh-audio-btn-glass stays as is */
+
+.rh-audio-btn-glass {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* 1. BADGE ROW */
+.rh-audio-btn-glass:hover {
+  background: rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
+}
+
+/* 1. TIMELINE + VIBE BADGES — reposition nicely */
 .badge-row {
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin: -35px auto 32px;
+  margin: 24px auto 32px; /* Sits cleanly below the cut-line */
   position: relative;
   z-index: 10;
   padding: 0 20px;
@@ -49,23 +60,23 @@
 .badge-pill {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(8px);
-  border-radius: 20px;
-  padding: 10px 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .badge-label {
   font-size: 0.6rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #800020;
-  line-height: 1;
+  color: #8B2040;
 }
 
 .badge-value {
@@ -73,41 +84,53 @@
   font-weight: 700;
   color: #1A1A2E;
   text-transform: capitalize;
-  line-height: 1.2;
 }
 
-/* 3. PAGE LAYOUT - THE FOUNDATION */
+/* 3. PAGE LAYOUT — two-column on desktop, single column on mobile */
 .itinerary-layout {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 2rem;
-  max-width: 1440px; /* Wider for premium desktop */
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 40px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 40px 120px !important;
-  box-sizing: border-box;
+  padding: 0 24px 120px;
+  align-items: start;
 }
 
-/* MARKETPLACE (LEFT) */
-.marketplace-column {
-  flex: 1;
-  min-width: 0; /* Prevents overflow */
+@media (max-width: 768px) {
+  .itinerary-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 16px 120px;
+  }
+  
+  .timeline-column {
+    order: 1;
+  }
+  
+  .marketplace-column {
+    order: 2;
+  }
 }
 
-/* ITINERARY ARCHITECT (RIGHT SIDEBAR) */
 .timeline-column {
-  width: 380px;
-  flex-shrink: 0;
   position: sticky;
-  top: 100px;
+  top: 80px;
   z-index: 100;
 }
 
-/* 4. DAY TABS */
+@media (max-width: 768px) {
+  .timeline-column {
+    position: static;
+  }
+}
+
+/* 4. DAY TABS — horizontal scrollable */
 .day-tabs {
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   margin-bottom: 20px;
   padding-bottom: 4px;
@@ -116,13 +139,14 @@
 .day-tabs::-webkit-scrollbar { display: none; }
 
 .day-tab {
+  scroll-snap-align: start;
   flex-shrink: 0;
-  padding: 8px 18px;
+  padding: 8px 20px;
   border-radius: 50px;
   font-family: 'Poppins';
   font-size: 0.8rem;
   font-weight: 600;
-  border: 1px solid #E5E7EB;
+  border: 2px solid #E5E7EB;
   background: white;
   color: #5C5C6E;
   cursor: pointer;
@@ -130,19 +154,19 @@
 }
 
 .day-tab.active {
-  background: #800020;
-  border-color: #800020;
+  background: #8B2040;
+  border-color: #8B2040;
   color: white;
-  box-shadow: 0 4px 12px rgba(128,0,32,0.2);
+  box-shadow: 0 4px 12px rgba(139,32,64,0.25);
 }
 
-/* 5. DAY CARD */
+/* 5. DAY CARD — left column */
 .day-card {
   background: #FFFFFF;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  padding: 24px;
-  border: 1px solid rgba(0,0,0,0.03);
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 20px;
+  font-family: 'Poppins';
 }
 
 .day-card-header {
@@ -156,75 +180,53 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: #1A1A2E;
-  margin: 0 0 2px 0;
+  margin-bottom: 4px;
 }
 
 .day-destination {
-  font-size: 0.65rem;
-  color: #800020;
-  font-weight: 700;
+  font-size: 0.8rem;
+  color: #8B2040;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
-.switch-city-btn {
-  background: #FFF0F3;
-  color: #800020;
-  border: none;
-  border-radius: 50px;
-  padding: 6px 14px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* EMPTY STATES - DASHED BOX */
-.empty-slot.dashed {
+/* "Select Base Stay" button */
+.base-stay-btn {
   width: 100%;
-  padding: 24px;
+  padding: 12px;
   border: 2px dashed #E5E7EB;
-  border-radius: 16px;
+  border-radius: 14px;
   background: transparent;
+  font-family: 'Poppins';
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  cursor: pointer;
+  margin: 12px 0;
+  transition: all 0.2s ease;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #9CA3AF;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.empty-slot.dashed:hover {
-  border-color: #800020;
-  color: #800020;
-  background: rgba(128,0,32,0.02);
+.base-stay-btn:hover {
+  border-color: #8B2040;
+  color: #8B2040;
+  background: #FFF0F3;
 }
 
-/* EXPERIENCE ITEMS */
+/* Experience items in day card */
 .experience-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  border-radius: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
   background: #FAF8F5;
-  margin-bottom: 10px;
-  border-left: 4px solid transparent;
-  transition: all 0.2s ease;
+  margin-bottom: 8px;
+  font-family: 'Poppins';
 }
-
-.experience-item[data-type="BASE STAY"] { border-left-color: #800020; background: #FFF8F9; }
-.experience-item[data-type="LOCAL SPECIAL"] { border-left-color: #E8B86D; background: #FFFBF3; }
-.experience-item[data-type="EXPERIENCE"] { border-left-color: #4A90D9; background: #F3F8FF; }
-.experience-item[data-type="DINNER"] { border-left-color: #2D7A4F; background: #F3FAF6; }
 
 .experience-thumb {
   width: 44px;
@@ -234,16 +236,22 @@
   flex-shrink: 0;
 }
 
-.experience-info { flex: 1; min-width: 0; }
+.experience-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .experience-tag {
   font-size: 0.55rem;
   font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  color: #8B2040;
   display: block;
 }
+
 .experience-name {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #1A1A2E;
   white-space: nowrap;
@@ -252,21 +260,45 @@
 }
 
 .remove-btn {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #EEE;
-  color: #999;
+  margin-left: auto;
+  color: #D1D5DB;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
-.remove-btn:hover { background: #800020; color: white; }
+.remove-btn:hover { color: #8B2040; }
 
-/* MARKETPLACE CURATED CARDS */
+/* "+ Add an experience" button */
+.add-experience-btn {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed #E5E7EB;
+  border-radius: 12px;
+  background: transparent;
+  font-family: 'Poppins';
+  font-size: 0.8rem;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.add-experience-btn:hover {
+  border-color: #8B2040;
+  color: #8B2040;
+}
+
+/* 6. RIGHT COLUMN — curated cards */
 .section-heading {
+  font-family: 'Poppins';
   font-size: 1.5rem;
   font-weight: 800;
   color: #1A1A2E;
@@ -274,41 +306,47 @@
 }
 
 .section-sub {
-  font-size: 0.75rem;
-  color: #9CA3AF;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 24px;
+  color: #9CA3AF;
+  margin-bottom: 20px;
   display: block;
 }
 
+/* Curated item cards (horizontal scroll row) */
 .curated-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  margin-bottom: 48px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 16px;
+  margin-bottom: 32px;
 }
 
+.curated-row::-webkit-scrollbar { display: none; }
+
 .curated-card {
-  background: white;
-  border-radius: 24px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  width: 240px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  border: 1px solid rgba(0,0,0,0.03);
-  transition: all 0.3s ease;
-  position: relative;
+  background: white;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  font-family: 'Poppins';
+  cursor: pointer;
+  transition: transform 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
-.curated-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
+.curated-card:hover { transform: translateY(-4px); }
 
 .curated-img-wrap {
-  height: 180px;
   position: relative;
+  height: 150px;
 }
 
 .curated-img-wrap img {
@@ -317,35 +355,27 @@
   object-fit: cover;
 }
 
-.curated-card-body {
-  padding: 20px;
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+.curated-card-body { padding: 12px; }
 
 .curated-header-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
-  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.curated-price {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #8B2040;
 }
 
 .curated-name {
   font-size: 1rem;
   font-weight: 700;
   color: #1A1A2E;
-  margin: 0;
-  line-height: 1.3;
-  flex: 1;
-}
-
-.curated-price {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #800020;
+  margin: 2px 0;
+  line-height: 1.2;
 }
 
 .curated-meta {
@@ -353,106 +383,240 @@
   color: #9CA3AF;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 4px;
 }
 
-/* ADD TO DAY BUTTON - BOTTOM RIGHT */
 .add-to-day-btn {
-  margin-top: auto;
-  align-self: flex-end;
-  background: #FAF8F5;
-  color: #800020;
-  border: 1px solid rgba(128,0,32,0.1);
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.add-to-day-btn:hover {
-  background: #800020;
-  color: white;
-  box-shadow: 0 4px 12px rgba(128,0,32,0.2);
+  display: none; /* Card itself is clickable in this design */
 }
 
 /* CHECK BADGE */
 .check-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  background: #800020;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  background: #8B2040;
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* TOAST BAR */
+/* 7. STACKED CIRCLES (keep, just polish) */
+.stacked-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-left: -10px;
+  object-fit: cover;
+}
+
+.avatar-circle:first-child { margin-left: 0; }
+
+.avatar-more {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #333;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -10px;
+  border: 2px solid white;
+}
+
+/* 8. BOTTOM TOAST BAR — polish */
 .toast-bar {
   position: fixed;
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 48px);
-  max-width: 500px;
   background: #1A1A2E;
-  border-radius: 100px;
-  padding: 12px 12px 12px 24px;
+  border-radius: 50px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  z-index: 1000;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  z-index: 999;
+  white-space: nowrap;
+  font-family: 'Poppins';
+}
+
+.toast-text {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.75);
+  font-weight: 400;
 }
 
 .send-btn {
-  background: #800020;
+  background: #8B2040;
   color: white;
-  border-radius: 100px;
-  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-family: 'Poppins';
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s ease;
+}
+
+.send-btn:hover { opacity: 0.85; }
+
+/* 9. "SWITCH CITY" BUTTON */
+.switch-city-btn {
+  background: #FFF0F3;
+  color: #8B2040;
+  border: none;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-family: 'Poppins';
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.switch-city-btn:hover {
+  background: #8B2040;
+  color: white;
+}
+
+/* MODALS */
+.switch-modal-overlay,
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.switch-modal,
+.confirm-modal-card {
+  background: white;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 440px;
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-title,
+.confirm-modal-header {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.modal-sub {
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  margin-bottom: 24px;
+}
+
+.city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.city-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #FAF8F5;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.city-option:hover {
+  background: #FFF0F3;
+}
+
+.city-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.city-name { font-weight: 700; font-size: 0.9rem; margin: 0; }
+.city-state { font-size: 0.75rem; color: #9CA3AF; margin: 0; }
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #EEE;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #8B2040;
+}
+
+.whatsapp-input-wrap {
+  margin: 24px 0;
+}
+
+.whatsapp-input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  font-family: 'Poppins';
+  font-size: 1rem;
+}
+
+.btn-submit-request {
+  width: 100%;
+  background: #8B2040;
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
   border: none;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* RESPONSIVE BREAKPOINTS */
-@media (max-width: 1200px) {
-  .itinerary-layout { padding: 0 24px 120px !important; }
-  .timeline-column { width: 340px; }
-}
-
-@media (max-width: 992px) {
-  .timeline-column { width: 300px; }
-  .curated-row { grid-template-columns: 1fr 1fr; }
-}
-
-@media (max-width: 768px) {
-  .itinerary-layout {
-    flex-direction: column;
-    padding: 0 16px 120px !important;
-  }
-  
-  .marketplace-column { order: 1; }
-  .timeline-column { 
-    order: 2; 
-    width: 100%; 
-    position: static; 
-    margin-top: 40px;
-  }
-  
-  .curated-row { grid-template-columns: 1fr; }
+.btn-submit-request:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

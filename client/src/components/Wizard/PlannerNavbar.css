@@ -31,7 +31,7 @@
   width: auto;
 }
 
-/* Step Indicator Container */
+/* Step Indicator Container — absolutely centered so it ignores left/right widths */
 .pn-steps {
   display: flex;
   align-items: flex-start;
@@ -40,7 +40,8 @@
   left: 50%;
   transform: translateX(-50%);
   height: 100%;
-  padding-top: 10px; /* Center the dots vertically in the 64px header */
+  padding-top: 10px;
+  pointer-events: none; /* clicks pass through to buttons inside */
 }
 
 .pn-step-item {
@@ -48,7 +49,13 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  width: 40px; /* Base width for dots */
+  width: 40px;
+  pointer-events: auto; /* re-enable — parent has pointer-events:none */
+}
+
+/* Connector line re-enables pointer-events too */
+.step-line {
+  pointer-events: none;
 }
 
 /* Dots */
