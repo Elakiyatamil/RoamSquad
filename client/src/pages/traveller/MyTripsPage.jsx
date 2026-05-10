@@ -18,9 +18,11 @@ const MyTripsPage = () => {
 
   useEffect(() => {
     const load = async () => {
+      setIsLoading(true); // Force loading state
       if (isAuthenticated && token) {
         try {
-          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/my`, {
+          // Add timestamp to bypass potential caching
+          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/my?t=${Date.now()}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setTrips(res.data.data || []);
@@ -30,11 +32,12 @@ const MyTripsPage = () => {
       } else {
         const saved = localStorage.getItem('submitted_inquiries');
         if (saved) setTrips(JSON.parse(saved));
+        else setTrips([]); // Clear if no saved
       }
       setIsLoading(false);
     };
     load();
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, user]); // Runs when user/auth changes
 
   const getStatusConfig = (status) => {
     const s = (status || '').toLowerCase();
@@ -59,8 +62,7 @@ const MyTripsPage = () => {
     trip.vibe ?? trip.itinerarySnapshot?.vibe ?? trip.travelType ?? null;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FAF8F4 0%, #F5F0E8 100%)', fontFamily: "'Inter', sans-serif" }}>
-      <FloatingNav isAuthenticated={isAuthenticated} user={user} />
+    <div className="page-wrapper" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FAF8F4 0%, #F5F0E8 100%)', fontFamily: "'Inter', sans-serif" }}>
 
       {/* ── HERO ── */}
       <header style={{ position: 'relative', width: '100%', height: '45vh', minHeight: 320, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

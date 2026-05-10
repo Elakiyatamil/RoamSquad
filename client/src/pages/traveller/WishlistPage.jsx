@@ -35,7 +35,7 @@ const WishlistPage = () => {
     }, [user?.email, isAuthenticated, token]);
 
     return (
-        <div className="w-full min-h-screen bg-[#FDFCF0] font-sans pb-32">
+        <div className="w-full min-h-screen bg-[#FDFCF0] font-sans pb-32 page-wrapper">
             <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC HERO HEADER ── */}

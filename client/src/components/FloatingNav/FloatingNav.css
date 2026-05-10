@@ -1,4 +1,9 @@
-.floating-nav-container {
+/* ════════════════════════════════════════════════
+   FLOATING NAV — SHARED
+════════════════════════════════════════════════ */
+
+/* ── DESKTOP pill nav ──────────────────────── */
+.fn-desktop {
   position: fixed;
   top: 20px;
   left: 50%;
@@ -6,7 +11,7 @@
   width: 92%;
   max-width: 1100px;
   z-index: 9999;
-  background: var(--nav-bg, rgba(245, 240, 235, 0.95));
+  background: rgba(245, 240, 235, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -15,145 +20,297 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif !important;
+  transition: opacity 0.3s ease;
+  font-family: 'Poppins', sans-serif;
 }
 
-.nav-logo img {
+.fn-desktop.nav-loading { opacity: 0.5; pointer-events: none; }
+
+/* Logo */
+.fn-logo img {
   height: 32px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0); /* Black logo for light bg */
+  display: block;
 }
 
-.desktop-links {
+/* Links row */
+.fn-links {
   display: flex;
+  align-items: center;
   gap: 24px;
-  align-items: center;
+  flex: 1;
+  justify-content: center;
 }
 
-.nav-link {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-charcoal, #1A1A1A);
-  letter-spacing: 0.3px;
-  position: relative;
-  padding: 4px 0;
-  font-family: 'Poppins', sans-serif !important;
-}
-
-.nav-link:hover {
-  color: var(--accent-burgundy, #7A1535);
-}
-
-.nav-link.active {
-  color: var(--accent-burgundy, #7A1535);
-  font-weight: 600;
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--accent-burgundy, #7A1535);
-}
-
-.nav-right-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav-btn-team {
-  background: var(--accent-burgundy, #7A1535);
-  color: var(--bg-warm, #F5F0EB);
+.fn-link {
   font-size: 13px;
   font-weight: 600;
-  padding: 10px 24px;
-  border-radius: 50px;
-  border: none;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-family: 'Poppins', sans-serif !important;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  color: #1A1A1A;
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.nav-btn-team:hover {
-  background: var(--accent-burgundy-dark, #5C0F28);
+.fn-link:hover       { color: #8B2040; }
+.fn-link--active     { color: #8B2040; border-bottom-color: #8B2040; }
+
+/* Right side */
+.fn-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* User Pill */
+.fn-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 4px 12px 4px 6px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.fn-user-pill:hover {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
 
-.hamburger-btn {
-  background: none;
-  border: none;
-  color: var(--text-charcoal, #1A1A1A);
-  padding: 4px;
-  display: none;
-}
-
-/* Mobile Menu Styles */
-.mobile-menu-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(26, 26, 26, 0.97);
-  z-index: 10000;
+.fn-user-initial {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #8B2040;
+  color: white;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
 }
 
-.mobile-menu-close {
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  background: none;
-  border: none;
-  color: var(--bg-warm, #F5F0EB);
-}
-
-.mobile-links {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  align-items: center;
-}
-
-.mobile-link {
-  font-size: 28px;
+.fn-user-name {
+  font-size: 12px;
   font-weight: 600;
-  color: var(--bg-warm, #F5F0EB);
+  color: #1A1A1A;
 }
 
-.mobile-link.active {
-  text-decoration: underline;
-  text-underline-offset: 8px;
-  text-decoration-color: var(--accent-burgundy, #7A1535);
+.fn-login-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #8B2040;
+  background: none;
+  border: 1px solid rgba(139, 32, 64, 0.3);
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-@media (max-width: 1024px) {
-  .floating-nav-container {
-    width: 95%;
-    padding: 10px 20px;
-  }
+.fn-login-btn:hover {
+  background: #8B2040;
+  color: #fff;
 }
 
 @media (max-width: 767px) {
-  .desktop-links, .nav-btn-team {
-    display: none;
+  .fn-user-name { display: none; }
+  .fn-user-pill { padding: 4px; border: none; background: transparent; }
+}
+
+.fn-drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  font-family: 'Poppins';
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ── MOBILE ELEMENTS — hidden on desktop ────── */
+.fn-mobile-bar,
+.fn-hamburger,
+.fn-backdrop,
+.fn-drawer {
+  display: none;
+}
+
+
+/* ════════════════════════════════════════════════
+   MOBILE  (< 768px)
+════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  /* Hide desktop pill nav entirely */
+  .fn-desktop { display: none; }
+
+  /* ── Sticky slim bar ─────────────────────── */
+  .fn-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 0 16px;
   }
-  
-  .hamburger-btn {
+
+  .fn-mobile-logo img {
+    height: 28px;
+    max-width: 100px;
+    object-fit: contain;
     display: block;
   }
-  
-  .floating-nav-container {
-    top: 15px;
+
+  /* ── Hamburger button ────────────────────── */
+  .fn-hamburger {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .fn-bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #1A1A2E;
+    border-radius: 2px;
+    transform-origin: center;
+    transition: all 0.3s ease;
+  }
+
+  /* Animate to X */
+  .fn-bar--top.open    { transform: translateY(7px) rotate(45deg); }
+  .fn-bar--mid.open    { opacity: 0; transform: scaleX(0); }
+  .fn-bar--bottom.open { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── Backdrop ────────────────────────────── */
+  .fn-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 98;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .fn-backdrop--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Slide-in drawer ─────────────────────── */
+  .fn-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 75vw;
+    max-width: 300px;
+    background: #FAF8F5;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+    z-index: 99;
+    padding: 72px 28px 32px;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .fn-drawer--open { transform: translateX(0); }
+
+  /* ── Drawer links ────────────────────────── */
+  .fn-drawer-links {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .fn-drawer-link {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1A1A2E;
+    text-decoration: none;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-left: 3px solid transparent;
+    padding-left: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .fn-drawer-link:hover {
+    color: #8B2040;
+    padding-left: 12px;
+  }
+
+  .fn-drawer-link--active {
+    color: #8B2040;
+    border-left-color: #8B2040;
+    padding-left: 12px;
+    font-weight: 700;
+  }
+
+  /* ── Tamil's Team button ─────────────────── */
+  .fn-team-btn {
+    margin-top: 24px;
+    width: 100%;
+    background: #8B2040;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    border: none;
+    border-radius: 50px;
+    padding: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .fn-team-btn:hover {
+    background: #6b1830;
+    transform: translateY(-1px);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   TABLET  (768px – 1024px) — slight padding tweak
+════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .fn-desktop {
+    width: 95%;
+    padding: 10px 20px;
   }
 }

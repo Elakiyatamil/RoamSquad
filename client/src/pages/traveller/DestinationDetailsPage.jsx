@@ -109,7 +109,7 @@ const DestinationDetailsPage = () => {
     if (!dest) return <div className="h-screen flex items-center justify-center text-forest font-bold">Destination not found.</div>;
 
     return (
-        <div className="bg-cream">
+        <div className="bg-cream page-wrapper">
             {/* Gallery Hero */}
             <div className="relative h-[60vh] md:h-[70vh] bg-forest overflow-hidden">
                 <img 

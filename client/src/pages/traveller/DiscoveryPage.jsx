@@ -1,6 +1,7 @@
 import React from 'react';
 import RoamgHero from '../../components/RoamgHero/RoamgHero';
 import FeaturedSection from '../../components/FeaturedSection/FeaturedSection';
+import WhoAreYou from '../../components/WhoAreYou/WhoAreYou';
 import LoveFromTheSquad from '../../components/LoveFromTheSquad/LoveFromTheSquad';
 import WhyChooseUs from '../../components/WhyChooseUs/WhyChooseUs';
 import AboutUs from '../../components/AboutUs/AboutUs';
@@ -9,8 +10,9 @@ import './CosmosLayout.css';
 
 const DiscoveryPage = () => {
     return (
-        <div className="discovery-cosmos-parent relative">
+        <div className="discovery-cosmos-parent relative page-wrapper">
             <RoamgHero />
+            <WhoAreYou />
             <FeaturedSection />
             <LoveFromTheSquad />
             <WhyChooseUs />

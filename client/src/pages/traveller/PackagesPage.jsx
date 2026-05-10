@@ -128,7 +128,7 @@ export default function PackagesPage() {
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
+        <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32 page-wrapper">
             <FloatingNav isAuthenticated={isAuthenticated} user={user} />
             
             {/* ── CINEMATIC BACKGROUND ── */}

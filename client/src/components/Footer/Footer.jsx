@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer = () => {
@@ -12,10 +13,10 @@ const Footer = () => {
         <div className="ft-links-group">
           <div className="ft-col">
             <span className="ft-col-title">Explore</span>
-            <a href="/packages" className="ft-link">Packages</a>
-            <a href="/events" className="ft-link">Events</a>
-            <a href="/planner" className="ft-link">Trip Planner</a>
-            <a href="/wishlist" className="ft-link">Wishlist</a>
+            <Link to="/packages" className="ft-link">Packages</Link>
+            <Link to="/events" className="ft-link">Events</Link>
+            <Link to="/planner" className="ft-link">Trip Planner</Link>
+            <Link to="/wishlist" className="ft-link">Wishlist</Link>
           </div>
           <div className="ft-col">
             <span className="ft-col-title">Company</span>

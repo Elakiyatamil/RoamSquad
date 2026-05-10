@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import WizardHeader from '../../components/Wizard/WizardHeader';
 import WizardFooter from '../../components/Wizard/WizardFooter';
@@ -17,27 +18,46 @@ const variants = {
 const STEPS = [Step1Destination, Step2Timeline, Step3Travelers, Step4Itinerary];
 
 export default function PlannerPage() {
-  const { step } = usePlannerStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { step, updateData } = usePlannerStore();
   const prevStepRef = useRef(step);
   const [direction, setDirection] = React.useState(1);
+
+  // Read vibe from location state on mount
+  useEffect(() => {
+    if (location.state && location.state.selectedVibe) {
+      updateData({ vibe: location.state.selectedVibe });
+      // Clear the state so it doesn't re-trigger on refresh or back navigation
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate, updateData]);
 
   useEffect(() => {
     setDirection(step >= prevStepRef.current ? 1 : -1);
     prevStepRef.current = step;
   }, [step]);
 
-  const StepComponent = STEPS[step - 1];
+  const StepComponent = STEPS[step - 1] || STEPS[0];
+
+  if (!StepComponent) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+      <p style={{ fontFamily: 'Poppins', color: '#5C5C6E' }}>Loading your planner...</p>
+    </div>
+  );
 
   return (
     <div
-      className="planner-page-root"
+      className="planner-page-root page-wrapper"
       style={{
         position: 'relative',
         width: '100%',
         minHeight: '100vh',
-        overflow: 'hidden',
+        overflowX: 'hidden',
         backgroundColor: '#FDFCF0',
         fontFamily: "'Inter', 'Canva Sans', sans-serif",
+        paddingTop: '0 !important',
+        marginTop: '0 !important',
       }}
     >
       {/* Subtle animated wave lines — matching RoamG reference */}
@@ -82,17 +102,19 @@ export default function PlannerPage() {
         </path>
       </svg>
 
-      {/* Persistent top breadcrumb header */}
-      <WizardHeader />
+      {/* Persistent top breadcrumb header — sits below global nav */}
+      <div style={{ position: 'sticky', top: '80px', zIndex: 50, background: 'rgba(253, 252, 240, 0.8)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+        <WizardHeader />
+      </div>
 
       {/* Step content area */}
       <div
         style={{
           position: 'relative',
           zIndex: 10,
-          paddingTop: '72px',   /* below fixed header */
+          paddingTop: '24px',   /* below sticky header */
           paddingBottom: '120px', /* above fixed footer pill */
-          minHeight: '100vh',
+          minHeight: '80vh',
           overflow: 'hidden',
         }}
       >

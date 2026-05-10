@@ -97,7 +97,7 @@ export default function JourneyDetails() {
   const hasItinerary = timeline.length > 0 && timeline.some(d => (d.activities || []).length > 0 || d.accommodation);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FAF8F4 0%, #F5F0E8 100%)', fontFamily: "'Inter', sans-serif" }}>
+    <div className="page-wrapper" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FAF8F4 0%, #F5F0E8 100%)', fontFamily: "'Inter', sans-serif" }}>
       <FloatingNav isAuthenticated={isAuthenticated} user={user} />
 
       {/* ── CINEMATIC HERO HEADER ── */}

@@ -1,0 +1,211 @@
+.duration-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 20px 16px; /* bottom pad clears the fixed Back/Continue bar */
+}
+
+/* 1. Day Counter Card (Horizontal Row) */
+.day-counter-card {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.day-counter-label-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.day-counter-label {
+  font-family: 'Poppins';
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5C5C6E;
+}
+
+.day-counter-sub {
+  font-family: 'Poppins';
+  font-size: 0.8rem;
+  color: #9CA3AF;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.counter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.day-counter-number {
+  font-family: 'Poppins';
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1A1A2E;
+  line-height: 1;
+  min-width: 28px;
+  text-align: center;
+}
+
+.counter-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #E5E7EB;
+  background: white;
+  font-size: 1.2rem;
+  color: #1A1A2E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.counter-btn:hover:not(:disabled) {
+  border-color: #8B2040;
+  color: #8B2040;
+  background: #FFF0F3;
+}
+
+.counter-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* 2. Calendar Card (Inline) */
+.calendar-card {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.month-label {
+  font-family: 'Poppins';
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1A1A2E;
+}
+
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #F3F4F6;
+  color: #1A1A2E;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #8B2040;
+  color: white;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day-header {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.date-cell {
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 40px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+  font-weight: 500;
+  color: #1A1A2E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.date-cell:hover:not(.disabled) {
+  background: #FFF0F3;
+  color: #8B2040;
+}
+
+.date-cell.today {
+  border: 1.5px solid #8B2040;
+  color: #8B2040;
+  font-weight: 700;
+}
+
+.date-cell.selected {
+  background: #8B2040;
+  color: white !important;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(139,32,64,0.3);
+}
+
+.date-cell.disabled {
+  color: #D1D5DB;
+  cursor: not-allowed;
+}
+
+/* 3. Selected Date Pill */
+.selected-date-pill {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #8B2040;
+  color: white;
+  border-radius: 50px;
+  font-family: 'Poppins';
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+  animation: pillFadeIn 0.3s ease-out;
+}
+
+.selected-date-pill.visible {
+  display: block;
+}
+
+@keyframes pillFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

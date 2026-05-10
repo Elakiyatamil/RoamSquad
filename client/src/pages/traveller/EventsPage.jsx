@@ -6,7 +6,6 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useAuthStore from '../../store/authStore';
 import AuthModal from '../../components/auth/AuthModal';
-import FloatingNav from '../../components/FloatingNav/FloatingNav';
 
 const API = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api`;
 
@@ -139,8 +138,8 @@ export default function EventsPage() {
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32">
-            <FloatingNav isAuthenticated={isAuthenticated} user={user} />
+        <div className="relative w-full min-h-screen bg-black overflow-hidden font-sans pb-32 page-wrapper">
+
             
             {/* ── CINEMATIC BACKGROUND ── */}
             <div 
@@ -163,8 +162,8 @@ export default function EventsPage() {
                 </motion.h1>
             </div>
 
-            {/* Nav Bar Protection Gradient - Soft Blend */}
-            <div className="fixed top-0 left-0 w-full h-40 bg-gradient-to-b from-[#FDFCF0]/90 via-[#FDFCF0]/50 to-transparent z-[5] pointer-events-none" />
+            {/* Nav Bar Protection Gradient - Cinematic Dark */}
+            <div className="fixed top-0 left-0 w-full h-40 bg-gradient-to-b from-black/80 via-black/40 to-transparent z-[5] pointer-events-none" />
 
             {/* ── FESTIVE ANIMATIONS ── */}
             <SnowEngine />
@@ -173,7 +172,7 @@ export default function EventsPage() {
             <div className="fixed inset-0 z-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none mix-blend-multiply" />
 
             {/* ── MAIN CONTENT ── */}
-            <main className="relative z-10 container mx-auto px-6 pt-32 pb-24 max-w-5xl">
+            <main className="relative z-10 container mx-auto px-6 pt-12 pb-24 max-w-5xl">
                 <header className="mb-20 text-center">
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}

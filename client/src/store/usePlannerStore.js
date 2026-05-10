@@ -33,7 +33,7 @@ const usePlannerStore = create(
       isValid: () => {
         const { step, destination, duration, startDate } = get();
         if (step === 1) return !!destination;
-        if (step === 2) return duration > 0 && !!startDate;
+        if (step === 2) return !!startDate && duration > 0;
         if (step === 3) return !!get().vibe;
         return true;
       }

@@ -11,9 +11,7 @@ const FeaturedSection = () => {
       </div>
       
       <div className="fs-events-section">
-        <div className="fs-divider">
-          · · · EXPERIENCES & GATHERINGS · · ·
-        </div>
+
         <EventsSlider />
       </div>
     </section>

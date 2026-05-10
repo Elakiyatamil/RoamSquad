@@ -1,0 +1,217 @@
+/* ═══════════════════════════════════════════════
+   WHO ARE YOU SECTION
+═══════════════════════════════════════════════ */
+.way-section {
+  background: #FAF8F5;
+  padding: 72px 24px 80px;
+  width: 100%;
+}
+
+.way-container {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ── Heading ─────────────────────────────────── */
+.way-title {
+  font-weight: 800;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  color: #1A1A2E;
+  line-height: 1.25;
+  margin-bottom: 56px;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.way-title--visible {
+  animation: headingReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes headingReveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.way-title-accent {
+  color: #8B2040;
+  position: relative;
+  display: inline-block;
+}
+
+.way-underline {
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ── Row ─────────────────────────────────────── */
+.vibe-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+/* ── Per-item wrapper (card + label) ─────────── */
+.vibe-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── THE CARD ────────────────────────────────── */
+.vibe-card {
+  position: relative;
+  width: 160px;
+  height: 220px;
+  border-radius: 100px 100px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 0 0 0;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  /* entrance: starts hidden */
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, outline 0.15s ease;
+}
+
+/* Staggered entrance */
+.vibe-card--in {
+  animation: cardRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0.1s) forwards;
+}
+
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hover */
+.vibe-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(139, 32, 64, 0.12);
+}
+
+/* Selected: White glow ring + lift, NO BORDER, NO BADGE */
+.vibe-card--selected {
+  box-shadow: 
+    0 0 0 3px rgba(255, 255, 255, 0.9),
+    0 0 0 6px rgba(255, 255, 255, 0.4),
+    0 12px 32px rgba(139, 32, 64, 0.15);
+  transform: translateY(-4px) scale(1.04);
+}
+
+/* Bounce on click: Dip then pop */
+.vibe-card--bounce {
+  animation: vibePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+@keyframes vibePop {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  30%  { transform: translateY(6px) scale(0.93); opacity: 0.6; }
+  65%  { transform: translateY(-6px) scale(1.06); opacity: 1; }
+  100% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+}
+
+/* ── Image inside card ───────────────────────── */
+.vibe-card img {
+  width: 90%;
+  height: 95%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Scale up images with baked-in whitespace */
+.vibe-card[data-vibe="FRIENDS"] img {
+  transform: scale(1.35);
+  transform-origin: center bottom;
+}
+
+.vibe-card[data-vibe="STRANGERS"] img {
+  transform: scale(1.4);
+  transform-origin: center bottom;
+}
+
+/* ── Label (below card, outside colored box) ─── */
+.vibe-label {
+  margin-top: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5C5C6E;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.vibe-label--active {
+  color: #8B2040;
+  font-weight: 700;
+}
+
+.vibe-card:hover ~ .vibe-label,
+.vibe-item:hover .vibe-label {
+  color: #8B2040;
+}
+
+/* ── Swipe hint (mobile only) ────────────────── */
+.way-swipe-hint {
+  display: none;
+  font-size: 0.7rem;
+  color: #9CA3AF;
+  margin-top: 16px;
+}
+
+/* ═══════════════════════════════════════════════
+   TABLET  (≤ 768px)
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .way-section   { padding: 48px 16px 56px; }
+  .way-title     { margin-bottom: 40px; }
+  .vibe-row      { gap: 12px; }
+  .vibe-card     { width: 130px; height: 180px; }
+  .vibe-card img { height: 155px; }
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE  (≤ 600px)
+═══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .vibe-row {
+    gap: 10px;
+    padding: 0 12px 16px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .vibe-row::-webkit-scrollbar { display: none; }
+
+  .vibe-card {
+    width: 110px;
+    height: 155px;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+  }
+
+  .vibe-card img { height: 130px; }
+
+  .way-swipe-hint { display: block; }
+}

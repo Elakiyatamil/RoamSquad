@@ -31,7 +31,7 @@ const AuthSuccess = () => {
     }, [searchParams, login, navigate]);
 
     return (
-        <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-6 text-center page-wrapper">
             <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

@@ -1,15 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { User, Baby, Minus, Plus, Check } from 'lucide-react';
+import { User, Baby, Minus, Plus } from 'lucide-react';
 import usePlannerStore from '../../../store/usePlannerStore';
-
-const VIBES = [
-  { id: 'solo',      label: 'Solo',      img: '/solo.png' },
-  { id: 'couple',    label: 'Couple',    img: '/couple.png' },
-  { id: 'family',    label: 'Family',    img: '/family.png' },
-  { id: 'friends',   label: 'Friends',   img: '/friends.png' },
-  { id: 'strangers', label: 'Strangers', img: '/strangers.png' },
-];
+import VibeSelector from '../../WhoAreYou/VibeSelector';
 
 function CounterRow({ label, sub, count, icon, onAdd, onSub, minVal = 0 }) {
   return (
@@ -126,7 +119,7 @@ export default function Step3Travelers() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        maxWidth: 680,
+        maxWidth: 860,
         margin: '0 auto',
         padding: '40px 24px 24px',
         minHeight: 'calc(100vh - 192px)',
@@ -138,151 +131,49 @@ export default function Step3Travelers() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ width: '100%' }}
       >
-        {/* Traveler counters */}
-        <CounterRow
-          label="Adults" sub="Age 16+"
-          count={travelers.adults}
-          icon={<User size={22} />}
-          onAdd={() => adjust('adults', 1)}
-          onSub={() => adjust('adults', -1)}
-          minVal={1}
-        />
-        <CounterRow
-          label="Kids" sub="Below 16"
-          count={travelers.kids}
-          icon={<Baby size={22} />}
-          onAdd={() => adjust('kids', 1)}
-          onSub={() => adjust('kids', -1)}
-          minVal={0}
-        />
+        <div style={{ maxWidth: 600, margin: '0 auto' }}>
+          {/* Traveler counters */}
+          <CounterRow
+            label="Adults" sub="Age 16+"
+            count={travelers.adults}
+            icon={<User size={22} />}
+            onAdd={() => adjust('adults', 1)}
+            onSub={() => adjust('adults', -1)}
+            minVal={1}
+          />
+          <CounterRow
+            label="Kids" sub="Below 16"
+            count={travelers.kids}
+            icon={<Baby size={22} />}
+            onAdd={() => adjust('kids', 1)}
+            onSub={() => adjust('kids', -1)}
+            minVal={0}
+          />
+        </div>
 
         {/* THE VIBE */}
         <p
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Poppins', sans-serif",
             fontSize: 10,
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.28em',
             color: 'rgba(0,0,0,0.3)',
             textAlign: 'center',
-            margin: '32px 0 20px',
+            margin: '48px 0 24px',
           }}
         >
-          The Vibe
+          Choose Your Vibe
         </p>
 
-        {/* Arch sticker cards */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 12,
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          {VIBES.map((v) => {
-            const sel = vibe === v.id;
-            return (
-              <button
-                key={v.id}
-                onClick={() => updateData({ vibe: v.id })}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 8,
-                  outline: 'none',
-                }}
-              >
-                {/* Arch card */}
-                <div
-                  style={{
-                    width: 108,
-                    height: 148,
-                    borderRadius: '999px 999px 20px 20px',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    background: sel ? '#800020' : '#fff',
-                    border: sel ? '2.5px solid #800020' : '2.5px solid rgba(0,0,0,0.06)',
-                    boxShadow: sel
-                      ? '0 8px 32px rgba(128,0,32,0.28)'
-                      : '0 4px 16px rgba(0,0,0,0.08)',
-                    transform: sel ? 'scale(1.06)' : 'scale(1)',
-                    transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                  }}
-                  onMouseEnter={e => { if (!sel) e.currentTarget.style.transform = 'translateY(-6px)'; }}
-                  onMouseLeave={e => { if (!sel) e.currentTarget.style.transform = 'scale(1)'; }}
-                >
-                  <img
-                    src={v.img}
-                    alt={v.label}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                      filter: sel ? 'brightness(0.85)' : 'none',
-                      transition: 'filter 0.3s',
-                    }}
-                    onError={e => { e.target.style.display = 'none'; }}
-                  />
-
-                  {/* Label inside card */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 8,
-                      left: 0,
-                      right: 0,
-                      textAlign: 'center',
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: 9,
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.15em',
-                        color: sel ? '#fff' : 'rgba(255,255,255,0.85)',
-                        textShadow: '0 1px 4px rgba(0,0,0,0.4)',
-                      }}
-                    >
-                      {v.label}
-                    </span>
-                  </div>
-
-                  {/* Green check for selected */}
-                  {sel && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      style={{
-                        position: 'absolute',
-                        bottom: 8,
-                        right: 8,
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        background: '#22c55e',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(34,197,94,0.4)',
-                      }}
-                    >
-                      <Check size={11} color="#fff" strokeWidth={3} />
-                    </motion.div>
-                  )}
-                </div>
-              </button>
-            );
-          })}
+        {/* Vibe Selector — Matching Homepage */}
+        <div style={{ width: '100%' }}>
+          <VibeSelector 
+            value={vibe} 
+            onSelect={(vId) => updateData({ vibe: vId })} 
+            navigateOnSelect={false} 
+          />
         </div>
       </motion.div>
     </div>

@@ -15,7 +15,16 @@ import MyJourneys from './pages/MyJourneys.jsx'
 import PackagesPage from './pages/traveller/PackagesPage.jsx'
 import EventsPage from './pages/traveller/EventsPage.jsx'
 import ComingSoonPage from './pages/traveller/ComingSoonPage.jsx'
+import LoginPage from './pages/traveller/LoginPage.jsx'
 import AuthSuccess from './pages/traveller/AuthSuccess.jsx'
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname]);
+  return null;
+}
 
 export default function App() {
   const [loading, setLoading] = useState(true)
@@ -43,7 +52,9 @@ export default function App() {
     <>
       {loading && <Loader onComplete={() => setLoading(false)} />}
       <div style={{ visibility: loading ? 'hidden' : 'visible' }}>
-        <Routes>
+        <ScrollToTop />
+        <Routes location={location} key={location.pathname}>
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<TravellerLayout />}>
             <Route index element={<DiscoveryPage />} />
             <Route path="planner" element={<PlannerPage />} />

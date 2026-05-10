@@ -10,7 +10,7 @@ export default function ComingSoonPage({ type }) {
     : '';
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-4 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white px-4 text-center page-wrapper">
       <span className="text-[#C1351A] text-xs font-bold tracking-[0.2em] uppercase mb-4">
         {type}
       </span>

@@ -6,12 +6,12 @@ import usePlannerStore from '../../store/usePlannerStore';
 
 const VALIDATION_MESSAGES = {
   1: 'Pick a destination to continue',
-  2: 'Select a start date to continue',
+  2: '',
   3: 'Choose your travel vibe to continue',
 };
 
 export default function WizardFooter() {
-  const { step, setStep, isValid } = usePlannerStore();
+  const { step, setStep, isValid, startDate } = usePlannerStore();
   const valid = isValid();
   const navigate = useNavigate();
 
@@ -21,7 +21,12 @@ export default function WizardFooter() {
   const handleNext = () => { if (valid && step < 4) setStep(step + 1); };
   const handleBack = () => { if (step > 1) setStep(step - 1); };
 
-  const ctaLabel = step === 3 ? 'Review Itinerary →' : 'Continue →';
+  let ctaLabel = 'Continue →';
+  if (step === 2 && !startDate) {
+    ctaLabel = 'Select a start date';
+  } else if (step === 3) {
+    ctaLabel = 'Review Itinerary →';
+  }
 
   return (
     <footer
@@ -32,7 +37,7 @@ export default function WizardFooter() {
         transform: 'translateX(-50%)',
         width: '92%',
         maxWidth: 640,
-        zIndex: 100,
+        zIndex: 999,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
