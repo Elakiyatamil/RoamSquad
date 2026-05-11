@@ -116,6 +116,11 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
   const submitToMyTrips = async () => {
     setSubmitting(true);
     try {
+      if (!token) {
+        setSubmitting(false);
+        navigate('/login', { state: { redirectTo: '/planner', reason: 'send' } });
+        return;
+      }
         const timelinePayload = itinerary.map((day, idx) => ({
             day: idx + 1,
             destination: day.destination?.name || '',
@@ -165,8 +170,11 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
         setTimeout(() => { navigate('/my-trips'); }, 2000);
 
     } catch (err) {
-        console.error('Submission error:', err);
-        navigate('/my-trips');
+      console.error('Submission error:', err);
+      if (err?.response?.status === 401) {
+        navigate('/login', { state: { redirectTo: '/planner', reason: 'send' } });
+        return;
+      }
     } finally {
         setSubmitting(false);
     }

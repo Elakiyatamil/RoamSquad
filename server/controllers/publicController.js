@@ -130,18 +130,34 @@ exports.getDestinationById = async (req, res) => {
             }
         });
 
-        if (!destination) {
+        let dest = destination;
+        // Fallback: if the lookup by id failed, try slug (frontend may pass a slug like 'coorg')
+        if (!dest) {
+            const bySlug = await prisma.destination.findFirst({
+                where: { slug: id, status: 'ACTIVE' },
+                include: {
+                    district: { include: { state: { include: { country: true } } } },
+                    activities: { where: { isActive: true } },
+                    foodOptions: { where: { isActive: true } },
+                    accommodations: { where: { isActive: true } },
+                    travelOptions: true
+                }
+            });
+            dest = bySlug;
+        }
+
+        if (!dest) {
             return res.status(404).json({ message: 'Destination not found' });
         }
 
-        // Exact Unified Response
+        // Unified response structure
         const unified = {
-            id: destination.id,
-            name: destination.name,
-            activities: destination.activities || [],
-            foodOptions: destination.foodOptions || [],
-            accommodations: destination.accommodations || [],
-            travelOptions: destination.travelOptions || []
+            id: dest.id,
+            name: dest.name,
+            activities: dest.activities || [],
+            foodOptions: dest.foodOptions || [],
+            accommodations: dest.accommodations || [],
+            travelOptions: dest.travelOptions || []
         };
 
         res.status(200).json({ success: true, data: unified });

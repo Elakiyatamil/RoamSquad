@@ -22,7 +22,8 @@ const MyTripsPage = () => {
       if (isAuthenticated && token) {
         try {
           // Add timestamp to bypass potential caching
-          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/my?t=${Date.now()}`, {
+          const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
+          const res = await axios.get(`${API_BASE}/inquiry/my?t=${Date.now()}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setTrips(res.data.data || []);

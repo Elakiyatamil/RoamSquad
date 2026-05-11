@@ -146,7 +146,7 @@ export default function Step2Timeline() {
             </div>
 
             <div className="calendar-grid">
-              {DAYS.map(d => <div key={d} className="day-header">{d}</div>)}
+              {DAYS.map((d, idx) => <div key={`day-header-${idx}`} className="day-header">{d}</div>)}
               {getDaysInMonth(currentView).map((date, idx) => {
                 if (!date) return <div key={`empty-${idx}`} />;
                 const isSel = isSelected(date);
