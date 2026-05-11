@@ -11,15 +11,17 @@ import ImageUpload from '../../components/ui/ImageUpload';
 // --- Package Form Modal ---
 const PackageForm = ({ pkg, onClose }) => {
     const queryClient = useQueryClient();
-    const [form, setForm] = useState(pkg || {
-        name: '',
-        daysCount: '',
-        totalPrice: '',
-        amount: '',
-        highlights: '',
-        tag: 'Bestseller',
-        coverImage: '',
-        isActive: true,
+    
+    // Initialize form with pkg or defaults, ensuring no undefined values
+    const [form, setForm] = useState({
+        name: pkg?.name || '',
+        daysCount: pkg?.daysCount ?? '',
+        totalPrice: pkg?.totalPrice ?? '',
+        amount: pkg?.amount ?? '',
+        highlights: pkg?.highlights || '',
+        tag: pkg?.tag || 'Bestseller',
+        coverImage: pkg?.coverImage || '',
+        isActive: pkg?.isActive ?? true,
     });
 
     const mutation = useMutation({
@@ -37,8 +39,9 @@ const PackageForm = ({ pkg, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) { alert('Package name is required.'); return; }
-        if (!form.totalPrice) { alert('Price is required.'); return; }
-        if (!form.daysCount) { alert('Duration is required.'); return; }
+        // Use strict checks for price and days to allow 0 if needed
+        if (form.totalPrice === '' || form.totalPrice === null) { alert('Price is required.'); return; }
+        if (form.daysCount === '' || form.daysCount === null) { alert('Duration is required.'); return; }
         
         const highlightsArray = typeof form.highlights === 'string' 
             ? form.highlights.split(',').map(s => s.trim()).filter(Boolean) 
@@ -48,7 +51,7 @@ const PackageForm = ({ pkg, onClose }) => {
             ...form,
             daysCount: parseInt(form.daysCount) || 0,
             totalPrice: parseFloat(form.totalPrice) || 0,
-            amount: form.amount ? parseInt(form.amount) : null,
+            amount: (form.amount !== '' && form.amount !== null) ? parseInt(form.amount) : null,
             highlights: highlightsArray,
         });
     };
@@ -69,23 +72,23 @@ const PackageForm = ({ pkg, onClose }) => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Package Name *</label>
-                        <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="e.g. Kerala Backwaters Escape" required />
+                        <input value={form.name || ''} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="e.g. Kerala Backwaters Escape" required />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Days *</label>
-                            <input type="number" value={form.daysCount} onChange={e => setForm({ ...form, daysCount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="7" required />
+                            <input type="number" value={form.daysCount ?? ''} onChange={e => setForm({ ...form, daysCount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="7" required />
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Price (₹) *</label>
-                            <input type="number" value={form.totalPrice} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="24999" required />
+                            <input type="number" value={form.totalPrice ?? ''} onChange={e => setForm({ ...form, totalPrice: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="24999" required />
                         </div>
                     </div>
 
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Budget Amount (₹) - Internal Tracking</label>
-                        <input type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="20000" />
+                        <input type="number" value={form.amount ?? ''} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium focus:ring-2 focus:ring-red/20 transition-all" placeholder="20000" />
                     </div>
 
                     <div className="space-y-1">
@@ -106,14 +109,14 @@ const PackageForm = ({ pkg, onClose }) => {
 
                     <ImageUpload 
                         label="Package Cover Image"
-                        value={form.coverImage}
+                        value={form.coverImage || ''}
                         onChange={(url) => setForm({ ...form, coverImage: url })}
                     />
 
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Highlights (comma-separated)</label>
                         <textarea 
-                            value={highlightsStr} 
+                            value={highlightsStr || ''} 
                             onChange={e => setForm({ ...form, highlights: e.target.value })} 
                             className="w-full px-4 py-3 bg-ink/5 rounded-xl border-none outline-none font-medium min-h-[80px] focus:ring-2 focus:ring-red/20 transition-all" 
                             placeholder="Houseboat Stay, Kathakali Show, Spice Plantation" 

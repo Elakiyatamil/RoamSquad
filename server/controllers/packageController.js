@@ -14,6 +14,9 @@ const getPackages = async (req, res) => {
 const createPackage = async (req, res) => {
     try {
         const data = { ...req.body };
+        delete data.id;
+        delete data.interests;
+        delete data.createdAt;
         
         if (req.file) {
             const cloudinary = require('../utils/cloudinary');
@@ -43,6 +46,9 @@ const createPackage = async (req, res) => {
 const updatePackage = async (req, res) => {
     try {
         const data = { ...req.body };
+        delete data.id;
+        delete data.interests;
+        delete data.createdAt;
         
         if (req.file) {
             const cloudinary = require('../utils/cloudinary');
