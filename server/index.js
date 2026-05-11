@@ -73,6 +73,9 @@ app.use(passport.session());
 // #region agent log
 // Debug-only endpoint for this session (no secrets).
 app.post('/__debug-log', (req, res) => {
+    // Only enabled in non-production
+    if (process.env.NODE_ENV === 'production') return res.status(403).json({ ok: false });
+    
     try {
         const fs = require('fs');
         const payload = {
@@ -84,7 +87,8 @@ app.post('/__debug-log', (req, res) => {
             data: req.body?.data || null,
             timestamp: Date.now(),
         };
-        fs.appendFileSync('c:\\Users\\sange\\MyProjecct\\roamrevier\\debug-b1a21f.log', `${JSON.stringify(payload)}\n`, 'utf8');
+        // Use a relative path or a generic log file in the project root
+        fs.appendFileSync(path.join(__dirname, 'debug.log'), `${JSON.stringify(payload)}\n`, 'utf8');
     } catch (_) { }
     res.json({ ok: true });
 });
@@ -163,13 +167,19 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, async () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 [RoamSquad] Server running on port ${PORT}`);
     try {
         const prisma = require('./utils/prisma');
+        // Simple connectivity check
         await prisma.$connect();
-        console.log("✅ DB connected successfully");
+        console.log("✅ [RoamSquad] Database connected successfully");
     } catch (e) {
-        console.error("❌ DB connection failed:", e);
+        console.error("❌ [RoamSquad] Database connection failed at startup:");
+        console.error(`   Message: ${e.message}`);
+        console.error(`   Error Code: ${e.code || 'N/A'}`);
+        if (e.message.includes('Can\'t reach database server')) {
+            console.error("   TIP: Check your DATABASE_URL in Render environment variables.");
+        }
     }
 });
 
