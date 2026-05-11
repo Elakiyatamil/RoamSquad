@@ -452,7 +452,7 @@
   align-items: center;
   gap: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-  z-index: 999;
+  z-index: 10000; /* Extremely high z-index */
   white-space: nowrap;
   font-family: 'Poppins';
 }
@@ -619,4 +619,178 @@
 .btn-submit-request:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  /* Rule 0: Global Containment */
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  .itinerary-builder-parent {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    padding-bottom: 120px !important;
+    background: #faf9f6 !important;
+  }
+
+  .itinerary-layout {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 0 16px 40px !important;
+    display: block !important; /* Stack columns */
+  }
+
+  .timeline-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 40px !important;
+    padding: 0 !important;
+  }
+
+  /* Fix: Day Card Overflow */
+  .day-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 20px !important;
+    margin: 0 auto !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+  }
+
+  .day-card-header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .day-title {
+    font-size: 1.25rem !important;
+    white-space: normal !important;
+  }
+
+  .day-destination {
+    font-size: 0.75rem !important;
+    display: block !important;
+    max-width: 140px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Dashed Box Constraints */
+  .base-stay-btn, .add-experience-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Fix 1: Horizontal Scroll Carousels (Sites, Food, Stays) */
+  .curated-row {
+    display: flex !important;
+    gap: 16px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 24px 24px !important; /* Bottom padding for shadow breathing room */
+    margin: 0 -24px !important; /* Negative margin to bleed to edges */
+    scrollbar-width: none !important;
+    flex-direction: row !important; /* Reverting stays from vertical list */
+  }
+  .curated-row::-webkit-scrollbar { display: none; }
+
+  .curated-card {
+    flex: 0 0 78% !important; /* Peeking look */
+    max-width: 280px !important;
+    scroll-snap-align: start !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .curated-img-wrap {
+    height: 160px !important;
+  }
+
+  .curated-card-body {
+    padding: 16px !important;
+  }
+
+  /* Fix 3: "Switch City" button clipping */
+  .switch-city-btn {
+    flex-shrink: 0 !important;
+    font-size: 11px !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    border: 1.5px solid #be123c !important;
+    color: #be123c !important;
+    background: transparent !important;
+    white-space: nowrap !important;
+  }
+
+  /* Fix 4: Timeline / Vibe summary pills */
+  .badge-row {
+    display: flex !important;
+    gap: 10px !important;
+    padding: 12px 16px !important;
+    flex-wrap: wrap !important;
+    margin: 0 !important;
+    justify-content: center !important;
+  }
+
+  .badge-pill {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 24px !important;
+    padding: 8px 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+    flex: 0 1 calc(50% - 12px) !important;
+    min-width: 0 !important;
+  }
+
+  .badge-label {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    color: #be123c !important;
+    text-transform: uppercase !important;
+  }
+
+  .badge-value {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+  }
+
+  /* Section Titles */
+  .section-heading {
+    padding: 0 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+  }
+  .section-sub {
+    padding: 0 !important;
+    font-size: 0.75rem !important;
+    margin-bottom: 12px !important;
+  }
+
+  .swipe-hint {
+    display: block !important;
+    text-align: center !important;
+    font-size: 11px !important;
+    color: #888 !important;
+    margin: 4px 0 24px !important;
+  }
 }

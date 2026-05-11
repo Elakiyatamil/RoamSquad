@@ -25,7 +25,7 @@ const NavUserPill = () => {
         }}
       >
         {/* Avatar circle with first letter */}
-        <div style={{
+        <div className="team-avatar" style={{
           width: '30px', height: '30px',
           borderRadius: '50%',
           background: '#8B2040',
@@ -38,7 +38,7 @@ const NavUserPill = () => {
           {user.name?.[0]?.toUpperCase() || 'U'}
         </div>
         {/* Name */}
-        <span style={{
+        <span className="team-name-text" style={{
           fontFamily: 'Poppins',
           fontWeight: 600,
           fontSize: '0.82rem',

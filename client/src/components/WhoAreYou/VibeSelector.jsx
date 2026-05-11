@@ -22,33 +22,42 @@ const VibeSelector = ({ value, onSelect, navigateOnSelect = true }) => {
   };
 
   return (
-    <div className="vibe-row" style={{ paddingBottom: '20px' }}>
-      {VIBES.map((v) => {
-        const isSelected  = value === v.id;
-        const isAnimating = animating === v.id;
+    <div className="vibe-selector-wrapper">
+      <div className="vibe-row" style={{ paddingBottom: '20px' }}>
+        {VIBES.map((v) => {
+          const isSelected  = value === v.id;
+          const isAnimating = animating === v.id;
 
-        return (
-          <div
-            key={v.id}
-            className="vibe-item"
-            style={{ '--delay': v.delay }}
-          >
-            <button
-              className={`vibe-card vibe-card--in ${isSelected ? 'vibe-card--selected' : ''} ${isAnimating ? 'vibe-card--bounce' : ''}`}
-              style={{ background: v.bg }}
-              data-vibe={v.id.toUpperCase()}
-              onClick={() => handleVibeClick(v.id)}
-              aria-label={`Select ${v.label} vibe`}
+          return (
+            <div
+              key={v.id}
+              className="vibe-item"
+              style={{ '--delay': v.delay }}
             >
-              <img src={v.img} alt={v.label} />
-            </button>
+              <button
+                className={`vibe-card vibe-card--in ${isSelected ? 'vibe-card--selected' : ''} ${isAnimating ? 'vibe-card--bounce' : ''}`}
+                style={{ background: v.bg }}
+                data-vibe={v.id.toUpperCase()}
+                onClick={() => handleVibeClick(v.id)}
+                aria-label={`Select ${v.label} vibe`}
+              >
+                <img src={v.img} alt={v.label} />
+              </button>
 
-            <p className={`vibe-label ${isSelected ? 'vibe-label--active' : ''}`}>
-              {v.label}
-            </p>
-          </div>
-        )
-      })}
+              <p className={`vibe-label ${isSelected ? 'vibe-label--active' : ''}`}>
+                {v.label}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+      <p style={{
+        textAlign: 'center',
+        fontSize: '0.65rem',
+        color: '#9CA3AF',
+        fontFamily: 'Poppins',
+        marginTop: '4px'
+      }}>← swipe to explore →</p>
     </div>
   );
 };

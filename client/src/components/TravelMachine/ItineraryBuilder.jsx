@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -12,6 +13,7 @@ import './ItineraryBuilder.css';
 import InquiryModal from './InquiryModal';
 import useAuthStore from '../../store/authStore';
 import useAudioStore from '../../store/useAudioStore';
+import VelvetLoader from '../Loader/VelvetLoader';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
@@ -260,7 +262,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
     setItinerary(next);
   };
 
-  if (destLoading) return <div className="h-screen w-screen flex items-center justify-center bg-[#FAF8F5]">Loading...</div>;
+  if (destLoading) return <VelvetLoader isLoading={true} />;
 
   const isAssigned = (id) => itinerary.some(d => d.dayItems.some(i => i.id === id) || d.accommodation?.id === id);
 
@@ -435,7 +437,9 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                       </div>
                     );
                   })}
+                  <div style={{ width: '24px', flexShrink: 0 }} />
                 </div>
+                <div className="swipe-hint" style={{ display: 'none' }}>← swipe for more →</div>
               </section>
 
               {/* FOOD SECTION */}
@@ -461,7 +465,9 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                       </div>
                     );
                   })}
+                  <div style={{ width: '24px', flexShrink: 0 }} />
                 </div>
+                <div className="swipe-hint" style={{ display: 'none' }}>← swipe for more →</div>
               </section>
 
               {/* STAYS SECTION */}
@@ -471,8 +477,9 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                 <div className="curated-row">
                   {fullDest?.accommodations?.map((acc) => {
                     const assigned = isAssigned(acc.id);
+                    const isOnlyOne = fullDest?.accommodations?.length === 1;
                     return (
-                      <div key={acc.id} className="curated-card" onClick={() => assignToSlot(acc)}>
+                      <div key={acc.id} className={`curated-card ${isOnlyOne ? 'full-width' : ''}`} onClick={() => assignToSlot(acc)}>
                         <div className="curated-img-wrap">
                           <img src={getImageUrl(acc.imageUrl || acc.image_url, 'stay')} alt={acc.tier} />
                           {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
@@ -487,7 +494,9 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                       </div>
                     );
                   })}
+                  <div style={{ width: '24px', flexShrink: 0 }} />
                 </div>
+                {fullDest?.accommodations?.length > 1 && <div className="swipe-hint" style={{ display: 'none' }}>← swipe for more →</div>}
               </section>
 
             </motion.div>
@@ -523,27 +532,69 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
       )}
 
       {/* CONFIRMATION MODAL */}
-      <AnimatePresence>
-        {showConfirmModal && (
-          <>
-            <motion.div className="confirm-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowConfirmModal(false)} />
-            <motion.div className="confirm-modal-card" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2001 }}>
-              <h2 className="confirm-modal-header">Confirm Selection</h2>
-              <div className="mb-6">
-                <div className="summary-item"><span>Experiences</span><span>{selectedItems.length} items</span></div>
-                <div className="summary-item"><span>Duration</span><span>{duration} Days</span></div>
-                <div className="summary-total"><span>Total Budget</span><span>₹{totalPrice.toLocaleString()}</span></div>
-              </div>
-              <div className="whatsapp-input-wrap">
-                <input type="tel" className="whatsapp-input" placeholder="WhatsApp Number" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} />
-              </div>
-              <button className="btn-submit-request" disabled={submitting || whatsappNumber.length < 10} onClick={submitToMyTrips}>
-                {submitting ? 'Sending...' : 'Submit to Squad'} <ArrowRight size={20} />
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {showConfirmModal && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          zIndex: 999999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+          boxSizing: 'border-box',
+        }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.95 }}
+            style={{
+              background: '#fff',
+              borderRadius: '20px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '400px',
+              maxHeight: 'calc(100vh - 32px)',
+              overflowY: 'auto',
+              boxSizing: 'border-box',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }}
+          >
+            <h2 className="confirm-modal-header">Confirm Selection</h2>
+            <div className="mb-6">
+              <div className="summary-item"><span>Experiences</span><span>{selectedItems.length} items</span></div>
+              <div className="summary-item"><span>Duration</span><span>{duration} Days</span></div>
+              <div className="summary-total"><span>Total Budget</span><span>₹{totalPrice.toLocaleString()}</span></div>
+            </div>
+            <div className="whatsapp-input-wrap">
+              <input type="tel" className="whatsapp-input" placeholder="WhatsApp Number" value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} />
+            </div>
+            <button className="btn-submit-request" disabled={submitting || whatsappNumber.length < 10} onClick={submitToMyTrips}>
+              {submitting ? 'Sending...' : 'Submit to Squad'} <ArrowRight size={20} />
+            </button>
+            <button 
+              onClick={() => setShowConfirmModal(false)}
+              style={{
+                marginTop: '16px',
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                color: '#9CA3AF',
+                fontSize: '0.85rem',
+                fontFamily: 'Poppins',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

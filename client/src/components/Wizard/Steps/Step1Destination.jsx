@@ -152,12 +152,27 @@ export default function Step1Destination() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
+          className="destinations-list"
           style={{
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: '24px 20px',
-            justifyContent: 'center',
+            flexDirection: 'row',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            gap: '16px',
+            padding: '8px 24px 16px',
+            scrollbarWidth: 'none',
             width: '100%',
+            boxSizing: 'border-box',
+          }}
+          ref={el => {
+            if (el) {
+              el.style.setProperty('overflow-x', 'auto', 'important');
+              el.style.setProperty('overflow-y', 'hidden', 'important');
+              el.style.setProperty('flex-direction', 'row', 'important');
+              el.style.setProperty('display', 'flex', 'important');
+            }
           }}
         >
           <AnimatePresence mode="popLayout">
@@ -172,42 +187,36 @@ export default function Step1Destination() {
                   exit={{ opacity: 0, scale: 0.92 }}
                   transition={{ delay: i * 0.04 }}
                   onClick={() => updateData({ destination: dest })}
+                  className="destination-card-item"
                   style={{
-                    width: 200,
+                    scrollSnapAlign: 'start',
                     flexShrink: 0,
+                    width: '260px',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    background: '#FFFFFF',
+                    boxShadow: isSelected 
+                      ? '0 0 0 2.5px #800020, 0 0 20px 4px rgba(128, 0, 32, 0.25)' 
+                      : '0 2px 20px rgba(0,0,0,0.08)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 12,
-                    cursor: 'pointer',
+                    gap: 0,
                   }}
                 >
-                  {/* Card */}
+                  {/* Card Image Wrapper */}
                   <div
+                    className="destination-card"
                     style={{
                       width: '100%',
-                      height: 280,
-                      borderRadius: 18,
+                      height: 180,
                       overflow: 'hidden',
                       position: 'relative',
-                      border: isSelected ? '2.5px solid #800020' : '2.5px solid transparent',
-                      boxShadow: isSelected
-                        ? '0 0 0 4px rgba(128,0,32,0.12), 0 8px 32px rgba(0,0,0,0.12)'
-                        : '0 4px 20px rgba(0,0,0,0.1)',
+                      borderRadius: 'inherit',
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
                       transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                    }}
-                    onMouseEnter={e => {
-                      if (!isSelected) {
-                        e.currentTarget.style.border = '2.5px solid #800020';
-                        e.currentTarget.style.boxShadow = '0 0 24px rgba(128,0,32,0.2), 0 8px 32px rgba(0,0,0,0.12)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isSelected) {
-                        e.currentTarget.style.border = '2.5px solid transparent';
-                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }
                     }}
                   >
                     <img
@@ -222,10 +231,11 @@ export default function Step1Destination() {
                       }}
                       style={{
                         width: '100%',
-                        height: '100%',
+                        height: '180px',
                         objectFit: 'cover',
+                        objectPosition: 'center',
                         display: 'block',
-                        transition: 'transform 0.5s ease',
+                        borderRadius: 'inherit',
                       }}
                     />
 
@@ -254,29 +264,26 @@ export default function Step1Destination() {
                   </div>
 
                   {/* Meta below card */}
-                  <div style={{ paddingLeft: 2 }}>
+                  <div style={{ padding: '12px 14px 14px' }}>
                     <p
                       style={{
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: 10,
-                        fontWeight: 600,
-                        color: 'rgba(0,0,0,0.4)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.15em',
-                        margin: '0 0 3px',
+                        fontSize: '0.65rem',
+                        color: '#9CA3AF',
+                        margin: '0 0 4px',
+                        letterSpacing: '0.06em',
+                        fontFamily: "'Poppins', sans-serif",
+                        textTransform: 'uppercase'
                       }}
                     >
-                      ◎ {dest.location || 'India'}
+                      ◉ {dest.location || 'India'}
                     </p>
                     <p
                       style={{
-                        fontFamily: "'Canva Sans','DM Serif Display', serif",
-                        fontSize: 18,
-                        fontWeight: isSelected ? 700 : 400,
-                        color: '#000',
+                        fontSize: '1rem',
+                        fontWeight: 700,
+                        color: '#1A1A2E',
                         margin: 0,
-                        letterSpacing: '-0.01em',
-                        transition: 'font-weight 0.2s',
+                        fontFamily: "'Poppins', sans-serif",
                       }}
                     >
                       {dest.name}
@@ -287,6 +294,15 @@ export default function Step1Destination() {
             })}
           </AnimatePresence>
         </motion.div>
+      )}
+      {!loading && (
+        <p style={{
+          textAlign: 'center',
+          fontSize: '0.65rem',
+          color: '#9CA3AF',
+          fontFamily: 'Poppins',
+          padding: '16px 0 8px'
+        }}>← swipe to browse destinations →</p>
       )}
     </div>
   );

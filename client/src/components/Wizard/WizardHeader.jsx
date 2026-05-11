@@ -26,12 +26,12 @@ export default function WizardHeader() {
     <header className="planner-navbar">
 
       {/* LEFT — Logo */}
-      <div className="pn-logo" onClick={() => navigate('/')}>
+      <div className="pn-logo planner-logo" onClick={() => navigate('/')}>
         <img src="/logo.png" alt="RoamG" className="pn-logo-img" />
       </div>
 
       {/* CENTER — Animated Step Indicator */}
-      <nav className="pn-steps">
+      <nav className="pn-steps step-indicators">
         {STEPS.map((s, index) => {
           const isActive = step === s.id;
           const isCompleted = step > s.id;
@@ -62,10 +62,16 @@ export default function WizardHeader() {
       </nav>
 
       {/* RIGHT — User pill + Close */}
-      <div className="pn-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        flexShrink: 0,
+        minWidth: 0
+      }}>
         <NavUserPill />
         <button
-          className="pn-close-btn"
+          className="pn-close-btn close-btn"
           onClick={() => navigate('/')}
           aria-label="Exit planner"
         >
