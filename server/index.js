@@ -31,29 +31,9 @@ const server = http.createServer(app);
 // Initialize Sockets
 initSockets(server);
 
-const allowedOrigins = [
-    /^http:\/\/localhost:\d+$/,
-    /^https:\/\/roam-squad[\w-]*\.vercel\.app$/,
-    /^https:\/\/roam-squad[\w-]*-elakiyatamils-projects\.vercel\.app$/,
-];
+// Simplified CORS for debugging production connectivity
+app.use(cors());
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Render health checks)
-        if (!origin) return callback(null, true);
-        const allowed = allowedOrigins.some((pattern) => pattern.test(origin));
-        if (allowed) {
-            callback(null, true);
-        } else {
-            console.warn(`[CORS] Blocked origin: ${origin}`);
-            callback(new Error(`CORS: Origin ${origin} not allowed`));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
