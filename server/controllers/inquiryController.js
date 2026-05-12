@@ -13,12 +13,16 @@ const ensureInquiryModel = (res) => {
 
 exports.createInquiry = async (req, res) => {
   try {
+    console.log('[POST /inquiry] Headers:', req.headers);
     if (!ensureInquiryModel(res)) return;
     const {
       userId,
       name,
       email,
       phone,
+      whatsappNumber,
+      packageName,
+      packageId,
       state,
       district,
       itinerary,
@@ -29,6 +33,8 @@ exports.createInquiry = async (req, res) => {
       foodSnapshot,
       days,
       people,
+      paxAdults,
+      paxChildren,
       totalBudget,
       startDate,
       tripDate,
@@ -57,6 +63,9 @@ exports.createInquiry = async (req, res) => {
         name,
         email,
         phone,
+        whatsappNumber: whatsappNumber || phone,
+        packageId: packageId || null,
+        packageName: packageName || null,
         destinationId: destinationId ?? null,
         destinationName: destinationName ?? null,
         state: state ?? null,
@@ -69,6 +78,8 @@ exports.createInquiry = async (req, res) => {
         foodSnapshot: effectiveFoodSnapshot,
         days: typeof days === 'number' ? days : (days ? Number(days) : null),
         people: typeof people === 'number' ? people : (people ? Number(people) : null),
+        paxAdults: typeof paxAdults === 'number' ? paxAdults : (paxAdults ? Number(paxAdults) : null),
+        paxChildren: typeof paxChildren === 'number' ? paxChildren : (paxChildren ? Number(paxChildren) : null),
         totalBudget: typeof totalBudget === 'number' ? totalBudget : (totalBudget ? Number(totalBudget) : null),
         startDate: startDate ? new Date(startDate) : null,
         tripDate: (tripDate || startDate) ? new Date(tripDate || startDate) : null,

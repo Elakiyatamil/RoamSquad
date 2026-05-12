@@ -21,6 +21,7 @@ const wishlistRoutes = require('./routes/wishlist');
 const inquiryRoutes = require('./routes/inquiry');
 const interestRoutes = require('./routes/interests');
 const squadLoveRoutes = require('./routes/squadLove');
+const settingsRoutes = require('./routes/settings');
 const experienceController = require('./controllers/experienceController');
 const { verifyJWT, isAdmin } = require('./middleware/auth');
 const { getAuditLogs } = require('./controllers/auditController');
@@ -89,6 +90,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Broad Admin Routers (Mounted on /api last)
 app.use('/api', interestRoutes);

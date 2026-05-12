@@ -17,6 +17,8 @@ import EventsPage from './pages/traveller/EventsPage.jsx'
 import ComingSoonPage from './pages/traveller/ComingSoonPage.jsx'
 import LoginPage from './pages/traveller/LoginPage.jsx'
 import AuthSuccess from './pages/traveller/AuthSuccess.jsx'
+import PackageDetails from './pages/PackageDetails.jsx'
+import ConfirmSelection from './pages/ConfirmSelection.jsx'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,6 +57,8 @@ export default function App() {
         <ScrollToTop />
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="packages/:id" element={<PackageDetails />} />
+          <Route path="confirm-selection" element={<ConfirmSelection />} />
           <Route path="/" element={<TravellerLayout />}>
             <Route index element={<DiscoveryPage />} />
             <Route path="planner" element={<PlannerPage />} />
@@ -64,7 +68,6 @@ export default function App() {
             <Route path="my-journeys" element={<MyJourneys />} />
             <Route path="destinations/:slug" element={<DestinationDetailsPage />} />
             <Route path="packages" element={<PackagesPage />} />
-            <Route path="packages/:id" element={<ComingSoonPage type="Package" />} />
             <Route path="events" element={<EventsPage />} />
             <Route path="events/:id" element={<ComingSoonPage type="Event" />} />
             <Route path="auth-success" element={<AuthSuccess />} />

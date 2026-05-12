@@ -7,6 +7,7 @@ const { upload } = require('../controllers/uploadController');
 
 // Public routes
 router.get('/public', packageController.getPackagesPublic);
+router.get('/public/:id', packageController.getPackageByIdPublic);
 router.post('/:id/interest', verifyJWT, packageController.createPackageInterest);
 
 // Admin routes

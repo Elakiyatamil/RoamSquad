@@ -326,9 +326,23 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
 
       {/* 2. HERO IMAGE — reduce height, clean fade */}
       <header className="itinerary-hero">
-        <video ref={videoRef} autoPlay loop muted playsInline key={currentDest.id}>
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          key={currentDest.id}
+          onError={(e) => { e.target.style.display = 'none'; }}
+        >
           <source src={`/destinationvideo/${currentDest.name.toLowerCase()}.mp4`} type="video/mp4" />
         </video>
+        <img 
+          src={getImageUrl(fullDest?.coverImage || fullDest?.images?.[0])} 
+          className="hero-image-fallback" 
+          alt="" 
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -1 }}
+        />
         <div className="absolute bottom-4 right-4 z-10">
           <button className="rh-audio-btn-glass" onClick={toggleMute}>
             {isMuted ? <VolumeX size={18} color="white" /> : <Volume2 size={18} color="white" />}

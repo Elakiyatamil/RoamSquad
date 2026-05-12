@@ -19,12 +19,24 @@ const getTitle = (inquiry) => {
 };
 
 const getItineraryArray = (inquiry) => {
+  // Check for itineraryDays (Package format)
+  const pkgDays = inquiry?.itinerary?.itineraryDays || inquiry?.itinerarySnapshot?.itineraryDays;
+  if (Array.isArray(pkgDays)) {
+    return pkgDays.map(d => ({
+      day: d.dayNumber,
+      destination: d.locationName || '',
+      activities: d.activities || []
+    }));
+  }
+
   // NEW format: { timeline: [...] }
   if (Array.isArray(inquiry?.itinerary?.timeline)) return inquiry.itinerary.timeline;
   if (Array.isArray(inquiry?.itinerarySnapshot?.timeline)) return inquiry.itinerarySnapshot.timeline;
+  
   // Direct array
   if (Array.isArray(inquiry?.itinerary)) return inquiry.itinerary;
   if (Array.isArray(inquiry?.itinerarySnapshot)) return inquiry.itinerarySnapshot;
+  
   // LEGACY format: { items: [...] } — wrap into a single Day 1
   const flatItems = inquiry?.itinerary?.items || inquiry?.itinerarySnapshot?.items;
   if (Array.isArray(flatItems) && flatItems.length > 0) {
@@ -44,7 +56,7 @@ export default function JourneyDetails() {
   const { data: inquiry, isLoading, error } = useQuery({
     queryKey: ['inquiry', id],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005'}/api/inquiry/${id}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/inquiry/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data?.data || res.data;
@@ -228,7 +240,7 @@ export default function JourneyDetails() {
                               </div>
                             )}
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.name || act.title}</p>
+                              <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{act.name || act.title || act.description}</p>
                               {act.destinationName && (
                                 <p style={{ margin: 0, fontSize: 12, color: '#888' }}>{act.destinationName}</p>
                               )}

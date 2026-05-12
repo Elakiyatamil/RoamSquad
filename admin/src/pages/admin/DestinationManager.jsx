@@ -27,8 +27,9 @@ import apiClient from '../../services/apiClient';
 const getImgUrl = (url) => {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
-    const base = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
-    return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
+    const base = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+    const path = url.startsWith('/') ? url : `/uploads/${url}`;
+    return `${base}${path}`;
 };
 
 const DestinationForm = ({ destination, onClose }) => {

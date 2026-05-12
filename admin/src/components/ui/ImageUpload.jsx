@@ -9,8 +9,8 @@ const ImageUpload = ({ value, onChange, label = "Upload Image", folder = "genera
     const getImgUrl = (url) => {
         if (!url) return null;
         if (url.startsWith('http') || url.startsWith('data:')) return url;
-        const base = 'http://localhost:5005';
-        const path = url.startsWith('/') ? url : `/${url}`;
+        const base = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+        const path = url.startsWith('/') ? url : `/uploads/${url}`;
         return `${base}${path}`;
     };
 

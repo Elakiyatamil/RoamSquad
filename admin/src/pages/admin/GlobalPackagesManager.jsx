@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Package, Users, Star, Calendar } from 'lucide-react';
+import { Plus, Trash2, Package, Users, Star, Calendar, ExternalLink, MessageCircle, Download, CheckCircle } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import apiClient from '../../services/apiClient';
 import ImageUpload from '../../components/ui/ImageUpload';
+import PDFBrochure from '../../components/PDFBrochure';
 
 function PackageForm({ onSave }) {
   const [form, setForm] = useState({ 
@@ -72,11 +74,14 @@ export default function GlobalPackagesManager() {
     }
   });
 
-  const { data: interests = [] } = useQuery({
-    queryKey: ['packageInterests'],
+  // Fetch inquiries that are package-related (have a packageName)
+  const { data: allInquiries = [] } = useQuery({
+    queryKey: ['packageInquiries'],
     queryFn: async () => {
-      const res = await apiClient.get('/package-interest');
-      return res.data.data || [];
+      const res = await apiClient.get('/inquiry');
+      const data = res.data.data || res.data || [];
+      // Filter for those that are package inquiries (have packageName or packageId)
+      return data.filter(i => i.packageName || i.packageId);
     }
   });
 
@@ -95,11 +100,16 @@ export default function GlobalPackagesManager() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['adminPackages'] })
   });
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => apiClient.patch(`/inquiry/${id}/status`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['packageInquiries'] })
+  });
+
   const getImgUrl = (url) => {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
-    const base = 'http://localhost:5005';
-    const path = url.startsWith('/') ? url : `/${url}`;
+    const base = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+    const path = url.startsWith('/') ? url : `/uploads/${url}`;
     return `${base}${path}`;
   };
 
@@ -115,7 +125,7 @@ export default function GlobalPackagesManager() {
             </button>
             <button onClick={() => setActiveTab('interests')}
               className={`px-6 py-2 rounded-full font-bold transition ${activeTab === 'interests' ? 'bg-gold text-ink' : 'bg-ink/5 text-ink/60 hover:bg-ink/10'}`}>
-              <Users size={16} className="inline mr-2" />Interests ({interests.length})
+              <Users size={16} className="inline mr-2" />Interests ({allInquiries.length})
             </button>
           </div>
         </div>
@@ -171,25 +181,99 @@ export default function GlobalPackagesManager() {
           <table className="w-full text-sm">
             <thead className="bg-ink/5 text-ink/60">
               <tr>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Email</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Name</th>
-                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Phone</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Lead</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">WhatsApp</th>
                 <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Package</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Group</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Budget</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Status</th>
                 <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Date</th>
+                <th className="text-left p-4 font-bold uppercase tracking-widest text-[10px]">Actions</th>
               </tr>
             </thead>
             <tbody>
-                {(Array.isArray(interests) ? interests : []).map((i) => (
+              {(Array.isArray(allInquiries) ? allInquiries : []).map((i) => {
+                const waNumber = (i.whatsappNumber || i.phone || '').replace(/\D/g, '');
+                const groupLabel = i.paxAdults != null 
+                  ? `${i.paxAdults}A${i.paxChildren > 0 ? ` + ${i.paxChildren}C` : ''}` 
+                  : (i.people ? `${i.people}` : '-');
+
+                const isApproved = i.status === 'APPROVED';
+                const itineraryData = i.itinerarySnapshot || i.itinerary || {};
+
+                return (
                   <tr key={i.id} className="border-t border-ink/5 hover:bg-ink/5 transition-colors">
-                    <td className="p-4 font-bold text-ink">{i.email}</td>
-                    <td className="p-4 text-ink/70">{i.name || '-'}</td>
-                    <td className="p-4 text-ink/70 font-bold text-red">{i.phone || '-'}</td>
-                    <td className="p-4 text-ink/70 font-semibold">{i.package?.name || '-'}</td>
-                    <td className="p-4 text-ink/60 font-semibold">{new Date(i.createdAt).toLocaleString()}</td>
+                    <td className="p-4">
+                      <p className="font-bold text-ink">{i.name || '-'}</p>
+                      <p className="text-[10px] text-ink/40">{i.email || '-'}</p>
+                    </td>
+                    <td className="p-4 font-bold text-ink/70">{i.whatsappNumber || i.phone || '-'}</td>
+                    <td className="p-4">
+                      <span className="text-xs font-bold bg-gold/10 text-gold px-2 py-1 rounded-lg">
+                        {i.packageName || '-'}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-xs font-bold bg-ink/5 text-ink/70 px-2 py-1 rounded-lg">{groupLabel}</span>
+                    </td>
+                    <td className="p-4 font-black text-ink">
+                      {i.totalBudget ? `₹${Number(i.totalBudget).toLocaleString()}` : '-'}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${
+                        isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {i.status || 'Pending'}
+                      </span>
+                    </td>
+                    <td className="p-4 text-ink/50 text-xs">{new Date(i.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        {/* Download PDF Button */}
+                        <PDFDownloadLink 
+                          document={<PDFBrochure data={{ ...itineraryData, coverImage: getImgUrl(itineraryData.coverImage), totalBudget: i.totalBudget }} />} 
+                          fileName={`${(i.packageName || 'Package').replace(/\s+/g, '_')}_${i.name || 'Leads'}.pdf`}
+                        >
+                          {({ loading }) => (
+                            <button 
+                              className={`p-2 rounded-lg bg-ink text-cream hover:bg-ink/90 transition ${loading ? 'opacity-50 cursor-wait' : ''}`}
+                              title="Download Itinerary PDF"
+                            >
+                              <Download size={16} />
+                            </button>
+                          )}
+                        </PDFDownloadLink>
+
+                        {/* Approve Button */}
+                        {!isApproved && (
+                          <button 
+                            onClick={() => { if(window.confirm('Approve this trip?')) statusMutation.mutate({ id: i.id, status: 'APPROVED' }); }}
+                            className="p-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition"
+                            title="Approve Trip"
+                          >
+                            <CheckCircle size={16} />
+                          </button>
+                        )}
+
+                        {/* WhatsApp Button */}
+                        {waNumber && (
+                          <a 
+                            href={`https://wa.me/91${waNumber}?text=Hi%20${encodeURIComponent(i.name || 'there')}%2C%20I%20have%20reviewed%20your%20interest%20in%20the%20${encodeURIComponent(i.packageName || 'package')}%20package.%20I%20am%20ready%20to%20help!`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-[#25D366] text-white hover:opacity-90 transition"
+                            title="Chat on WhatsApp"
+                          >
+                            <MessageCircle size={16} />
+                          </a>
+                        )}
+                      </div>
+                    </td>
                   </tr>
-                ))}
-              {interests.length === 0 && (
-                <tr><td colSpan={5} className="p-10 text-center text-ink/40 font-bold">No interests yet.</td></tr>
+                );
+              })}
+              {allInquiries.length === 0 && (
+                <tr><td colSpan={8} className="p-10 text-center text-ink/40 font-bold">No package interests yet.</td></tr>
               )}
             </tbody>
           </table>

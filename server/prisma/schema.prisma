@@ -189,6 +189,19 @@ model Package {
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   interests  PackageInterest[]
+
+  // Phase 1 New Fields
+  vibe                 String?
+  altText              String?
+  description          String?           // Monolithic Description (Legacy)
+  itineraryType        ItineraryType     @default(LEGACY)
+  pricePerPax          Decimal?          @db.Decimal(10, 2)
+  priceUnit            String            @default("PER PERSON")
+  participantGroups    ParticipantGroup[]
+  inclusions           String[]
+  exclusions           String[]
+  terms                String?
+  itineraryDays        ItineraryDay[]
 }
 
 model ItineraryRequest {
@@ -273,6 +286,9 @@ model Inquiry {
   name        String
   email       String
   phone       String
+  whatsappNumber String?
+  packageId   String?
+  packageName String?
   destinationId String?
   destinationName String?
   state       String?
@@ -285,6 +301,8 @@ model Inquiry {
   foodSnapshot      Json?
   days        Int?
   people      Int?
+  paxAdults   Int?
+  paxChildren Int?
   totalBudget Int?
   startDate   DateTime?
   tripDate    DateTime?
@@ -332,5 +350,72 @@ model SquadLove {
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+enum ItineraryType {
+  LEGACY
+  STRUCTURED
+}
+
+enum TransportType {
+  TRAIN
+  PRIVATE_BUS
+  FLIGHT
+  NONE
+}
+
+enum ActivityTime {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  NIGHT_STAY
+}
+
+enum ActivityType {
+  MEAL
+  SIGHTSEEING
+  ACTIVITY
+  TRAVEL
+  INDUSTRIAL_VISIT
+  ADVENTURE_SPORTS
+}
+
+model GlobalSettings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model ItineraryDay {
+  id              String             @id @default(uuid())
+  packageId       String
+  package         Package            @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  dayNumber       Int
+  locationName    String?
+  dayTheme        String?
+  transportType   TransportType      @default(NONE)
+  transportNote   String?
+  accommodationId String?
+  activities      ItineraryActivity[]
+}
+
+model ItineraryActivity {
+  id             String       @id @default(uuid())
+  dayId          String
+  day            ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  activityTime   ActivityTime
+  activityType   ActivityType
+  description    String
+  isHighlight    Boolean      @default(false)
+}
+
+model ParticipantGroup {
+  id        String  @id @default(uuid())
+  packageId String
+  name      String  // e.g., "Students", "Staff", "Adults"
+  count     Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
 }
 
