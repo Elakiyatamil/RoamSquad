@@ -11,14 +11,22 @@ const generateToken = (user) => {
 };
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    // Basic sanitization
+    email = email ? email.toLowerCase().trim() : '';
 
     try {
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: 'Email and password are required' });
+        }
+
         const user = await prisma.user.findUnique({
             where: { email }
         });
 
         if (!user || !user.password) {
+            // Note: Keep message vague to prevent user enumeration
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
@@ -37,7 +45,8 @@ const login = async (req, res) => {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    role: user.role
+                    role: user.role,
+                    avatarUrl: user.avatarUrl
                 }
             }
         });
@@ -48,10 +57,19 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
+    let { name, email, password } = req.body;
+    
+    // Sanitization
+    email = email ? email.toLowerCase().trim() : '';
+    name = name ? name.trim() : null;
+
     try {
         if (!email || !password) {
             return res.status(400).json({ success: false, message: 'Email and password are required' });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
         }
 
         const existing = await prisma.user.findUnique({ where: { email } });
@@ -59,7 +77,10 @@ const register = async (req, res) => {
             return res.status(409).json({ success: false, message: 'Email already in use' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Increase bcrypt rounds to 12 for hardening
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
         const user = await prisma.user.create({
             data: {
                 email,
@@ -97,7 +118,8 @@ const getMe = async (req, res) => {
                 id: true,
                 email: true,
                 name: true,
-                role: true
+                role: true,
+                avatarUrl: true
             }
         });
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });

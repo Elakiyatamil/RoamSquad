@@ -255,9 +255,12 @@ model WishlistItem {
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
-  password      String?  // null for Google users
+  password      String?  // null for OAuth users
   name          String?
+  avatarUrl     String?
   googleId      String?  @unique
+  facebookId    String?  @unique
+  instagramId   String?  @unique
   phone         String?  @unique
   role          String   @default("USER")
   createdAt     DateTime @default(now())
@@ -265,6 +268,11 @@ model User {
   requests      ItineraryRequest[]
   tripPlans     TripPlan[]
   wishlist      WishlistItem[]
+
+  @@index([email])
+  @@index([googleId])
+  @@index([facebookId])
+  @@index([instagramId])
 }
 
 model AuditLog {

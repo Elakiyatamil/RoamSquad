@@ -174,6 +174,9 @@ export default function CloudNavbarSection() {
               </Link>
             )
           })}
+          <div className="cloud-drawer-user" style={{ marginTop: '30px', padding: '0 20px' }}>
+            <NavUserPill />
+          </div>
         </nav>
       </div>
 

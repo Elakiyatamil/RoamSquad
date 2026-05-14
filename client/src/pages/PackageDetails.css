@@ -56,16 +56,18 @@
 
 .hero-content {
   position: absolute;
-  bottom: 40px;
-  left: 40px;
-  right: 40px;
-  z-index: 20;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+  z-index: 20;
 }
 
 .hero-title {
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
   font-weight: 900;
   color: #1A1A1A;
   line-height: 1.1;
@@ -114,7 +116,9 @@
 
 @media (min-width: 1024px) {
   .main-content-grid {
-    grid-template-columns: 8fr 4fr;
+    grid-template-columns: 7.5fr 4.5fr;
+    gap: 60px;
+    padding: 0 40px;
   }
 }
 

@@ -89,7 +89,7 @@ const FloatingNav = () => {
             </Link>
           ))}
         </nav>
-        <div className="fn-drawer-actions" style={{ padding: '0 20px', marginTop: '20px' }} onClick={() => setDrawerOpen(false)}>
+        <div className="fn-drawer-actions" style={{ padding: '0 20px', marginTop: '20px' }}>
           <NavUserPill />
         </div>
       </aside>

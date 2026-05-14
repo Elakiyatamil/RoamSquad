@@ -152,7 +152,7 @@ export default function PackageDetails() {
   return (
     <div className="engine-wrapper">
       <nav className="engine-header-nav">
-         <div className="maroon-logo">ROAM<span>SQUAD</span></div>
+         <div className="maroon-logo">ROAM<span>G</span></div>
          <button onClick={() => navigate(-1)} className="customize-btn inactive">
            <ArrowLeft size={12} /> Discovery
          </button>
@@ -203,7 +203,7 @@ export default function PackageDetails() {
         </div>
       </div>
 
-      <main className="main-content-grid">
+      <main className="main-content-grid" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px 120px' }}>
         <div className="engine-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
              <h2 className="engine-header-title">Itinerary Builder</h2>

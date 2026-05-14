@@ -1,68 +1,121 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LogOut, User, X } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import './NavUserPill.css';
 
 const NavUserPill = () => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // Use the pattern provided in the prompt
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setShowProfileMenu(false);
+  };
+
   if (isAuthenticated && user) {
     return (
-      <div
-        className="team-pill"
-        onClick={() => setShowProfileMenu(!showProfileMenu)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: '#F3F4F6',
-          borderRadius: '50px',
-          padding: '6px 14px 6px 6px',
-          cursor: 'pointer',
-          border: '1px solid #E5E7EB'
-        }}
-      >
-        {/* Avatar circle with first letter */}
-        <div className="team-avatar" style={{
-          width: '30px', height: '30px',
-          borderRadius: '50%',
-          background: '#8B2040',
-          color: 'white',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'Poppins',
-          fontWeight: 700, fontSize: '0.8rem',
-          flexShrink: 0
-        }}>
-          {user.name?.[0]?.toUpperCase() || 'U'}
+      <div className="user-pill-container" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="team-pill"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowProfileMenu(!showProfileMenu);
+          }}
+        >
+          {/* Avatar circle with first letter */}
+          <div className="team-avatar">
+            {user.name?.[0]?.toUpperCase() || 'U'}
+          </div>
+          {/* Name */}
+          <span className="team-name-text">
+            {user.name?.split(' ')[0] || 'Account'}
+            {'\'S TEAM'}
+          </span>
         </div>
-        {/* Name */}
-        <span className="team-name-text" style={{
-          fontFamily: 'Poppins',
-          fontWeight: 600,
-          fontSize: '0.82rem',
-          color: '#1A1A2E'
-        }}>
-          {user.name?.split(' ')[0] || 'My Account'}
-          {'\'S TEAM'}
-        </span>
+
+        {/* Dropdown Menu */}
+        <AnimatePresence>
+          {showProfileMenu && (
+            <>
+              <motion.div 
+                className="menu-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowProfileMenu(false);
+                }} 
+              />
+              <motion.div 
+                className="logout-menu"
+                initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+              >
+                <button 
+                  className="menu-close-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowProfileMenu(false);
+                  }}
+                  aria-label="Close menu"
+                >
+                  <X size={18} />
+                </button>
+
+                <div className="menu-header">
+                  <p className="signed-in-as">Signed in as</p>
+                  <p className="user-email">{user.email}</p>
+                </div>
+                
+                <button
+                  className="logout-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                >
+                  <LogOut className="logout-icon" />
+                  Logout
+                </button>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
 
   return (
     <button
+      className="login-trigger-btn"
       onClick={() => navigate('/login')}
       style={{
         background: '#8B2040', color: 'white',
         border: 'none', borderRadius: '50px',
         padding: '10px 24px',
-        fontFamily: 'Poppins', fontWeight: 600,
-        fontSize: '0.85rem', cursor: 'pointer'
+        fontFamily: 'Outfit, sans-serif', fontWeight: 600,
+        fontSize: '0.85rem', cursor: 'pointer',
+        boxShadow: '0 4px 15px rgba(139, 32, 64, 0.2)',
+        transition: 'all 0.3s ease'
       }}
-    >Login</button>
+      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+      onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+    >
+      Login
+    </button>
   );
 };
 
 export default NavUserPill;
+

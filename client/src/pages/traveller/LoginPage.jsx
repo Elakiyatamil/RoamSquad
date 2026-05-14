@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, Chrome as Google, Facebook, Apple, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Chrome as Google, Facebook, Instagram, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
@@ -90,9 +90,9 @@ const LoginPage = () => {
 
         {/* Social logins */}
         <div className="social-row">
-          <div className="social-btn"><Google size={20} /></div>
-          <div className="social-btn"><Facebook size={20} /></div>
-          <div className="social-btn"><Apple size={20} /></div>
+          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`}><Google size={20} /></div>
+          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/facebook`}><Facebook size={20} /></div>
+          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/instagram`}><Instagram size={20} /></div>
         </div>
 
         <div className="divider">or</div>
