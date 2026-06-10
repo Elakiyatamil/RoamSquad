@@ -2,16 +2,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const prisma = require('../utils/prisma');
 
-const generateToken = (user) => {
+const generateToken = (user, rememberMe = false) => {
+    const expiresIn = rememberMe ? '30d' : '1d';
     return jwt.sign(
         { id: user.id, role: user.role },
         process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn }
     );
 };
 
 const login = async (req, res) => {
-    let { email, password } = req.body;
+    let { email, password, rememberMe } = req.body;
 
     // Basic sanitization
     email = email ? email.toLowerCase().trim() : '';
@@ -35,7 +36,7 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
-        const token = generateToken(user);
+        const token = generateToken(user, rememberMe);
 
         res.status(200).json({
             success: true,
@@ -57,7 +58,7 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-    let { name, email, password } = req.body;
+    let { name, email, password, rememberMe } = req.body;
     
     // Sanitization
     email = email ? email.toLowerCase().trim() : '';
@@ -90,7 +91,7 @@ const register = async (req, res) => {
             }
         });
 
-        const token = generateToken(user);
+        const token = generateToken(user, rememberMe);
 
         res.status(201).json({
             success: true,

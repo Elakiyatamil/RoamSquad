@@ -7,6 +7,7 @@ import useAuthStore from '../../store/authStore';
 const AuthModal = ({ isOpen, onClose, onSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({ email: '', password: '', name: '' });
+    const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { login } = useAuthStore();
@@ -19,7 +20,7 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
         setLoading(true);
         setError('');
         try {
-            const res = await axios.post(`${API_BASE}/api${endpoint}`, formData);
+            const res = await axios.post(`${API_BASE}/api${endpoint}`, { ...formData, rememberMe });
             const { user, token } = res.data.data;
             login(user, token);
             
@@ -129,6 +130,22 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.password}
                                 onChange={e => setFormData({...formData, password: e.target.value})}
                             />
+                        </div>
+
+                        {/* Remember Me Option */}
+                        <div className="flex items-center gap-2 mt-2 px-1 cursor-pointer select-none" onClick={() => setRememberMe(!rememberMe)}>
+                            <input 
+                                type="checkbox" 
+                                id="rememberMeModal" 
+                                checked={rememberMe} 
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="rounded text-forest focus:ring-forest cursor-pointer"
+                                style={{ width: '16px', height: '16px' }}
+                            />
+                            <label htmlFor="rememberMeModal" className="text-xs text-forest/50 font-medium cursor-pointer">
+                                Remember me
+                            </label>
                         </div>
 
                         <button 

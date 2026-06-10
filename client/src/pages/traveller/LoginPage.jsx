@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [itinerarySent, setItinerarySent] = useState(false);
@@ -33,7 +34,7 @@ const LoginPage = () => {
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const res = await axios.post(`${API_BASE}${endpoint}`, formData);
+      const res = await axios.post(`${API_BASE}${endpoint}`, { ...formData, rememberMe });
       const { user, token } = res.data.data;
       
       login(user, token);
@@ -90,9 +91,9 @@ const LoginPage = () => {
 
         {/* Social logins */}
         <div className="social-row">
-          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`}><Google size={20} /></div>
-          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/facebook`}><Facebook size={20} /></div>
-          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/instagram`}><Instagram size={20} /></div>
+          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`}>
+            <Google size={20} style={{ marginRight: '8px' }} /> Continue with Google
+          </div>
         </div>
 
         <div className="divider">or</div>
@@ -145,6 +146,21 @@ const LoginPage = () => {
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </div>
+          </div>
+
+          {/* Remember Me Option */}
+          <div className="remember-me-container" style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '8px', cursor: 'pointer', userSelect: 'none' }} onClick={() => setRememberMe(!rememberMe)}>
+            <input 
+              type="checkbox" 
+              id="rememberMe" 
+              checked={rememberMe} 
+              onChange={(e) => setRememberMe(e.target.checked)}
+              onClick={(e) => e.stopPropagation()}
+              style={{ accentColor: '#8B2040', cursor: 'pointer', width: '16px', height: '16px' }}
+            />
+            <label htmlFor="rememberMe" style={{ fontSize: '0.85rem', color: '#5C5C6E', cursor: 'pointer', fontWeight: 500 }}>
+              Remember me
+            </label>
           </div>
 
           <button className="login-submit-btn" disabled={loading}>

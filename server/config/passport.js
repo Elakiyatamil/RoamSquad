@@ -1,7 +1,5 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
-const InstagramStrategy = require('passport-instagram').Strategy;
 const prisma = require('../utils/prisma');
 
 const upsertUser = async (profile, provider) => {
@@ -65,39 +63,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             const user = await upsertUser(profile, 'google');
-            done(null, user);
-        } catch (err) {
-            done(err, null);
-        }
-    }));
-}
-
-// Facebook Strategy
-if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
-    passport.use(new FacebookStrategy({
-        clientID: process.env.FACEBOOK_APP_ID,
-        clientSecret: process.env.FACEBOOK_APP_SECRET,
-        callbackURL: process.env.FACEBOOK_CALLBACK_URL || "/api/auth/facebook/callback",
-        profileFields: ['id', 'displayName', 'emails', 'photos']
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const user = await upsertUser(profile, 'facebook');
-            done(null, user);
-        } catch (err) {
-            done(err, null);
-        }
-    }));
-}
-
-// Instagram Strategy
-if (process.env.INSTAGRAM_CLIENT_ID && process.env.INSTAGRAM_CLIENT_SECRET) {
-    passport.use(new InstagramStrategy({
-        clientID: process.env.INSTAGRAM_CLIENT_ID,
-        clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-        callbackURL: process.env.INSTAGRAM_CALLBACK_URL || "/api/auth/instagram/callback"
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const user = await upsertUser(profile, 'instagram');
             done(null, user);
         } catch (err) {
             done(err, null);

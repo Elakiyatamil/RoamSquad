@@ -9,6 +9,7 @@ const LoginScreen = ({ onBack }) => {
   const [isLogin, setIsLogin] = useState(false); // Default to Signup based on "Start your perfect trip"
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -32,7 +33,7 @@ const LoginScreen = ({ onBack }) => {
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const res = await axios.post(`${API_BASE}${endpoint}`, formData);
+      const res = await axios.post(`${API_BASE}${endpoint}`, { ...formData, rememberMe });
       
       const { user, token } = res.data.data;
       login(user, token);
@@ -84,11 +85,16 @@ const LoginScreen = ({ onBack }) => {
             </h1>
           </div>
 
-          {/* Social Logins - Neat Row */}
-          <div className="flex justify-center gap-4 mb-6">
-            <button className="social-pill opacity-50 cursor-not-allowed" title="Coming Soon"><Apple size={20} /></button>
-            <button className="social-pill" onClick={handleGoogleLogin}><Google size={20} /></button>
-            <button className="social-pill opacity-50 cursor-not-allowed" title="Coming Soon"><Facebook size={20} /></button>
+          {/* Social Logins - Google Only */}
+          <div className="w-full mb-6">
+            <button 
+              type="button"
+              onClick={handleGoogleLogin} 
+              className="w-full py-3 px-4 border border-slate-200 rounded-2xl font-bold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-sm text-sm"
+            >
+              <Google size={20} />
+              <span>Continue with Google</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-4 mb-8 opacity-50">
@@ -160,6 +166,22 @@ const LoginScreen = ({ onBack }) => {
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+            </div>
+
+            {/* Remember Me Option */}
+            <div className="flex items-center gap-2 mt-2 px-1 cursor-pointer select-none" onClick={() => setRememberMe(!rememberMe)}>
+              <input 
+                type="checkbox" 
+                id="rememberMeScreen" 
+                checked={rememberMe} 
+                onChange={(e) => setRememberMe(e.target.checked)}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded text-[#800020] focus:ring-[#800020] cursor-pointer"
+                style={{ width: '16px', height: '16px' }}
+              />
+              <label htmlFor="rememberMeScreen" className="text-xs text-slate-500 font-medium cursor-pointer">
+                Remember me
+              </label>
             </div>
 
             <button 
