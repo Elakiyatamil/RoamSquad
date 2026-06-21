@@ -6,7 +6,7 @@ import usePlannerStore from '../../store/usePlannerStore';
 
 const VALIDATION_MESSAGES = {
   1: 'Pick a destination to continue',
-  2: '',
+  2: 'Select travel dates to continue',
   3: 'Choose your travel vibe to continue',
 };
 
@@ -23,7 +23,7 @@ export default function WizardFooter() {
 
   let ctaLabel = 'Continue →';
   if (step === 2 && !startDate) {
-    ctaLabel = 'Select a start date';
+    ctaLabel = 'Select travel dates';
   } else if (step === 3) {
     ctaLabel = 'Review Itinerary →';
   }

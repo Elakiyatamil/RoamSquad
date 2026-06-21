@@ -112,8 +112,8 @@
 }
 
 .nav-btn {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: #F3F4F6;
@@ -126,8 +126,13 @@
 }
 
 .nav-btn:hover:not(:disabled) {
-  background: #8B2040;
+  background: #8B4754;
   color: white;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .calendar-grid {
@@ -149,63 +154,134 @@
 .date-cell {
   aspect-ratio: 1;
   width: 100%;
-  max-width: 40px;
+  max-width: 48px;
   margin: 0 auto;
-  border-radius: 50%;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: clamp(0.7rem, 2.5vw, 0.85rem);
   font-weight: 500;
-  color: #1A1A2E;
+  color: #2C2C2A;
+  background: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 200ms ease-out;
   position: relative;
 }
 
-.date-cell:hover:not(.disabled) {
-  background: #FFF0F3;
-  color: #8B2040;
+@media (hover: hover) {
+  .date-cell:hover:not(.disabled):not(.start-date):not(.end-date):not(.in-range) {
+    background: #F5F1E8;
+    border: 1px solid #8B4754;
+  }
 }
 
 .date-cell.today {
-  border: 1.5px solid #8B2040;
-  color: #8B2040;
-  font-weight: 700;
+  border: 2px solid #8B4754;
+  font-weight: 600;
 }
 
-.date-cell.selected {
-  background: #8B2040;
+.date-cell.start-date {
+  background: #8B4754 !important;
   color: white !important;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(139,32,64,0.3);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(139, 71, 84, 0.3);
+  border-radius: 8px 0 0 8px !important;
+}
+
+.date-cell.end-date {
+  background: #8B4754 !important;
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(139, 71, 84, 0.3);
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.date-cell.start-date.single-date,
+.date-cell.end-date.single-date {
+  border-radius: 8px !important;
+}
+
+.date-cell.in-range {
+  background: #E8D4D0 !important;
+  color: #2C2C2A !important;
+  border-radius: 0 !important;
+}
+
+.date-cell.error {
+  background: #FFE5E5 !important;
+  border: 2px solid #FF6B6B !important;
+  color: #D32F2F !important;
+  border-radius: 8px !important;
 }
 
 .date-cell.disabled {
-  color: #D1D5DB;
+  color: #CCCCCC !important;
+  background: transparent !important;
   cursor: not-allowed;
+  opacity: 0.4;
+  text-decoration: line-through;
+  pointer-events: none;
 }
 
-/* 3. Selected Date Pill */
-.selected-date-pill {
+/* 3. Selected Date Display & Alerts */
+.date-range-display {
   margin-top: 16px;
-  padding: 10px 20px;
-  background: #8B2040;
-  color: white;
-  border-radius: 50px;
-  font-family: 'Poppins';
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2C2C2A;
   text-align: center;
-  display: none;
-  animation: pillFadeIn 0.3s ease-out;
+  transition: opacity 200ms ease;
+  min-height: 20px;
 }
 
-.selected-date-pill.visible {
-  display: block;
+.alert-container {
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  animation: fadeIn 300ms ease-out;
 }
 
-@keyframes pillFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+.alert-container.error {
+  background: #FFE5E5;
+  border: 1px solid #FF6B6B;
+  color: #D32F2F;
+}
+
+.alert-container.warning {
+  background: #FFF3E0;
+  border: 1px solid #FFB74D;
+  color: #E65100;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* 4. Responsive Viewports */
+@media (max-width: 767px) {
+  .duration-wrapper {
+    max-width: 100%;
+    padding: 12px 8px;
+  }
+  .date-cell {
+    max-width: 40px;
+    height: 40px;
+  }
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+

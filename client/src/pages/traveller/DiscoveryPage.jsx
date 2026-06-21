@@ -3,7 +3,7 @@ import RoamgHero from '../../components/RoamgHero/RoamgHero';
 import FeaturedSection from '../../components/FeaturedSection/FeaturedSection';
 import WhoAreYou from '../../components/WhoAreYou/WhoAreYou';
 import LoveFromTheSquad from '../../components/LoveFromTheSquad/LoveFromTheSquad';
-import WhyChooseUs from '../../components/WhyChooseUs/WhyChooseUs';
+
 import AboutUs from '../../components/AboutUs/AboutUs';
 import Footer from '../../components/Footer/Footer';
 import './CosmosLayout.css';
@@ -15,7 +15,7 @@ const DiscoveryPage = () => {
             <WhoAreYou />
             <FeaturedSection />
             <LoveFromTheSquad />
-            <WhyChooseUs />
+
             <AboutUs />
             <Footer />
         </div>

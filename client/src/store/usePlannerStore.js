@@ -8,6 +8,7 @@ const usePlannerStore = create(
       destination: null,
       duration: 3,
       startDate: '',
+      endDate: '',
       travelers: {
         adults: 2,
         kids: 0,
@@ -26,14 +27,26 @@ const usePlannerStore = create(
         destination: null,
         duration: 3,
         startDate: '',
+        endDate: '',
         travelers: { adults: 2, kids: 0 },
         vibe: null,
       }),
 
       isValid: () => {
-        const { step, destination, duration, startDate } = get();
+        const { step, destination, duration, startDate, endDate } = get();
         if (step === 1) return !!destination;
-        if (step === 2) return !!startDate && duration > 0;
+        if (step === 2) {
+          // Both dates are required
+          if (!startDate || !endDate) return false;
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          // End date must be on or after start date
+          if (end < start) return false;
+          // Duration must be valid and within limits
+          const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+          if (diffDays > 90) return false;
+          return duration > 0;
+        }
         if (step === 3) return !!get().vibe;
         return true;
       }
