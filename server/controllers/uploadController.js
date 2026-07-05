@@ -85,8 +85,9 @@ const uploadSingle = async (req, res) => {
             // Save file
             fs.writeFileSync(filepath, req.file.buffer);
             
-            // Construct relative URL for better portability
-            const localUrl = `/uploads/${folder ? folder + '/' : ''}${filename}`;
+            // Construct absolute URL for frontend compatibility
+            const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+            const localUrl = `${baseUrl}/uploads/${folder ? folder + '/' : ''}${filename}`;
             
             res.status(200).json({
                 success: true,
@@ -137,8 +138,9 @@ const uploadMultiple = async (req, res) => {
                 
                 fs.writeFileSync(filepath, file.buffer);
                 
+                const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
                 localResults.push({
-                    url: `/uploads/${folder ? folder + '/' : ''}${filename}`,
+                    url: `${baseUrl}/uploads/${folder ? folder + '/' : ''}${filename}`,
                     public_id: filename
                 });
             }

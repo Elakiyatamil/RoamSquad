@@ -1,13 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
-/* Prefer Canva Sans if available, fall back to Inter/Geist */
-@font-face {
-  font-family: 'Canva Sans';
-  src: local('Canva Sans'), local('CanvaSans');
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: swap;
-}
+@import "tailwindcss";
+
 
 :root {
   /* RoamG Design Tokens */

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, User, X } from 'lucide-react';
+import { LogOut, User, X, Ticket } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import './NavUserPill.css';
 
@@ -78,6 +78,19 @@ const NavUserPill = () => {
                   <p className="user-email">{user.email}</p>
                 </div>
                 
+                <button
+                  className="logout-button"
+                  style={{ color: '#111827', marginBottom: '8px' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/my-meetups');
+                    setShowProfileMenu(false);
+                  }}
+                >
+                  <Ticket className="logout-icon" style={{ color: '#6b7280' }} />
+                  My Meetups
+                </button>
+
                 <button
                   className="logout-button"
                   onClick={(e) => {

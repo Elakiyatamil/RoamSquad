@@ -14,6 +14,8 @@ import JourneyDetails from './pages/JourneyDetails.jsx'
 import MyJourneys from './pages/MyJourneys.jsx'
 import PackagesPage from './pages/traveller/PackagesPage.jsx'
 import EventsPage from './pages/traveller/EventsPage.jsx'
+import EventDetailsPage from './pages/traveller/EventDetailsPage.jsx'
+import MyMeetupsProfile from './pages/traveller/MyMeetupsProfile.jsx'
 import ComingSoonPage from './pages/traveller/ComingSoonPage.jsx'
 import LoginPage from './pages/traveller/LoginPage.jsx'
 import AuthSuccess from './pages/traveller/AuthSuccess.jsx'
@@ -69,7 +71,8 @@ export default function App() {
             <Route path="destinations/:slug" element={<DestinationDetailsPage />} />
             <Route path="packages" element={<PackagesPage />} />
             <Route path="events" element={<EventsPage />} />
-            <Route path="events/:id" element={<ComingSoonPage type="Event" />} />
+            <Route path="events/:id" element={<EventDetailsPage />} />
+            <Route path="my-meetups" element={<MyMeetupsProfile />} />
             <Route path="auth-success" element={<AuthSuccess />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

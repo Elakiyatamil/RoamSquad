@@ -64,6 +64,10 @@ const LoginPage = () => {
           console.error('Post-login submit failed:', submitErr);
           navigate('/my-trips');
         }
+      } else if (location.state?.returnToBooking) {
+        navigate(`/events/${location.state.eventId}`, {
+            state: { openBookingModal: true, phone: location.state.phone || '', step: 'persons' }
+        });
       } else {
         navigate(redirectTo);
       }

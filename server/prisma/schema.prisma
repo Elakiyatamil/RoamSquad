@@ -37,7 +37,6 @@ model District {
   destinations   Destination[]
   state          State           @relation(fields: [stateId], references: [id], onDelete: Cascade)
   mustVisitSpots MustVisitSpot[]
-  upcomingEvents UpcomingEvent[]
 
   @@unique([name, stateId])
 }
@@ -154,26 +153,7 @@ model MustVisitSpot {
   district    District @relation(fields: [districtId], references: [id], onDelete: Cascade)
 }
 
-model UpcomingEvent {
-  id             String   @id @default(uuid())
-  districtId     String?
-  title          String
-  name           String?
-  description    String?
-  dateTime       DateTime?
-  startDate      DateTime?
-  endDate        DateTime?
-  bannerImage    String?
-  image          String?
-  image_url      String?
-  cloudinary_public_id String?
-  location       String?
-  contactNumber  String?
-  isFeatured     Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  district       District? @relation(fields: [districtId], references: [id], onDelete: Cascade)
-  interests      EventInterest[]
-}
+
 
 model Package {
   id         String   @id @default(uuid())
@@ -268,6 +248,8 @@ model User {
   requests      ItineraryRequest[]
   tripPlans     TripPlan[]
   wishlist      WishlistItem[]
+  eventRegistrations EventRegistration[]
+  reviews       Review[]
 
   @@index([email])
   @@index([googleId])
@@ -337,15 +319,7 @@ model PackageInterest {
   createdAt  DateTime @default(now())
 }
 
-model EventInterest {
-  id         String   @id @default(uuid())
-  eventId    String
-  event      UpcomingEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  email      String
-  name       String?
-  phone      String?
-  createdAt  DateTime @default(now())
-}
+
 model SquadLove {
   id        String   @id @default(uuid())
   type      String   // "IMAGE" or "VIDEO"
@@ -427,3 +401,69 @@ model ParticipantGroup {
   package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
 }
 
+model Event {
+  id               String       @id @default(uuid())
+  title            String
+  tagline          String
+  description      String
+  venue            String
+  address          String
+  googleMap        String
+  date             DateTime
+  startTime        String
+  endTime          String
+  hostName         String
+  contactNumber    String
+  emergencyContact String
+  maxAttendees     Int
+  seatsRemaining   Int
+  price            Float
+  highlights       String[]
+  thingsToBring    String[]
+  galleryImages    String[]
+  coverImage       String
+  status           EventStatus  @default(DRAFT)
+  registrations    EventRegistration[]
+  reviews          Review[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model EventRegistration {
+  id            String        @id @default(uuid())
+  userId        String
+  eventId       String
+  phone         String
+  bookingId     String        @unique
+  persons       Int           @default(1)
+  amount        Float
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentId     String?
+  receiptUrl    String?
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String?
+  eventId   String
+  review    String
+  rating    Int
+  reviewerName String?
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+}
