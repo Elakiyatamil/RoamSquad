@@ -113,17 +113,6 @@ const NavUserPill = () => {
     <button
       className="login-trigger-btn"
       onClick={() => navigate('/login')}
-      style={{
-        background: '#8B2040', color: 'white',
-        border: 'none', borderRadius: '50px',
-        padding: '10px 24px',
-        fontFamily: 'Outfit, sans-serif', fontWeight: 600,
-        fontSize: '0.85rem', cursor: 'pointer',
-        boxShadow: '0 4px 15px rgba(139, 32, 64, 0.2)',
-        transition: 'all 0.3s ease'
-      }}
-      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-      onMouseLeave={e => e.currentTarget.style.transform = 'none'}
     >
       Login
     </button>

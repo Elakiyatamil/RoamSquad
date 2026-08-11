@@ -38,3 +38,6 @@ server/scratch/
 test_image.png
 /prisma/migrations
 /prisma/schema.prisma.backup
+
+project_submission.zip
+*.zip

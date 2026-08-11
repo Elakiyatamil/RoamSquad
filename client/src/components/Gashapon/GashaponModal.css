@@ -1,0 +1,63 @@
+/* ══════════════════════════════════════════════════════
+   GASHAPON MODAL — Custom 3D & Isometric Helpers
+══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+/* ── 3D button effect ─────────────────────────────── */
+.btn-3d,
+.gashapon-btn-3d {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease;
+    border: none;
+    outline: none;
+}
+
+.btn-3d:active,
+.gashapon-btn-3d:active {
+    transform: translateY(4px);
+}
+
+.btn-3d-face,
+.gashapon-btn-3d-face {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+.btn-3d-bottom,
+.gashapon-btn-3d-bottom {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(6px);
+    z-index: 0;
+}
+
+/* ── Isometric ellipse shadow under machine ─────── */
+.gashapon-iso-shadow {
+    background: rgba(40, 110, 140, 0.3);
+    border-radius: 50%;
+    filter: blur(10px);
+    transform: scaleY(0.3);
+}
+
+/* ── Material Symbols helper ──────────────────────── */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: inherit;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+}

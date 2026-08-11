@@ -1,0 +1,104 @@
+/* ══════════════════════════════════════════════════
+   GASHAPON FLOATING ACTION BUTTON (mobile only)
+   Hidden on screens ≥ 768px
+══════════════════════════════════════════════════ */
+
+.gfab {
+    /* Positioning */
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.25rem;
+    z-index: 40;
+
+    /* Shape */
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.7rem 1.1rem 0.7rem 0.85rem;
+    border-radius: 9999px;
+
+    /* Colour */
+    background: linear-gradient(135deg, #e63946 0%, #c62020 100%);
+    color: #ffffff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+    /* Shadow */
+    box-shadow:
+        0 8px 24px rgba(230, 57, 70, 0.42),
+        0 2px 8px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+    /* Transition for scroll-aware hiding */
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s ease;
+
+    /* Subtle ring for separation over video */
+    outline: 2px solid rgba(255, 255, 255, 0.15);
+    outline-offset: 2px;
+
+    /* Pulse glow animation */
+    animation: gfab-pulse-glow 2.6s ease-in-out infinite;
+
+    /* Touch tap area */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Scroll-aware hidden state ────────────── */
+.gfab.gfab--hidden {
+    opacity: 0 !important;
+    transform: scale(0.9) !important;
+    pointer-events: none !important;
+}
+
+.gfab:active {
+    box-shadow: 0 3px 10px rgba(230, 57, 70, 0.35);
+}
+
+.gfab-dice {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: inline-block;
+    /* framer-motion controls rotation */
+}
+
+.gfab-label {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ── Pulse glow keyframes ────────────────── */
+@keyframes gfab-pulse-glow {
+    0%, 100% {
+        box-shadow:
+            0 8px 24px rgba(230, 57, 70, 0.42),
+            0 2px 8px rgba(0, 0, 0, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+    50% {
+        box-shadow:
+            0 10px 32px rgba(230, 57, 70, 0.65),
+            0 4px 14px rgba(0, 0, 0, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+}
+
+/* ── Mobile & Global: hide floating FAB across mobile viewports ── */
+@media (max-width: 768px) {
+    .gfab {
+        display: none !important;
+    }
+}
+
+/* ── Desktop: hide the FAB entirely ─────── */
+@media (min-width: 768px) {
+    .gfab {
+        display: none !important;
+    }
+}

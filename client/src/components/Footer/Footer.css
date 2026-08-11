@@ -101,49 +101,63 @@
 
 @media (max-width: 768px) {
   .ft-wrapper {
-    padding: 40px 24px;
+    padding: 32px 20px 24px;
+    overflow: hidden;
   }
 
   .ft-inner {
     flex-direction: column;
-    align-items: center;
-    gap: 32px;
-    padding-bottom: 32px;
+    align-items: stretch;
+    gap: 24px;
+    padding-bottom: 24px;
   }
 
-  /* Logo — centered, max 140px */
+  /* Logo & Brand Accent — row alignment on mobile */
   .ft-brand {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    justify-content: space-between;
     width: 100%;
-    margin: 0 auto 8px;
+    margin: 0 0 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.08);
   }
 
   .ft-logo-img {
-    max-width: 140px;
+    max-width: 120px;
     height: auto;
-    max-height: 36px;
-    width: 100%;
+    max-height: 32px;
+    width: auto;
     object-fit: contain;
   }
 
-  /* Columns — stacked, centered */
+  .ft-brand::after {
+    content: "TRAVEL REIMAGINED";
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent-burgundy, #7A1535);
+    opacity: 0.8;
+    text-transform: uppercase;
+  }
+
+  /* 2-Column Grid on Mobile */
   .ft-links-group {
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 20px;
     width: 100%;
   }
 
   .ft-col {
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
+    min-width: unset;
   }
 
   .ft-col-title {
-    color: #8B2040;
+    color: #7A1535;
     font-family: 'Poppins', sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
@@ -153,41 +167,43 @@
   }
 
   .ft-link {
-    font-size: 0.9rem;
-    color: #5C5C6E;
+    font-size: 0.85rem;
+    color: #4A4A5A;
     opacity: 1;
-    line-height: 2;
+    line-height: 1.8;
   }
 
   .ft-link:hover {
-    color: #1A1A2E;
+    color: #7A1535;
   }
 
-  /* Bottom row */
+  /* Bottom row — responsive flex bar */
   .ft-bottom {
-    flex-direction: column;
+    flex-direction: flex-row;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: 16px;
-    margin-top: 24px;
-    text-align: center;
+    gap: 12px;
+    margin-top: 16px;
+    text-align: left;
   }
 
   .ft-bottom span {
-    font-size: 0.75rem;
-    color: #9CA3AF;
+    font-size: 0.72rem;
+    color: #8A8A9A;
   }
 
   /* Socials */
   .ft-socials {
     display: flex;
-    gap: 20px;
-    justify-content: center;
-    width: 100%;
-    margin-top: 24px;
+    gap: 16px;
+    justify-content: flex-start;
+    margin-top: 0;
   }
 
   .ft-social-link {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
   }
 }
 

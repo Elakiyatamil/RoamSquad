@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useLoader } from '../../context/LoaderContext';
 import NavUserPill from '../Navigation/NavUserPill';
+import { useGashapon } from '../../context/GashaponContext.jsx';
 import './FloatingNav.css';
 
 /**
@@ -14,6 +15,7 @@ const FloatingNav = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { pathname } = useLocation();
   const { isLoading } = useLoader();
+  const { openGashapon } = useGashapon();
 
   // Close drawer on route change
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
@@ -36,7 +38,7 @@ const FloatingNav = () => {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+    <>
       {/* ═══════════════════════════════════════
           DESKTOP NAV — pill-shaped floating bar
       ═══════════════════════════════════════ */}
@@ -93,7 +95,7 @@ const FloatingNav = () => {
           <NavUserPill />
         </div>
       </aside>
-    </div>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@
 .rh-wrapper {
   position: relative;
   width: 100vw;
+  min-height: 100vh;
   height: 100vh;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
@@ -13,6 +14,9 @@
   overflow: hidden;
   background: #000;
   z-index: 10;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  clip-path: ellipse(150% 100% at 50% 0%);
   font-family: 'Poppins', sans-serif !important;
 }
 
@@ -21,6 +25,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
 }
 
 .rh-video {
@@ -49,9 +56,9 @@
    ───────────────────────────────────────────────── */
 .rh-centered-content {
   position: absolute;
-  bottom: 120px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -42%);
   width: 90%;
   max-width: 900px;
   text-align: center;
@@ -59,6 +66,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 9rem; /* pt-36 top spacing for desktop */
 }
 
 .rh-headline-journal {
@@ -238,6 +246,10 @@
    RESPONSIVENESS
    ───────────────────────────────────────────────── */
 @media (max-width: 767px) {
+  .rh-centered-content {
+    transform: translate(-50%, -44%);
+    padding-top: 7rem; /* pt-28 top spacing for mobile */
+  }
   .rh-headline-journal { 
     font-size: 2.2rem; 
     padding: 0 15px;
@@ -251,4 +263,45 @@
     letter-spacing: 2px;
     font-size: 0.6rem;
   }
+}
+
+/* Hero Surprise Me CTA Button */
+.rh-hero-actions-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.rh-hero-surprise-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #e63946 0%, #dc2626 100%);
+  color: #ffffff;
+  font-family: 'Quicksand', 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(230, 57, 70, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.rh-hero-surprise-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.55);
+  filter: brightness(1.08);
+}
+
+.rh-hero-surprise-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.rh-hero-surprise-dice {
+  font-size: 1rem;
+  line-height: 1;
 }

@@ -4,6 +4,9 @@ import TravellerLayout from './layouts/TravellerLayout.jsx'
 import { useLoader } from './context/LoaderContext'
 import { Toaster } from 'react-hot-toast'
 import Loader from './components/Loader/Loader.jsx'
+import GashaponModal from './components/Gashapon/GashaponModal.jsx'
+import GashaponFAB from './components/Gashapon/GashaponFAB.jsx'
+import { useGashapon } from './context/GashaponContext.jsx'
 
 import DiscoveryPage from './pages/traveller/DiscoveryPage.jsx'
 import PlannerPage from './pages/traveller/PlannerPage.jsx'
@@ -35,6 +38,7 @@ export default function App() {
   const location = useLocation()
   const { setIsLoading } = useLoader()
   const isFirstMount = React.useRef(true)
+  const { isGashaponOpen, closeGashapon } = useGashapon()
 
   // Route change loading trigger
   useEffect(() => {
@@ -78,6 +82,8 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster position="top-center" />
+        <GashaponModal isOpen={isGashaponOpen} onClose={closeGashapon} />
+        <GashaponFAB />
       </div>
     </>
   )

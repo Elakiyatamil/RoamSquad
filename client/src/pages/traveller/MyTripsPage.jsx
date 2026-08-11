@@ -6,11 +6,15 @@ import useAuthStore from '../../store/authStore';
 import axios from 'axios';
 import { generatePDF } from '../../utils/pdfExport';
 import FloatingNav from '../../components/FloatingNav/FloatingNav';
+import Footer from '../../components/Footer/Footer';
+import LuggageFooter from '../../components/LuggageFooter/LuggageFooter';
+import PackingChecklist from '../../components/PackingChecklist/PackingChecklist';
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 const MyTripsPage = () => {
   const [trips, setTrips] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false);
   const navigate = useNavigate();
   const token = useAuthStore((s) => s.token);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -107,14 +111,19 @@ const MyTripsPage = () => {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : trips.length === 0 ? (
-          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-            style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)', borderRadius: 32, padding: '64px 48px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.5)', boxShadow: '0 20px 60px rgba(0,0,0,0.06)' }}>
-            <Plane size={48} style={{ color: 'rgba(128,0,32,0.2)', transform: 'rotate(-45deg)', margin: '0 auto 24px' }} />
-            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', marginBottom: 12 }}>No journeys yet</h2>
-            <p style={{ color: '#888', fontSize: '1.1rem', fontStyle: 'italic', maxWidth: 400, margin: '0 auto' }}>
-              The world is waiting. Build your first itinerary and submit an inquiry to see it here.
-            </p>
-          </motion.div>
+          <div style={{ position: 'relative', paddingBottom: '32px' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+              style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)', borderRadius: 32, padding: '64px 48px', paddingBottom: '96px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.5)', boxShadow: '0 20px 60px rgba(0,0,0,0.06)', overflow: 'visible', position: 'relative', zIndex: 10 }}>
+              <Plane size={48} style={{ color: 'rgba(128,0,32,0.2)', transform: 'rotate(-45deg)', margin: '0 auto 24px' }} />
+              <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', marginBottom: 12 }}>No journeys yet</h2>
+              <p style={{ color: '#888', fontSize: '1.1rem', fontStyle: 'italic', maxWidth: 400, margin: '0 auto' }}>
+                The world is waiting. Build your first itinerary and submit an inquiry to see it here.
+              </p>
+            </motion.div>
+            <div className="absolute bottom-0 w-full z-30" style={{ pointerEvents: 'auto' }}>
+              <LuggageFooter onLuggageClick={() => setIsChecklistOpen(true)} isPaused={isChecklistOpen} />
+            </div>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {trips.map((trip, idx) => {
@@ -235,6 +244,14 @@ const MyTripsPage = () => {
           </div>
         )}
       </main>
+      {trips.length > 0 && (
+        <div className="mt-auto w-full">
+          <LuggageFooter onLuggageClick={() => setIsChecklistOpen(true)} isPaused={isChecklistOpen} />
+        </div>
+      )}
+
+      {/* Packing Checklist Modal */}
+      <PackingChecklist isOpen={isChecklistOpen} onClose={() => setIsChecklistOpen(false)} />
     </div>
   );
 };

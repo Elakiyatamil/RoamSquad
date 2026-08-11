@@ -6,6 +6,8 @@ router.get('/discovery-tree', publicController.getDiscoveryTree);
 router.get('/destinations', publicController.getDestinations);
 router.get('/destination/:id', publicController.getDestinationById); // Enforced singular route
 router.get('/destinations/id/:id', publicController.getDestinationById);
+// Gashapon vending machine — static route MUST be before /:slug wildcard
+router.get('/destinations/gashapon', publicController.getGashaponDestination);
 router.get('/destinations/:slug', publicController.getDestinationDetails);
 
 

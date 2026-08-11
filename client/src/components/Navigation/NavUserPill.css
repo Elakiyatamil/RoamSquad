@@ -8,47 +8,42 @@
 .team-pill {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 100px;
-  padding: 6px 18px 6px 6px;
-  cursor: pointer;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .team-pill:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  border-color: rgba(139, 32, 64, 0.15);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(128, 0, 32, 0.15);
 }
 
 .team-avatar {
-  width: 36px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8B2040 0%, #B02E56 100%);
+  background: #800020;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(139, 32, 64, 0.25);
-  border: 2px solid white;
 }
 
 .team-name-text {
   font-weight: 600;
-  font-size: 0.85rem;
-  color: #1A1A2E;
+  font-size: 0.8rem;
+  color: #2D3748;
   white-space: nowrap;
-  letter-spacing: -0.01em;
 }
 
 /* Premium Logout Card */
@@ -179,21 +174,23 @@
 
 /* Login Button Styles */
 .login-trigger-btn {
-  background: linear-gradient(135deg, #8B2040 0%, #B02E56 100%);
-  color: white;
+  background: #800020;
+  color: #fff;
+  padding: 0.4rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.85rem;
   border: none;
-  border-radius: 100px;
-  padding: 12px 28px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(139, 32, 64, 0.3);
-  transition: all 0.4s ease;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .login-trigger-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(139, 32, 64, 0.4);
-  filter: brightness(1.1);
+  background: #66001a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(128, 0, 32, 0.25);
 }

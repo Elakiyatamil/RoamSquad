@@ -6,6 +6,7 @@ import { createSignal, globalSignals } from '../../utils/signals';
 import usePlannerStore from '../../store/usePlannerStore';
 import useAudioStore from '../../store/useAudioStore';
 import useAuthStore from '../../store/authStore';
+import { useGashapon } from '../../context/GashaponContext.jsx';
 import './RoamgHero.css';
 
 const COMPANION_OPTIONS = [
@@ -21,6 +22,7 @@ const ITEM_ANGLE = 40; // Increased angle to prevent overlap
 const RoamgHero = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { openGashapon } = useGashapon();
   const [scrolled, setScrolled] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const { isMuted, toggleMute } = useAudioStore();
@@ -186,6 +188,18 @@ const RoamgHero = () => {
                 <Search size={18} strokeWidth={3} />
               </button>
             </div>
+            
+            <div className="rh-hero-actions-row">
+              <button
+                onClick={openGashapon}
+                className="rh-hero-surprise-btn"
+                aria-label="Surprise Me — Spin the Gashapon!"
+              >
+                <span className="rh-hero-surprise-dice">🎲</span>
+                <span>SURPRISE ME</span>
+              </button>
+            </div>
+            
             <p className="rh-search-subtext">DISCOVER YOUR NEXT ADVENTURE</p>
           </div>
         </div>
@@ -208,12 +222,6 @@ const RoamgHero = () => {
               )}
             </AnimatePresence>
           </button>
-        </div>
-
-        <div className="rh-svg-cut-wrap">
-          <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="rh-svg-cut">
-            <path d="M0,0 Q720,100 1440,0 V100 H0 Z" fill="#F5F0EB" />
-          </svg>
         </div>
       </div>
 

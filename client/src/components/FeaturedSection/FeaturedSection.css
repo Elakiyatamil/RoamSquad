@@ -18,6 +18,50 @@
   position: relative;
 }
 
+/* Surprise Me Trigger directly before Featured Packages */
+.fs-surprise-trigger-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 20px 8px;
+  width: 100%;
+  background-color: var(--bg-warm, #F5F0EB);
+}
+
+.fs-surprise-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #e63946 0%, #dc2626 100%);
+  color: #ffffff;
+  font-family: 'Quicksand', 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.fs-surprise-trigger-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(230, 57, 70, 0.5);
+  filter: brightness(1.06);
+}
+
+.fs-surprise-trigger-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.fs-surprise-dice {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 .fs-header-container {
   max-width: 1280px;
   margin: 0 auto 40px;

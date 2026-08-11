@@ -9,6 +9,10 @@ import Step3Travelers from '../../components/Wizard/Steps/Step3Travelers';
 import Step4Itinerary from '../../components/Wizard/Steps/Step4Itinerary';
 import usePlannerStore from '../../store/usePlannerStore';
 
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
+
 const variants = {
   enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
   center: { x: 0, opacity: 1 },
@@ -23,6 +27,34 @@ export default function PlannerPage() {
   const { step, updateData } = usePlannerStore();
   const prevStepRef = useRef(step);
   const [direction, setDirection] = React.useState(1);
+
+  // Read destination and step from URL search parameters on mount/change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const destSlug = params.get('destination');
+    const stepParam = params.get('step');
+
+    if (destSlug || stepParam) {
+      const targetStep = stepParam ? parseInt(stepParam, 10) : 2;
+      const currentDest = usePlannerStore.getState().destination;
+
+      if (destSlug && (!currentDest || currentDest.slug !== destSlug)) {
+        axios.get(`${API_BASE_URL}/public/destinations/${destSlug}`)
+          .then(r => {
+            if (r.data?.success && r.data.data) {
+              updateData({ destination: r.data.data, step: targetStep });
+            } else {
+              updateData({ destination: { id: destSlug, name: destSlug.toUpperCase(), slug: destSlug }, step: targetStep });
+            }
+          })
+          .catch(() => {
+            updateData({ destination: { id: destSlug, name: destSlug.toUpperCase(), slug: destSlug }, step: targetStep });
+          });
+      } else if (stepParam) {
+        updateData({ step: targetStep });
+      }
+    }
+  }, [location.search, updateData]);
 
   // Read vibe from location state on mount
   useEffect(() => {

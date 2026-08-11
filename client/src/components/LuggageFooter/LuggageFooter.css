@@ -1,0 +1,318 @@
+/* ============================
+   LUGGAGE FOOTER TRACK
+   ============================ */
+
+/* Outer container — sits above the footer bottom bar */
+.luggage-footer-track {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+    min-height: 130px;
+    background: transparent;
+    z-index: 10;
+}
+
+/* The visual floor / track line */
+.luggage-track-floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: var(--color-surface-dim, #d4ddd1);
+    border-top: 1px solid rgba(143, 111, 110, 0.2);
+    display: flex;
+    align-items: center;
+    z-index: 0;
+}
+
+.luggage-track-rail {
+    width: 100%;
+    height: 3px;
+    background: rgba(143, 111, 110, 0.18);
+}
+
+/* Lane that centers the animation anchor */
+.luggage-track-lane {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    z-index: 50;
+}
+
+/* When floor track is hidden (e.g. on /my-trips), drop the lane to the true bottom */
+.luggage-track-lane--no-track {
+    bottom: 0;
+}
+
+/* ============================
+   KEYFRAMES
+   ============================ */
+
+@keyframes roll-track-full {
+    0% {
+        transform: translateX(-60vw);
+    }
+    50% {
+        transform: translateX(60vw);
+    }
+    100% {
+        transform: translateX(-60vw);
+    }
+}
+
+@keyframes bobbing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+/* ============================
+   ROLLING ANIMATION CONTAINER
+   ============================ */
+
+.rolling-container-full {
+    animation: roll-track-full 16s linear infinite;
+}
+
+/* Slow, delayed variant for /my-trips — calm, ambient glide */
+.rolling-container-full--slow {
+    animation: roll-track-full 28s ease-in-out infinite;
+    animation-delay: 1.8s;
+    /* Keep suitcase hidden off-screen during delay */
+    animation-fill-mode: both;
+}
+
+.bobbing-element {
+    animation: bobbing 0.5s ease-in-out infinite;
+}
+
+/* Proportionally slower bob to match the slow-roll pace */
+.bobbing-element--slow {
+    animation: bobbing 0.9s ease-in-out infinite;
+    animation-delay: 1.8s;
+    animation-fill-mode: both;
+}
+
+/* ============================
+   LUGGAGE GROUP (interactive Easter Egg)
+   ============================ */
+
+.luggage-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    outline: none;
+}
+
+.luggage-group:hover {
+    filter: brightness(1.08) drop-shadow(0 8px 20px rgba(0,0,0,0.25));
+    transform: scale(1.05);
+}
+
+.luggage-group:active {
+    transform: scale(0.95);
+}
+
+.luggage-group:focus-visible {
+    outline: 2px solid #b7102a;
+    outline-offset: 4px;
+    border-radius: 12px;
+}
+
+/* ============================
+   LUGGAGE BODY WRAP
+   ============================ */
+
+.luggage-body-wrap {
+    position: relative;
+    width: 96px;
+    height: 128px;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.22));
+}
+
+/* Handle rod (U-shape) */
+.luggage-handle-rod {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 44px;
+    border-left: 4px solid #B0C4DE;
+    border-right: 4px solid #B0C4DE;
+    border-top: 4px solid #B0C4DE;
+    border-radius: 8px 8px 0 0;
+    z-index: 0;
+}
+
+/* Handle grip bar */
+.luggage-handle-grip {
+    position: absolute;
+    top: -46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 11px;
+    background: #2a322b;
+    border-radius: 9999px;
+    z-index: 1;
+}
+
+/* ============================
+   MAIN SUITCASE BODY
+   ============================ */
+
+.luggage-body {
+    position: absolute;
+    inset: 0;
+    background: #b7102a;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid #92001c;
+    z-index: 10;
+    background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.04) 4px,
+        rgba(0, 0, 0, 0.04) 8px
+    );
+}
+
+/* Corner protectors */
+.luggage-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #2a322b;
+    opacity: 0.85;
+}
+.luggage-corner-tl { top: 0; left: 0; border-bottom-right-radius: 9999px; }
+.luggage-corner-tr { top: 0; right: 0; border-bottom-left-radius: 9999px; }
+.luggage-corner-bl { bottom: 0; left: 0; border-top-right-radius: 9999px; }
+.luggage-corner-br { bottom: 0; right: 0; border-top-left-radius: 9999px; }
+
+/* Center zipper */
+.luggage-zipper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: rgba(212, 221, 209, 0.5);
+}
+
+/* Stickers */
+.luggage-sticker {
+    position: absolute;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    line-height: 1;
+    display: inline-block;
+    pointer-events: none;
+}
+.luggage-sticker-paris {
+    top: 14px;
+    left: 10px;
+    font-size: 9px;
+    padding: 3px 6px;
+    background: #ffba27;
+    color: #30476a;
+    transform: rotate(-12deg);
+    border: 1px solid rgba(121, 86, 0, 0.2);
+}
+.luggage-sticker-london {
+    bottom: 22px;
+    right: 8px;
+    font-size: 9px;
+    padding: 3px 6px;
+    background: #ffffff;
+    color: #b7102a;
+    border-radius: 9999px;
+    transform: rotate(12deg);
+    border: 1px solid rgba(228, 190, 188, 0.4);
+    text-transform: uppercase;
+}
+
+/* Flight icon badge */
+.luggage-icon-badge {
+    position: absolute;
+    top: 46px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    background: #bbd3fd;
+    color: #001b3c;
+    font-size: 13px !important;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(5deg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+/* Side handle */
+.luggage-side-handle {
+    position: absolute;
+    top: 38px;
+    right: -3px;
+    width: 6px;
+    height: 32px;
+    background: #ffba27;
+    border-radius: 4px 0 0 4px;
+    border-left: 1px solid rgba(121, 86, 0, 0.25);
+    border-top: 1px solid rgba(121, 86, 0, 0.25);
+    border-bottom: 1px solid rgba(121, 86, 0, 0.25);
+}
+
+/* ============================
+   WHEELS
+   ============================ */
+
+.luggage-wheel {
+    position: absolute;
+    bottom: -10px;
+    width: 16px;
+    height: 16px;
+    background: #2a322b;
+    border-radius: 9999px;
+    border: 2px solid #d4ddd1;
+    z-index: 5;
+}
+.luggage-wheel-left  { left: 12px;  }
+.luggage-wheel-right { right: 12px; }
+
+/* ============================
+   RESPONSIVE: smaller on mobile
+   ============================ */
+
+@media (max-width: 640px) {
+    .luggage-footer-track {
+        min-height: 110px;
+    }
+    .luggage-body-wrap {
+        width: 76px;
+        height: 102px;
+    }
+    .luggage-handle-rod {
+        width: 38px;
+        height: 34px;
+        top: -32px;
+    }
+    .luggage-handle-grip {
+        top: -37px;
+        width: 48px;
+        height: 9px;
+    }
+    .luggage-sticker-paris  { font-size: 7px; top: 10px; left: 7px; }
+    .luggage-sticker-london { font-size: 7px; bottom: 16px; right: 6px; }
+    .luggage-badge          { font-size: 10px; padding: 2px 8px; }
+}

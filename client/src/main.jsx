@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
 import { LoaderProvider } from './context/LoaderContext.jsx'
+import { GashaponProvider } from './context/GashaponContext.jsx'
 
 const queryClient = new QueryClient()
 
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <LoaderProvider>
-          <App />
+          <GashaponProvider>
+            <App />
+          </GashaponProvider>
         </LoaderProvider>
       </BrowserRouter>
     </QueryClientProvider>

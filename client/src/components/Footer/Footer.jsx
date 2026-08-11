@@ -1,8 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import LuggageFooter from '../LuggageFooter/LuggageFooter';
 import './Footer.css';
 
 const Footer = () => {
+  const location = useLocation();
+  const isMyTripsPage = location.pathname === '/my-trips' || location.pathname === '/my-journeys';
+
+  if (isMyTripsPage) {
+    return (
+      <div className="mt-auto w-full">
+        <LuggageFooter />
+      </div>
+    );
+  }
+
   return (
     <footer className="ft-wrapper">
       <div className="ft-inner">
@@ -31,6 +43,9 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Rolling Luggage Animation — click to navigate to My Trips */}
+      <LuggageFooter />
 
       <div className="ft-bottom">
         <span>&#169; 2025 RoamSquad. All rights reserved.</span>

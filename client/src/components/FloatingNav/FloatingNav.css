@@ -4,33 +4,43 @@
 
 /* ── DESKTOP pill nav ──────────────────────── */
 .fn-desktop {
-  position: fixed;
-  top: 20px;
+  position: absolute;
+  top: 1.25rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 92%;
-  max-width: 1100px;
-  z-index: 9999;
-  background: rgba(245, 240, 235, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 100px;
-  padding: 10px 32px;
+  z-index: 50;
+  width: 90%;
+  max-width: 960px;
+  height: 52px;
+  max-height: 52px;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
   transition: opacity 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', 'Outfit', 'Poppins', sans-serif;
 }
 
 .fn-desktop.nav-loading { opacity: 0.5; pointer-events: none; }
 
 /* Logo */
+.fn-logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
 .fn-logo img {
-  height: 32px;
+  height: 26px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -40,30 +50,33 @@
 .fn-links {
   display: flex;
   align-items: center;
-  gap: 24px;
-  flex: 1;
   justify-content: center;
+  gap: 2rem;
+  height: 100%;
 }
 
 .fn-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1A1A1A;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2D3748;
   text-decoration: none;
-  letter-spacing: 0.3px;
-  padding-bottom: 2px;
+  padding: 0.25rem 0;
   border-bottom: 2px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-.fn-link:hover       { color: #8B2040; }
-.fn-link--active     { color: #8B2040; border-bottom-color: #8B2040; }
+.fn-link:hover       { color: #800020; }
+.fn-link--active     { color: #800020; font-weight: 600; border-bottom-color: #800020; }
 
 /* Right side */
 .fn-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  height: 100%;
   flex-shrink: 0;
 }
 
@@ -318,3 +331,63 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Gashapon "Surprise Me" button (desktop nav) ──── */
+.fn-gashapon-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #e63946 0%, #c62a35 100%);
+  color: #fff;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  margin-right: 0.6rem;
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fn-gashapon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(230, 57, 70, 0.45);
+  background: linear-gradient(135deg, #ff4a57 0%, #e63946 100%);
+}
+
+.fn-gashapon-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(230, 57, 70, 0.3);
+}
+
+/* hide text label below 860px, show only emoji */
+@media (max-width: 860px) {
+  .fn-gashapon-btn span { display: none; }
+  .fn-gashapon-btn { padding: 0.4rem 0.55rem; font-size: 1rem; }
+}
+
+/* ── Gashapon button inside mobile drawer ─────────── */
+.fn-gashapon-drawer-btn {
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid #e63946;
+  padding-left: 12px;
+  color: #e63946 !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .fn-gashapon-drawer-btn {
+    display: none !important;
+  }
+}
+

@@ -320,6 +320,42 @@ exports.getDestinationTravelOptions = async (req, res) => {
     }
 };
 
+// Random destination for the Gashapon vending machine
+exports.getGashaponDestination = async (req, res) => {
+    try {
+        const destinations = await prisma.destination.findMany({
+            where: { status: 'ACTIVE' },
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                description: true,
+                category: true,
+                coverImage: true,
+            }
+        });
+
+        if (!destinations || destinations.length === 0) {
+            return res.status(404).json({ success: false, error: 'No active destinations found' });
+        }
+
+        const random = destinations[Math.floor(Math.random() * destinations.length)];
+
+        const payload = {
+            id: random.id,
+            title: random.name,
+            tagline: random.category || random.description?.slice(0, 40) || 'Hidden Gem',
+            imageUrl: random.coverImage || null,
+            destinationSlug: random.slug,
+        };
+
+        res.status(200).json({ success: true, data: payload });
+    } catch (error) {
+        console.error('[GET /public/destinations/gashapon] Error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
 exports.getSquadLove = async (req, res) => {
     try {
         const moments = await prisma.squadLove.findMany({
