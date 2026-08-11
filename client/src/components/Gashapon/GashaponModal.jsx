@@ -5,6 +5,7 @@ import axios from 'axios';
 import usePlannerStore from '../../store/usePlannerStore';
 import './GashaponModal.css';
 import SettingsIcon from './SettingsIcon';
+import { playSatisfyingPopSound } from '../../utils/audioEffects';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
 
@@ -156,6 +157,7 @@ const GashaponModal = ({ isOpen, onClose }) => {
 
     const handleCoinInsert = () => {
         if (phase !== 'IDLE') return;
+        playSatisfyingPopSound();
         setPhase('INSERTING');
         fetchDestination();
 
@@ -266,7 +268,13 @@ const GashaponModal = ({ isOpen, onClose }) => {
                                             </div>
 
                                             {/* Gear Dial */}
-                                            <div className="w-16 h-16 bg-[#fff8f7] rounded-full border-4 border-[#f4a261] shadow-[0_3px_0_rgba(115,92,0,1)] flex items-center justify-center relative">
+                                            <div
+                                                id="gashapon-crank-trigger"
+                                                onClick={() => {
+                                                    playSatisfyingPopSound();
+                                                }}
+                                                className="w-16 h-16 bg-[#fff8f7] rounded-full border-4 border-[#f4a261] shadow-[0_3px_0_rgba(115,92,0,1)] flex items-center justify-center relative cursor-pointer"
+                                            >
                                                 <motion.div
                                                     className="w-12 h-12 text-[#f4a261] opacity-80 flex items-center justify-center"
                                                     animate={phase === 'SHAKING' ? { rotate: 360 } : { rotate: 0 }}
@@ -327,6 +335,7 @@ const GashaponModal = ({ isOpen, onClose }) => {
                                 {phase === 'IDLE' && (
                                     <>
                                         <button
+                                            id="gashapon-insert-coin-btn"
                                             onClick={handleCoinInsert}
                                             className="btn-3d gashapon-btn-3d w-14 h-14 bg-[#e99c43] rounded-full flex items-center justify-center border-4 border-[#c87e2a] focus:outline-none cursor-pointer z-40 shadow-md active:translate-y-1 transition-transform"
                                         >

@@ -1,0 +1,324 @@
+/* Voyager Captcha Custom Styling & Animations */
+
+/* Material & Custom Fonts styling */
+.font-headline-lg {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+}
+
+.font-headline-lg-mobile {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.font-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-label-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* Custom Colors mapping */
+.text-on-surface {
+  color: #191c1e;
+}
+
+.text-on-surface-variant {
+  color: #5b4041;
+}
+
+.border-surface-variant {
+  border-color: #e0e3e5;
+}
+
+/* Money Rain animation */
+@keyframes moneyFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.money-item {
+  position: fixed;
+  top: -50px;
+  font-size: 28px;
+  animation: moneyFall 2s linear forwards;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* Shake animation */
+.shake, .animate-shake {
+  animation: captchaShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes captchaShake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Bounce animation for packed badges */
+@keyframes captchaBounce {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.anim-bounce {
+  animation: captchaBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Bribe Slide Down animation */
+@keyframes slideDownBribe {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-down-bribe {
+  animation: slideDownBribe 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Suitcase component structure — realistic vertical rolling suitcase */
+.suitcase-graphic {
+  width: 170px;
+  height: 255px; /* Extra bottom clearance for protruding wheels */
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.suitcase-shell {
+  position: relative; /* Must be relative so negative-offset children escape it */
+  height: 200px;
+  width: 160px;
+  margin-top: 20px;   /* Leaves room above for handle arch */
+  margin-bottom: 12px; /* Leaves room below for wheels */
+  background: #f8fafc;
+  border: 3.5px solid #dc2626;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.suitcase-interior {
+  position: absolute;
+  inset: 12px; /* Wider inset for breathing room from shell walls */
+  background-color: #fefce8;
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  overflow-y: auto; /* Scroll instead of clip — badges stay inside walls */
+  overflow-x: hidden;
+  z-index: 10;
+}
+
+.suitcase-handle {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 24px;
+  border: 4px solid #1e293b;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  z-index: 0;
+}
+
+.suitcase-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #1e293b;
+  z-index: 5;
+}
+
+.suitcase-corner.tl { top: -2px; left: -2px; border-radius: 1rem 0 0.5rem 0; }
+.suitcase-corner.tr { top: -2px; right: -2px; border-radius: 0 1rem 0 0.5rem; }
+.suitcase-corner.bl { bottom: -2px; left: -2px; border-radius: 0 0.5rem 0 1rem; }
+.suitcase-corner.br { bottom: -2px; right: -2px; border-radius: 0.5rem 0 1rem 0; }
+
+.suitcase-wheel {
+  position: absolute;
+  bottom: -10px; /* Negative offset — wheels protrude BELOW shell bottom edge */
+  width: 18px;
+  height: 18px;
+  background-color: #0f172a;
+  border-radius: 50%;
+  border: 2.5px solid #94a3b8;
+  z-index: 30; /* Above shell border and interior */
+}
+
+.suitcase-wheel.left { left: 20px; }
+.suitcase-wheel.right { right: 20px; }
+
+.packed-badge {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+  max-width: 100%; /* Constrain to interior width — never overflow shell */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.packed-badge:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* 1. FORCE FIXED MOBILE VIEWPORT FIT WITH SCALE DOWN */
+@media (max-width: 640px) {
+  #captcha-modal {
+    transform: scale(0.85) !important;
+    transform-origin: top center !important;
+    width: 94vw !important;
+    max-height: 95vh !important;
+    margin: 0 auto !important;
+    padding: 1rem 0.75rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important; /* Disallow vertical scrolling on modal outer body */
+  }
+
+  /* SCALE DOWN GRAPHICS FOR SMALL SCREENS */
+  .suitcase-graphic {
+    height: 160px !important;
+    width: 130px !important;
+    margin: 0.25rem auto !important;
+  }
+
+  .suitcase-shell {
+    height: 135px !important;
+    width: 120px !important;
+    margin-top: 10px !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* COMPACT INVENTORY GRID */
+  #inventory-zone {
+    gap: 0.35rem !important;
+    max-width: 280px !important;
+  }
+
+  .inventory-item {
+    padding: 0.35rem 0.25rem !important;
+  }
+
+  .inventory-item span {
+    font-size: 0.65rem !important;
+  }
+
+  /* STICKY VISIBLE FOOTER / ACTION BUTTONS */
+  .captcha-footer-container {
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+  }
+
+  /* Animated Scroll Cue Indicator (if content overflows on small mobile screens) */
+  .scroll-indicator-cue {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #64748b;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    animation: bounceCue 1.5s infinite;
+  }
+
+  @keyframes bounceCue {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 4px); }
+  }
+}
+
+/* SUCCESS STATE: Remove mobile scale transform — transform: scale() shrinks visuals but NOT layout box,
+   leaving an invisible full-size hit area below the modal that looks like inventory ghost content. */
+@media (max-width: 640px) {
+  #captcha-modal.verified-success {
+    transform: none !important;
+    width: min(92vw, 420px) !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    padding: 2rem 1.25rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Screen Shake Animation on Error Trigger */
+@keyframes modalErrorShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+#captcha-modal.shake-error {
+  animation: modalErrorShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+}
+
+/* Force-hide all packing game elements on success */
+#captcha-modal.verified-success #inventory-zone,
+#captcha-modal.verified-success .inventory-item,
+#captcha-modal.verified-success .inventory-header-title,
+#captcha-modal.verified-success #suitcase-container,
+#captcha-modal.verified-success .suitcase-graphic,
+#captcha-modal.verified-success #weight-badge,
+#captcha-modal.verified-success #captcha-footer-container,
+#captcha-modal.verified-success .captcha-footer-container,
+#captcha-modal.verified-success #captcha-error-banner,
+#captcha-modal.verified-success #captcha-modal-body {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}

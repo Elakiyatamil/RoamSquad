@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import usePlannerStore from '../../store/usePlannerStore';
+import { playSatisfyingPopSound } from '../../utils/audioEffects';
 
 const VALIDATION_MESSAGES = {
   1: 'Pick a destination to continue',
@@ -18,7 +19,12 @@ export default function WizardFooter() {
   // Step 4 renders its own full dock — hide wizard footer
   if (step === 4) return null;
 
-  const handleNext = () => { if (valid && step < 4) setStep(step + 1); };
+  const handleNext = () => {
+    if (valid && step < 4) {
+      playSatisfyingPopSound();
+      setStep(step + 1);
+    }
+  };
   const handleBack = () => { if (step > 1) setStep(step - 1); };
 
   let ctaLabel = 'Continue →';
@@ -114,6 +120,8 @@ export default function WizardFooter() {
 
         {/* Continue / Review CTA */}
         <button
+          id="itinerary-next-btn"
+          className="itinerary-step-next step-continue-btn"
           onClick={handleNext}
           disabled={!valid}
           style={{

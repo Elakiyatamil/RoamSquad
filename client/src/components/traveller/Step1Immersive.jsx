@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { globalSignals, useGlobalSignal } from '../../utils/signals';
+import { playSatisfyingPopSound } from '../../utils/audioEffects';
 
 /**
  * ROAMSQUAD PLANNER V10.3 - PRECISION RADIAL DIAL
@@ -271,8 +272,11 @@ const TypographyScroller = ({ selected, onSelect, isTransitioning }) => {
            return (
              <motion.div
                key={opt}
-               onClick={() => onSelect(opt)}
-               className="flex-shrink-0 cursor-pointer flex justify-center items-center py-2 relative"
+               onClick={() => {
+                 playSatisfyingPopSound();
+                 onSelect(opt);
+               }}
+               className={`group-card flex-shrink-0 cursor-pointer flex justify-center items-center py-2 relative ${isSelected ? 'selected' : ''}`}
                animate={{
                  scale: isSelected ? 1.1 : 1,
                  opacity: isSelected ? 1 : 0.5,

@@ -4,6 +4,7 @@ import { Mail, Lock, User, Eye, EyeOff, Chrome as Google, Facebook, Instagram, A
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
+import VoyagerCaptchaModal from '../../components/auth/VoyagerCaptchaModal';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -14,11 +15,15 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [itinerarySent, setItinerarySent] = useState(false);
-  
+
+  // CAPTCHA Modal State
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuthStore();
-  
+
   const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
   const redirectTo = location.state?.redirectTo || '/';
 
@@ -27,8 +32,38 @@ const LoginPage = () => {
     if (error) setError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
+    if (!formData.email || !formData.password || (!isLogin && !formData.name)) {
+      setError('Please fill in all required fields');
+      return;
+    }
+    setError('');
+    // Intercept submission -> open CAPTCHA modal
+    setPendingAction(() => performActualSubmit);
+    setShowCaptcha(true);
+  };
+
+  const handleGoogleLogin = (e) => {
+    if (e) e.preventDefault();
+    setError('');
+    // Intercept Google OAuth action -> open CAPTCHA modal
+    setPendingAction(() => () => {
+      window.location.href = `${API_BASE}/api/auth/google`;
+    });
+    setShowCaptcha(true);
+  };
+
+  const handleCaptchaVerified = () => {
+    setShowCaptcha(false);
+    if (pendingAction) {
+      const actionToRun = pendingAction;
+      setPendingAction(null);
+      actionToRun();
+    }
+  };
+
+  const performActualSubmit = async () => {
     setLoading(true);
     setError('');
 
@@ -36,7 +71,7 @@ const LoginPage = () => {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const res = await axios.post(`${API_BASE}${endpoint}`, { ...formData, rememberMe });
       const { user, token } = res.data.data;
-      
+
       login(user, token);
 
       // Check for pending itinerary
@@ -66,7 +101,7 @@ const LoginPage = () => {
         }
       } else if (location.state?.returnToBooking) {
         navigate(`/events/${location.state.eventId}`, {
-            state: { openBookingModal: true, phone: location.state.phone || '', step: 'persons' }
+          state: { openBookingModal: true, phone: location.state.phone || '', step: 'persons' }
         });
       } else {
         navigate(redirectTo);
@@ -95,7 +130,7 @@ const LoginPage = () => {
 
         {/* Social logins */}
         <div className="social-row">
-          <div className="social-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`}>
+          <div className="social-btn" onClick={handleGoogleLogin}>
             <Google size={20} style={{ marginRight: '8px' }} /> Continue with Google
           </div>
         </div>
@@ -104,7 +139,7 @@ const LoginPage = () => {
 
         {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', marginBottom: '16px', textAlign: 'center' }}>{error}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
           {!isLogin && (
             <div className="login-input-group">
               <User className="input-icon" size={18} />
@@ -188,6 +223,13 @@ const LoginPage = () => {
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, #FAF8F5, transparent)' }} />
       </div>
+
+      {/* CAPTCHA MODAL */}
+      <VoyagerCaptchaModal
+        isOpen={showCaptcha}
+        onClose={() => setShowCaptcha(false)}
+        onVerified={handleCaptchaVerified}
+      />
 
       {/* SUCCESS TOAST */}
       {itinerarySent && (

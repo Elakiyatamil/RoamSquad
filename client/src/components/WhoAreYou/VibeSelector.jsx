@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
+import { playSatisfyingPopSound } from '../../utils/audioEffects';
 import './WhoAreYou.css';
 
 const VIBES = [
@@ -14,6 +15,7 @@ const VibeSelector = ({ value, onSelect, navigateOnSelect = true }) => {
   const [animating, setAnimating] = useState(null);
 
   const handleVibeClick = (vibeId) => {
+    playSatisfyingPopSound();
     setAnimating(vibeId);
     setTimeout(() => {
       setAnimating(null);
@@ -35,7 +37,7 @@ const VibeSelector = ({ value, onSelect, navigateOnSelect = true }) => {
               style={{ '--delay': v.delay }}
             >
               <button
-                className={`vibe-card vibe-card--in ${isSelected ? 'vibe-card--selected' : ''} ${isAnimating ? 'vibe-card--bounce' : ''}`}
+                className={`group-card vibe-card vibe-card--in ${isSelected ? 'selected vibe-card--selected' : ''} ${isAnimating ? 'vibe-card--bounce' : ''}`}
                 style={{ background: v.bg }}
                 data-vibe={v.id.toUpperCase()}
                 onClick={() => handleVibeClick(v.id)}

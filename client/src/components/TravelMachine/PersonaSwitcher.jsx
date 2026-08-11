@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Users, User, Home, UserPlus } from 'lucide-react';
+import { playSatisfyingPopSound } from '../../utils/audioEffects';
 
 const PERSONAS = [
   { id: 'COUPLE', label: 'Couple', icon: Heart },
@@ -17,8 +18,11 @@ const PersonaSwitcher = ({ activePersona, onPersonaChange }) => {
         {PERSONAS.map((p) => (
           <button
             key={p.id}
-            onClick={() => onPersonaChange(p.id)}
-            className={`persona-toggle-btn ${activePersona === p.id ? 'active' : ''}`}
+            onClick={() => {
+              playSatisfyingPopSound();
+              onPersonaChange(p.id);
+            }}
+            className={`group-card persona-toggle-btn ${activePersona === p.id ? 'selected active' : ''}`}
           >
             <div className="icon-box">
               <p.icon size={20} />
