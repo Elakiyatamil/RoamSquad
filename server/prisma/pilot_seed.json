@@ -1,0 +1,2667 @@
+{
+  "countries": [
+    {
+      "country_name": "India",
+      "states": [
+        {
+          "state_name": "Maharashtra",
+          "destinations": [
+            {
+              "destination_name": "Lonavala & Khandala",
+              "category": "Nature",
+              "status": "Published",
+              "rating": 4.6,
+              "description": "Nestled in the Sahyadri mountain range, Lonavala is a serene hill station famous for its lush green valleys, mist-covered cliffs, and cascading waterfalls during the monsoon. It serves as the ultimate weekend getaway for nature lovers and adventure seekers escaping city life.",
+              "cover_image": "https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Rajmachi Fort Trek",
+                  "mark_as_featured": true,
+                  "duration": "Half Day",
+                  "price_inr": 1200,
+                  "short_description": "A thrilling monsoon trek through dense foliage leading to the historical twin forts of Rajmachi.",
+                  "image_url": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800"
+                },
+                {
+                  "activity_name": "Karla Caves Exploration",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 500,
+                  "short_description": "Discover ancient 2nd-century BCE rock-cut Buddhist shrines featuring ornate wooden carvings and stupas.",
+                  "image_url": "https://images.unsplash.com/photo-1600100397608-f010e423b971?q=80&w=800"
+                },
+                {
+                  "activity_name": "Bhushi Dam Waterfall Dip",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 300,
+                  "short_description": "Experience the roaring water overflowing over steps at Bhushi Dam, a vibrant local hotspot during rains.",
+                  "image_url": "https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=800"
+                },
+                {
+                  "activity_name": "Sunset Point Paragliding at Kamshet",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3500,
+                  "short_description": "Soar high above Western Ghats valleys and lakes with tandem paragliding instructors.",
+                  "image_url": "https://images.unsplash.com/photo-1508672019048-805479767389?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Chikki & Fudge Assortment",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 200,
+                  "short_description": "Crunchy traditional jaggery-peanut brittle paired with rich, melt-in-your-mouth chocolate walnut fudge.",
+                  "image_url": "https://images.unsplash.com/photo-1582293041079-7814c2f12063?q=80&w=800"
+                },
+                {
+                  "dish_name": "Misal Pav",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 150,
+                  "short_description": "Fiery sprouted moth bean curry garnished with crispy farsan, fresh onions, and served with hot buttered buns.",
+                  "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800"
+                },
+                {
+                  "dish_name": "Kanda Bhajji & Cutting Chai",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 100,
+                  "short_description": "Golden, crispy sliced onion fritters seasoned with carom seeds paired with piping hot spiced ginger tea.",
+                  "image_url": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=800"
+                },
+                {
+                  "dish_name": "Pitla Bhakri",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 250,
+                  "short_description": "Rustic gram-flour gravy tempered with garlic and green chilies, served alongside hot sorghum flatbreads.",
+                  "image_url": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 2800,
+                  "hotel_name_private": "Fariyas Resort Annexe",
+                  "description": "Coho-styled cozy lodge offering tranquil garden views and quick access to local markets.",
+                  "inclusions": "WiFi, Breakfast, Free Parking",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 7500,
+                  "hotel_name_private": "Della Resorts",
+                  "description": "Adventure-themed resort with luxury chalet rooms overlooking scenic hills and outdoor sport parks.",
+                  "inclusions": "WiFi, Free Breakfast, Swimming Pool, Spa Access",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 18000,
+                  "hotel_name_private": "The Machan",
+                  "description": "Exclusive eco-luxury treehouses suspended 30-45 feet above tropical canopy forests of Lonavala.",
+                  "inclusions": "WiFi, Organic Breakfast, Private Deck, Bathtub, Guided Nature Walk",
+                  "image_url": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Ajanta & Ellora Caves",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "A masterpiece of ancient Indian rock-cut architecture, the Ajanta and Ellora Caves showcase breathtaking Buddhist, Hindu, and Jain cave temples carved out of solid basalt cliffs. The monolithic Kailash Temple in Ellora stands as one of humanity's greatest structural wonders.",
+              "cover_image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Kailasa Temple Architectural Tour",
+                  "mark_as_featured": true,
+                  "duration": "Half Day",
+                  "price_inr": 800,
+                  "short_description": "Marvel at Cave 16, the world's largest single monolithic rock excavation carved from top to bottom.",
+                  "image_url": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=800"
+                },
+                {
+                  "activity_name": "Ajanta Fresco Painting Guided Walk",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 650,
+                  "short_description": "Admire delicate 2,000-year-old Buddhist murals detailing Jataka tales inside dimly lit cave sanctuaries.",
+                  "image_url": "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Bibi Ka Maqbara Evening Heritage Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 400,
+                  "short_description": "Tour the stunning 17th-century Mughal mausoleum fondly known as the Taj of the Deccan.",
+                  "image_url": "https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Naan Qalia",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 450,
+                  "short_description": "Slow-cooked tender mutton stew steeped in aromatic turmeric and spices served with soft doughy naan.",
+                  "image_url": "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=800"
+                },
+                {
+                  "dish_name": "Aurangabadi Sheermal",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 120,
+                  "short_description": "Saffron-infused, slightly sweet flatbread baked in traditional tandoors and brushed with warm ghee.",
+                  "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800"
+                },
+                {
+                  "dish_name": "Hurda Party Platter",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 300,
+                  "short_description": "Roasted fresh green tender sorghum pods served with spicy dry garlic and sesame chutneys.",
+                  "image_url": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 2200,
+                  "hotel_name_private": "Hotel Keys Select by Lemon Tree",
+                  "description": "Modern, functional stay situated near central heritage hubs with clean comfortable interiors.",
+                  "inclusions": "WiFi, Breakfast, Air Conditioning",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6000,
+                  "hotel_name_private": "Ambassador Ajanta",
+                  "description": "Sprawling heritage hotel featuring landscaped lawns, traditional artwork, and outdoor dining.",
+                  "inclusions": "WiFi, Free Breakfast, Pool, Airport Shuttle",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 14000,
+                  "hotel_name_private": "Vivanta Aurangabad",
+                  "description": "Palace-styled luxury hotel surrounded by lush gardens, offering fine dining and rejuvenation spa experiences.",
+                  "inclusions": "WiFi, Free Breakfast, Swimming Pool, Luxury Spa, Butler Service",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Tamil Nadu",
+          "destinations": [
+            {
+              "destination_name": "Mahabalipuram",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Located along the Coromandel Coast, Mahabalipuram is an ancient seaport city celebrated for its 7th-century Pallava Dynasty monuments. Featuring shore temples, intricate bas-reliefs, and sandy beaches, it offers a fascinating glimpse into South Indian maritime history.",
+              "cover_image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Shore Temple Sunset Guided Tour",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 500,
+                  "short_description": "Witness the golden hour illuminating the iconic granite Shore Temple against crashing ocean waves.",
+                  "image_url": "https://images.unsplash.com/photo-1609947017136-9ab28e5e1a79?q=80&w=800"
+                },
+                {
+                  "activity_name": "Arjuna's Penance & Pancha Rathas Walk",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 600,
+                  "short_description": "Explore the world's largest open-air stone bas-relief depicting mythological legends and monolithic chariot temples.",
+                  "image_url": "https://images.unsplash.com/photo-1621831336214-5d513e9a7e6b?q=80&w=800"
+                },
+                {
+                  "activity_name": "Covelong Point Surfing Lesson",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1800,
+                  "short_description": "Learn to ride ocean waves with certified instructors at the historic nearby fishing village of Covelong.",
+                  "image_url": "https://images.unsplash.com/photo-1502680390469-be75c86b636f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Shoreline Bicycle Heritage Loop",
+                  "mark_as_featured": false,
+                  "duration": "Half Day",
+                  "price_inr": 750,
+                  "short_description": "Cycle past coastal monuments, lighthouse view spots, and traditional stone sculpting workshops.",
+                  "image_url": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Bay Seafood Platter",
+                  "mark_as_featured": true,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 950,
+                  "short_description": "Freshly caught pan-fried pomfret and tiger prawns marinated in fiery Chettinad spices.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                },
+                {
+                  "dish_name": "Crispy Ghee Roast Dosa",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 180,
+                  "short_description": "Golden, paper-thin fermented rice crepe cooked with pure ghee, served with coconut chutneys and lentil sambar.",
+                  "image_url": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?q=80&w=800"
+                },
+                {
+                  "dish_name": "Filter Coffee & Medu Vada",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 90,
+                  "short_description": "Frothy chicory-blended South Indian filter coffee served alongside hot, crispy lentil donuts.",
+                  "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 2500,
+                  "hotel_name_private": "Mamalla Heritage Hotel",
+                  "description": "Warm traditional hotel situated in the heart of town within walking distance of Arjuna's Penance.",
+                  "inclusions": "WiFi, Breakfast, Air Conditioning",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 8500,
+                  "hotel_name_private": "Radisson Blu Resort Temple Bay",
+                  "description": "Sprawling 44-acre beach resort boasting a massive meandering lagoon pool and oceanfront chalets.",
+                  "inclusions": "WiFi, Free Breakfast, Swimming Pool, Ocean View, Spa Access",
+                  "image_url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 22000,
+                  "hotel_name_private": "InterContinental Chennai Mahabalipuram Resort",
+                  "description": "Architectural luxury haven blending contemporary design with ancient Pallava aesthetics right on the beach.",
+                  "inclusions": "WiFi, Breakfast Buffet, Private Beach, Infinity Pool, Butler Service",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Ooty",
+              "category": "Nature",
+              "status": "Published",
+              "rating": 4.7,
+              "description": "Known as the Queen of Hill Stations, Ooty is nestled amidst the rolling Nilgiri Hills of Tamil Nadu. Boasting sprawling tea estates, pine forests, colonial architecture, and a historic UNESCO heritage mountain railway, Ooty is a cool mountain retreat.",
+              "cover_image": "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "UNESCO Nilgiri Mountain Toy Train Ride",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 450,
+                  "short_description": "Journey through misty mountain tunnels, wooden bridges, and steep tea valleys aboard the historic steam train.",
+                  "image_url": "https://images.unsplash.com/photo-1532105956626-9569c03602f6?q=80&w=800"
+                },
+                {
+                  "activity_name": "Doddabetta Peak Trek & Observatory",
+                  "mark_as_featured": false,
+                  "duration": "Half Day",
+                  "price_inr": 600,
+                  "short_description": "Hike to the highest peak in the Nilgiris for panoramic views of the surrounding blue mountain ranges.",
+                  "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800"
+                },
+                {
+                  "activity_name": "Ooty Botanical Gardens & Lake Boating",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 500,
+                  "short_description": "Stroll through 55 acres of exotic flora followed by a tranquil pedal boat ride on Ooty Lake.",
+                  "image_url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800"
+                },
+                {
+                  "activity_name": "Tea Factory & Tasting Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 350,
+                  "short_description": "Learn orthodox tea processing steps from leaf picking to roasting, ending with a hot cup of cardamom tea.",
+                  "image_url": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Nilgiri Homemade Chocolates",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 250,
+                  "short_description": "Rich handcrafted dark chocolates infused with local roasted hazelnuts, almonds, and rum raisin flavors.",
+                  "image_url": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?q=80&w=800"
+                },
+                {
+                  "dish_name": "Ooty Varkey & Tea",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 80,
+                  "short_description": "Flaky, crusty baked local pastry biscuit perfect for dipping into hot Nilgiri black tea.",
+                  "image_url": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800"
+                },
+                {
+                  "dish_name": "Badaga Style Chicken Curry",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 380,
+                  "short_description": "Traditional tribal curry prepared with roasted aromatic spice powders and field greens.",
+                  "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 2800,
+                  "hotel_name_private": "Sterling Ooty Fern Hill",
+                  "description": "Cozy mountain side resort offering warm hospitality and panoramic valley vistas.",
+                  "inclusions": "WiFi, Breakfast, Garden Area",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 7200,
+                  "hotel_name_private": "Savoy - IHCL SeleQtions",
+                  "description": "Colonial-era heritage estate built in 1829 with vintage fireplaces, cottage gardens, and English tea service.",
+                  "inclusions": "WiFi, Free Breakfast, Fireplace Room, High Tea",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 16500,
+                  "hotel_name_private": "Fernhills Royal Palace",
+                  "description": "Former summer palace of the Maharajas of Mysore set in 50 acres of lawns and pine forests.",
+                  "inclusions": "WiFi, Heritage Breakfast, Royal Suite, Private Gardens, Golf Cart Service",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Karnataka",
+          "destinations": [
+            {
+              "destination_name": "Coorg",
+              "category": "Nature",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Often dubbed the 'Scotland of India', Coorg is a picturesque highland district renowned for its mist-draped hills, sprawling coffee plantations, aromatic spice gardens, and rich Kodava warrior culture.",
+              "cover_image": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Private Coffee & Spice Estate Tour",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 800,
+                  "short_description": "Walk through shade-grown Robusta coffee trees and pepper vines while learning harvesting techniques.",
+                  "image_url": "https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=800"
+                },
+                {
+                  "activity_name": "Abbey Falls & River Stream Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 400,
+                  "short_description": "Trek down through spice plantations to view cascading waterfalls hanging over a hanging bridge.",
+                  "image_url": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=80&w=800"
+                },
+                {
+                  "activity_name": "Tadiandamol Peak Hike",
+                  "mark_as_featured": false,
+                  "duration": "1 Day",
+                  "price_inr": 1500,
+                  "short_description": "Challenge yourself on the highest peak trek in Coorg, traversing Shola forests and ridge lines.",
+                  "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800"
+                },
+                {
+                  "activity_name": "Dubare Elephant Camp Interaction",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 900,
+                  "short_description": "Participate in bathing and feeding Asian elephants along the banks of the Kaveri River.",
+                  "image_url": "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Pandi Curry with Akki Oti",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 480,
+                  "short_description": "Signature Kodava pork curry infused with dark wild Kachampuli vinegar, paired with soft rice flatbreads.",
+                  "image_url": "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=800"
+                },
+                {
+                  "dish_name": "Kadambuttu & Erachi Curry",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 380,
+                  "short_description": "Steamed rice dumplings tossed in butter served alongside rich spicy mutton curry.",
+                  "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?q=80&w=800"
+                },
+                {
+                  "dish_name": "Bamboo Shoot Curry (Kani Curry)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 280,
+                  "short_description": "Seasonal tender bamboo shoots simmered with roasted coconut and ground bird's eye chilies.",
+                  "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800"
+                },
+                {
+                  "dish_name": "Coorg Filter Coffee & Banana Fritters",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 150,
+                  "short_description": "Freshly brewed estate espresso paired with sweet ripe plantain fritters fried golden brown.",
+                  "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 3200,
+                  "hotel_name_private": "Coorg Heritage Plantation Stay",
+                  "description": "Homely cottage nestled inside a working coffee estate offering authentic Kodava home-cooked meals.",
+                  "inclusions": "WiFi, Home Cooked Breakfast, Plantation Walk",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 9500,
+                  "hotel_name_private": "The Tamara Coorg",
+                  "description": "Eco-friendly luxury cottages built on stilts over streams within deep green mountain valleys.",
+                  "inclusions": "WiFi, Free Breakfast, Plantation Trek, Yoga Deck, Heated Pool",
+                  "image_url": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 24000,
+                  "hotel_name_private": "Evolve Back Coorg",
+                  "description": "Ultra-luxury resort surrounded by 300 acres of coffee and spice plantations with private pool villas.",
+                  "inclusions": "WiFi, Breakfast & Dinner, Private Pool Villa, Ayurvedic Spa, Plantation Safari",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Hampi",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "A UNESCO World Heritage site, Hampi was the magnificent capital of the 14th-century Vijayanagara Empire. Set amid surreal boulder-strewn landscapes and the Tungabhadra River, its ancient temples, royal complexes, and stone chariots transport travelers back in time.",
+              "cover_image": "https://images.unsplash.com/photo-1600100397608-f010e423b971?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Virupaksha Temple & Coracle River Ride",
+                  "mark_as_featured": true,
+                  "duration": "Half Day",
+                  "price_inr": 700,
+                  "short_description": "Tour active 7th-century temple towers followed by a traditional round wicker boat ride on the Tungabhadra.",
+                  "image_url": "https://images.unsplash.com/photo-1609947017136-9ab28e5e1a79?q=80&w=800"
+                },
+                {
+                  "activity_name": "Vittala Temple Stone Chariot Exploration",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 500,
+                  "short_description": "Marvel at the iconic stone chariot and musical granite pillars of the Vittala temple complex.",
+                  "image_url": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=800"
+                },
+                {
+                  "activity_name": "Sunset Hike up Matanga Hill",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 300,
+                  "short_description": "Climb boulder paths to capture panoramic 360-degree views of Hampi's ancient golden ruins.",
+                  "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Hampi Thali",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 220,
+                  "short_description": "Traditional South Indian banana leaf thali with assorted curries, rasam, kosambari, and crisp papadums.",
+                  "image_url": "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?q=80&w=800"
+                },
+                {
+                  "dish_name": "Banoffee Pie & Herbal Tea",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 260,
+                  "short_description": "Popular hippie-cafe dessert layered with dulce de leche, fresh bananas, whipped cream, and digestive crust.",
+                  "image_url": "https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800"
+                },
+                {
+                  "dish_name": "Jolada Rotti Oota",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 180,
+                  "short_description": "North Karnataka flat sorghum bread served with spicy brinjal curry and peanut chutney powder.",
+                  "image_url": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 2400,
+                  "hotel_name_private": "Rock Heights Guest House",
+                  "description": "Rustic riverfront guesthouse across the river with laid-back rooftop garden dining.",
+                  "inclusions": "WiFi, Breakfast, Bicycle Rental",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6800,
+                  "hotel_name_private": "Heritage Resort Hampi",
+                  "description": "Eco-resort nestled among boulder hills featuring villa rooms, organic farms, and a swimming pool.",
+                  "inclusions": "WiFi, Free Breakfast, Pool, Guided Tour Desk",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 21000,
+                  "hotel_name_private": "Evolve Back Kamalapura Palace",
+                  "description": "Fortified palace resort inspired by 14th-century Vijayanagara royal architecture featuring private dip pools.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Private Jacuzzi/Pool, History Butler, Spa",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country_name": "UK",
+      "states": [
+        {
+          "state_name": "Edinburgh",
+          "destinations": [
+            {
+              "destination_name": "Old Town & Royal Mile",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Edinburgh's historic Old Town is a cobblestoned labyrinth of narrow closes, medieval architecture, and historic landmarks stretching from Edinburgh Castle to the Palace of Holyroodhouse along the world-famous Royal Mile.",
+              "cover_image": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Edinburgh Castle Skip-the-Line Tour",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 3200,
+                  "short_description": "Explore the ancient fortress housing Scotland's Crown Jewels and the historic Stone of Destiny.",
+                  "image_url": "https://images.unsplash.com/photo-1589405858862-2ac9cbb41321?q=80&w=800"
+                },
+                {
+                  "activity_name": "Underground Vaults Ghost Walking Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2200,
+                  "short_description": "Descend into dark 18th-century subterranean vaults hidden beneath the streets of South Bridge.",
+                  "image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800"
+                },
+                {
+                  "activity_name": "The Real Mary King's Close Experience",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2600,
+                  "short_description": "Walk through preserved 17th-century underground streets beneath the City Chambers with costumed guides.",
+                  "image_url": "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?q=80&w=800"
+                },
+                {
+                  "activity_name": "Scotch Whisky Experience & Tasting",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3500,
+                  "short_description": "Take a barrel ride through whisky production and sample single malts from Scotland's five regions.",
+                  "image_url": "https://images.unsplash.com/photo-1527281400683-1aae777175f8?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Traditional Haggis, Neeps & Tatties",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1600,
+                  "short_description": "Savory spiced Scottish meat dish served alongside mashed swede turnips and buttered potatoes with whisky cream sauce.",
+                  "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800"
+                },
+                {
+                  "dish_name": "Scottish Smoked Salmon Bagel",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 950,
+                  "short_description": "Oak-smoked Loch Fyne salmon topped with cream cheese, capers, and dill on a toasted artisan bagel.",
+                  "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800"
+                },
+                {
+                  "dish_name": "Deep-Fried Mars Bar & Shortbread",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 450,
+                  "short_description": "Famous quirky Scottish chip-shop treat fried crisp, served with buttery homemade butter shortbread.",
+                  "image_url": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 7500,
+                  "hotel_name_private": "Code Pod Hostels - The Loft",
+                  "description": "Stylish modern pod-style boutique accommodation right off the Royal Mile.",
+                  "inclusions": "WiFi, Continental Breakfast, Locker Storage",
+                  "image_url": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 18500,
+                  "hotel_name_private": "Apex Grassmarket Hotel",
+                  "description": "Contemporary hotel situated in Grassmarket featuring breathtaking views directly up to Edinburgh Castle.",
+                  "inclusions": "WiFi, Free Breakfast, Swimming Pool, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 42000,
+                  "hotel_name_private": "The Balmoral Hotel",
+                  "description": "Iconic Victorian landmark hotel at No. 1 Princes Street featuring Michelin-starred dining and clock tower grandeur.",
+                  "inclusions": "WiFi, Full Scottish Breakfast, Spa Access, Concierge Service",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Arthur's Seat & Holyrood Park",
+              "category": "Nature",
+              "status": "Published",
+              "rating": 4.7,
+              "description": "Arthur's Seat is an extinct volcano standing 251 meters high in Holyrood Park, right in the heart of Edinburgh. It offers dramatic rocky crags, lochs, and rewarding 360-degree panoramic views across the entire city and the Firth of Forth.",
+              "cover_image": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Arthur's Seat Sunrise Summit Hike",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 1400,
+                  "short_description": "Hike up the volcanic ridge to catch the morning sun illuminating Edinburgh's iconic skyline.",
+                  "image_url": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800"
+                },
+                {
+                  "activity_name": "Salisbury Crags Geological Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1100,
+                  "short_description": "Explore dramatic basalt cliff faces where pioneer geologist James Hutton made groundbreaking discoveries.",
+                  "image_url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800"
+                },
+                {
+                  "activity_name": "St Margaret's Loch & Ruins Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 900,
+                  "short_description": "Stroll around tranquil lochs feeding swans beneath the 15th-century stone ruins of St Anthony's Chapel.",
+                  "image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Cullen Skink Seafood Soup",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1200,
+                  "short_description": "Thick, comforting Scottish soup made of smoked haddock, potatoes, onions, and heavy cream.",
+                  "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=800"
+                },
+                {
+                  "dish_name": "Full Scottish Breakfast",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 1400,
+                  "short_description": "Hearty plate featuring Lorne sausage, fried eggs, black pudding, grilled tomato, tattie scones, and baked beans.",
+                  "image_url": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?q=80&w=800"
+                },
+                {
+                  "dish_name": "Scottish Cranachan Dessert",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 750,
+                  "short_description": "Traditional dessert layered with toasted oats, fresh raspberries, Scottish heather honey, and whisky cream.",
+                  "image_url": "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6800,
+                  "hotel_name_private": "Kip Hotel Holyrood",
+                  "description": "Clean minimal hotel located at the base of Holyrood Park for quick trail access.",
+                  "inclusions": "WiFi, Express Breakfast, Luggage Storage",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 16000,
+                  "hotel_name_private": "Holyrood Hotel by Macdonald",
+                  "description": "Modern hotel steps away from Holyrood Palace featuring an indoor pool and luxury spa.",
+                  "inclusions": "WiFi, Free Breakfast, Pool, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 38000,
+                  "hotel_name_private": "Prestonfield House",
+                  "description": "Opulent 5-star baroque estate hotel surrounded by 20 acres of parkland with roaming peacocks and Highland cows.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Valet Parking, Fine Dining Restaurant, Garden Terrace",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "London",
+          "destinations": [
+            {
+              "destination_name": "Westminster & South Bank",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "The political and cultural heart of London, Westminster & South Bank home iconic landmarks like Big Ben, the Houses of Parliament, Westminster Abbey, and the London Eye along the picturesque River Thames.",
+              "cover_image": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "London Eye Private Capsule Experience",
+                  "mark_as_featured": true,
+                  "duration": "1 Hour",
+                  "price_inr": 4200,
+                  "short_description": "Enjoy 360-degree panoramic views of London skyline 135 meters above the River Thames.",
+                  "image_url": "https://images.unsplash.com/photo-1508964942454-1a56651d54ac?q=80&w=800"
+                },
+                {
+                  "activity_name": "Westminster Abbey Guided Historic Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3100,
+                  "short_description": "Tour the UNESCO-listed coronation site of British monarchs filled with royal tombs and Poet's Corner.",
+                  "image_url": "https://images.unsplash.com/photo-1520986606214-8b456906c813?q=80&w=800"
+                },
+                {
+                  "activity_name": "Thames River Cruise from Westminster to Tower Bridge",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2400,
+                  "short_description": "Sail along the Thames passing St Paul's Cathedral, Tate Modern, and Shakespeare's Globe.",
+                  "image_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800"
+                },
+                {
+                  "activity_name": "South Bank Street Performance & Market Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 800,
+                  "short_description": "Explore lively riverside book markets, pop-up art galleries, and world-class street performers.",
+                  "image_url": "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Traditional Fish and Chips",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1800,
+                  "short_description": "Crispy beer-battered cod fillet served with thick cut chips, mushy peas, and tartar sauce.",
+                  "image_url": "https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?q=80&w=800"
+                },
+                {
+                  "dish_name": "Sunday Roast with Yorkshire Pudding",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2600,
+                  "short_description": "Tender roast beef served with fluffy Yorkshire pudding, roast potatoes, seasonal vegetables, and rich gravy.",
+                  "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800"
+                },
+                {
+                  "dish_name": "Borough Market Gourmet Sausage Roll",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 650,
+                  "short_description": "Flaky butter puff pastry stuffed with seasoned British pork sausage and caramelized apple onion relish.",
+                  "image_url": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 8500,
+                  "hotel_name_private": "Premier Inn London County Hall",
+                  "description": "Convenient budget-friendly stay located right behind the London Eye inside historic County Hall.",
+                  "inclusions": "WiFi, Breakfast, Air Conditioning",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 22000,
+                  "hotel_name_private": "Park Plaza Westminster Bridge London",
+                  "description": "Sleek contemporary hotel featuring views of Big Ben, an indoor pool, and award-winning dining.",
+                  "inclusions": "WiFi, Free Breakfast, Pool, Fitness Center, Executive Lounge",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 55000,
+                  "hotel_name_private": "The Savoy",
+                  "description": "Legendary luxury hotel on the Strand overlooking the Thames, famous for timeless British elegance and cocktail bars.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Butler Service, Luxury Spa, Thames View",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Covent Garden & Soho",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "London's vibrant West End entertainment center, Covent Garden & Soho are famous for world-class theatre productions, historic covered piazzas, bustling dining spots, boutique shopping, and energetic nightlife.",
+              "cover_image": "https://images.unsplash.com/photo-1529655683826-aba9b3e77383?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "West End Musical Theatre Show Ticket",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 6500,
+                  "short_description": "Attend a world-class theatrical performance at famous venues like the Royal Opera House or Lyceum Theatre.",
+                  "image_url": "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?q=80&w=800"
+                },
+                {
+                  "activity_name": "Covent Garden Street Performers & Piazza Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 700,
+                  "short_description": "Enjoy acrobatics and classical musicians in the 19th-century Apple Market piazza.",
+                  "image_url": "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800"
+                },
+                {
+                  "activity_name": "Soho Secret Food & Pub Walking Tour",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 4800,
+                  "short_description": "Sample historic pub ales, artisan cheeses, and international street bites in Soho's historic alleys.",
+                  "image_url": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Classic Afternoon Tea",
+                  "mark_as_featured": true,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 4500,
+                  "short_description": "Tiered silver stand featuring delicate cucumber finger sandwiches, warm scones with clotted cream, and loose-leaf tea.",
+                  "image_url": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+                },
+                {
+                  "dish_name": "Dishoom Bacon Egg Naan Roll",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 1200,
+                  "short_description": "Freshly baked tandoori naan wrapped around smoked streaky bacon, runny fried egg, and chili tomato jam.",
+                  "image_url": "https://images.unsplash.com/photo-1509722747041-616f39b57569?q=80&w=800"
+                },
+                {
+                  "dish_name": "Neapolitan Wood-Fired Pizza",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 1400,
+                  "short_description": "Artisanal sourdough pizza topped with San Marzano tomatoes, buffalo mozzarella, and fresh basil.",
+                  "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800"
+                },
+                {
+                  "dish_name": "English Sticky Toffee Pudding",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 850,
+                  "short_description": "Moist date cake smothered in hot rich butterscotch sauce served with clotted cream ice cream.",
+                  "image_url": "https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 9200,
+                  "hotel_name_private": "Z Hotel Covent Garden",
+                  "description": "Compact, stylish hotel set in an unbeatable location right near the main Covent Garden Piazza.",
+                  "inclusions": "WiFi, Complimentary Wine & Cheese Hour",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 24000,
+                  "hotel_name_private": "St Martins Lane London",
+                  "description": "Ultra-chic boutique hotel designed by Philippe Starck featuring modern art-inspired rooms.",
+                  "inclusions": "WiFi, Free Breakfast, Gym Access, Speakeasy Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 62000,
+                  "hotel_name_private": "The Ham Yard Hotel",
+                  "description": "Luxury Firmdale hotel situated in Soho featuring a private garden courtyard, bowling alley, and rooftop terrace.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Rooftop Garden, Cinema Room, Luxury Spa",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country_name": "Europe (Region)",
+      "states": [
+        {
+          "state_name": "Paris",
+          "destinations": [
+            {
+              "destination_name": "Eiffel Tower & Champs-Élysées",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "The iconic symbol of France, the Eiffel Tower overlooks Champ de Mars and leads to the grand avenue of Champs-Élysées. It epitomizes Parisian glamour, high fashion boutiques, historic monuments, and romantic cityscapes.",
+              "cover_image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Eiffel Tower Summit Skip-the-Line Access",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 4800,
+                  "short_description": "Ride glass elevators to the top summit of the Iron Lady for panoramic views over Paris.",
+                  "image_url": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Seine River Dinner Cruise by Bateaux Parisiens",
+                  "mark_as_featured": false,
+                  "duration": "2.5 Hours",
+                  "price_inr": 8500,
+                  "short_description": "Glide past illuminated monuments while enjoying a 3-course French gourmet meal with champagne.",
+                  "image_url": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=800"
+                },
+                {
+                  "activity_name": "Arc de Triomphe Rooftop Viewpoint",
+                  "mark_as_featured": false,
+                  "duration": "1.5 Hours",
+                  "price_inr": 1800,
+                  "short_description": "Climb 284 steps to the top of Napoleon's triumphal arch overlooking twelve radiating avenues.",
+                  "image_url": "https://images.unsplash.com/photo-1509299349698-ab22323ae696?q=80&w=800"
+                },
+                {
+                  "activity_name": "Champs-Élysées High Fashion Walking Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2500,
+                  "short_description": "Guided promenade through luxury flagship stores, historic arcades, and famous perfume houses.",
+                  "image_url": "https://images.unsplash.com/photo-1549144511-f099e773c147?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Fresh French Croissant & Cafe au Lait",
+                  "mark_as_featured": true,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 650,
+                  "short_description": "Flaky, buttery warm French croissant served alongside rich espresso with steamed milk.",
+                  "image_url": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800"
+                },
+                {
+                  "dish_name": "Escargots de Bourgogne",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 1600,
+                  "short_description": "Tender land snails baked in garlic herb butter and white wine served with crusty baguette.",
+                  "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800"
+                },
+                {
+                  "dish_name": "Ladurée Macaron Selection",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 1200,
+                  "short_description": "Delicate almond meringue shells filled with rich ganache in salted caramel, pistachio, and rose flavors.",
+                  "image_url": "https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=800"
+                },
+                {
+                  "dish_name": "Steak Frites with Bearnaise Sauce",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 2400,
+                  "short_description": "Pan-seared ribeye steak accompanied by crispy golden fries and silky herb-infused tarragon sauce.",
+                  "image_url": "https://images.unsplash.com/photo-1600891964092-4316c288032e?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 8800,
+                  "hotel_name_private": "Hotel Eiffel Seine",
+                  "description": "Charming Art Nouveau hotel located just 500 meters from the Eiffel Tower near Bir-Hakeim station.",
+                  "inclusions": "WiFi, Continental Breakfast, Air Conditioning",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 24000,
+                  "hotel_name_private": "Pullman Paris Tour Eiffel",
+                  "description": "Sleek modern hotel located right at the foot of the Eiffel Tower with private balcony monument views.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Eiffel View Balcony",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 95000,
+                  "hotel_name_private": "Four Seasons Hotel George V Paris",
+                  "description": "World-famous luxury palace hotel off Champs-Élysées featuring Michelin-starred restaurants and extravagant floral displays.",
+                  "inclusions": "WiFi, Michelin Breakfast, Spa & Pool, Private Concierge, Valet",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Montmartre & Sacré-Cœur",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Perched on the highest hill in Paris, Montmartre is a bohemian historic village famed for cobblestone lanes, artist squares at Place du Tertre, romantic cabarets, and the gleaming white dome of Sacré-Cœur Basilica.",
+              "cover_image": "https://images.unsplash.com/photo-1509299349698-ab22323ae696?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Sacré-Cœur Basilica & Dome Climb",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 1400,
+                  "short_description": "Explore the Byzantine-style basilica and ascend the dome for sweeping 360-degree views over Paris.",
+                  "image_url": "https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Montmartre Bohemian Artists Walking Tour",
+                  "mark_as_featured": false,
+                  "duration": "2.5 Hours",
+                  "price_inr": 2800,
+                  "short_description": "Follow in the footsteps of Picasso, Van Gogh, and Renoir through winding cobbled alleyways.",
+                  "image_url": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800"
+                },
+                {
+                  "activity_name": "Moulin Rouge Cabaret Evening Show",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 11500,
+                  "short_description": "Experience the famous French Cancan dance show with champagne at the historic 1889 cabaret venue.",
+                  "image_url": "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Crêpe Complete at Place du Tertre",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 750,
+                  "short_description": "Warm buckwheat savory crepe filled with melted Emmental cheese, savory ham, and a fresh egg yolk.",
+                  "image_url": "https://images.unsplash.com/photo-1519676867240-f03562e64548?q=80&w=800"
+                },
+                {
+                  "dish_name": "French Onion Soup (Soupe à l'Oignon)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1100,
+                  "short_description": "Rich beef broth with caramelized onions, topped with toasted baguette slices and melted Gruyère cheese.",
+                  "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=800"
+                },
+                {
+                  "dish_name": "Crème Brûlée",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 850,
+                  "short_description": "Silky vanilla bean custard beneath a hard layer of caramelized burnt sugar crust.",
+                  "image_url": "https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 7200,
+                  "hotel_name_private": "Le Relais Montmartre",
+                  "description": "Cozy boutique hotel tucked away on a quiet street near Rue des Abbesses.",
+                  "inclusions": "WiFi, Breakfast, Garden Patio",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 18500,
+                  "hotel_name_private": "Terrass Hotel Montmartre",
+                  "description": "Historic 1911 hotel featuring an iconic rooftop restaurant and bar overlooking the entire Paris skyline.",
+                  "inclusions": "WiFi, Free Breakfast, Panoramic Rooftop Terrace, Spa",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 45000,
+                  "hotel_name_private": "Maison Souquet",
+                  "description": "Ultra-exclusive 5-star hotel housed in a Belle Époque mansion featuring opulent decor and an underground winter garden pool.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Private Pool Access, Butler Service, Lounge Bar",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Venice",
+          "destinations": [
+            {
+              "destination_name": "St. Mark's Square & Grand Canal",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "The glorious heart of Venice, St. Mark's Square (Piazza San Marco) is lined with opulent Venetian Gothic architecture, including St. Mark's Basilica and the Doge's Palace, flanked by the romantic waters of the Grand Canal.",
+              "cover_image": "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Traditional Grand Canal Gondola Ride",
+                  "mark_as_featured": true,
+                  "duration": "1 Hour",
+                  "price_inr": 7500,
+                  "short_description": "Glide along quiet canals and beneath historic bridges in a handcrafted wooden gondola with a striped gondolier.",
+                  "image_url": "https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Doge's Palace & Bridge of Sighs Guided Tour",
+                  "mark_as_featured": false,
+                  "duration": "2.5 Hours",
+                  "price_inr": 3800,
+                  "short_description": "Walk through golden council rooms of Venetian rulers and cross the famous enclosed limestone Bridge of Sighs.",
+                  "image_url": "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=800"
+                },
+                {
+                  "activity_name": "St. Mark's Basilica Terrace & Mosaic Access",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2200,
+                  "short_description": "Admire 8,000 square meters of luminous gold mosaics and step out onto the outdoor terrace overlooking Piazza San Marco.",
+                  "image_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800"
+                },
+                {
+                  "activity_name": "Rialto Market & Food Tasting Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3200,
+                  "short_description": "Visit the 700-year-old seafood and produce market and sample authentic local Venetian cicchetti bites.",
+                  "image_url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Venetian Cicchetti & Spritz",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1200,
+                  "short_description": "Small traditional tapas appetizers like baccalà mantecato on crusty bread paired with a bittersweet Aperol Spritz.",
+                  "image_url": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=800"
+                },
+                {
+                  "dish_name": "Risotto al Nero di Seppia",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2200,
+                  "short_description": "Creamy Arborio rice slow-cooked in rich black cuttlefish ink, garlic, white wine, and fresh parsley.",
+                  "image_url": "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?q=80&w=800"
+                },
+                {
+                  "dish_name": "Authentic Venetian Tiramisu",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 700,
+                  "short_description": "Classic dessert of espresso-soaked savoiardi ladyfingers layered with rich mascarpone cream and cocoa powder.",
+                  "image_url": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 8200,
+                  "hotel_name_private": "Hotel Flora Venice",
+                  "description": "Charming family-run hotel near St Mark's featuring a serene private courtyard garden.",
+                  "inclusions": "WiFi, Garden Breakfast, Air Conditioning",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 22000,
+                  "hotel_name_private": "Hotel Splendid Venice - Starhotels Collezione",
+                  "description": "Elegant canal-side hotel featuring its own private water dock and rooftop terrace overlooking Venetian rooftops.",
+                  "inclusions": "WiFi, Free Breakfast, Private Water Dock, Rooftop Terrace",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 88000,
+                  "hotel_name_private": "The Gritti Palace, a Luxury Collection Hotel",
+                  "description": "Restored 15th-century noble palace directly on the Grand Canal offering unmatched luxury and canal views.",
+                  "inclusions": "WiFi, Luxury Breakfast, Grand Canal Terrace, Spa, Concierge Water Taxi",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Murano & Burano Islands",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Located across the Venetian Lagoon, Murano is world-renowned for centuries-old glassblowing craftsmanship, while neighboring Burano enchants visitors with brightly painted fisherman houses and delicate handmade lace.",
+              "cover_image": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Murano Glassblowing Masterclass & Factory Tour",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 2400,
+                  "short_description": "Watch a master glass artisan shape molten glass into intricate sculptures in a historic furnace.",
+                  "image_url": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=800"
+                },
+                {
+                  "activity_name": "Burano Colorful House Photography Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1500,
+                  "short_description": "Stroll along vibrant canal streets painted in pastel pinks, blues, and yellows while learning lace history.",
+                  "image_url": "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=800"
+                },
+                {
+                  "activity_name": "Venetian Lagoon Private Boat Excursion",
+                  "mark_as_featured": false,
+                  "duration": "Half Day",
+                  "price_inr": 6800,
+                  "short_description": "Cruise past Torcello and secluded lagoon islets aboard a wooden motor launch boat.",
+                  "image_url": "https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Spaghetti al Leche de Sepe (Burano Style)",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1850,
+                  "short_description": "Fresh spaghetti tossed with tender lagoon squid, white wine, cherry tomatoes, and garlic.",
+                  "image_url": "https://images.unsplash.com/photo-1621996346565-e3d5d6281290?q=80&w=800"
+                },
+                {
+                  "dish_name": "Bussolà Buranelli Biscuits",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 450,
+                  "short_description": "Traditional S-shaped buttery cookies crafted by Burano bakers, ideal for dipping in sweet dessert wine.",
+                  "image_url": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+                },
+                {
+                  "dish_name": "Fritto Misto (Fried Seafood Mix)",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 1100,
+                  "short_description": "Crispy paper cone filled with lightly battered fried calamari, small fish, and prawns served with lemon.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 7400,
+                  "hotel_name_private": "Casa Burano Experience",
+                  "description": "Scattered hotel experience allowing guests to stay inside authentic restored colorful fisherman houses on Burano.",
+                  "inclusions": "WiFi, Local Bakery Breakfast Ticket",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 19500,
+                  "hotel_name_private": "Hyatt Centric Murano Venice",
+                  "description": "Contemporary luxury hotel housed inside a former glass factory on Murano with a glass-domed cocktail bar.",
+                  "inclusions": "WiFi, Free Breakfast, Airport Water Shuttle, Spa",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 48000,
+                  "hotel_name_private": "Venissa Wine Resort",
+                  "description": "Exclusive estate resort set within a walled vineyard producing rare Dorona wine next to Burano.",
+                  "inclusions": "WiFi, Michelin Star Breakfast, Vineyard Tour, Private Boat Transfer",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country_name": "United States of America",
+      "states": [
+        {
+          "state_name": "New York City",
+          "destinations": [
+            {
+              "destination_name": "Central Park & Museum Mile",
+              "category": "Nature",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "Central Park is New York City's 843-acre urban oasis, featuring sprawling lawns, romantic bridges, and lakes. Bordering its eastern edge is Museum Mile, home to world-renowned cultural institutions like the Metropolitan Museum of Art.",
+              "cover_image": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "The Met Museum Guided Highlights Tour",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 4200,
+                  "short_description": "Tour 5,000 years of global art history including the Temple of Dendur and European painting galleries.",
+                  "image_url": "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?q=80&w=800"
+                },
+                {
+                  "activity_name": "Central Park Horse-Drawn Carriage Ride",
+                  "mark_as_featured": false,
+                  "duration": "1 Hour",
+                  "price_inr": 5500,
+                  "short_description": "Ride past Bethesda Terrace, Bow Bridge, and Strawberry Fields in a classic carriage.",
+                  "image_url": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=800"
+                },
+                {
+                  "activity_name": "Central Park Bicycle Rental & Loop Trail",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1600,
+                  "short_description": "Cycle along paved car-free tree-lined drives exploring Jacqueline Kennedy Onassis Reservoir.",
+                  "image_url": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800"
+                },
+                {
+                  "activity_name": "Guggenheim Museum Architecture Tour",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2800,
+                  "short_description": "Marvel at Frank Lloyd Wright's iconic spiral rotunda architecture housing modern art masterpieces.",
+                  "image_url": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Classic New York Bagel with Lox",
+                  "mark_as_featured": true,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 1200,
+                  "short_description": "Everything bagel loaded with scallion cream cheese, thinly sliced smoked salmon, red onion, and capers.",
+                  "image_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=800"
+                },
+                {
+                  "dish_name": "NYC Gourmet Hot Dog from Cart",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 450,
+                  "short_description": "Classic snappy beef frankfurter served on a warm bun with spicy brown mustard and sauerkraut.",
+                  "image_url": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?q=80&w=800"
+                },
+                {
+                  "dish_name": "Upper East Side Black & White Cookie",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 380,
+                  "short_description": "Soft cake-like vanilla cookie frosted half with rich dark chocolate and half with vanilla fondant.",
+                  "image_url": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 12000,
+                  "hotel_name_private": "Pod 51 Hotel Upper East Side",
+                  "description": "Trendy micro-hotel featuring modern efficient rooms and a rooftop garden near Central Park.",
+                  "inclusions": "WiFi, Rooftop Access, Luggage Storage",
+                  "image_url": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 32000,
+                  "hotel_name_private": "JW Marriott Essex House New York",
+                  "description": "Art Deco landmark hotel situated directly on Central Park South with park view suites.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Park Views",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 110000,
+                  "hotel_name_private": "The Plaza Hotel",
+                  "description": "Iconic luxury hotel at Fifth Avenue and Central Park South, legendary for afternoon tea and royal service.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Butler Service, Guerlain Spa, Champagne Bar",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Lower Manhattan & Statue of Liberty",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "The historic birthplace of New York City, Lower Manhattan features Wall Street financial hubs, the 9/11 Memorial & Museum, and harbor ferries departing to the iconic Statue of Liberty and Ellis Island.",
+              "cover_image": "https://images.unsplash.com/photo-1485871981521-5b10474fe477?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Statue of Liberty & Ellis Island Pedestal Tour",
+                  "mark_as_featured": true,
+                  "duration": "Half Day",
+                  "price_inr": 3500,
+                  "short_description": "Take a harbor ferry to Liberty Island to inspect Lady Liberty up close and explore immigration history at Ellis Island.",
+                  "image_url": "https://images.unsplash.com/photo-1605130284535-11dd9eedc58a?q=80&w=800"
+                },
+                {
+                  "activity_name": "One World Observatory Skip-the-Line Ticket",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3800,
+                  "short_description": "Ride Skypod elevators to the 102nd floor of the Western Hemisphere's tallest skyscraper for views of NYC.",
+                  "image_url": "https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?q=80&w=800"
+                },
+                {
+                  "activity_name": "9/11 Memorial & Museum Guided Walk",
+                  "mark_as_featured": false,
+                  "duration": "2.5 Hours",
+                  "price_inr": 3100,
+                  "short_description": "Pay respects at the twin reflecting pools and inspect historic artifacts inside the underground memorial museum.",
+                  "image_url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "NYC Foldable Dollar Slice Pizza",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 350,
+                  "short_description": "Thin-crust crispy pizza slice topped with tangy marinara sauce and bubbling mozzarella cheese.",
+                  "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800"
+                },
+                {
+                  "dish_name": "Pastrami on Rye Sandwich (Katz's Deli Style)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 2400,
+                  "short_description": "Warm, hand-carved cured beef pastrami piled high on rye bread with spicy brown mustard and pickles.",
+                  "image_url": "https://images.unsplash.com/photo-1509722747041-616f39b57569?q=80&w=800"
+                },
+                {
+                  "dish_name": "New York Baked Cheesecake",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 850,
+                  "short_description": "Ultra-dense, creamy graham cracker crust cheesecake topped with fresh berry compote.",
+                  "image_url": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=800"
+                },
+                {
+                  "dish_name": "Wall Street Oyster Happy Hour",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2200,
+                  "short_description": "Freshly shucked East Coast oysters served on ice with mignonette sauce and craft IPAs.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 11000,
+                  "hotel_name_private": "Fairfield Inn & Suites Manhattan/Financial District",
+                  "description": "Clean contemporary stay located near South Street Seaport and harbor ferries.",
+                  "inclusions": "WiFi, Hot Breakfast, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 28000,
+                  "hotel_name_private": "The Beekman, A Thompson Hotel",
+                  "description": "Restored 1881 architectural gem featuring a soaring 9-story atrium with glass skylight in FiDi.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Speakeasy Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 85000,
+                  "hotel_name_private": "Casa Cipriani New York",
+                  "description": "Private club and luxury boutique hotel housed in the historic Battery Maritime Building overlooking NY Harbor.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Spa, Harbor View Balcony, Private Club Access",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Washington D.C.",
+          "destinations": [
+            {
+              "destination_name": "National Mall & Monuments",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "The monumental heart of the United States capital, the National Mall stretches between the US Capitol and the Lincoln Memorial, flanked by world-class Smithsonian museums and iconic presidential memorials.",
+              "cover_image": "https://images.unsplash.com/photo-1501469537446-d8457007e99a?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "National Mall Monuments by Moonlight Electric Cart Tour",
+                  "mark_as_featured": true,
+                  "duration": "2.5 Hours",
+                  "price_inr": 4500,
+                  "short_description": "Tour illuminated marble memorials including Lincoln, Jefferson, and Washington monuments under the night sky.",
+                  "image_url": "https://images.unsplash.com/photo-1617581629397-a72507c3de9e?q=80&w=800"
+                },
+                {
+                  "activity_name": "Smithsonian National Air and Space Museum Access",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 1200,
+                  "short_description": "Discover the Wright Brothers' 1903 Flyer and Apollo 11 moon landing command module.",
+                  "image_url": "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=800"
+                },
+                {
+                  "activity_name": "US Capitol Building Historic Hall Guided Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1500,
+                  "short_description": "Walk through the historic Rotunda and National Statuary Hall inside the seat of US Congress.",
+                  "image_url": "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=800"
+                },
+                {
+                  "activity_name": "Tidal Basin Cherry Blossom Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 800,
+                  "short_description": "Stroll along water basins surrounded by blooming pink Japanese cherry trees and marble columns.",
+                  "image_url": "https://images.unsplash.com/photo-1522083165195-3424ed129620?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "D.C. Half-Smoke Sausage (Ben's Chili Bowl Style)",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 650,
+                  "short_description": "Grilled spicy pork and beef smoked sausage served on a bun topped with mustard, onions, and spicy chili.",
+                  "image_url": "https://images.unsplash.com/photo-1619740455993-9e612b1af08a?q=80&w=800"
+                },
+                {
+                  "dish_name": "Maryland Jumbo Lump Crab Cake",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2800,
+                  "short_description": "Pan-seared fresh Chesapeake Bay blue crab cake served with Old Bay tartar sauce and slaw.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                },
+                {
+                  "dish_name": "Cherry Blossom Cupcake",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 400,
+                  "short_description": "Fluffy vanilla bean cupcake topped with pink cherry blossom buttercream and edible sugar flowers.",
+                  "image_url": "https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 9500,
+                  "hotel_name_private": "Motto by Hilton Washington DC City Center",
+                  "description": "Modern micro-hotel steps away from Penn Quarter and Smithsonian museums.",
+                  "inclusions": "WiFi, Coffee Bar Credit, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 22000,
+                  "hotel_name_private": "The Westin Washington, D.C. City Center",
+                  "description": "Upscale hotel with atrium dining located within easy walking distance of the White House and National Mall.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Studio, Business Center",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 68000,
+                  "hotel_name_private": "The Hay-Adams",
+                  "description": "Historic luxury hotel located directly across Lafayette Park from the White House, offering iconic views.",
+                  "inclusions": "WiFi, Gourmet Breakfast, White House View, Valet Parking, Concierge",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Historic Georgetown",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Washington D.C.'s oldest neighborhood, Georgetown charms visitors with cobblestone streets, 18th-century federal-style townhomes, waterfront parks along the Potomac River, high-end boutiques, and lively cafes.",
+              "cover_image": "https://images.unsplash.com/photo-1569420077864-42b781ec6514?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Georgetown Federal Architecture & History Tour",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 2200,
+                  "short_description": "Stroll historic cobblestone streets while discovering homes of JFK, Alexander Graham Bell, and diplomats.",
+                  "image_url": "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=800"
+                },
+                {
+                  "activity_name": "Potomac River Kayak & Paddleboard Session",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2600,
+                  "short_description": "Rent kayaks at Key Bridge Boathouse to paddle past Roosevelt Island and D.C. monuments.",
+                  "image_url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800"
+                },
+                {
+                  "activity_name": "C&O Canal Towpath Bike Tour",
+                  "mark_as_featured": false,
+                  "duration": "Half Day",
+                  "price_inr": 1800,
+                  "short_description": "Cycle along historic 19th-century lock houses and towpaths under shaded tree canopies.",
+                  "image_url": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Georgetown Cupcake (Red Velvet)",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 450,
+                  "short_description": "Famous signature red velvet cupcake topped with cream cheese frosting and a handmade fondant heart.",
+                  "image_url": "https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800"
+                },
+                {
+                  "dish_name": "Wood-Fired Neapolitan Pizza at Waterfront",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1600,
+                  "short_description": "Crispy wood-fired artisan pizza topped with fresh prosciutto, arugula, and truffle oil.",
+                  "image_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800"
+                },
+                {
+                  "dish_name": "Chesapeake Bay Fried Oysters",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1400,
+                  "short_description": "Cornmeal-crusted fried local oysters served with remoulade sauce and lemon wedges.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 8800,
+                  "hotel_name_private": "The Georgetown Inn",
+                  "description": "Colonial-style historic hotel located right on Wisconsin Avenue amidst boutique shops.",
+                  "inclusions": "WiFi, Breakfast, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 24000,
+                  "hotel_name_private": "The Graham Georgetown",
+                  "description": "Stylish boutique hotel featuring a popular rooftop lounge overlooking Georgetown rooftops and Potomac River.",
+                  "inclusions": "WiFi, Free Breakfast, Rooftop Lounge Access",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 72000,
+                  "hotel_name_private": "Four Seasons Hotel Washington, D.C.",
+                  "description": "Prestigious 5-star luxury hotel in Georgetown featuring a 3-level fitness club, spa, and Michelin-rated steakhouse.",
+                  "inclusions": "WiFi, Luxury Breakfast, Spa & Indoor Pool, Valet, Private Terrace",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country_name": "South Korea",
+      "states": [
+        {
+          "state_name": "Seoul",
+          "destinations": [
+            {
+              "destination_name": "Gyeongbokgung Palace & Bukchon Hanok Village",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "The cultural epicenter of Seoul, Gyeongbokgung Palace is the grandest of the Five Grand Palaces built during the Joseon Dynasty, flanked by Bukchon Hanok Village's centuries-old traditional Korean wooden houses.",
+              "cover_image": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Hanbok Rental & Palace Royal Guard Ceremony",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 2200,
+                  "short_description": "Dress in traditional Silk Hanbok for free entrance to Gyeongbokgung and watch the royal guard changing rite.",
+                  "image_url": "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=800"
+                },
+                {
+                  "activity_name": "Bukchon Hanok Village Craft & Tea Workshop",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2800,
+                  "short_description": "Walk through quiet traditional alleyways and enjoy traditional knot-crafting inside an authentic hanok.",
+                  "image_url": "https://images.unsplash.com/photo-1548115184-bc6544d06a58?q=80&w=800"
+                },
+                {
+                  "activity_name": "National Folk Museum Guided History Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1400,
+                  "short_description": "Discover historic artifacts detailing traditional daily lifecycles of the Joseon Dynasty people.",
+                  "image_url": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=800"
+                },
+                {
+                  "activity_name": "Insadong Antique Alley & Tea House Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2.5 Hours",
+                  "price_inr": 1200,
+                  "short_description": "Browse traditional Korean calligraphy shops, pottery galleries, and cozy wooden teahouses.",
+                  "image_url": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Samgyetang (Ginseng Chicken Soup)",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1300,
+                  "short_description": "Whole young spring chicken stuffed with sticky rice, Korean ginseng, jujubes, and garlic in nourishing broth.",
+                  "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=800"
+                },
+                {
+                  "dish_name": "Tteokbokki & Hotteok at Gwangjang Market",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 450,
+                  "short_description": "Chewy rice cakes cooked in sweet spicy gochujang sauce paired with pan-fried brown sugar syrup pancakes.",
+                  "image_url": "https://images.unsplash.com/photo-1590301157890-4810ed352733?q=80&w=800"
+                },
+                {
+                  "dish_name": "Korean BBQ Samgyeopsal",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2100,
+                  "short_description": "Tabletop grilled pork belly wrapped in crisp perilla leaves with ssamjang chili paste and garlic.",
+                  "image_url": "https://images.unsplash.com/photo-1590301157890-4810ed352733?q=80&w=800"
+                },
+                {
+                  "dish_name": "Traditional Omija Tea & Rice Cakes",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 600,
+                  "short_description": "Five-flavor berry tea served icy cold alongside soft chewy mugwort rice cakes.",
+                  "image_url": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 4800,
+                  "hotel_name_private": "Bukchon Hanok Guesthouse",
+                  "description": "Authentic traditional Korean wooden stay with ondol underfloor heating and courtyard views.",
+                  "inclusions": "WiFi, Traditional Korean Breakfast, Tea Station",
+                  "image_url": "https://images.unsplash.com/photo-1548115184-bc6544d06a58?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 13500,
+                  "hotel_name_private": "L7 Myeongdong by LOTTE",
+                  "description": "Trendy lifestyle hotel featuring colorful designer rooms and a rooftop bar overlooking N Seoul Tower.",
+                  "inclusions": "WiFi, Free Breakfast, Rooftop Foot Spa, Gym",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 42000,
+                  "hotel_name_private": "Four Seasons Hotel Seoul",
+                  "description": "Ultra-luxury hotel near Gyeongbokgung Palace featuring world-class dining, Korean sauna, and golf simulation.",
+                  "inclusions": "WiFi, Luxury Breakfast, Korean Sauna Access, Executive Lounge, Pool",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Gangnam & COEX",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Seoul's modern futuristic powerhouse, Gangnam is famous for K-pop culture, luxury fashion avenues, futuristic architecture, and the massive underground COEX Mall featuring the Instagram-famous Starfield Library.",
+              "cover_image": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Starfield Library & COEX Aquarium Visit",
+                  "mark_as_featured": true,
+                  "duration": "3 Hours",
+                  "price_inr": 2500,
+                  "short_description": "Admire 13-meter tall glowing wooden bookshelves inside Starfield Library followed by marine life walks.",
+                  "image_url": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=800"
+                },
+                {
+                  "activity_name": "K-Pop Dance Experience & Studio Class",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 3200,
+                  "short_description": "Learn choreography from professional K-pop backup dancers in a state-of-the-art Gangnam studio.",
+                  "image_url": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800"
+                },
+                {
+                  "activity_name": "Bongeunsa Temple Night Lantern Walk",
+                  "mark_as_featured": false,
+                  "duration": "1.5 Hours",
+                  "price_inr": 800,
+                  "short_description": "Find tranquility amid skyscrapers at a 1,200-year-old Buddhist temple featuring a 23-meter stone Buddha.",
+                  "image_url": "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Korean Fried Chicken & Beer (Chimaek)",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 1450,
+                  "short_description": "Double-fried ultra-crispy chicken glazed in sweet garlic soy sauce paired with ice-cold draft beer.",
+                  "image_url": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=800"
+                },
+                {
+                  "dish_name": "Hanwoo Beef K-BBQ Platter",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 5800,
+                  "short_description": "Premium marbled Korean native Hanwoo beef grilled table-side served with seasonal banchan side dishes.",
+                  "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800"
+                },
+                {
+                  "dish_name": "Kimchi Jjigae (Kimchi Stew)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 750,
+                  "short_description": "Bubbling spicy stew prepared with aged kimchi, tofu, scallions, and tender pork belly.",
+                  "image_url": "https://images.unsplash.com/photo-1583224964978-2257b960c3d3?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 5500,
+                  "hotel_name_private": "Peyto Hotel Gangnam",
+                  "description": "Modern stylish hotel conveniently located on Gangnam Main Boulevard near subway lines.",
+                  "inclusions": "WiFi, Breakfast, Fitness Corner",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 16000,
+                  "hotel_name_private": "AC Hotel by Marriott Seoul Gangnam",
+                  "description": "Sleek European-inspired hotel featuring cloud bedding, private plunge pool suites, and rooftop lounge.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Rooftop Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 48000,
+                  "hotel_name_private": "Grand InterContinental Seoul Parnas",
+                  "description": "Prestigious luxury hotel directly connected to COEX Mall featuring grand suites and fine dining.",
+                  "inclusions": "WiFi, Buffet Breakfast, Executive Club Lounge, Indoor Pool, Spa",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Busan",
+          "destinations": [
+            {
+              "destination_name": "Haeundae Beach & Dongbaek Island",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "South Korea's premier coastal destination, Haeundae Beach boasts a crescent bay of white sand backed by modern glass skyscrapers, scenic ocean walks on Dongbaek Island, and vibrant coastal dining.",
+              "cover_image": "https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Haeundae Blueline Park Beach Train & Sky Capsule",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 2800,
+                  "short_description": "Ride colorful elevated Sky Capsules along coastal cliffs offering panoramic views of the East Sea.",
+                  "image_url": "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=800"
+                },
+                {
+                  "activity_name": "Dongbaek Coastal Trail & Nurimaru APEC House",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 900,
+                  "short_description": "Walk through coastal pine forests and camellia blossoms to the historic glass dome APEC summit house.",
+                  "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800"
+                },
+                {
+                  "activity_name": "BUSAN X the SKY Observatory Ticket",
+                  "mark_as_featured": false,
+                  "duration": "1.5 Hours",
+                  "price_inr": 2100,
+                  "short_description": "Ascend to the 100th floor of Landmark Tower for breathtaking ocean views and transparent glass bridge walks.",
+                  "image_url": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=800"
+                },
+                {
+                  "activity_name": "Yacht Tale Sunset Bay Cruise",
+                  "mark_as_featured": false,
+                  "duration": "1 Hour",
+                  "price_inr": 3500,
+                  "short_description": "Sail along Haeundae bay under the twinkling lights of Gwangan Suspension Bridge.",
+                  "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Dwaeji Gukbap (Busan Pork Soup)",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 700,
+                  "short_description": "Rich milky pork bone broth served with tender sliced pork, salted shrimp, and steamed white rice.",
+                  "image_url": "https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=800"
+                },
+                {
+                  "dish_name": "Busan Eomuk (Fish Cake Skewers)",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 300,
+                  "short_description": "Savory chewy fish cake skewers served in hot savory radish broth at Haeundae Traditional Market.",
+                  "image_url": "https://images.unsplash.com/photo-1590301157890-4810ed352733?q=80&w=800"
+                },
+                {
+                  "dish_name": "Raw Fish Platter (Hoe) at Jagalchi",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 3200,
+                  "short_description": "Freshly sliced flounder and sea bream sashimi served with spicy ssamjang, garlic, and fresh lettuce.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 4500,
+                  "hotel_name_private": "Felix by STX Hotel & Suite Haeundae",
+                  "description": "Apartment-style hotel connected directly to Haeundae Subway Station with full kitchenettes.",
+                  "inclusions": "WiFi, Breakfast, Kitchenette",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 14000,
+                  "hotel_name_private": "Shilla Stay Haeundae",
+                  "description": "Modern stylish oceanfront hotel steps from Haeundae Beach featuring a rooftop pool.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Rooftop Pool",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 38000,
+                  "hotel_name_private": "Signiel Busan",
+                  "description": "Ultra-luxury hotel located inside LCT Tower offering private balconies overlooking Haeundae Beach and infinity pool.",
+                  "inclusions": "WiFi, Executive Breakfast, Infinity Pool, Salon de Signiel Lounge, Spa",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Gamcheon Culture Village",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.7,
+              "description": "Known as the 'Machu Picchu of Busan', Gamcheon Culture Village is a colorful hillside community filled with pastel-painted homes, quirky art installations, narrow alleys, and sweeping sea views.",
+              "cover_image": "https://images.unsplash.com/photo-1583224964978-2257b960c3d3?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Little Prince Stamp Tour & Art Walk",
+                  "mark_as_featured": true,
+                  "duration": "2.5 Hours",
+                  "price_inr": 1100,
+                  "short_description": "Follow colorful alleyway stamp trails to photo spots like the iconic Little Prince statue looking over the harbor.",
+                  "image_url": "https://images.unsplash.com/photo-1578637387939-43c525550085?q=80&w=800"
+                },
+                {
+                  "activity_name": "Woodcraft & Mug Painting Workshop",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1800,
+                  "short_description": "Create personalized Busan souvenirs inside a local artist studio overlooking the pastel hills.",
+                  "image_url": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800"
+                },
+                {
+                  "activity_name": "Songdo Marine Cable Car Ride",
+                  "mark_as_featured": false,
+                  "duration": "1.5 Hours",
+                  "price_inr": 1600,
+                  "short_description": "Glider across Songdo Bay in a crystal-floor glass gondola over crashing ocean waves.",
+                  "image_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Ssiat Hotteok (Seed Pancake)",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 250,
+                  "short_description": "Crisp pan-fried sweet pancake stuffed with brown sugar syrup, sunflower seeds, pumpkin seeds, and pine nuts.",
+                  "image_url": "https://images.unsplash.com/photo-1590301157890-4810ed352733?q=80&w=800"
+                },
+                {
+                  "dish_name": "Milmyeon (Busan Wheat Noodles)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 650,
+                  "short_description": "Chilled chewy wheat flour noodles served in icy sweet-spicy broth topped with sliced pork and boiled egg.",
+                  "image_url": "https://images.unsplash.com/photo-1621996346565-e3d5d6281290?q=80&w=800"
+                },
+                {
+                  "dish_name": "Grilled Clams",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 2400,
+                  "short_description": "Fresh ocean clams grilled over hot coals with butter, garlic, melted cheese, and chopped chili.",
+                  "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 3800,
+                  "hotel_name_private": "Gamcheon Cozy Hill Guesthouse",
+                  "description": "Warm traditional guesthouse situated right inside the artistic village with rooftop sea view decks.",
+                  "inclusions": "WiFi, Toast & Coffee Breakfast, Rooftop Deck",
+                  "image_url": "https://images.unsplash.com/photo-1583224964978-2257b960c3d3?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 11000,
+                  "hotel_name_private": "Aventree Hotel Nampo",
+                  "description": "Modern urban hotel located in Nampo-dong near Jagalchi Market and Gamcheon transport hubs.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Room",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 32000,
+                  "hotel_name_private": "Lotte Hotel Busan",
+                  "description": "Landmark luxury hotel in central Busan boasting a casino, indoor pool, and world-class dining.",
+                  "inclusions": "WiFi, Buffet Breakfast, Sauna & Swimming Pool, Casino Access, Duty-Free Desk",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country_name": "Japan",
+      "states": [
+        {
+          "state_name": "Shibuya",
+          "destinations": [
+            {
+              "destination_name": "Shibuya Crossing & Scramble Square",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "The pulsing heart of Tokyo's youth culture and futuristic urban energy, Shibuya is world-famous for the chaotic Shibuya Crossing, Hachiko statue, trendsetting shopping towers, and panoramic skyscrapers.",
+              "cover_image": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "SHIBUYA SKY Rooftop Observatory Ticket",
+                  "mark_as_featured": true,
+                  "duration": "1.5 Hours",
+                  "price_inr": 1800,
+                  "short_description": "Stand on an open-air 360-degree rooftop sky deck 229 meters above Shibuya Crossing.",
+                  "image_url": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800"
+                },
+                {
+                  "activity_name": "Shibuya Food & Izakaya Alley Night Tour",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 5200,
+                  "short_description": "Wander through historic Nonbei Yokocho alleyways to sample yakitori skewers and local sake.",
+                  "image_url": "https://images.unsplash.com/photo-1554797589-7241ab691973?q=80&w=800"
+                },
+                {
+                  "activity_name": "Hachiko Statue & Scramble Crossing Photo Walk",
+                  "mark_as_featured": false,
+                  "duration": "1 Hour",
+                  "price_inr": 600,
+                  "short_description": "Snap photos with the beloved loyal Hachiko dog bronze statue and cross the world's busiest pedestrian intersection.",
+                  "image_url": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=800"
+                },
+                {
+                  "activity_name": "Shibuya Harajuku Pop-Culture Walking Tour",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 3200,
+                  "short_description": "Walk Takeshita Street to discover wild kawaii fashion shops, anime boutiques, and rainbow crepe stands.",
+                  "image_url": "https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Tonkotsu Ramen at Ichiran Shibuya",
+                  "mark_as_featured": true,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 850,
+                  "short_description": "Rich, silky pork bone broth served with springy noodles, secret spicy red sauce, and tender chashu pork in private dining booths.",
+                  "image_url": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=800"
+                },
+                {
+                  "dish_name": "Harajuku Kawaii Rainbow Crepe",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 450,
+                  "short_description": "Warm Japanese crepe stuffed with fresh strawberries, chantilly whipped cream, and chocolate brownie bites.",
+                  "image_url": "https://images.unsplash.com/photo-1519676867240-f03562e64548?q=80&w=800"
+                },
+                {
+                  "dish_name": "Wagyu Beef Sukiyaki / Shabu-Shabu",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 4800,
+                  "short_description": "Paper-thin sliced A5 Miyazaki Wagyu beef dipped in sweet soy broth and raw egg dipping sauce.",
+                  "image_url": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800"
+                },
+                {
+                  "dish_name": "Fluffy Japanese Soufflé Pancakes",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 950,
+                  "short_description": "Sky-high, jiggly soufflé pancakes served with whipped butter, whipped cream, and organic maple syrup.",
+                  "image_url": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 7800,
+                  "hotel_name_private": "The Millennial Shibuya",
+                  "description": "High-tech smart capsule pod hotel featuring automated reclining beds and co-working lounges.",
+                  "inclusions": "WiFi, Free Draft Beer Hour, Pod Tech Control",
+                  "image_url": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 21000,
+                  "hotel_name_private": "Shibuya Stream Excel Hotel Tokyu",
+                  "description": "Stylish modern hotel directly integrated into Shibuya Stream station complex with urban city views.",
+                  "inclusions": "WiFi, Free Breakfast, Stream Access, Fitness Center",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 65000,
+                  "hotel_name_private": "Cerulean Tower Tokyu Hotel",
+                  "description": "Soaring luxury hotel atop Shibuya tower offering spacious rooms with sweeping Mount Fuji skyline views.",
+                  "inclusions": "WiFi, Executive Breakfast, Fitness & Pool, Jazz Bar, Mount Fuji View",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Yoyogi Park & Meiji Jingu Shrine",
+              "category": "Cultural",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "A serene forested haven adjacent to Shibuya's urban buzz, Meiji Shrine is Tokyo's most sacred Shinto shrine dedicated to Emperor Meiji, surrounded by 170 acres of evergreen woodland inside Yoyogi Park.",
+              "cover_image": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Meiji Shrine Shinto Forest Walk & Purification Rite",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 1200,
+                  "short_description": "Pass beneath massive wooden Torii gates and perform traditional Temizu hand purification at sacred spring wells.",
+                  "image_url": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800"
+                },
+                {
+                  "activity_name": "Yoyogi Park Bicycle Rental & Picnic Stroll",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 800,
+                  "short_description": "Cycle beneath ginkgo trees and watch local rockabilly dancers and street musicians perform.",
+                  "image_url": "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800"
+                },
+                {
+                  "activity_name": "Shinto Ema Wish & Fortune Paper Reading",
+                  "mark_as_featured": false,
+                  "duration": "1 Hour",
+                  "price_inr": 500,
+                  "short_description": "Write personal wishes on wooden Ema plaques and draw Omikuji fortune slips inside shrine courtyards.",
+                  "image_url": "https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Traditional Matcha & Wagashi Sweet",
+                  "mark_as_featured": true,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 650,
+                  "short_description": "Ceremonial Grade whisked green tea served alongside handmade seasonal bean paste sweet.",
+                  "image_url": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=800"
+                },
+                {
+                  "dish_name": "Tempura Udon Noodle Bowl",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 900,
+                  "short_description": "Thick chewy wheat noodles served in dashi broth topped with crispy fried jumbo tiger prawn tempura.",
+                  "image_url": "https://images.unsplash.com/photo-1618841557871-b4664fbf0cb3?q=80&w=800"
+                },
+                {
+                  "dish_name": "Yakitori Skewers (Negima & Tsukune)",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 550,
+                  "short_description": "Charcoal-grilled chicken skewers seasoned with tare sweet soy glaze and fresh scallions.",
+                  "image_url": "https://images.unsplash.com/photo-1554797589-7241ab691973?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6800,
+                  "hotel_name_private": "Almond Hostel & Cafe Shibuya",
+                  "description": "Cozy boutique hostel located near Yoyogi Park with an artisan coffee shop on the ground floor.",
+                  "inclusions": "WiFi, Coffee Voucher, Luggage Storage",
+                  "image_url": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 18500,
+                  "hotel_name_private": "TRUNK (HOTEL) Cat Street",
+                  "description": "Award-winning eco-luxury boutique hotel nestled between Shibuya and Harajuku featuring social lounges.",
+                  "inclusions": "WiFi, Free Breakfast, Designer Lounge, Terrace Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 52000,
+                  "hotel_name_private": "TRUNK (HOTEL) Yoyogi Park",
+                  "description": "Luxury boutique haven featuring an infinity rooftop pool and oyster bar directly facing the lush canopy of Yoyogi Park.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Infinity Rooftop Pool, Park View Balcony",
+                  "image_url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "state_name": "Tokyo",
+          "destinations": [
+            {
+              "destination_name": "Senso-ji & Asakusa",
+              "category": "Heritage",
+              "status": "Published",
+              "rating": 4.9,
+              "description": "Asakusa preserves the nostalgic atmosphere of old Tokyo (Edo). Its focal point is Senso-ji, Tokyo's oldest and most significant Buddhist temple, approached via Nakamise-dori shopping street under giant red paper lanterns.",
+              "cover_image": "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Senso-ji Temple & Kaminarimon Red Lantern Walk",
+                  "mark_as_featured": true,
+                  "duration": "2 Hours",
+                  "price_inr": 1000,
+                  "short_description": "Walk under the giant 700kg red lantern of Thunder Gate and burn incense at the main hall's incense burner.",
+                  "image_url": "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=800"
+                },
+                {
+                  "activity_name": "Rickshaw Tour of Old Edo Asakusa",
+                  "mark_as_featured": false,
+                  "duration": "1 Hour",
+                  "price_inr": 3800,
+                  "short_description": "Ride a traditional two-wheeled wooden rickshaw pulled by energetic guides through historic temple side streets.",
+                  "image_url": "https://images.unsplash.com/photo-1528164344705-47542687990d?q=80&w=800"
+                },
+                {
+                  "activity_name": "Kimono Experience & Nakamise Street Stroll",
+                  "mark_as_featured": false,
+                  "duration": "3 Hours",
+                  "price_inr": 2800,
+                  "short_description": "Wear a traditional silk kimono while browsing wooden shops selling folding fans and rice crackers.",
+                  "image_url": "https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=800"
+                },
+                {
+                  "activity_name": "Sumida River Evening Cruise to Odaiba",
+                  "mark_as_featured": false,
+                  "duration": "1.5 Hours",
+                  "price_inr": 2200,
+                  "short_description": "Sail aboard futuristic glass boats down Sumida River under Tokyo Skytree and Rainbow Bridge.",
+                  "image_url": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Ningyo-yaki Cake (Asakusa Style)",
+                  "mark_as_featured": true,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 350,
+                  "short_description": "Small fluffy baked sponge cakes shaped like lanterns and pagoda towers filled with sweet red bean paste.",
+                  "image_url": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=800"
+                },
+                {
+                  "dish_name": "Asakusa Menchi (Fried Minced Pork Cutlet)",
+                  "mark_as_featured": false,
+                  "meal_type": "Street Food",
+                  "avg_price_inr": 400,
+                  "short_description": "Juicy, panko-crusted deep-fried cutlet filled with seasoned minced pork and sweet onions.",
+                  "image_url": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=800"
+                },
+                {
+                  "dish_name": "Unagi Don (Grilled Freshwater Eel)",
+                  "mark_as_featured": false,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 2800,
+                  "short_description": "Tender charcoal-grilled freshwater eel brushed with caramelized sweet tare glaze served over steamed rice.",
+                  "image_url": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800"
+                },
+                {
+                  "dish_name": "Melonpan with Matcha Ice Cream",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 450,
+                  "short_description": "Freshly baked warm sweet cookie-crusted bread stuffed with a big scoop of rich Uji matcha ice cream.",
+                  "image_url": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6200,
+                  "hotel_name_private": "Kaminarimon Hotel Asakusa",
+                  "description": "Historic budget hotel situated directly opposite the main Senso-ji Kaminarimon Gate.",
+                  "inclusions": "WiFi, Japanese Breakfast, Luggage Storage",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 16500,
+                  "hotel_name_private": "The Gate Hotel Asakusa Kaminarimon by Hulic",
+                  "description": "Modern hotel boasting an exclusive guest-only open-air rooftop terrace overlooking Tokyo Skytree.",
+                  "inclusions": "WiFi, Free Breakfast, Skytree View Terrace, Wine Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 48000,
+                  "hotel_name_private": "Asakusa View Hotel",
+                  "description": "High-rise luxury hotel offering unmatched views of Senso-ji temple grounds and Tokyo Skytree from upper floors.",
+                  "inclusions": "WiFi, Gourmet Breakfast, Indoor Swimming Pool, Panoramic View Restaurant",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            },
+            {
+              "destination_name": "Akihabara & Ginza",
+              "category": "Urban",
+              "status": "Published",
+              "rating": 4.8,
+              "description": "Representing Tokyo's dual contrast, Akihabara is the high-tech electric town and pop-culture otaku capital, while neighboring Ginza is Tokyo's premier luxury shopping avenue filled with grand department stores and Michelin dining.",
+              "cover_image": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1200",
+              "experiences": [
+                {
+                  "activity_name": "Akihabara Electric Town & Maid Cafe Experience",
+                  "mark_as_featured": true,
+                  "duration": "2.5 Hours",
+                  "price_inr": 2600,
+                  "short_description": "Explore multi-story retro video game centers, anime figure shops, and enjoy a themed cafe performance.",
+                  "image_url": "https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=800"
+                },
+                {
+                  "activity_name": "Ginza Pedestrian Paradise & Luxury Architecture Walk",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 1500,
+                  "short_description": "Stroll car-free Chuo-dori boulevard on weekends exploring iconic glass flagships and Kabuki-za Theatre.",
+                  "image_url": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800"
+                },
+                {
+                  "activity_name": "Tokyo Skytree Tembo Deck Ticket",
+                  "mark_as_featured": false,
+                  "duration": "2 Hours",
+                  "price_inr": 2400,
+                  "short_description": "Ascend Japan's tallest structure (634m) for views extending all the way to Mount Fuji.",
+                  "image_url": "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=800"
+                }
+              ],
+              "food_options": [
+                {
+                  "dish_name": "Ginza Omakase Sushi Experience",
+                  "mark_as_featured": true,
+                  "meal_type": "Fine Dining",
+                  "avg_price_inr": 8500,
+                  "short_description": "Chef's choice multi-course sushi masterclass featuring fresh bluefin tuna, sea urchin, and sweet shrimp.",
+                  "image_url": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800"
+                },
+                {
+                  "dish_name": "Japanese Curry Rice (CoCo Ichibanya Style)",
+                  "mark_as_featured": false,
+                  "meal_type": "Local Special",
+                  "avg_price_inr": 750,
+                  "short_description": "Rich thick Japanese mild brown curry served with steamed rice and crispy chicken katsu cutlet.",
+                  "image_url": "https://images.unsplash.com/photo-1618841557871-b4664fbf0cb3?q=80&w=800"
+                },
+                {
+                  "dish_name": "Ginza Fluffy Fruit Sandwich (Fruit Sando)",
+                  "mark_as_featured": false,
+                  "meal_type": "Breakfast",
+                  "avg_price_inr": 650,
+                  "short_description": "Pillowy crustless white bread filled with whipped mascarpone cream and fresh strawberries and kiwi.",
+                  "image_url": "https://images.unsplash.com/photo-1509722747041-616f39b57569?q=80&w=800"
+                }
+              ],
+              "accommodations": [
+                {
+                  "stay_tier": "Budget",
+                  "stars": "3 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 6500,
+                  "hotel_name_private": "NOHGA HOTEL AKIHABARA TOKYO",
+                  "description": "Chic, music-focused design hotel in Akihabara featuring high-end audio gear and bistro dining.",
+                  "inclusions": "WiFi, Breakfast, Fitness Room",
+                  "image_url": "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Comfort",
+                  "stars": "4 Stars",
+                  "mark_as_featured": false,
+                  "price_per_night_inr": 19500,
+                  "hotel_name_private": "Hyatt Centric Ginza Tokyo",
+                  "description": "Trendy lifestyle hotel situated right on Ginza's Namiki-dori shopping street.",
+                  "inclusions": "WiFi, Free Breakfast, Fitness Center, Dining Bar",
+                  "image_url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800"
+                },
+                {
+                  "stay_tier": "Luxury",
+                  "stars": "5 Stars",
+                  "mark_as_featured": true,
+                  "price_per_night_inr": 82000,
+                  "hotel_name_private": "Aman Tokyo",
+                  "description": "Ultra-exclusive serene luxury sanctuary atop Otemachi Tower combining high-tech luxury with traditional Japanese paper screens and soaking tubs.",
+                  "inclusions": "WiFi, Fine Dining Breakfast, 30m Swimming Pool, Aman Spa, City & Palace View",
+                  "image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

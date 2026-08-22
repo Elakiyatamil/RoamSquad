@@ -26,8 +26,11 @@ import apiClient from '../../services/apiClient';
 
 const getImgUrl = (url) => {
     if (!url) return null;
-    if (url.startsWith('http') || url.startsWith('data:')) return url;
-    const base = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5000';
+    if (typeof url === 'object') url = url.url || url.image_url || url.coverImage || url.path || '';
+    if (typeof url !== 'string' || !url.trim()) return null;
+    url = url.trim();
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    const base = import.meta.env.VITE_IMAGE_URL || 'http://localhost:5005';
     const path = url.startsWith('/') ? url : `/uploads/${url}`;
     return `${base}${path}`;
 };
@@ -71,9 +74,15 @@ const DestinationForm = ({ destination, onClose }) => {
     // Sync full data to state
     useEffect(() => {
         if (fullDestination) {
+            let imgs = Array.isArray(fullDestination.images) ? fullDestination.images.filter(Boolean) : [];
+            const primaryCover = fullDestination.coverImage || fullDestination.image_url;
+            if (imgs.length === 0 && primaryCover) {
+                imgs = [primaryCover];
+            }
             setFormData({
                 ...fullDestination,
-                images: fullDestination.images || [],
+                coverImage: primaryCover || imgs[0] || '',
+                images: imgs,
                 activities: fullDestination.activities || [],
                 foodOptions: fullDestination.foodOptions || [],
                 accommodation: fullDestination.accommodations || [],
@@ -920,7 +929,15 @@ const DestinationForm = ({ destination, onClose }) => {
                         <div className="grid grid-cols-2 gap-4">
                             {(formData.images || []).map((img, i) => (
                                 <div key={i} className="aspect-square bg-ink/5 rounded-2xl relative group overflow-hidden">
-                                    <img src={getImgUrl(img)} className="w-full h-full object-cover" alt="" />
+                                    <img 
+                                        src={getImgUrl(img) || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800'} 
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800';
+                                        }}
+                                        className="w-full h-full object-cover" 
+                                        alt="" 
+                                    />
                                     <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                         <button 
                                             onClick={() => {
@@ -1184,8 +1201,16 @@ const DestinationManager = () => {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="w-12 h-12 bg-ink/5 rounded-xl overflow-hidden shadow-sm">
-                                                {dest.coverImage ? (
-                                                    <img src={getImgUrl(dest.coverImage)} className="w-full h-full object-cover" alt="" />
+                                                {(dest.coverImage || dest.image_url || (dest.images && dest.images[0])) ? (
+                                                    <img 
+                                                        src={getImgUrl(dest.coverImage || dest.image_url || dest.images[0])} 
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800';
+                                                        }}
+                                                        className="w-full h-full object-cover" 
+                                                        alt="" 
+                                                    />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-ink/10"><ImageIcon size={20} /></div>
                                                 )}

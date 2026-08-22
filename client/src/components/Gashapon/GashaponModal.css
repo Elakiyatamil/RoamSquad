@@ -1,23 +1,44 @@
 /* ══════════════════════════════════════════════════════
-   GASHAPON MODAL — Custom 3D & Isometric Helpers
+   GASHAPON VENDING MACHINE & LOOT BOX SHOWCASE CSS
+   Pixel-perfect alignment, custom 3D buttons, & zero scrollbar
 ══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+/* Hide scrollbars inside modal containers at all resolutions */
+.gashapon-modal,
+.gashapon-modal *,
+.gashapon-modal ::-webkit-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.gashapon-modal::-webkit-scrollbar,
+.gashapon-modal *::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* ── Modal Outer Container ───────────────────────── */
+.gashapon-modal-canvas {
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
 
 /* ── 3D button effect ─────────────────────────────── */
 .btn-3d,
 .gashapon-btn-3d {
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.1s ease;
+    transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s ease;
     border: none;
     outline: none;
 }
 
 .btn-3d:active,
 .gashapon-btn-3d:active {
-    transform: translateY(4px);
+    transform: translateY(3px) scale(0.98);
 }
 
 .btn-3d-face,
@@ -33,17 +54,17 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background-color: rgba(0, 0, 0, 0.2);
-    transform: translateY(6px);
+    background-color: rgba(0, 0, 0, 0.25);
+    transform: translateY(4px);
     z-index: 0;
 }
 
 /* ── Isometric ellipse shadow under machine ─────── */
 .gashapon-iso-shadow {
-    background: rgba(40, 110, 140, 0.3);
+    background: rgba(40, 110, 140, 0.35);
     border-radius: 50%;
-    filter: blur(10px);
-    transform: scaleY(0.3);
+    filter: blur(12px);
+    transform: scaleY(0.32);
 }
 
 /* ── Material Symbols helper ──────────────────────── */

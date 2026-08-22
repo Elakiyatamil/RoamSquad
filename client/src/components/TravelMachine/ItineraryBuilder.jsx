@@ -63,7 +63,7 @@ const SameStateModal = ({ isOpen, onClose, siblings, currentState, onSelect }) =
         <div className="city-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {siblings?.map(dest => (
             <div key={dest.id} className="city-option" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '16px', background: '#FAF8F5', cursor: 'pointer' }} onClick={() => onSelect(dest)}>
-              <img src={getImageUrl(dest.coverImage || dest.images?.[0])} className="city-thumb" alt={dest.name} style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover' }} />
+              <img src={getImageUrl(dest.coverImage || dest.images?.[0])} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800'; }} className="city-thumb" alt={dest.name} style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover' }} />
               <div>
                 <p className="city-name" style={{ fontWeight: 700, fontSize: '0.9rem', margin: 0 }}>{dest.name}</p>
                 <p className="city-state" style={{ fontSize: '0.75rem', color: '#9CA3AF', margin: 0 }}>{dest.district?.state?.name || dest.state}</p>
@@ -339,6 +339,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
         </video>
         <img 
           src={getImageUrl(fullDest?.coverImage || fullDest?.images?.[0])} 
+          onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1200'; }}
           className="hero-image-fallback" 
           alt="" 
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -1 }}
@@ -391,7 +392,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
             {/* Base Stay */}
             {itinerary[activeDay].accommodation ? (
               <div className="experience-item">
-                <img src={getImageUrl(itinerary[activeDay].accommodation.imageUrl || itinerary[activeDay].accommodation.image_url, 'stay')} className="experience-thumb" alt="" />
+                <img src={getImageUrl(itinerary[activeDay].accommodation.imageUrl || itinerary[activeDay].accommodation.image_url, 'stay')} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800'; }} className="experience-thumb" alt="" />
                 <div className="experience-info">
                   <span className="experience-tag">Base Stay</span>
                   <span className="experience-name">{itinerary[activeDay].accommodation.tier} Sanctuary</span>
@@ -408,7 +409,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
             <div className="experience-list">
               {itinerary[activeDay].dayItems.map((item) => (
                 <div key={item.id} className="experience-item">
-                  <img src={getImageUrl(item.imageUrl || item.image_url, item.mealType ? 'food' : 'activity')} className="experience-thumb" alt="" />
+                  <img src={getImageUrl(item.imageUrl || item.image_url, item.mealType ? 'food' : 'activity')} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800'; }} className="experience-thumb" alt="" />
                   <div className="experience-info">
                     <span className="experience-tag">{item.mealType || 'Experience'}</span>
                     <span className="experience-name">{item.name}</span>
@@ -438,7 +439,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                     return (
                       <div key={act.id} className="curated-card" onClick={() => assignToSlot(act)}>
                         <div className="curated-img-wrap">
-                          <img src={getImageUrl(act.imageUrl || act.image_url)} alt={act.name} />
+                          <img src={getImageUrl(act.imageUrl || act.image_url)} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800'; }} alt={act.name} />
                           {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
                         </div>
                         <div className="curated-card-body">
@@ -466,7 +467,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                     return (
                       <div key={food.id} className="curated-card" onClick={() => assignToSlot(food)}>
                         <div className="curated-img-wrap">
-                          <img src={getImageUrl(food.imageUrl || food.image_url, 'food')} alt={food.name} />
+                          <img src={getImageUrl(food.imageUrl || food.image_url, 'food')} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800'; }} alt={food.name} />
                           {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
                         </div>
                         <div className="curated-card-body">
@@ -495,7 +496,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
                     return (
                       <div key={acc.id} className={`curated-card ${isOnlyOne ? 'full-width' : ''}`} onClick={() => assignToSlot(acc)}>
                         <div className="curated-img-wrap">
-                          <img src={getImageUrl(acc.imageUrl || acc.image_url, 'stay')} alt={acc.tier} />
+                          <img src={getImageUrl(acc.imageUrl || acc.image_url, 'stay')} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800'; }} alt={acc.tier} />
                           {assigned && <div className="check-badge"><Check size={16} strokeWidth={3} /></div>}
                         </div>
                         <div className="curated-card-body">
@@ -524,7 +525,7 @@ const ItineraryBuilder = ({ destination: propDestination, duration, tripConfig }
           <motion.div className="toast-bar" initial={{ y: 100, x: '-50%' }} animate={{ y: 0, x: '-50%' }} exit={{ y: 100, x: '-50%' }}>
             <div className="stacked-avatars">
               {selectedItems.slice(0, 3).map(item => (
-                <img key={item.id} src={getImageUrl(item.imageUrl || item.image_url)} className="avatar-circle" alt="" />
+                <img key={item.id} src={getImageUrl(item.imageUrl || item.image_url)} onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800'; }} className="avatar-circle" alt="" />
               ))}
               {selectedItems.length > 3 && <div className="avatar-more">+{selectedItems.length - 3}</div>}
             </div>
