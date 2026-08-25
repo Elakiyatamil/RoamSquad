@@ -27,6 +27,22 @@ const oauthCallback = (req, res) => {
     res.redirect(`${frontendUrl}/auth-success?token=${token}&user=${userData}`);
 };
 
+// Auth Diagnostics
+router.get('/status', (req, res) => {
+    const rawId = process.env.GOOGLE_CLIENT_ID || '';
+    const hasSecret = !!process.env.GOOGLE_CLIENT_SECRET;
+    const maskedId = rawId ? `${rawId.substring(0, 10)}...${rawId.slice(-15)}` : 'NOT_SET';
+    res.json({
+        ok: true,
+        googleOAuth: {
+            configured: !!rawId && hasSecret && !rawId.includes('placeholder'),
+            clientIdMasked: maskedId,
+            callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5005/api/auth/google/callback',
+            devMockOAuth: process.env.DEV_MOCK_OAUTH === 'true'
+        }
+    });
+});
+
 // Local Auth
 router.post('/login', authLimiter, authController.login);
 router.post('/register', authLimiter, authController.register);
