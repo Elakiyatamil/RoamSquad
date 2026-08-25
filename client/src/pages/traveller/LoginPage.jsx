@@ -137,7 +137,23 @@ const LoginPage = () => {
 
         <div className="divider">or</div>
 
-        {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', marginBottom: '16px', textAlign: 'center' }}>{error}</p>}
+        {error && (
+          <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', fontWeight: 500 }}>
+            {error.toLowerCase().includes('invalid credentials') ? (
+              <>
+                Invalid credentials or are you new?{' '}
+                <span 
+                  style={{ textDecoration: 'underline', fontWeight: 700, cursor: 'pointer', color: '#8B2040' }} 
+                  onClick={() => { setIsLogin(false); setError(''); }}
+                >
+                  Sign Up
+                </span>
+              </>
+            ) : (
+              error
+            )}
+          </p>
+        )}
 
         <form onSubmit={handleFormSubmit}>
           {!isLogin && (

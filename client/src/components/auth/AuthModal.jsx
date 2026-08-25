@@ -118,8 +118,21 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold">
-                                {error}
+                            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold text-center">
+                                {error.toLowerCase().includes('invalid credentials') ? (
+                                    <span>
+                                        Invalid credentials or are you new?{' '}
+                                        <button 
+                                            type="button"
+                                            className="underline font-bold text-forest hover:text-gold transition-colors ml-1 cursor-pointer"
+                                            onClick={() => { setIsLogin(false); setError(''); }}
+                                        >
+                                            Sign Up
+                                        </button>
+                                    </span>
+                                ) : (
+                                    error
+                                )}
                             </div>
                         )}
 

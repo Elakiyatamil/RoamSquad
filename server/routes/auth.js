@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
+const passport = require('../config/passport');
 const rateLimit = require('express-rate-limit');
 const authController = require('../controllers/authController');
 const { verifyJWT } = require('../middleware/auth');

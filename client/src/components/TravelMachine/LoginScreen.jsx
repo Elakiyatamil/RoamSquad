@@ -129,7 +129,19 @@ const LoginScreen = ({ onBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-[12px] font-bold rounded-2xl text-center shadow-sm"
               >
-                {error}
+                {error.toLowerCase().includes('invalid credentials') ? (
+                  <span>
+                    Invalid credentials or are you new?{' '}
+                    <span 
+                      className="underline font-bold cursor-pointer text-[#800020] hover:opacity-80 ml-1"
+                      onClick={() => { setIsLogin(false); setError(''); }}
+                    >
+                      Sign Up
+                    </span>
+                  </span>
+                ) : (
+                  error
+                )}
               </motion.div>
             )}
 

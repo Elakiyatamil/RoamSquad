@@ -28,12 +28,12 @@ const login = async (req, res) => {
 
         if (!user || !user.password) {
             // Note: Keep message vague to prevent user enumeration
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+            return res.status(401).json({ success: false, message: 'Invalid credentials or are you new?' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+            return res.status(401).json({ success: false, message: 'Invalid credentials or are you new?' });
         }
 
         const token = generateToken(user, rememberMe);

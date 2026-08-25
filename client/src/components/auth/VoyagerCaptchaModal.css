@@ -310,6 +310,7 @@
 #captcha-modal.verified-success #captcha-footer-container,
 #captcha-modal.verified-success .captcha-footer-container,
 #captcha-modal.verified-success #captcha-error-banner,
+#captcha-modal.verified-success #captcha-top-error-container,
 #captcha-modal.verified-success #captcha-modal-body {
   display: none !important;
   visibility: hidden !important;

@@ -8,8 +8,8 @@ const INVENTORY_ITEMS = [
   { id: 'blanket', icon: '🛋️', name: 'Blanket' },
   { id: 'laptop', icon: '💻', name: 'Laptop' },
   { id: 'pepperspray', icon: '🌶️', name: 'Pepper Spray' },
-  { id: 'carrots', icon: '🥕', name: 'Bag of Carrots' },
-  { id: 'camera', icon: '📷', name: 'DSLR Camera' },
+  { id: 'carrots', icon: '🥕', name: 'Carrots' },
+  { id: 'camera', icon: '📷', name: 'Camera' },
   { id: 'mask', icon: '🙈', name: 'Eye Mask' }
 ];
 
@@ -54,15 +54,14 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
 
     const newPacked = [...packedItems, item];
     setPackedItems(newPacked);
-    checkState(newPacked, 'pack', isOverweight);
+    checkState(newPacked);
   };
 
   const handleUnpackItem = (index) => {
     if (isLocked) return;
-    const wasOverweight = isOverweight;
     const newPacked = packedItems.filter((_, i) => i !== index);
     setPackedItems(newPacked);
-    checkState(newPacked, 'unpack', wasOverweight);
+    checkState(newPacked);
   };
 
   const triggerErrorAlert = (errorMessage) => {
@@ -104,15 +103,10 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
     }
   };
 
-  const checkState = (newPacked, action, wasOverweightBefore = false) => {
+  const checkState = (newPacked) => {
     if (newPacked.length >= 3) {
-      setIsOverweight(true);
-      setWeightText('2.1 kg / 2.0 kg limit');
-      setWeightBadgeClass(
-        'mb-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold border border-red-300 flex items-center gap-1.5 shake'
-      );
-      setMessage({ text: '⚠️ Overweight limit by 0.1 kg! Remove an item.', type: 'error' });
-      triggerErrorAlert('⚠️ Overweight limit by 0.1 kg! Remove an item.');
+      // Directly transition to failure state when weight limit is exceeded
+      triggerUnderwearTrap();
     } else {
       setIsOverweight(false);
       const fakeWeight = (newPacked.length * 0.7).toFixed(1);
@@ -122,29 +116,29 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
       );
       setMessage(null);
     }
-
-    if (action === 'unpack' && (wasOverweightBefore || newPacked.length >= 3)) {
-      triggerUnderwearTrap();
-    }
   };
 
   const triggerUnderwearTrap = () => {
     setIsLocked(true);
-    setWeightText('1.2 kg / 2.0 kg limit');
+    setIsOverweight(true);
+    setWeightText('2.1 kg / 2.0 kg limit');
     setWeightBadgeClass(
-      'mb-3 bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-semibold border border-slate-200 flex items-center gap-1.5'
+      'mb-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold border border-red-300 flex items-center gap-1.5 shake'
     );
-    setMessage(null);
     setStateMode('STATE_A');
-    triggerErrorAlert('❌ Error: You forgot your underwear!');
+    triggerErrorAlert();
   };
 
   const handleTryAgain = () => {
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 500);
 
+    setWeightText('❌ You forgot your Passport!');
+    setWeightBadgeClass(
+      'mb-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold border border-red-300 flex items-center gap-1.5 shake'
+    );
     setStateMode('STATE_B');
-    triggerErrorAlert('❌ Verification Failed: System error! Attempt exhausted.');
+    triggerErrorAlert();
 
     setTimeout(() => {
       setStateMode('STATE_C');
@@ -232,7 +226,9 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
               <div id="suitcase-container" className="flex flex-col items-center justify-center w-full sm:w-1/2">
                 {/* Weight Badge */}
                 <div id="weight-badge" className={weightBadgeClass} style={{ marginBottom: '1rem', padding: '0.35rem 0.85rem', fontSize: '0.75rem' }}>
-                  <span className="material-symbols-outlined text-[16px]">scale</span>
+                  {stateMode !== 'STATE_B' && stateMode !== 'STATE_C' && (
+                    <span className="material-symbols-outlined text-[16px]">scale</span>
+                  )}
                   <span id="weight-text">{weightText}</span>
                 </div>
 
@@ -298,28 +294,9 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
               </div>
             </div>
 
-            {/* Footer & Trap Overlay Flow */}
-            {stateMode === 'NORMAL' && message && (
-              <div id="message-banner" ref={errorBannerRef} className="captcha-footer-container w-full flex flex-col items-center justify-center gap-2 mt-3 pt-2 border-t border-slate-100">
-                <div
-                  id="captcha-error-banner"
-                  className={
-                    message?.type === 'error'
-                      ? 'bg-red-50 text-red-700 border border-red-200 text-xs font-semibold px-4 py-2 rounded-xl text-center max-w-[90%] shadow-sm flex items-center justify-center gap-2'
-                      : 'bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-xl text-center max-w-[90%] shadow-sm flex items-center justify-center gap-2'
-                  }
-                >
-                  {message?.text}
-                </div>
-              </div>
-            )}
-
-            {/* State A: Underwear Trap */}
+            {/* State A: Try Again Action */}
             {stateMode === 'STATE_A' && (
-              <div id="state-a-container" ref={errorBannerRef} className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <div id="captcha-error-banner" className="captcha-error-banner" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem', borderRadius: '0.5rem', backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', textAlign: 'center', maxWidth: '90%' }}>
-                  ❌ Error: You forgot your underwear!
-                </div>
+              <div id="state-a-container" className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                 <button
                   id="try-again-btn"
                   type="button"
@@ -332,12 +309,9 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
               </div>
             )}
 
-            {/* State B: System Error Banner */}
+            {/* State B: System Error / Transitioning */}
             {stateMode === 'STATE_B' && (
               <div id="state-b-container" ref={errorBannerRef} className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <div id="captcha-error-banner" className="captcha-error-banner" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem', borderRadius: '0.5rem', backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', textAlign: 'center', maxWidth: '90%' }}>
-                  ❌ Verification Failed: System error! Attempt exhausted.
-                </div>
               </div>
             )}
 
@@ -362,7 +336,7 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
         {stateMode === 'SUCCESS' && (
           <div
             id="success-state-container"
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '1.5rem 1rem', width: '100%' }}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justify: 'center', textAlign: 'center', padding: '1.5rem 1rem', width: '100%' }}
           >
             <div style={{ width: '4rem', height: '4rem', background: '#d1fae5', color: '#059669', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', marginBottom: '1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
               🎉

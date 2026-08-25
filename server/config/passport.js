@@ -55,20 +55,26 @@ const upsertUser = async (profile, provider) => {
 };
 
 // Google Strategy
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
-    }, async (accessToken, refreshToken, profile, done) => {
-        try {
-            const user = await upsertUser(profile, 'google');
-            done(null, user);
-        } catch (err) {
-            done(err, null);
-        }
-    }));
+const googleClientId = process.env.GOOGLE_CLIENT_ID || 'placeholder_google_client_id';
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || 'placeholder_google_client_secret';
+const googleCallbackUrl = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5005/api/auth/google/callback';
+
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    console.warn('⚠️  [Passport] GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in environment variables. Using placeholder credentials for strategy registration.');
 }
+
+passport.use(new GoogleStrategy({
+    clientID: googleClientId,
+    clientSecret: googleClientSecret,
+    callbackURL: googleCallbackUrl,
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const user = await upsertUser(profile, 'google');
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+}));
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -84,3 +90,4 @@ passport.deserializeUser(async (id, done) => {
 });
 
 module.exports = passport;
+
