@@ -31,12 +31,10 @@ const oauthCallback = (req, res) => {
 router.get('/status', (req, res) => {
     const rawId = process.env.GOOGLE_CLIENT_ID || '';
     const hasSecret = !!process.env.GOOGLE_CLIENT_SECRET;
-    const maskedId = rawId ? `${rawId.substring(0, 10)}...${rawId.slice(-15)}` : 'NOT_SET';
     res.json({
         ok: true,
         googleOAuth: {
             configured: !!rawId && hasSecret && !rawId.includes('placeholder'),
-            clientIdMasked: maskedId,
             callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5005/api/auth/google/callback',
             devMockOAuth: process.env.DEV_MOCK_OAUTH === 'true'
         }
