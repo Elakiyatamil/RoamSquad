@@ -14,7 +14,18 @@ const authLimiter = rateLimit({
 
 const oauthCallback = (req, res) => {
     const token = authController.generateToken(req.user, true);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    // Determine frontend URL dynamically (session origin -> FRONTEND_URL -> host environment check -> fallback)
+    let frontendUrl = req.session?.frontendUrl || process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+        const host = req.headers.host || '';
+        if (host.includes('render.com') || process.env.NODE_ENV === 'production') {
+            frontendUrl = 'https://roam-squad-7bl6.vercel.app';
+        } else {
+            frontendUrl = 'http://localhost:5173';
+        }
+    }
+    frontendUrl = frontendUrl.replace(/\/$/, '');
     
     const userData = encodeURIComponent(JSON.stringify({
         id: req.user.id,
@@ -50,6 +61,16 @@ const prisma = require('../utils/prisma');
 
 // Google OAuth
 router.get('/google', (req, res, next) => {
+    if (req.session) {
+        const origin = req.headers.referer || req.headers.origin;
+        if (origin) {
+            try {
+                const parsed = new URL(origin);
+                req.session.frontendUrl = parsed.origin;
+            } catch (_) {}
+        }
+    }
+
     if (process.env.DEV_MOCK_OAUTH === 'true') {
         const mockProfile = {
             id: 'mock_google_dev_123',
