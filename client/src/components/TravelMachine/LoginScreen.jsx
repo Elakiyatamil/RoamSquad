@@ -17,7 +17,7 @@ const LoginScreen = ({ onBack }) => {
   const [pendingAction, setPendingAction] = useState(null);
 
   const { login } = useAuthStore();
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
