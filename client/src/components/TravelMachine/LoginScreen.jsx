@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Apple, Chrome as Google, Facebook, Eye, EyeOff, X, Loader2, User, Mail, Lock } from 'lucide-react';
+import { Apple, Chrome as Google, Facebook, Eye, EyeOff, X, Loader2, User, Mail, Lock, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
 import VoyagerCaptchaModal from '../auth/VoyagerCaptchaModal';
@@ -125,23 +125,28 @@ const LoginScreen = ({ onBack }) => {
 
             {error && (
               <motion.div 
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-[12px] font-bold rounded-2xl text-center shadow-sm"
+                className="mb-6 p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-700 text-xs sm:text-sm font-medium rounded-2xl flex items-start gap-2.5 shadow-sm text-left"
               >
-                {error.toLowerCase().includes('invalid credentials') ? (
-                  <span>
-                    Invalid credentials or are you new?{' '}
-                    <span 
-                      className="underline font-bold cursor-pointer text-[#800020] hover:opacity-80 ml-1"
-                      onClick={() => { setIsLogin(false); setError(''); }}
-                    >
-                      Sign Up
+                <AlertCircle size={18} className="text-rose-600 shrink-0 mt-0.5" />
+                <div className="flex-1 leading-relaxed">
+                  {error.toLowerCase().includes('invalid credentials') || error.toLowerCase().includes('invalid email or password') ? (
+                    <span>
+                      Invalid email or password. New to RoamG?{' '}
+                      <button 
+                        type="button"
+                        className="underline font-bold text-rose-800 hover:text-rose-950 transition-colors cursor-pointer"
+                        onClick={() => { setIsLogin(false); setError(''); }}
+                      >
+                        Please sign up first
+                      </button>
+                      , or double-check your credentials.
                     </span>
-                  </span>
-                ) : (
-                  error
-                )}
+                  ) : (
+                    error
+                  )}
+                </div>
               </motion.div>
             )}
 
@@ -171,7 +176,9 @@ const LoginScreen = ({ onBack }) => {
                   name="email"
                   type="email" 
                   placeholder="Email address" 
-                  className="login-input-glass w-full text-sm pl-12" 
+                  className={`login-input-glass w-full text-sm pl-12 ${
+                    error ? 'ring-2 ring-rose-500/50 border-rose-500/60 bg-rose-500/5' : ''
+                  }`} 
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -186,7 +193,9 @@ const LoginScreen = ({ onBack }) => {
                   name="password"
                   type={showPassword ? "text" : "password"} 
                   placeholder="Password" 
-                  className="login-input-glass w-full text-sm pl-12 pr-12" 
+                  className={`login-input-glass w-full text-sm pl-12 pr-12 ${
+                    error ? 'ring-2 ring-rose-500/50 border-rose-500/60 bg-rose-500/5' : ''
+                  }`} 
                   value={formData.password}
                   onChange={handleChange}
                   required

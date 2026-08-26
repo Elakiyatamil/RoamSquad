@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Calendar as CalendarIcon } from 'lucide-react';
 import usePlannerStore from '../../../store/usePlannerStore';
 import './Step2Timeline.css';
 
@@ -23,53 +23,87 @@ const formatDateDisplay = (dateStr) => {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+// Add days to date string
+const addDaysToString = (dateStr, daysCount) => {
+  if (!dateStr) return '';
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + (daysCount - 1));
+  return formatDateString(date);
+};
+
+// Calculate diff in days between two date strings
+const calcDiffDays = (startStr, endStr) => {
+  if (!startStr || !endStr) return 1;
+  const [sy, sm, sd] = startStr.split('-').map(Number);
+  const [ey, em, ed] = endStr.split('-').map(Number);
+  const s = new Date(sy, sm - 1, sd);
+  const e = new Date(ey, em - 1, ed);
+  const diffTime = e.getTime() - s.getTime();
+  return Math.max(1, Math.round(diffTime / (1000 * 3600 * 24)) + 1);
+};
+
 export default function Step2Timeline() {
-  const { duration, startDate, endDate, updateData } = usePlannerStore();
+  const { duration = 5, startDate, endDate, updateData } = usePlannerStore();
   const [currentView, setCurrentView] = useState(new Date());
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // --- Date Picker Click Logic ---
+  // --- Synchronized Date Selection Logic ---
   const handleDateClick = (date) => {
     const clickedStr = formatDateString(date);
+    const currentDuration = duration || 5;
 
-    if (!startDate) {
-      // Empty: Set start date
-      updateData({ startDate: clickedStr, endDate: '' });
-    } else if (!endDate) {
-      // Start date exists, no end date yet
-      if (clickedStr === startDate) {
-        // Clicked same date again: Make it a 1-day trip
-        updateData({ endDate: clickedStr, duration: 1 });
-      } else if (clickedStr < startDate) {
-        // Clicked date is before start date -> Set as endDate to trigger ERROR state
-        updateData({ endDate: clickedStr });
-      } else {
-        // Clicked date is on or after start date -> Set as endDate and auto-update duration
-        const start = new Date(startDate);
-        const end = new Date(clickedStr);
-        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-        updateData({ endDate: clickedStr, duration: diffDays });
-      }
+    // If both dates are already set OR no start date is set yet -> Treat click as NEW Start Date
+    if (!startDate || (startDate && endDate)) {
+      const calculatedEnd = addDaysToString(clickedStr, currentDuration);
+      updateData({
+        startDate: clickedStr,
+        endDate: calculatedEnd,
+        duration: currentDuration
+      });
+      return;
+    }
+
+    // Only startDate was set (second click on calendar)
+    if (clickedStr < startDate) {
+      // Clicked date is before start date -> Set as new start date and auto-fill end date
+      const calculatedEnd = addDaysToString(clickedStr, currentDuration);
+      updateData({
+        startDate: clickedStr,
+        endDate: calculatedEnd,
+        duration: currentDuration
+      });
+    } else if (clickedStr === startDate) {
+      // Clicked same date again -> Set as 1-day trip
+      updateData({
+        startDate: clickedStr,
+        endDate: clickedStr,
+        duration: 1
+      });
     } else {
-      // Both exist: User clicks again -> start fresh or reset
-      if (clickedStr === startDate && startDate === endDate) {
-        // Reset both if they click the 1-day trip date a third time
-        updateData({ startDate: '', endDate: '' });
-      } else if (clickedStr === startDate) {
-        // Reset both
-        updateData({ startDate: '', endDate: '' });
-      } else if (clickedStr > startDate) {
-        // Replace end date
-        const start = new Date(startDate);
-        const end = new Date(clickedStr);
-        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-        updateData({ endDate: clickedStr, duration: diffDays });
-      } else {
-        // New date is before start -> Replace start and clear end
-        updateData({ startDate: clickedStr, endDate: '' });
-      }
+      // Clicked date is after start date -> Set as end date and update duration counter
+      const newDuration = calcDiffDays(startDate, clickedStr);
+      updateData({
+        startDate,
+        endDate: clickedStr,
+        duration: newDuration
+      });
+    }
+  };
+
+  // Plus / Minus Duration Counter Adjuster
+  const adjustDuration = (delta) => {
+    const newDuration = Math.max(1, (duration || 5) + delta);
+    if (startDate) {
+      const newEndDate = addDaysToString(startDate, newDuration);
+      updateData({
+        duration: newDuration,
+        endDate: newEndDate
+      });
+    } else {
+      updateData({ duration: newDuration });
     }
   };
 
@@ -99,7 +133,6 @@ export default function Step2Timeline() {
     setCurrentView(prev);
   };
 
-  // Prevent navigating to months entirely in the past
   const isPrevMonthDisabled = () => {
     return (
       currentView.getFullYear() === today.getFullYear() &&
@@ -118,43 +151,18 @@ export default function Step2Timeline() {
     return days;
   };
 
-  const adjust = (n) => updateData({ duration: Math.max(1, duration + n) });
-
-  // Calculate Errors and Warnings
-  let alertText = '';
-  let alertType = ''; // 'error' | 'warning'
-
-  if (startDate && endDate && endDate < startDate) {
-    alertText = 'End date must be after start date';
-    alertType = 'error';
-  } else if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-    if (diffDays > 90) {
-      alertText = 'Maximum trip duration is 90 days';
-      alertType = 'error';
-    } else if (duration !== diffDays) {
-      alertText = "Duration doesn't match selected dates";
-      alertType = 'warning';
-    }
-  }
-
-  // If still no alert, check if only start date selected
-  if (!alertText && startDate && !endDate) {
-    alertText = 'Select your end date (or click again for 1-day trip)';
-    alertType = 'warning';
-  }
-
-  // Display text for date range
-  const getRangeDisplayText = () => {
+  // Format human-friendly summary text
+  const getSummaryBannerText = () => {
     if (startDate && endDate && endDate >= startDate) {
-      return `FROM: ${formatDateDisplay(startDate)} TO: ${formatDateDisplay(endDate)}`;
+      const days = duration || calcDiffDays(startDate, endDate);
+      return `📅 Trip Duration: ${formatDateDisplay(startDate)} – ${formatDateDisplay(endDate)} (${days} ${days === 1 ? 'Day' : 'Days'})`;
     }
     if (startDate) {
-      return `FROM: ${formatDateDisplay(startDate)}`;
+      const days = duration || 5;
+      const projectedEnd = addDaysToString(startDate, days);
+      return `📅 Trip Duration: ${formatDateDisplay(startDate)} – ${formatDateDisplay(projectedEnd)} (${days} Days)`;
     }
-    return 'Select your travel dates';
+    return '📅 Select your travel start date on the calendar';
   };
 
   return (
@@ -174,19 +182,25 @@ export default function Step2Timeline() {
           marginBottom: 24,
           textAlign: 'center'
         }}>
-          Trip Duration
+          Trip Duration & Dates
         </p>
 
         <div className="duration-wrapper">
           
-          {/* 1. TOP: Day Counter Card (Compact Row) */}
+          {/* 1. TOP: Day Counter Card */}
           <div className="day-counter-card">
             <div className="day-counter-label-group">
-              <span className="day-counter-label">How many days?</span>
+              <span className="day-counter-label">HOW MANY DAYS?</span>
+              <span className="day-counter-sub">Adjust duration anytime</span>
             </div>
             
             <div className="counter-row">
-              <button className="counter-btn" onClick={() => adjust(-1)} disabled={duration <= 1}>
+              <button 
+                type="button"
+                className="counter-btn" 
+                onClick={() => adjustDuration(-1)} 
+                disabled={(duration || 5) <= 1}
+              >
                 <Minus size={18} />
               </button>
               
@@ -197,65 +211,65 @@ export default function Step2Timeline() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
                   className="day-counter-number"
-                  style={{
-                    color: alertText === "Duration doesn't match selected dates" ? '#FF9800' : '#1A1A2E'
-                  }}
                 >
-                  {duration}
+                  {duration || 5}
                 </motion.span>
               </AnimatePresence>
 
-              <button className="counter-btn" onClick={() => adjust(1)}>
+              <button 
+                type="button"
+                className="counter-btn" 
+                onClick={() => adjustDuration(1)}
+              >
                 <Plus size={18} />
               </button>
             </div>
           </div>
 
-          {/* 2. MIDDLE: When do you start? (and end?) */}
+          {/* 2. MIDDLE: Section Heading */}
           <p style={{
             fontFamily: "'Poppins', sans-serif",
             fontSize: 11,
-            fontWeight: 600,
+            fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
-            color: '#5C5C6E',
+            color: '#475569',
             marginTop: 8,
             marginBottom: 0
           }}>
-            When do you start? (and end?)
+            Select Travel Dates
           </p>
 
           {/* 3. BOTTOM: Inline Calendar Card */}
           <div className="calendar-card">
             <div className="calendar-header">
-              <button className="nav-btn" onClick={prevMonth} disabled={isPrevMonthDisabled()}>
+              <button type="button" className="nav-btn" onClick={prevMonth} disabled={isPrevMonthDisabled()}>
                 <ChevronLeft size={18} />
               </button>
               <span className="month-label">
                 {currentView.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </span>
-              <button className="nav-btn" onClick={nextMonth}>
+              <button type="button" className="nav-btn" onClick={nextMonth}>
                 <ChevronRight size={18} />
               </button>
             </div>
 
             <div className="calendar-grid">
-              {DAYS.map(d => <div key={d} className="day-header">{d}</div>)}
+              {DAYS.map((d, i) => <div key={`${d}-${i}`} className="day-header">{d}</div>)}
               {getDaysInMonth(currentView).map((date, idx) => {
                 if (!date) return <div key={`empty-${idx}`} />;
                 const dateStr = formatDateString(date);
                 const isStart = dateStr === startDate;
                 const isEnd = dateStr === endDate;
                 const inRange = startDate && endDate && endDate >= startDate && dateStr > startDate && dateStr < endDate;
-                const hasError = endDate && endDate < startDate && (isStart || isEnd);
                 const isDis = isDisabled(date);
+                const isTodayDate = isToday(date);
 
                 let cellClasses = ['date-cell'];
                 if (isStart) cellClasses.push('start-date');
                 if (isEnd) cellClasses.push('end-date');
                 if (inRange) cellClasses.push('in-range');
-                if (hasError) cellClasses.push('error');
-                if (isToday(date)) cellClasses.push('today');
+                if (isTodayDate) cellClasses.push('today');
                 if (isDis) cellClasses.push('disabled');
 
                 if ((isStart && !endDate) || (isStart && isEnd)) {
@@ -268,31 +282,17 @@ export default function Step2Timeline() {
                     className={cellClasses.join(' ')}
                     onClick={() => !isDis && handleDateClick(date)}
                   >
-                    {date.getDate()}
+                    <span>{date.getDate()}</span>
+                    {isTodayDate && <span className="today-dot" />}
                   </div>
                 );
               })}
             </div>
 
-            {/* Selected Date Display */}
-            <div className="date-range-display">
-              {getRangeDisplayText()}
+            {/* Clean Glassmorphic Status / Summary Banner */}
+            <div className="summary-banner-card">
+              <span>{getSummaryBannerText()}</span>
             </div>
-
-            {/* Alerts/Warnings Container */}
-            <AnimatePresence>
-              {alertText && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className={`alert-container ${alertType}`}
-                >
-                  <span>{alertType === 'error' ? '❌' : '⚠️'}</span>
-                  <span>{alertText}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
         </div>
@@ -300,3 +300,4 @@ export default function Step2Timeline() {
     </div>
   );
 }
+

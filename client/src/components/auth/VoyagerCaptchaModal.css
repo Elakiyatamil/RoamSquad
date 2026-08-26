@@ -1,104 +1,495 @@
-/* Voyager Captcha Custom Styling & Animations */
+/* ═══════════════════════════════════════════════════════════════════
+   VoyagerCaptchaModal — Glassmorphism CAPTCHA Component Styles
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* Material & Custom Fonts styling */
-.font-headline-lg {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 32px;
-  line-height: 40px;
-  font-weight: 600;
-}
-
-.font-headline-lg-mobile {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 24px;
-  line-height: 32px;
-  font-weight: 600;
-}
-
-.font-body-md {
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-}
-
-.font-label-md {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  font-weight: 500;
-}
-
-/* Custom Colors mapping */
-.text-on-surface {
-  color: #191c1e;
-}
-
-.text-on-surface-variant {
-  color: #5b4041;
-}
-
-.border-surface-variant {
-  border-color: #e0e3e5;
-}
-
-/* Money Rain animation */
+/* ── Money Rain ─────────────────────────────────────────────────── */
 @keyframes moneyFall {
-  0% {
-    transform: translateY(-100px) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
-  }
+  0%   { transform: translateY(-80px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
-
-.money-item {
+.vcm-money {
   position: fixed;
-  top: -50px;
-  font-size: 28px;
+  top: -60px;
+  font-size: 26px;
   animation: moneyFall 2s linear forwards;
   pointer-events: none;
   z-index: 99999;
 }
 
-/* Shake animation */
-.shake, .animate-shake {
-  animation: captchaShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes captchaShake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
-}
-
-/* Bounce animation for packed badges */
-@keyframes captchaBounce {
-  0% { transform: scale(1.05); }
+/* ── Entry bounce for packed badges ─────────────────────────────── */
+@keyframes vcmBounce {
+  0%   { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
+.vcm-anim-bounce { animation: vcmBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-.anim-bounce {
-  animation: captchaBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+/* ── Overlay fade-in + card slide-up ────────────────────────────── */
+@keyframes vcmFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vcmCardIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.vcm-overlay--anim            { animation: vcmFadeIn 0.25s ease forwards; }
+.vcm-overlay--anim .vcm-overlay-card { animation: vcmCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   BACKDROP
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.70);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-/* Bribe Slide Down animation */
-@keyframes slideDownBribe {
-  0% { transform: translateY(-20px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   OUTER MODAL  — frosted glass card
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-modal {
+  position: relative;
+  width: min(92vw, 720px);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 2rem 2rem 2.25rem;
+
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.60);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0  8px 16px -4px  rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.animate-slide-down-bribe {
-  animation: slideDownBribe 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+/* ── Close button ───────────────────────────────────────────────── */
+.vcm-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 60;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.vcm-close-btn:hover { background: rgba(241, 245, 249, 0.9); color: #334155; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   BODY WRAPPER  (relative so overlay can position absolute on top)
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-body {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex-grow: 1;
 }
 
-/* Suitcase component structure — realistic vertical rolling suitcase */
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-header {
+  text-align: center;
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+}
+
+/* Badge pill */
+.vcm-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(240, 249, 255, 0.95);
+  border: 1px solid rgba(186, 230, 253, 0.8);
+  color: #0369a1;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  /* ⬇ key fix: explicit bottom spacing so it never touches the h2 */
+  margin-bottom: 12px;
+  display: inline-flex;
+}
+
+/* H2 */
+.vcm-header-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 0 0 10px;
+}
+
+/* Subtext */
+.vcm-header-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.6;
+  padding: 0 1rem;      /* breathing room from edges */
+  margin: 0;
+}
+.vcm-header-sub strong { color: #1e293b; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   TWO-COLUMN LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-columns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .vcm-columns {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2.25rem;
+  }
+}
+
+
+/* ── LEFT — suitcase column ──────────────────────────────────────── */
+.vcm-suitcase-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+@media (min-width: 640px) { .vcm-suitcase-col { width: 50%; } }
+
+/* Weight label row — outside / above the bar, never overlapping */
+.vcm-weight-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 220px;
+  margin-bottom: 6px;        /* gap between label and bar */
+}
+.vcm-weight-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+}
+.vcm-weight-pct {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* Progress bar — sits between label row and suitcase */
+.vcm-progress-track {
+  width: 100%;
+  max-width: 220px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 14px;       /* gap between bar and suitcase */
+  border: 1px solid rgba(203, 213, 225, 0.5);
+}
+.vcm-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.35s ease, background-color 0.35s ease;
+}
+
+/* Empty hint */
+.vcm-empty-hint {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #cbd5e1;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+
+/* ── RIGHT — inventory column ────────────────────────────────────── */
+.vcm-inventory-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+@media (min-width: 640px) { .vcm-inventory-col { width: 50%; } }
+
+.vcm-inv-heading {
+  font-size: 0.63rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin: 0 0 0.65rem;
+  text-align: center;
+}
+
+.vcm-inv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* ── Inventory card — glassmorphism tile ────────────────────────── */
+.vcm-inv-card {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.25rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.70);
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  gap: 2px;
+}
+.vcm-inv-card:hover {
+  background: #ffffff;
+  border-color: #fbbf24;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  transform: translateY(-4px);
+}
+.vcm-inv-card:active { transform: scale(0.95); }
+.vcm-inv-card--packed {
+  opacity: 0.35;
+  filter: grayscale(0.5);
+  pointer-events: none;
+}
+
+.vcm-check-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.4);
+}
+
+.vcm-inv-icon   { font-size: 1.3rem; transition: transform 0.18s ease; display: block; }
+.vcm-inv-card:hover .vcm-inv-icon { transform: scale(1.15); }
+.vcm-inv-name   { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; color: #334155; text-align: center; line-height: 1.25; }
+.vcm-inv-weight { font-size: 0.57rem; font-weight: 600; color: #94a3b8; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ALERT OVERLAY
+   Sits as absolute inset over .vcm-body — triggers on first item pack
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: inherit;      /* match parent rounded corners */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+
+  /* Glass dark backdrop */
+  background: rgba(15, 23, 42, 0.70);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* Round same as modal body */
+  border-radius: 20px;
+}
+
+/* Dark glass card */
+.vcm-overlay-card {
+  background: #0f172a;       /* solid slate-900 per spec */
+  border: 1px solid #1e293b; /* slate-800 */
+  border-radius: 20px;
+  padding: 2rem 1.75rem;
+  max-width: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Top pill */
+.vcm-overlay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+/* Icon ring */
+.vcm-overlay-icon-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.18);
+  margin-bottom: 1rem;
+}
+
+/* Title */
+.vcm-overlay-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+}
+
+/* Subtitle */
+.vcm-overlay-sub {
+  font-size: 0.83rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+  max-width: 260px;
+}
+
+/* ── CTA Button ─────────────────────────────────────────────────── */
+.vcm-bribe-btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
+  transition: filter 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.vcm-bribe-btn:hover  { filter: brightness(1.08); box-shadow: 0 10px 32px rgba(249, 115, 22, 0.42); }
+.vcm-bribe-btn:active { transform: scale(0.96); filter: brightness(0.97); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SUCCESS SCREEN
+   ═══════════════════════════════════════════════════════════════════ */
+.vcm-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  gap: 0.5rem;
+}
+.vcm-success-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.18);
+}
+.vcm-success-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.3;
+  margin: 0;
+}
+.vcm-success-sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #059669;
+  margin: 0;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SUITCASE GRAPHIC  (structure unchanged, colours kept)
+   ═══════════════════════════════════════════════════════════════════ */
 .suitcase-graphic {
   width: 170px;
-  height: 255px; /* Extra bottom clearance for protruding wheels */
+  height: 255px;
   margin: 0 auto;
   position: relative;
   display: flex;
@@ -107,29 +498,29 @@
 }
 
 .suitcase-shell {
-  position: relative; /* Must be relative so negative-offset children escape it */
+  position: relative;
   height: 200px;
   width: 160px;
-  margin-top: 20px;   /* Leaves room above for handle arch */
-  margin-bottom: 12px; /* Leaves room below for wheels */
+  margin-top: 20px;
+  margin-bottom: 12px;
   background: #f8fafc;
   border: 3.5px solid #dc2626;
   border-radius: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 
 .suitcase-interior {
   position: absolute;
-  inset: 12px; /* Wider inset for breathing room from shell walls */
+  inset: 12px;
   background-color: #fefce8;
   border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 8px;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 7px;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  gap: 6px;
-  overflow-y: auto; /* Scroll instead of clip — badges stay inside walls */
+  gap: 5px;
+  overflow-y: auto;
   overflow-x: hidden;
   z-index: 10;
 }
@@ -148,32 +539,15 @@
   z-index: 0;
 }
 
-.suitcase-corner {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: #1e293b;
-  z-index: 5;
-}
+.suitcase-corner       { position: absolute; width: 20px; height: 20px; background-color: #1e293b; z-index: 5; }
+.suitcase-corner.tl    { top: -2px; left: -2px; border-radius: 1rem 0 0.5rem 0; }
+.suitcase-corner.tr    { top: -2px; right: -2px; border-radius: 0 1rem 0 0.5rem; }
+.suitcase-corner.bl    { bottom: -2px; left: -2px; border-radius: 0 0.5rem 0 1rem; }
+.suitcase-corner.br    { bottom: -2px; right: -2px; border-radius: 0.5rem 0 1rem 0; }
 
-.suitcase-corner.tl { top: -2px; left: -2px; border-radius: 1rem 0 0.5rem 0; }
-.suitcase-corner.tr { top: -2px; right: -2px; border-radius: 0 1rem 0 0.5rem; }
-.suitcase-corner.bl { bottom: -2px; left: -2px; border-radius: 0 0.5rem 0 1rem; }
-.suitcase-corner.br { bottom: -2px; right: -2px; border-radius: 0.5rem 0 1rem 0; }
-
-.suitcase-wheel {
-  position: absolute;
-  bottom: -10px; /* Negative offset — wheels protrude BELOW shell bottom edge */
-  width: 18px;
-  height: 18px;
-  background-color: #0f172a;
-  border-radius: 50%;
-  border: 2.5px solid #94a3b8;
-  z-index: 30; /* Above shell border and interior */
-}
-
-.suitcase-wheel.left { left: 20px; }
-.suitcase-wheel.right { right: 20px; }
+.suitcase-wheel        { position: absolute; bottom: -10px; width: 18px; height: 18px; background-color: #0f172a; border-radius: 50%; border: 2.5px solid #94a3b8; z-index: 30; }
+.suitcase-wheel.left   { left: 20px; }
+.suitcase-wheel.right  { right: 20px; }
 
 .packed-badge {
   background: white;
@@ -184,142 +558,26 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
-  max-width: 100%; /* Constrain to interior width — never overflow shell */
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  cursor: default;
 }
 
-.packed-badge:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
-}
 
-/* 1. FORCE FIXED MOBILE VIEWPORT FIT WITH SCALE DOWN */
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE  (≤ 640px)
+   ═══════════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  #captcha-modal {
-    transform: scale(0.85) !important;
-    transform-origin: top center !important;
-    width: 94vw !important;
-    max-height: 95vh !important;
-    margin: 0 auto !important;
-    padding: 1rem 0.75rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    overflow: hidden !important; /* Disallow vertical scrolling on modal outer body */
-  }
-
-  /* SCALE DOWN GRAPHICS FOR SMALL SCREENS */
-  .suitcase-graphic {
-    height: 160px !important;
-    width: 130px !important;
-    margin: 0.25rem auto !important;
-  }
-
-  .suitcase-shell {
-    height: 135px !important;
-    width: 120px !important;
-    margin-top: 10px !important;
-    margin-bottom: 6px !important;
-  }
-
-  /* COMPACT INVENTORY GRID */
-  #inventory-zone {
-    gap: 0.35rem !important;
-    max-width: 280px !important;
-  }
-
-  .inventory-item {
-    padding: 0.35rem 0.25rem !important;
-  }
-
-  .inventory-item span {
-    font-size: 0.65rem !important;
-  }
-
-  /* STICKY VISIBLE FOOTER / ACTION BUTTONS */
-  .captcha-footer-container {
-    margin-top: 0.5rem !important;
-    padding-top: 0.5rem !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 0.35rem !important;
-  }
-
-  /* Animated Scroll Cue Indicator (if content overflows on small mobile screens) */
-  .scroll-indicator-cue {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    color: #64748b;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2px 8px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    animation: bounceCue 1.5s infinite;
-  }
-
-  @keyframes bounceCue {
-    0%, 100% { transform: translate(-50%, 0); }
-    50% { transform: translate(-50%, 4px); }
-  }
-}
-
-/* SUCCESS STATE: Remove mobile scale transform — transform: scale() shrinks visuals but NOT layout box,
-   leaving an invisible full-size hit area below the modal that looks like inventory ghost content. */
-@media (max-width: 640px) {
-  #captcha-modal.verified-success {
-    transform: none !important;
-    width: min(92vw, 420px) !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    padding: 2rem 1.25rem !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-/* Screen Shake Animation on Error Trigger */
-@keyframes modalErrorShake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
-}
-
-#captcha-modal.shake-error {
-  animation: modalErrorShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
-}
-
-/* Force-hide all packing game elements on success */
-#captcha-modal.verified-success #inventory-zone,
-#captcha-modal.verified-success .inventory-item,
-#captcha-modal.verified-success .inventory-header-title,
-#captcha-modal.verified-success #suitcase-container,
-#captcha-modal.verified-success .suitcase-graphic,
-#captcha-modal.verified-success #weight-badge,
-#captcha-modal.verified-success #captcha-footer-container,
-#captcha-modal.verified-success .captcha-footer-container,
-#captcha-modal.verified-success #captcha-error-banner,
-#captcha-modal.verified-success #captcha-top-error-container,
-#captcha-modal.verified-success #captcha-modal-body {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  height: 0 !important;
-  width: 0 !important;
-  overflow: hidden !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
+  .vcm-modal         { padding: 1.25rem 1rem 1.5rem; border-radius: 20px; }
+  .suitcase-graphic  { height: 170px; width: 130px; }
+  .suitcase-shell    { height: 140px; width: 120px; margin-top: 14px; margin-bottom: 8px; }
+  .vcm-inv-grid      { gap: 0.4rem; }
+  .vcm-inv-card      { border-radius: 12px; padding: 0.45rem 0.2rem; }
+  .vcm-overlay-card  { padding: 1.5rem 1.25rem; }
+  .vcm-overlay-title { font-size: 1.1rem; }
+  .vcm-overlay-sub   { font-size: 0.78rem; }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
 import VoyagerCaptchaModal from './VoyagerCaptchaModal';
@@ -118,22 +118,30 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-bold text-center">
-                                {error.toLowerCase().includes('invalid credentials') ? (
-                                    <span>
-                                        Invalid credentials or are you new?{' '}
-                                        <button 
-                                            type="button"
-                                            className="underline font-bold text-forest hover:text-gold transition-colors ml-1 cursor-pointer"
-                                            onClick={() => { setIsLogin(false); setError(''); }}
-                                        >
-                                            Sign Up
-                                        </button>
-                                    </span>
-                                ) : (
-                                    error
-                                )}
-                            </div>
+                            <motion.div 
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mb-6 p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-700 rounded-xl text-xs sm:text-sm font-medium flex items-start gap-2.5 shadow-xs"
+                            >
+                                <AlertCircle size={18} className="text-rose-600 shrink-0 mt-0.5" />
+                                <div className="flex-1 leading-relaxed">
+                                    {error.toLowerCase().includes('invalid credentials') || error.toLowerCase().includes('invalid email or password') ? (
+                                        <span>
+                                            Invalid email or password. New to RoamG?{' '}
+                                            <button 
+                                                type="button"
+                                                className="underline font-bold text-rose-800 hover:text-rose-950 transition-colors cursor-pointer"
+                                                onClick={() => { setIsLogin(false); setError(''); }}
+                                            >
+                                                Please sign up first
+                                            </button>
+                                            , or double-check your credentials.
+                                        </span>
+                                    ) : (
+                                        error
+                                    )}
+                                </div>
+                            </motion.div>
                         )}
 
                         <form onSubmit={handleFormSubmit} className="space-y-4">
@@ -156,9 +164,14 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                                     required
                                     type="email"
                                     placeholder="Email Address"
-                                    className="w-full pl-12 pr-4 py-4 bg-forest/5 rounded-xl outline-none focus:ring-2 ring-gold/50 transition-all font-medium text-forest"
+                                    className={`w-full pl-12 pr-4 py-4 bg-forest/5 rounded-xl outline-none transition-all font-medium text-forest ${
+                                        error ? 'ring-2 ring-rose-500/50 border border-rose-500/40 bg-rose-500/5' : 'focus:ring-2 ring-gold/50'
+                                    }`}
                                     value={formData.email}
-                                    onChange={e => setFormData({...formData, email: e.target.value})}
+                                    onChange={e => {
+                                        setFormData({...formData, email: e.target.value});
+                                        if (error) setError('');
+                                    }}
                                 />
                             </div>
                             <div className="relative">
@@ -167,9 +180,14 @@ const AuthModal = ({ isOpen, onClose, onSuccess }) => {
                                     required
                                     type="password"
                                     placeholder="Password"
-                                    className="w-full pl-12 pr-4 py-4 bg-forest/5 rounded-xl outline-none focus:ring-2 ring-gold/50 transition-all font-medium text-forest"
+                                    className={`w-full pl-12 pr-4 py-4 bg-forest/5 rounded-xl outline-none transition-all font-medium text-forest ${
+                                        error ? 'ring-2 ring-rose-500/50 border border-rose-500/40 bg-rose-500/5' : 'focus:ring-2 ring-gold/50'
+                                    }`}
                                     value={formData.password}
-                                    onChange={e => setFormData({...formData, password: e.target.value})}
+                                    onChange={e => {
+                                        setFormData({...formData, password: e.target.value});
+                                        if (error) setError('');
+                                    }}
                                 />
                             </div>
 

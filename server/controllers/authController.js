@@ -27,13 +27,12 @@ const login = async (req, res) => {
         });
 
         if (!user || !user.password) {
-            // Note: Keep message vague to prevent user enumeration
-            return res.status(401).json({ success: false, message: 'Invalid credentials or are you new?' });
+            return res.status(401).json({ success: false, message: 'Invalid email or password. New to RoamG? Please sign up first, or double-check your credentials.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials or are you new?' });
+            return res.status(401).json({ success: false, message: 'Invalid email or password. New to RoamG? Please sign up first, or double-check your credentials.' });
         }
 
         const token = generateToken(user, rememberMe);

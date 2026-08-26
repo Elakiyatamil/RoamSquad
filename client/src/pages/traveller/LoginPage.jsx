@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, Chrome as Google, Facebook, Instagram, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Chrome as Google, Facebook, Instagram, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import useAuthStore from '../../store/authStore';
@@ -138,21 +138,30 @@ const LoginPage = () => {
         <div className="divider">or</div>
 
         {error && (
-          <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', fontWeight: 500 }}>
-            {error.toLowerCase().includes('invalid credentials') ? (
-              <>
-                Invalid credentials or are you new?{' '}
-                <span 
-                  style={{ textDecoration: 'underline', fontWeight: 700, cursor: 'pointer', color: '#8B2040' }} 
-                  onClick={() => { setIsLogin(false); setError(''); }}
-                >
-                  Sign Up
+          <motion.div 
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-700 text-xs sm:text-sm font-medium rounded-2xl flex items-start gap-2.5 shadow-sm text-left"
+          >
+            <AlertCircle size={18} className="text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex-1 leading-relaxed">
+              {error.toLowerCase().includes('invalid credentials') || error.toLowerCase().includes('invalid email or password') ? (
+                <span>
+                  Invalid email or password. New to RoamG?{' '}
+                  <button 
+                    type="button"
+                    className="underline font-bold text-rose-800 hover:text-rose-950 transition-colors cursor-pointer"
+                    onClick={() => { setIsLogin(false); setError(''); }}
+                  >
+                    Please sign up first
+                  </button>
+                  , or double-check your credentials.
                 </span>
-              </>
-            ) : (
-              error
-            )}
-          </p>
+              ) : (
+                error
+              )}
+            </div>
+          </motion.div>
         )}
 
         <form onSubmit={handleFormSubmit}>
@@ -177,7 +186,7 @@ const LoginPage = () => {
               name="email"
               type="email" 
               placeholder="Email address" 
-              className="login-input" 
+              className={`login-input ${error ? 'ring-2 ring-rose-500/50 border-rose-500/60 bg-rose-500/5' : ''}`}
               value={formData.email}
               onChange={handleChange}
               required
@@ -190,7 +199,7 @@ const LoginPage = () => {
               name="password"
               type={showPassword ? 'text' : 'password'} 
               placeholder="Password" 
-              className="login-input" 
+              className={`login-input ${error ? 'ring-2 ring-rose-500/50 border-rose-500/60 bg-rose-500/5' : ''}`}
               value={formData.password}
               onChange={handleChange}
               required

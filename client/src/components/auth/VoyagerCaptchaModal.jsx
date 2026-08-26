@@ -1,292 +1,174 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './VoyagerCaptchaModal.css';
 
 const INVENTORY_ITEMS = [
-  { id: 'shoes', icon: '👟', name: 'Shoes' },
-  { id: 'jacket', icon: '🧥', name: 'Jacket' },
-  { id: 'dryer', icon: '💨', name: 'Hair Dryer' },
-  { id: 'blanket', icon: '🛋️', name: 'Blanket' },
-  { id: 'laptop', icon: '💻', name: 'Laptop' },
-  { id: 'pepperspray', icon: '🌶️', name: 'Pepper Spray' },
-  { id: 'carrots', icon: '🥕', name: 'Carrots' },
-  { id: 'camera', icon: '📷', name: 'Camera' },
-  { id: 'mask', icon: '🙈', name: 'Eye Mask' }
+  { id: 'shoes',       icon: '👟', name: 'Shoes',        weight: 0.7 },
+  { id: 'jacket',      icon: '🧥', name: 'Jacket',       weight: 0.9 },
+  { id: 'dryer',       icon: '💨', name: 'Hair Dryer',   weight: 0.6 },
+  { id: 'blanket',     icon: '🛋️', name: 'Blanket',      weight: 0.8 },
+  { id: 'laptop',      icon: '💻', name: 'Laptop',       weight: 1.2 },
+  { id: 'pepperspray', icon: '🌶️', name: 'Pepper Spray', weight: 0.3 },
+  { id: 'carrots',     icon: '🥕', name: 'Carrots',      weight: 0.4 },
+  { id: 'camera',      icon: '📷', name: 'Camera',       weight: 0.7 },
+  { id: 'mask',        icon: '🙈', name: 'Eye Mask',     weight: 0.2 },
 ];
+
+const WEIGHT_LIMIT   = 2.0;
+const MAX_SELECTION  = 3;
 
 const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
   const [packedItems, setPackedItems] = useState([]);
-  const [isLocked, setIsLocked] = useState(false);
-  const [isOverweight, setIsOverweight] = useState(false);
-  const [weightText, setWeightText] = useState('0.0 kg / 2.0 kg limit');
-  const [weightBadgeClass, setWeightBadgeClass] = useState(
-    'mb-3 bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-semibold border border-slate-200 flex items-center gap-1.5'
-  );
-  const [message, setMessage] = useState(null);
-  const [stateMode, setStateMode] = useState('NORMAL'); // NORMAL, STATE_A, STATE_B, STATE_C, SUCCESS
-  const [isShaking, setIsShaking] = useState(false);
-  const errorBannerRef = useRef(null);
+  const [stateMode, setStateMode]     = useState('NORMAL'); // NORMAL | ALERT | SUCCESS
 
-  // Reset state when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      resetState();
-    }
-  }, [isOpen]);
+  useEffect(() => { if (isOpen) resetState(); }, [isOpen]);
 
-  const resetState = () => {
-    setPackedItems([]);
-    setIsLocked(false);
-    setIsOverweight(false);
-    setWeightText('0.0 kg / 2.0 kg limit');
-    setWeightBadgeClass(
-      'mb-3 bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-semibold border border-slate-200 flex items-center gap-1.5'
-    );
-    setMessage(null);
-    setStateMode('NORMAL');
-    setIsShaking(false);
-  };
+  const resetState = () => { setPackedItems([]); setStateMode('NORMAL'); };
 
   if (!isOpen) return null;
 
+  const currentWeight = packedItems.reduce((s, i) => s + i.weight, 0);
+  const progressPct   = Math.min(100, Math.round((currentWeight / WEIGHT_LIMIT) * 100));
+  const barColor      = progressPct >= 100 ? '#ef4444' : progressPct > 65 ? '#f59e0b' : '#10b981';
+
+  // Explicit overlay guard: ONLY show when 3 items are packed AND in ALERT mode
+  const showOverlay = stateMode === 'ALERT' && packedItems.length >= MAX_SELECTION;
+
   const handlePackItem = (item) => {
-    if (isLocked) return;
+    if (stateMode !== 'NORMAL') return;
+    if (packedItems.length >= MAX_SELECTION) return;
     if (packedItems.some(p => p.id === item.id)) return;
 
-    const newPacked = [...packedItems, item];
-    setPackedItems(newPacked);
-    checkState(newPacked);
-  };
+    const next = [...packedItems, item];
+    setPackedItems(next);
+    try { navigator.vibrate?.([60, 30, 60]); } catch (_) {}
 
-  const handleUnpackItem = (index) => {
-    if (isLocked) return;
-    const newPacked = packedItems.filter((_, i) => i !== index);
-    setPackedItems(newPacked);
-    checkState(newPacked);
-  };
-
-  const triggerErrorAlert = (errorMessage) => {
-    const modal = document.querySelector('#captcha-modal');
-    const errorBanner = errorBannerRef.current || document.querySelector('#captcha-error-banner') || document.querySelector('.captcha-error-banner');
-
-    if (errorBanner) {
-      if (errorMessage) {
-        errorBanner.textContent = errorMessage;
-      }
-      errorBanner.classList.remove('hidden');
-
-      // 1. Trigger Haptic Vibration Pattern (Double Buzz)
-      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-        try {
-          navigator.vibrate([120, 60, 120]);
-        } catch (err) {
-          // ignore if non-user gesture restricted
-        }
-      }
-
-      // 2. Trigger Visual Screen Shake
-      if (modal) {
-        modal.classList.remove('shake-error');
-        // Trigger reflow to restart animation on consecutive errors
-        void modal.offsetWidth;
-        modal.classList.add('shake-error');
-
-        setTimeout(() => {
-          if (modal) modal.classList.remove('shake-error');
-        }, 400);
-      }
-
-      // 3. Auto-Scroll Error into View
-      errorBanner.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest'
-      });
+    // Trigger overlay explicitly ONLY when the 3rd item is added
+    if (next.length >= MAX_SELECTION) {
+      setStateMode('ALERT');
     }
-  };
-
-  const checkState = (newPacked) => {
-    if (newPacked.length >= 3) {
-      // Directly transition to failure state when weight limit is exceeded
-      triggerUnderwearTrap();
-    } else {
-      setIsOverweight(false);
-      const fakeWeight = (newPacked.length * 0.7).toFixed(1);
-      setWeightText(`${fakeWeight} kg / 2.0 kg limit`);
-      setWeightBadgeClass(
-        'mb-3 bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-semibold border border-slate-200 flex items-center gap-1.5'
-      );
-      setMessage(null);
-    }
-  };
-
-  const triggerUnderwearTrap = () => {
-    setIsLocked(true);
-    setIsOverweight(true);
-    setWeightText('2.1 kg / 2.0 kg limit');
-    setWeightBadgeClass(
-      'mb-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold border border-red-300 flex items-center gap-1.5 shake'
-    );
-    setStateMode('STATE_A');
-    triggerErrorAlert();
-  };
-
-  const handleTryAgain = () => {
-    setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 500);
-
-    setWeightText('❌ You forgot your Passport!');
-    setWeightBadgeClass(
-      'mb-3 bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold border border-red-300 flex items-center gap-1.5 shake'
-    );
-    setStateMode('STATE_B');
-    triggerErrorAlert();
-
-    setTimeout(() => {
-      setStateMode('STATE_C');
-    }, 1500);
   };
 
   const handleBribe = () => {
-    const modalEl = document.querySelector('#captcha-modal');
-    if (modalEl) {
-      modalEl.classList.add('verified-success');
-    }
-
-    // Physically unmount / remove game elements from DOM
-    const inventoryZone = document.querySelector('#inventory-zone');
-    const luggageContainer = document.querySelector('#suitcase-container') || document.querySelector('.suitcase-graphic');
-    const footerContainer = document.querySelector('.captcha-footer-container');
-
-    if (inventoryZone) inventoryZone.remove();
-    if (luggageContainer) luggageContainer.remove();
-    if (footerContainer) footerContainer.remove();
-
     setStateMode('SUCCESS');
     createMoneyRain();
-
-    setTimeout(() => {
-      onVerified();
-    }, 1800);
+    setTimeout(() => onVerified(), 1800);
   };
 
   const createMoneyRain = () => {
     const symbols = ['💵', '🎟️', '💰', '✨', '🎉'];
     for (let i = 0; i < 50; i++) {
-      const money = document.createElement('div');
-      money.className = 'money-item';
-      money.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      money.style.left = `${Math.random() * 100}vw`;
-      money.style.animationDuration = `${1.5 + Math.random()}s`;
-      money.style.animationDelay = `${Math.random() * 0.5}s`;
-      document.body.appendChild(money);
-
-      setTimeout(() => money.remove(), 3000);
+      const el = document.createElement('div');
+      el.className = 'vcm-money';
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.style.left = `${Math.random() * 100}vw`;
+      el.style.animationDuration = `${1.5 + Math.random()}s`;
+      el.style.animationDelay    = `${Math.random() * 0.5}s`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      {/* CAPTCHA Modal Container */}
-      <div
-        id="captcha-modal"
-        style={stateMode === 'SUCCESS'
-          ? { width: 'min(92vw, 480px)', height: 'auto', padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', overflow: 'hidden' }
-          : { width: 'min(92vw, 720px)', maxHeight: '88vh', padding: '2.25rem 2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box', overflowY: 'auto' }
-        }
-        className={`rounded-3xl shadow-2xl bg-white border border-slate-100 relative transition-all duration-300 ${
-          isShaking ? 'animate-shake' : ''
-        } ${stateMode === 'SUCCESS' ? 'verified-success' : ''}`}
-      >
-        {/* Close Button */}
+    <div className="vcm-backdrop">
+      <div className="vcm-modal">
+
+        {/* ── Close button — pinned, high-contrast, always visible ── */}
         {onClose && (
           <button
+            className="vcm-close-btn"
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors z-20 text-xl font-bold p-1.5 rounded-full hover:bg-slate-100"
-            aria-label="Close"
+            aria-label="Close modal"
+            style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', zIndex: 60 }}
           >
             ✕
           </button>
         )}
 
-        {/* GAME UI BODY - Hidden on SUCCESS to prevent elements bleeding under confetti */}
+        {/* ════════════════════════════════════════════════════════
+            GAME UI  (shown while NORMAL or ALERT — hidden on SUCCESS)
+            ════════════════════════════════════════════════════════ */}
         {stateMode !== 'SUCCESS' && (
-          <div id="captcha-modal-body" className="w-full flex flex-col justify-between flex-grow">
-            {/* Header */}
-            <div className="pb-3 text-center border-b border-slate-100 mb-2 sm:mb-4">
-              <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-slate-900 mb-1 flex items-center justify-center gap-2">
-                VERIFICATION REQUIRED 🤖
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
-                Prove you are not a robot by packing your suitcase before saving.
+          <div className="vcm-body">
+
+            {/* ── Header ─────────────────────────────────────────── */}
+            <div className="vcm-header">
+              <span className="vcm-header-badge">🛡️ Security Verification</span>
+              <h2 className="vcm-header-title">Pack Your Suitcase 🧳</h2>
+              <p className="vcm-header-sub">
+                Click up to <strong>3 items</strong> to pack your suitcase and stay under the&nbsp;
+                <strong>2.0 kg limit</strong>.
               </p>
             </div>
 
-            {/* Content Area - Single column stack on < 640px, 2 column flex on sm+ */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-8 items-center justify-between w-full">
-              {/* Suitcase & Weight Badge Component Assembly (Left) */}
-              <div id="suitcase-container" className="flex flex-col items-center justify-center w-full sm:w-1/2">
-                {/* Weight Badge */}
-                <div id="weight-badge" className={weightBadgeClass} style={{ marginBottom: '1rem', padding: '0.35rem 0.85rem', fontSize: '0.75rem' }}>
-                  {stateMode !== 'STATE_B' && stateMode !== 'STATE_C' && (
-                    <span className="material-symbols-outlined text-[16px]">scale</span>
-                  )}
-                  <span id="weight-text">{weightText}</span>
+            {/* ── Two-column layout ───────────────────────────────── */}
+            <div className="vcm-columns">
+
+              {/* LEFT — suitcase + weight indicator */}
+              <div className="vcm-suitcase-col" id="suitcase-container">
+
+                {/* Weight label row */}
+                <div className="vcm-weight-label-row">
+                  <span className="vcm-weight-text">
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>scale</span>
+                    {currentWeight.toFixed(1)} kg / {WEIGHT_LIMIT.toFixed(1)} kg
+                  </span>
+                  <span className="vcm-weight-pct">{progressPct}%</span>
                 </div>
 
-                {/* Suitcase Body Container */}
+                {/* Progress bar */}
+                <div className="vcm-progress-track">
+                  <div
+                    className="vcm-progress-fill"
+                    style={{ width: `${progressPct}%`, backgroundColor: barColor }}
+                  />
+                </div>
+
+                {/* Suitcase graphic */}
                 <div className="suitcase-graphic" id="suitcase-graphic">
-                  {/* Suitcase Shell */}
                   <div className="suitcase-shell">
-                    <div className="suitcase-handle"></div>
-                    <div className="suitcase-corner tl"></div>
-                    <div className="suitcase-corner tr"></div>
-                    <div className="suitcase-corner bl"></div>
-                    <div className="suitcase-corner br"></div>
-                    {/* Suitcase Interior */}
+                    <div className="suitcase-handle" />
+                    <div className="suitcase-corner tl" />
+                    <div className="suitcase-corner tr" />
+                    <div className="suitcase-corner bl" />
+                    <div className="suitcase-corner br" />
                     <div className="suitcase-interior" id="suitcase-zone">
-                      {packedItems.map((item, index) => (
-                        <button
-                          key={`${item.id}-${index}`}
-                          type="button"
-                          className="packed-badge anim-bounce"
-                          onClick={() => handleUnpackItem(index)}
-                        >
+                      {packedItems.length === 0 && (
+                        <div className="vcm-empty-hint">
+                          <span style={{ fontSize: '1.5rem', opacity: 0.3 }}>🧳</span>
+                          <span>Empty</span>
+                        </div>
+                      )}
+                      {packedItems.map((item, idx) => (
+                        <div key={`${item.id}-${idx}`} className="packed-badge vcm-anim-bounce">
                           <span>{item.icon}</span>
                           <span className="truncate">{item.name}</span>
-                          <span className="material-symbols-outlined text-[12px] ml-0.5 text-red-500">close</span>
-                        </button>
+                        </div>
                       ))}
                     </div>
-                    <div className="suitcase-wheel left"></div>
-                    <div className="suitcase-wheel right"></div>
+                    <div className="suitcase-wheel left" />
+                    <div className="suitcase-wheel right" />
                   </div>
                 </div>
               </div>
 
-              {/* Inventory Grid Refinement (Right) */}
-              <div className="flex flex-col items-center w-full sm:w-1/2">
-                <h3 className="inventory-header-title font-label-md text-xs text-slate-500 mb-1.5 uppercase tracking-wider text-center">
-                  Inventory
-                </h3>
-                <div id="inventory-zone" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.65rem', width: '100%', maxWidth: '300px', margin: '0 auto' }}>
-                  {INVENTORY_ITEMS.map((item) => {
-                    const isPacked = packedItems.some((p) => p.id === item.id);
+              {/* RIGHT — inventory grid */}
+              <div className="vcm-inventory-col">
+                <h3 className="vcm-inv-heading">Available Items</h3>
+                <div className="vcm-inv-grid" id="inventory-zone">
+                  {INVENTORY_ITEMS.map(item => {
+                    const isPacked = packedItems.some(p => p.id === item.id);
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        data-id={item.id}
-                        data-icon={item.icon}
-                        data-name={item.name}
-                        className={`inventory-item aspect-square bg-slate-50 border border-slate-200/80 hover:border-slate-300 rounded-2xl flex flex-col items-center justify-center transition-all ${
-                          isPacked ? 'opacity-30 pointer-events-none' : ''
-                        }`}
-                        style={{ padding: '0.5rem', borderRadius: '1rem' }}
+                        className={`vcm-inv-card${isPacked ? ' vcm-inv-card--packed' : ''}`}
                         onClick={() => handlePackItem(item)}
+                        disabled={isPacked}
                       >
-                        <span className="text-xl">{item.icon}</span>
-                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight text-center leading-tight mt-1 max-w-full truncate px-1">
-                          {item.name}
-                        </span>
+                        {isPacked && <span className="vcm-check-badge">✓</span>}
+                        <span className="vcm-inv-icon">{item.icon}</span>
+                        <span className="vcm-inv-name">{item.name}</span>
+                        <span className="vcm-inv-weight">{item.weight} kg</span>
                       </button>
                     );
                   })}
@@ -294,59 +176,50 @@ const VoyagerCaptchaModal = ({ isOpen, onClose, onVerified }) => {
               </div>
             </div>
 
-            {/* State A: Try Again Action */}
-            {stateMode === 'STATE_A' && (
-              <div id="state-a-container" className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <button
-                  id="try-again-btn"
-                  type="button"
-                  className="captcha-action-btn"
-                  style={{ fontSize: '0.8rem', fontWeight: 600, padding: '0.5rem 1.25rem', borderRadius: '9999px', cursor: 'pointer', backgroundColor: '#0f172a', color: 'white' }}
-                  onClick={handleTryAgain}
-                >
-                  Try Again
-                </button>
-              </div>
-            )}
+            {/* ════════════════════════════════════════════════════
+                ALERT OVERLAY — ONLY shown when 3 items are packed
+                ════════════════════════════════════════════════════ */}
+            {showOverlay && (
+              <div className="vcm-overlay vcm-overlay--anim">
+                {/* Dark glass card */}
+                <div className="vcm-overlay-card">
+                  {/* Top pill */}
+                  <div className="vcm-overlay-badge">⚠️ SECURITY ALERT</div>
 
-            {/* State B: System Error / Transitioning */}
-            {stateMode === 'STATE_B' && (
-              <div id="state-b-container" ref={errorBannerRef} className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              </div>
-            )}
+                  {/* Icon ring */}
+                  <div className="vcm-overlay-icon-ring">🛂</div>
 
-            {/* State C: Bribe Button */}
-            {stateMode === 'STATE_C' && (
-              <div id="state-c-container" className="captcha-footer-container" style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <button
-                  id="bribe-btn"
-                  type="button"
-                  style={{ fontSize: '0.875rem', padding: '0.65rem 1.5rem', marginBottom: '0.25rem' }}
-                  className="rounded-full shadow-[0_0_20px_rgba(251,191,36,0.8)] max-w-[90%] bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold transform transition-all flex items-center justify-center gap-2 cursor-pointer animate-slide-down-bribe"
-                  onClick={handleBribe}
-                >
-                  🎟️ Bribe the Agent
-                </button>
+                  {/* Title */}
+                  <h3 className="vcm-overlay-title">You forgot your passport!</h3>
+
+                  {/* Subtitle */}
+                  <p className="vcm-overlay-sub">
+                    Customs check failed. Bypass security to proceed.
+                  </p>
+
+                  {/* CTA */}
+                  <button
+                    id="bribe-btn"
+                    type="button"
+                    className="vcm-bribe-btn"
+                    onClick={handleBribe}
+                  >
+                    Bribe the Agent 💰
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* Clean Isolated Success Screen Container */}
+        {/* ════════════════════════════════════════════════════════
+            SUCCESS SCREEN
+            ════════════════════════════════════════════════════════ */}
         {stateMode === 'SUCCESS' && (
-          <div
-            id="success-state-container"
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justify: 'center', textAlign: 'center', padding: '1.5rem 1rem', width: '100%' }}
-          >
-            <div style={{ width: '4rem', height: '4rem', background: '#d1fae5', color: '#059669', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', marginBottom: '1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-              🎉
-            </div>
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#1e293b', lineHeight: '1.4', maxWidth: '280px', margin: '0 auto 0.5rem' }}>
-              Bribery tells us you are a human!
-            </h3>
-            <p style={{ fontSize: '1rem', fontWeight: 600, color: '#059669' }}>
-              Bon Voyage, Odysseus! ✈️
-            </p>
+          <div className="vcm-success" id="success-state-container">
+            <div className="vcm-success-icon">🎉</div>
+            <h3 className="vcm-success-title">Bribery tells us you're human!</h3>
+            <p className="vcm-success-sub">Bon Voyage, Odysseus! ✈️</p>
           </div>
         )}
       </div>
