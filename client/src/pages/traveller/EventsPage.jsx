@@ -60,7 +60,7 @@ export default function EventsPage() {
                     {events.map((evt) => (
                         <div key={evt.id} className="meetup-card" onClick={() => navigate(`/events/${evt.id}`)}>
                             <div className="meetup-image-container">
-                                <img src={getImgUrl(evt.coverImage)} alt={evt.title} />
+                                <img src={getImgUrl(evt.coverImage || evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url)} alt={evt.title} />
                                 {evt.seatsRemaining > 0 && evt.seatsRemaining <= 5 && (
                                     <div className="meetup-badge-urgent">🔥 Only {evt.seatsRemaining} Left</div>
                                 )}

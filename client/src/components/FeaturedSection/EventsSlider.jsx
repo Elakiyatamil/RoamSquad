@@ -11,8 +11,8 @@ const EventsSlider = () => {
   const fetchEvents = async () => {
     try {
       setIsLoading(true);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5005/api';
-      const response = await fetch(`${apiUrl}/events/public`);
+      const apiBase = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5005';
+      const response = await fetch(`${apiBase}/api/events/public`);
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       const eventsData = Array.isArray(data) ? data : (data.events || data.data || []);
@@ -62,8 +62,7 @@ const EventsSlider = () => {
     if (!url || url === 'null' || url === 'undefined') return PLACEHOLDER;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
     
-    // Direct fallback to localhost if env is missing
-    const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+    const base = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5005';
     const path = url.startsWith('/') ? url : `/${url}`;
     return `${base}${path}`;
   };
@@ -71,7 +70,7 @@ const EventsSlider = () => {
   const EventCard = ({ evt, index }) => {
     const [imgLoaded, setImgLoaded] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const imgUrl = getImgUrl(evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url);
+    const imgUrl = getImgUrl(evt.coverImage || evt.image || evt.imageUrl || evt.photo || evt.bannerImage || evt.image_url);
 
     return (
       <motion.div
